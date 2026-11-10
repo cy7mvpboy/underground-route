@@ -32,6 +32,9 @@ jobs:
           mkdir -p _site
           cp -r web/. _site/
           { echo '<!doctype html>'; echo '<html lang="ko">'; cat web/index.html; echo '</html>'; } > _site/index.html
+          # Cache-busting: GitHub Pages caches files for 10 minutes, so tag every
+          # script URL with the commit id to keep page and scripts from the same deploy.
+          sed -i "s#src=\"js/\([a-z0-9_-]*\)\.js\"#src=\"js/\1.js?v=${GITHUB_SHA::7}\"#g" _site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
