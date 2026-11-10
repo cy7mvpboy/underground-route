@@ -592,6 +592,12 @@
     '.demo-btn[data-demo="speed"] { width: auto; min-width: 52px; padding: 0 8px; font-weight: 700; font-variant-numeric: tabular-nums; }',
     '.demo-btn[data-demo="play"] { background: var(--sos); color: var(--on-sos); border-color: var(--sos-edge, transparent); }',
     '.demo-btn:active { background: var(--surface-3); }',
+    // 좁은 휴대폰: 시나리오 선택은 한 줄 전체, 버튼 5개는 아래 줄에 고르게 나눈다(넘침 방지).
+    '@media (max-width: 480px) {',
+    '  .demo-bar { flex-wrap: wrap; gap: 6px; }',
+    '  .demo-pick { flex: 1 0 100%; }',
+    '  .demo-bar .demo-btn { flex: 1 1 0; width: auto; min-width: 0; padding: 0; }',
+    '}',
     '@media (min-width: 760px) {',
     '  .demo { left: 448px; right: 16px; bottom: 40px; max-width: 900px; margin: 0 auto; gap: 8px; padding: 14px 14px 14px 20px; }',
     '  .demo-meta { font-size: var(--fs-sm, .875rem); }',
