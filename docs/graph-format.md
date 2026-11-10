@@ -296,3 +296,42 @@ function decodePolyline(s) {
 - 경부고속선을 따라가는 긴 단계(예: 부산 시청 → 서울 을지로3가 시험의 129km 단계)에 지나는 역이 하나도 나오지 않는다. 원인은 확인하지 않았다(역이 본선 옆 승강장 선로에만 붙었을 가능성이 있다).
 - 노선 relation이 일부만 덮은 선로에서는 한 선로를 따라가는데 단계가 나뉠 수 있다(예: 수서→평택지제는 `수서평택고속선` → `GTX-A · 수서평택고속선` → `수서평택고속선` 3단계).
 - 부착 못 한 역 9개는 운행 선로 근처에 없는 역이다(레일바이크·관광열차, 장항선 옛 역 등). 목록은 `graph_report.json`에 있다.
+
+## 13. basemap.json
+
+- 만드는 스크립트: `scripts\build_basemap.py` (`python -I scripts\build_basemap.py`; 원본은 `data\raw\basemap\`, 없으면 `--fetch`). 쿼리는 `scripts\queries\basemap_*.overpassql`.
+- 용도: 타일을 쓸 수 없는 곳(claude.ai Artifact, 오프라인)의 가벼운 바탕 지도. 크기 약 77KB(gzip 약 46KB).
+- 출처: © OpenStreetMap contributors (ODbL), 2026-11-10 받음.
+
+```json
+{"format": "basemap-1", "precision": 5, "attribution": "© OpenStreetMap contributors (ODbL)",
+ "lines":  [{"k": "coast", "p": "<인코딩 폴리라인>"}, {"k": "admin", "p": "..."}],
+ "labels": [{"k": "region", "name": "서울특별시", "lat": 37.5667, "lon": 126.9783},
+            {"k": "city", "name": "수원", "lat": 37.2633, "lon": 127.0287}]}
+```
+
+- `p`: 3.5절과 같은 Google 인코딩 폴리라인(소수 5자리)이라 같은 `decodePolyline`으로 푼다. 선 하나가 폴리라인 하나이고 닫힌 고리는 첫 점과 끝 점이 같다.
+- `lines[].k`
+  - `coast`: `natural=coastline` 중 한국 영역(ISO3166-1=KR)만. 북한·일본 해안은 영역 필터로 빠진다. 더글러스-포이커 200~400m, 2km보다 짧은 섬·조각은 뺐다(제주·울릉·독도 등 큰 섬은 있음).
+  - `admin`: 시·도(admin_level=4) 경계선. 공유 경계는 한 번만 넣었다. OSM 경계는 바다(영해선)까지 그려져 있어, 시·도 사이 경계와 휴전선 구간만 쓰고 한 시·도에만 속한 바다 쪽 경계는 뺐다. 150m로 줄였다.
+- `labels[].k`: `region` = 시·도 이름(광역시급은 OSM admin_centre, 도는 손으로 정하거나 면적 무게중심), `city` = 인구순 대표 도시와 도청 소재지(짧은 이름, 예 `수원`).
+- OSM 현재 상태: 광주광역시와 전라남도가 `전남광주통합특별시`(relation 21039457) 하나라 시·도 경계에 둘 사이 선이 없다. 이름표도 하나다(`광주`는 city 이름표로만 있다).
+- 한계: 휴전선 구간은 위경도 상자로 가려냈고(`DMZ_BOX`) 한강 하구 부근 경계는 근사다. 경계선이 해안선과 만나는 끝점은 단순화 때문에 몇백 m 어긋날 수 있다.
+
+## 14. 웹 화면 구조 (`web\`)
+
+`web\index.html`은 문서 조각(`<!doctype>`·`<html>` 없음)이고 CSS·화면 뼈대만 담는다. 코드는 `web\js\`에 나눴고 아래 순서로 불러온다.
+
+| 파일 | 하는 일 | DOM 사용 |
+|---|---|---|
+| `graph.js` | `graph.json` 받기·검사, 폴리라인 풀기, 색인(CSR 인접 목록, 노드→역, 허브→노선, 역→출입구), 역 이름 검색 | 없음 |
+| `router.js` | 다익스트라(이진 힙, 비용이 같으면 노드 번호 순 = `route.py`와 같은 순서), 막힌 간선 Set, 지도 위 점 잇기 | 없음 |
+| `steps.js` | `route.py`의 `describe`·`build_steps`·`step_text`를 그대로 옮김. 반올림도 파이썬 `round()`와 같게 | 없음 |
+| `search.js` | 검색 제공자 목록과 자동 완성 콤보박스. 지금은 역 이름 제공자 하나 | 있음 |
+| `layers.js` | Leaflet 레이어: 철도망, 역, 출구 번호(줌 15 이상), 간이 배경 지도, 경로 | 있음 |
+| `panel.js` | 패널 HTML: 길 안내 요약·단계·다른 출구, 분석 통계, 팝업 | 있음 |
+| `app.js` | 시작, 출발·도착 상태, 경로 찾기, 단계 누르면 확대, 내 위치, 시트·탭·레이어 버튼 | 있음 |
+
+- 지도 위 점(지도 누르기·내 위치·출구 팝업): 1.5km 안 가까운 출입구 3곳과, 출입구 자료가 없는 1.5km 안의 역(허브)에 '가상 지상 간선'(직선 거리 × 1.3)으로 잇는다. 둘 다 없으면 20km 안 가장 가까운 역 3곳. 이 거리는 모두 지상 노출로 센다. 출발과 도착이 둘 다 점이면 '지상으로 바로 걷기'도 후보에 넣는다.
+- 검증: `node scripts\check_router.js` — 역 쌍 9개(한강 5호선 차단 1개 포함)를 `route.py --json`과 비교한다(간선 목록, 총거리, 노출, 단계 내용, 글 안내 문장).
+- 다음 작업용 연결점: `UG.search.register(provider)`(장소 검색), `UG.app.onPlan(cb)`·`UG.app.plan().items`(길 안내 전체 화면), `UG.app.blocked` + `UG.app.reroute()`(앞이 막힘), `UG.app.pointEndpoint(lat, lon, label)`(가장 가까운 지하로).
