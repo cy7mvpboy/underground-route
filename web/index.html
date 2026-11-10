@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>지하길</title>
+<title>지하로</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0B1214">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,9 +47,12 @@
   --reach-2: #3CCFC0;
   --reach-3: #279C92;
   --reach-4: #1F736B;
-  --me: #E8F1EF;
-  --me-halo: rgb(232 241 239 / .2);
-  --pos-ring: #FFD400;      /* 길 안내 중 지금 위치·다음 확인 지점 */
+  --me: #3D8BFF;            /* 내 위치(GPS) 점: 파랑은 이 표시에만 쓴다(청록·호박·주황빨강·노랑과 헷갈리지 않게) */
+  --me-ring: #FFFFFF;
+  --me-halo: rgb(61 139 255 / .38);
+  --me-shadow: 0 0 0 1px rgb(0 0 0 / .35), 0 1px 6px rgb(0 0 0 / .45);
+  --on-me: #FFFFFF;
+  --pos-ring: #FFD400;      /* 길 안내 중 다음 확인 지점 */
   --coast: #4D6A70;
   --admin: #39545A;
   --label: #8FA8A6;
@@ -84,7 +87,7 @@
     --expo: #D92D20; --expo-text: #B42318; --expo-soft: rgb(217 45 32 / .1); --on-expo: #FFFFFF;
     --sos: #FFD400; --sos-press: #F0C400; --sos-edge: #6B5A00; --on-sos: #141100; --focus: #0B5F56;
     --casing: #FFFFFF; --reach-1: #0B6B62; --reach-2: #11998B; --reach-3: #4FC2B5; --reach-4: #A3DDD6;
-    --me: #0E1A1C; --me-halo: rgb(14 26 28 / .16); --pos-ring: #8A6D00;
+    --me: #1F6FEB; --me-ring: #FFFFFF; --me-halo: rgb(31 111 235 / .3); --me-shadow: 0 0 0 1px rgb(14 26 28 / .18), 0 1px 6px rgb(14 26 28 / .4); --on-me: #FFFFFF; --pos-ring: #8A6D00;
     --coast: #8FA5A8; --admin: #B3C3C2; --label: #4E6260; --attr-bg: rgb(255 255 255 / .86); --scrim: rgb(14 26 28 / .45);
     --shadow: 0 1px 2px rgb(14 26 28 / .12), 0 8px 24px rgb(14 26 28 / .14);
     --tile-filter: saturate(.15) contrast(.95) brightness(1.02); --tile-opacity: 1;
@@ -99,7 +102,7 @@
   --expo: #D92D20; --expo-text: #B42318; --expo-soft: rgb(217 45 32 / .1); --on-expo: #FFFFFF;
   --sos: #FFD400; --sos-press: #F0C400; --sos-edge: #6B5A00; --on-sos: #141100; --focus: #0B5F56;
   --casing: #FFFFFF; --reach-1: #0B6B62; --reach-2: #11998B; --reach-3: #4FC2B5; --reach-4: #A3DDD6;
-  --me: #0E1A1C; --me-halo: rgb(14 26 28 / .16); --pos-ring: #8A6D00;
+  --me: #1F6FEB; --me-ring: #FFFFFF; --me-halo: rgb(31 111 235 / .3); --me-shadow: 0 0 0 1px rgb(14 26 28 / .18), 0 1px 6px rgb(14 26 28 / .4); --on-me: #FFFFFF; --pos-ring: #8A6D00;
   --coast: #8FA5A8; --admin: #B3C3C2; --label: #4E6260; --attr-bg: rgb(255 255 255 / .86); --scrim: rgb(14 26 28 / .45);
   --shadow: 0 1px 2px rgb(14 26 28 / .12), 0 8px 24px rgb(14 26 28 / .14);
   --tile-filter: saturate(.15) contrast(.95) brightness(1.02); --tile-opacity: 1;
@@ -174,6 +177,17 @@ button { cursor: pointer; }
 .fab-sos svg { width: 28px; height: 28px; }
 .fab-sos { display: none; }
 .app.has-sheet .fab-sos { display: grid; }
+/* 내 위치 단추 상태: 찾음 = 파란 글자·가운데 점, 따라가는 중 = 파란 바탕, 쓸 수 없음 = 흐린 글자 + 빗금 */
+.fab-loc .loc-c { fill: none; }
+.fab-loc .loc-x { display: none; }
+.fab-loc[data-state="located"] { color: var(--me); }
+.fab-loc[data-state="located"] .loc-c, .fab-loc[data-state="following"] .loc-c { fill: currentColor; }
+.fab-loc[data-state="following"] { background: var(--me); color: var(--on-me); border-color: var(--me); }
+.fab-loc[data-state="following"]:hover { background: var(--me); }
+.fab-loc[data-state="searching"] svg { animation: loc-blink 1.2s ease-in-out infinite; }
+@keyframes loc-blink { 50% { opacity: .35; } }
+.fab-loc[data-state="denied"] { color: var(--muted); }
+.fab-loc[data-state="denied"] .loc-x { display: inline; }
 
 /* ---------- 아래: 비상 단추 ---------- */
 .sos-bar { position: absolute; z-index: 15; left: var(--gutter-l); right: var(--gutter-r); bottom: calc(12px + var(--safe-bottom)); }
@@ -284,6 +298,39 @@ button { cursor: pointer; }
 .exit-btn { display: flex; justify-content: space-between; gap: 8px; width: 100%; min-height: var(--tap); padding: 4px 10px; border: 0; border-radius: var(--r-s); background: none; color: var(--text); text-align: left; align-items: center; }
 .exit-btn:hover { background: var(--surface-2); }
 .exit-btn .cur { color: var(--muted); font-size: var(--fs-xs); }
+.exit-area { display: block; color: var(--muted); font-size: var(--fs-xs); }
+.step-area { font-weight: 500; color: var(--muted); font-size: var(--fs-sm); }
+
+/* 환승 카드(단계 목록): 왼쪽 굵은 띠(지하 청록, 지상 통로면 주황빨강), 노선 칩, 갈아탈 방향, 승강장 깊이, 행동 안내 세 줄 */
+.step.step-x { margin: 8px 0; border: 1px solid var(--line-strong); border-left: 5px solid var(--safe); border-radius: var(--r-s); background: var(--surface-2); overflow: hidden; }
+.step.step-x + .step { border-top: 0; }
+.step-x.is-expo { border-color: var(--expo); background: var(--expo-soft); }
+.step-x .step-btn { padding: 12px 10px 6px 0; border-radius: 0; }
+.step-x .step-btn:hover, .step-x .step-btn.is-active { background: var(--surface-3); }
+.step-no.x { background: var(--safe); color: var(--on-safe); }
+.is-expo .step-no.x { background: var(--expo); color: var(--on-expo); }
+.x-chips { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.x-arrow { color: var(--muted); font-weight: 700; }
+.x-more { display: grid; gap: 10px; padding: 2px 12px 14px 44px; }
+.x-dir, .x-fast, .x-lv { margin: 0; }
+.x-dir { line-height: 1.7; }   /* 칩과 글이 한 흐름으로 줄바꿈된다 */
+.x-dir .lc { vertical-align: 1px; margin-right: 2px; }
+.x-dir b { font-weight: 700; }
+.x-dir .muted { white-space: nowrap; }   /* '(다음 역 마포)'는 한 덩어리로 */
+.x-lv { font-size: var(--fs-xs); color: var(--muted); }
+.x-lv b { color: var(--text); }
+.x-fast { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 8px; font-size: var(--fs-sm); }
+.x-fast .ic-s { margin-top: 1px; color: var(--safe-text); }
+.x-fast small { color: var(--muted); font-size: var(--fs-xs); }
+.xl { margin: 0; padding: 6px 10px; list-style: none; display: grid; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface); font-size: var(--fs-sm); }
+.xl-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; min-height: 30px; }
+.xl-v { color: var(--muted); }
+.xl-move { display: flex; align-items: center; gap: 6px; min-height: 26px; margin-left: 10px; padding-left: 12px; border-left: 2px dashed var(--line-strong); font-size: var(--fs-xs); color: var(--muted); }
+.xl-move b { color: var(--text); }
+.xl-move .ic-s { width: 16px; height: 16px; color: var(--text); }
+.x-micro { margin: 0; padding: 0; list-style: none; counter-reset: xm; display: grid; gap: 6px; font-size: var(--fs-sm); }
+.x-micro li { counter-increment: xm; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; }
+.x-micro li::before { content: counter(xm); display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--surface-3); color: var(--text); font-size: 12px; font-weight: 700; }
 
 /* 줄 단추(가까운 지하역, 먼 역) */
 .near { display: grid; gap: 8px; }
@@ -348,11 +395,14 @@ button { cursor: pointer; }
 .exit-chip { display: grid; justify-items: start; gap: 0; width: 100%; min-height: 50px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface-2); color: var(--text); text-align: left; }
 .exit-chip:hover { background: var(--surface-3); }
 .exit-chip .num { font-size: var(--fs-xs); color: var(--muted); }
+.exit-grid.has-areas { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }   /* 출구 주변 이름이 있으면 넓게 */
 
 /* 분석·정보 */
 .safety-card { display: grid; gap: 6px; padding: 12px 14px; border-radius: var(--r-s); background: var(--bridge-soft); box-shadow: inset 0 0 0 1px var(--bridge); }
 .safety-card h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs-md); color: var(--bridge-text); }
 .safety-card p { margin: 0; font-size: var(--fs-sm); }
+.about { margin: 0; font-size: var(--fs-sm); color: var(--muted); }
+.about b { color: var(--text); }
 .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r-s); overflow: hidden; }
 .seg button { min-height: var(--tap); min-width: 72px; padding: 0 14px; border: 0; border-right: 1px solid var(--line-strong); background: var(--surface); font-size: var(--fs-sm); }
 .seg button:last-child { border-right: 0; }
@@ -459,10 +509,27 @@ html.guide-open .toast { top: auto; bottom: calc(var(--ui-bottom) + 16px); }
 .place-label { display: inline-block; transform: translate(-50%, -50%); white-space: nowrap; color: var(--label); font-size: 12px; font-weight: 500; text-shadow: 0 0 3px var(--bg), 0 0 3px var(--bg), 0 0 2px var(--bg); pointer-events: none; }
 .place-label.region { letter-spacing: .08em; opacity: .75; }
 .reach-origin { position: absolute; width: 22px; height: 22px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--reach-1); border: 4px solid var(--casing); box-shadow: 0 0 0 3px var(--reach-1); }
-.me-dot { position: absolute; width: 18px; height: 18px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--me); border: 3px solid var(--casing); box-shadow: 0 0 0 8px var(--me-halo); }
-.pos-dot { position: absolute; width: 24px; height: 24px; transform: translate(-50%, -50%); border-radius: 50%; }
-.pos-gps { background: var(--me); border: 4px solid var(--pos-ring); box-shadow: 0 0 0 10px var(--me-halo); }
-.pos-est { background: var(--casing); border: 4px dashed var(--pos-ring); box-shadow: 0 0 0 10px var(--me-halo); }
+/* 내 위치(GPS): 파란 점(20px) + 두꺼운 흰 테두리 + 퍼지는 고리 + 방향 부채꼴. 정확도 원은 layers.js 가 그린다 */
+.me { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.me-dot { position: absolute; left: 0; top: 0; width: 26px; height: 26px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--me); border: 3px solid var(--me-ring); box-shadow: var(--me-shadow); }
+.me-pulse { position: absolute; left: 0; top: 0; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: var(--me-halo); animation: me-pulse 2.4s ease-out infinite; }
+@keyframes me-pulse { 0% { transform: scale(1); opacity: 1; } 70%, 100% { transform: scale(2.8); opacity: 0; } }
+.me-head { position: absolute; left: 0; top: 0; width: 66px; height: 66px; transform: translate(-50%, -50%); fill: var(--me); opacity: .45; overflow: visible; }
+.me-tag { position: absolute; left: 0; top: 20px; transform: translateX(-50%); padding: 2px 8px; border-radius: 6px; background: var(--expo); color: var(--on-expo); font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }
+.me.is-stale .me-dot { opacity: .5; }   /* 오래된 위치(1분 넘게 갱신 없음): 흐리게, 고리 없음 */
+.me.is-stale .me-pulse { display: none; }
+/* 추정 위치(GPS 없음): 속이 빈 점선 고리 + '추정' 이름표 — 진짜 GPS 점(꽉 찬 파랑)과 헷갈리지 않게 */
+.pos-est { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.pos-ring { position: absolute; left: 0; top: 0; width: 30px; height: 30px; transform: translate(-50%, -50%); border-radius: 50%; border: 3.5px dashed var(--me); box-shadow: 0 0 0 2px var(--casing), inset 0 0 0 2px var(--casing); }
+.pos-tag { position: absolute; left: 0; top: 21px; transform: translateX(-50%); padding: 1px 7px; border: 1.5px dashed var(--me); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }
+/* 길 안내 환승 그림: 두 승강장(점 + 노선 칩)과 가운데 화살촉 */
+.xh { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.xh-dot { position: absolute; left: 0; top: 0; width: 18px; height: 18px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--surface); border: 4px solid var(--text); box-shadow: var(--shadow); }
+.xh-t { position: absolute; top: 0; display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 3px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); color: var(--text); font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }
+.xh-t .lc { height: 22px; }
+.xh-r .xh-t { left: 15px; transform: translateY(-50%); }
+.xh-l .xh-t { right: 15px; transform: translateY(-50%); }
+.xh-arrow { position: absolute; left: 0; top: 0; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 16px solid var(--c); filter: drop-shadow(0 0 1.5px var(--casing)) drop-shadow(0 0 1.5px var(--casing)); }
 .next-cp { position: absolute; display: flex; align-items: center; gap: 6px; transform: translate(-9px, -50%); white-space: nowrap; }
 .next-cp-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--sos); border: 3px solid var(--casing); box-shadow: var(--shadow); }
 .next-cp-t { padding: 3px 8px; border-radius: 6px; background: var(--surface); color: var(--text); border: 1px solid var(--line-strong); font-size: 12px; font-weight: 700; box-shadow: var(--shadow); }
@@ -478,7 +545,18 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
 .g-card > * { margin: 0; }
 .g-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: var(--fs-sm); color: var(--muted); }
 .g-count { margin: 0; font-size: .8125rem; font-weight: 500; }
-.g-pos { flex: none; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); color: var(--text); font-size: var(--fs-xs); font-weight: 700; }
+.g-pos { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); color: var(--text); font-size: var(--fs-xs); font-weight: 700; }
+.g-pos[data-tone="gps"]::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--me); box-shadow: 0 0 0 2px var(--me-ring); }
+.g-pos[data-tone="est"]::before { content: ""; width: 10px; height: 10px; border-radius: 50%; border: 2px dashed var(--me); }
+.g-pos[data-tone="off"] { background: var(--expo); color: var(--on-expo); }
+/* 길 안내 환승 모양: 갈아탈 방향을 크게, 행동 안내 세 줄 */
+.g-xfer { display: grid; gap: 6px; }
+.g-xfer .x-dir { font-size: var(--fs-md); }
+.g-xfer .x-micro { gap: 4px; }
+.g-card.is-xfer { gap: 4px; }
+.g-card.is-xfer .g-title { font-size: clamp(1.375rem, 5.6vw, 1.75rem); }
+.g-card.is-xfer .g-dist b { font-size: clamp(1.75rem, 8vw, 2.25rem); }
+.g-card.is-xfer .g-dist-t { font-size: var(--fs-sm); }
 .g-warn { padding: 8px 12px; border-left: 4px solid var(--expo); border-radius: 0 var(--r-s) var(--r-s) 0; background: var(--expo-soft); color: var(--expo-text); font-size: var(--fs-md); font-weight: 700; }
 .g-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: var(--fs-md); font-weight: 700; }
 .g-line .lc { height: 30px; padding: 0 10px; font-size: var(--fs-md); }
@@ -635,6 +713,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  .me-pulse { display: none; }   /* 내 위치 고리는 움직이지 않으면 뜻이 없어 숨긴다 */
 }
 </style>
 
@@ -651,7 +730,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
           <path d="M5 24h22" stroke="var(--on-safe)" stroke-width="2.8" stroke-linecap="round"/>
           <path d="M16 13.5v6.5M13 17.5l3 3 3-3" fill="none" stroke="var(--on-safe)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span class="brand-name" id="brand-name">지하길</span>
+        <span class="brand-name" id="brand-name" data-app-name>지하로</span>
       </span>
       <span class="pill-text" id="search-pill-text">어디로 갈까요?</span>
       <svg class="pill-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
@@ -663,8 +742,9 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
     <button type="button" class="fab fab-sos" id="go-under-mini" aria-label="가장 가까운 지하로 대피" title="가장 가까운 지하로 대피">
       <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.4" cy="4.4" r="2.5" fill="currentColor" stroke="none"/><path d="M10.2 8.2l-.6 5M9.6 13.2l-1.4 2.6L7.6 18M9.6 13.2l2.6 3 .4 4.8M10.1 9l-3 3M10.1 9l3.4 2.2"/><path d="M2 18h8v4h7v4h7v4h6"/></svg>
     </button>
-    <button type="button" class="fab" id="btn-locate" aria-label="내 위치" title="내 위치">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22"/></svg>
+    <!-- 내 위치: data-state = off · searching · located · following · denied (app.js 의 syncLocate) -->
+    <button type="button" class="fab fab-loc" id="btn-locate" aria-label="내 위치" title="내 위치" aria-pressed="false" data-state="off">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle class="loc-c" cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22"/><path class="loc-x" d="M4.5 4.5l15 15"/></svg>
     </button>
     <button type="button" class="fab" id="btn-layers" aria-label="레이어와 범례" title="레이어와 범례" aria-expanded="false" aria-controls="lyr-pop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
@@ -718,8 +798,9 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
         <div class="sv-head"><h2 class="sv-title">분석과 정보</h2></div>
         <section class="safety-card" aria-labelledby="safety-h">
           <h3 id="safety-h"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>안전 안내</h3>
-          <p><b>평시에는 철도 터널에 들어가면 안 됩니다.</b> 이 앱은 전쟁 등으로 지상 이동이 위험할 때를 가정합니다. 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 보고, 실시간 피해 정보는 없습니다.</p>
+          <p><b>평시에는 철도 터널에 들어가면 안 됩니다.</b> <span data-app-name>지하로</span>는 전쟁 등으로 지상 이동이 위험할 때를 가정합니다. 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 보고, 실시간 피해 정보는 없습니다.</p>
         </section>
+        <p class="about"><b data-app-name>지하로</b> · 지상 노출을 줄여 지하로 가는 비상 길찾기</p>
         <h3 class="sub-h">전국 철도망</h3>
         <div class="peek-stats">
           <span>본선 <b class="num" id="peek-total">–</b> km</span>
@@ -802,7 +883,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
       <h2 id="notice-title"><svg class="notice-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>안전 안내</h2>
       <div class="notice-body" id="notice-body">
         <p class="big">평시에는 철도 터널에 들어가면 안 됩니다.</p>
-        <p>이 앱은 전쟁 등으로 지상 이동이 위험할 때, 지상에 덜 나가는 길을 찾는 비상용입니다. 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 가정하며, 실시간 피해 정보는 없습니다.</p>
+        <p><b data-app-name>지하로</b>는 전쟁 등으로 지상 이동이 위험할 때, 지상에 덜 나가는 길을 찾는 비상용입니다. 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 가정하며, 실시간 피해 정보는 없습니다.</p>
       </div>
       <button type="button" class="btn-primary" id="notice-ok">확인했습니다</button>
     </div>
@@ -820,6 +901,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
         <h2 class="g-title" id="guide-title" tabindex="-1"></h2>
         <p class="g-dist" id="guide-dist"></p>
         <p class="g-next" id="guide-next"></p>
+        <div class="g-xfer" id="guide-xfer" hidden></div>
         <p class="g-sub" id="guide-walked" hidden></p>
         <div class="g-note" id="guide-note" aria-live="polite" hidden></div>
       </div>
@@ -852,6 +934,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
 <script src="js/graph.js"></script>
 <script src="js/router.js"></script>
 <script src="js/steps.js"></script>
+<script src="js/transfer.js"></script>
 <script src="js/nearest.js"></script>
 <script src="js/guide.js"></script>
 <script src="js/places.js"></script>

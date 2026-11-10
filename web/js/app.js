@@ -2,7 +2,8 @@
    - 시작(데이터 받기, 처음 지도 보기), 출발·도착 고르기, 경로 찾기·그리기, 가장 가까운 지하로,
      길 안내(지도가 보이는 안내), 역 시트(도착 뒤 할 일), 아래 시트·검색 화면·레이어·분석 연결.
    - 모듈: graph(데이터) · router(탐색) · steps(안내 단계) · nearest(가까운 지하역) · guide(길 안내) · places(오프라인 장소)
-           reach(지하로 닿는 범위) · walk(지상 도보 길) · lines(노선 색) · saved(저장) · search(검색) · layers(지도)
+           transfer(환승 카드 내용·extra.json) · reach(지하로 닿는 범위) · walk(지상 도보 길) · lines(노선 색) · saved(저장) · search(검색) · layers(지도)
+   - 내 위치(GPS)는 '내 위치 (GPS)' 부분: 권한을 받은 뒤 watchPosition 하나로 파란 점을 갱신한다.
            panel(결과 카드) · station(역 시트) · sheet(아래 시트) · searchui(검색 화면)
    - 다른 코드가 쓸 수 있는 연결점은 맨 아래 UG.app 에 모았다. */
 (function (root) {
@@ -13,12 +14,17 @@
   /* =========================================================
      0. 설정
      ========================================================= */
-  const APP_NAME = '지하길';   // 임시 이름(최종 이름은 사용자가 정한다). 화면의 앱 이름은 모두 여기서 온다.
+  const APP_NAME = '지하로';   // 서비스 이름(사용자 결정 2026-11-10). 화면의 앱 이름(data-app-name)은 모두 여기서 온다.
 
   const CFG = {
     dataUrl: 'data/graph.json',
     basemapUrl: 'data/basemap.json',
     placesUrl: 'data/places.json',
+    extraUrl: 'data/extra.json',     // 덧붙는 공식 자료(빠른 환승·출구 주변). 없어도 된다
+    offRouteM: 150,                  // 길 안내 중 GPS 위치가 경로에서 이만큼 떨어지면 '경로에서 벗어남'
+    gpsFreshMs: 20000,               // 길 안내: 이보다 오래된 GPS 위치는 쓰지 않고 추정 위치를 쓴다
+    gpsGoodM: 80,                    //           정확도가 이보다 나쁘면(m) 추정 위치를 쓴다
+    staleMs: 60000,                  // 내 위치 점을 흐리게(오래된 위치)
     tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     home: [37.5665, 126.9780], homeZoom: 12,      // 처음 보기: 서울 도심(전국을 한꺼번에 보여 주지 않는다)
     stationMinZoom: 11,
@@ -27,7 +33,7 @@
     keys: { layers: 'ugmap.layers.v1', speed: 'ugmap.speed.v1', view: 'ugmap.view.v1', theme: 'ugmap.theme.v1', notice: 'ugmap.notice.v1' },
     speeds: [3.0, 3.5, 4.0]
   };
-  const GEO_DENIED = '위치를 쓸 수 없어요. 지도를 눌러 지점을 고르거나 검색하세요.';
+  const GEO_DENIED = '위치를 쓸 수 없어요(위치 권한 꺼짐). 지도를 눌러 지점을 고르거나 검색하세요.';
 
   const ERROR_TEXT = {
     http: function (d) { return ['철도망 데이터를 불러오지 못했습니다 (HTTP ' + d + ').', 'data/graph.json 파일이 이 페이지와 같은 위치에 있어야 합니다.']; },
@@ -75,7 +81,7 @@
     net: null, st: null, exits: null, route: null, reach: null, guideLayer: null, me: null, basemap: null, tiles: 'unknown', badge: null,
     from: null, to: null, plan: null, blocked: new Set(), blockCount: 0, activeItem: -1,
     places: null, nearest: null, openSheetOnPlan: false,
-    guide: null, guideTrack: null, guideFollow: true, gps: null, watchId: null, myLoc: null,
+    guide: null, guideTrack: null, guideFollow: true, guidePos: null, guideOff: 0, myLoc: null,
     sheet: null, search: null, saveDlg: null, view: null, station: null,
     fit: null, fitTimer: 0, loading: false, lastPopupClose: 0, fitToken: 0, listeners: [], walkAttr: false
   };
@@ -83,8 +89,8 @@
   function boot() {
     const ui = state.ui = getUi();
     applyTheme(SV.get(CFG.keys.theme, 'auto'), false);
-    ui.brandName.textContent = APP_NAME;
-    document.title = APP_NAME + ' · 지하로 가는 비상 길찾기';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-app-name]'), function (el) { el.textContent = APP_NAME; });
+    document.title = APP_NAME;
     state.wide = matchMedia(CFG.wideQuery);
     state.reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     state.vis = loadVis();
@@ -101,6 +107,7 @@
     setupSearch();
     setupButtons();
     setupNotice();
+    setupGeo();
     ui.retry.addEventListener('click', start);
 
     if (window.L) {
@@ -122,13 +129,18 @@
   }
 
   // 처음 지도 보기: 마지막으로 본 곳 > (위치 권한을 이미 받았으면) 내 위치 > 서울 도심
+  // 위치 권한을 이미 받았으면 내 위치 점은 언제나 켠다(지도는 마지막으로 본 곳이 없을 때만 옮긴다).
   function initialView() {
     const v = SV.get(CFG.keys.view, null);
-    if (v && isFinite(v.lat) && isFinite(v.lon) && isFinite(v.z) && v.z >= 6) { state.map.setView([v.lat, v.lon], v.z); return; }
-    state.map.setView(CFG.home, CFG.homeZoom);
+    const saved = v && isFinite(v.lat) && isFinite(v.lon) && isFinite(v.z) && v.z >= 6;
+    if (saved) state.map.setView([v.lat, v.lon], v.z); else state.map.setView(CFG.home, CFG.homeZoom);
     try {
       if (navigator.permissions && navigator.geolocation) {
-        navigator.permissions.query({ name: 'geolocation' }).then(function (p) { if (p.state === 'granted') locateMe(true); }).catch(function () { /* 무시 */ });
+        navigator.permissions.query({ name: 'geolocation' }).then(function (p) {
+          if (p.state !== 'granted') return;
+          if (!saved) geo.centerOnce = true;
+          startWatch();
+        }).catch(function () { /* 무시 */ });
       }
     } catch (e) { /* 무시 */ }
   }
@@ -167,8 +179,25 @@
     await nextFrame();
     drawLayers();
     setStatus('hidden');
-    loadBasemap().then(loadPlaces);   // 둘 다 첫 화면을 막지 않는다
+    loadBasemap().then(loadExtra).then(loadPlaces);   // 모두 첫 화면을 막지 않는다
     emit();
+  }
+
+  // 덧붙는 공식 자료(extra.json: 빠른 환승·출구 주변 이름). 없거나 형식이 다르면 조용히 넘어간다.
+  // 받으면 지금 보이는 경로·역 시트를 다시 그려 새 내용을 넣는다.
+  async function loadExtra() {
+    if (!UG.transfer) return;
+    let data;
+    try { data = await GR.fetchJson(CFG.extraUrl); } catch (e) { return; }
+    UG.transfer.setExtra(data);
+    if (!UG.transfer.hasExtra()) return;
+    if (state.plan) { describePlan(); refreshGuide(); }
+    if (state.station) renderStation();
+  }
+  // 길 안내가 열려 있으면 같은 경로로 다시 그린다(확인한 곳은 그대로)
+  function refreshGuide() {
+    const gs = state.guide && state.guide.state();
+    if (gs && gs.plan === state.plan) state.guide.refresh(state.plan, UG.guide.buildCheckpoints(state.G, state.plan));
   }
 
   // 오프라인 장소 색인: 없거나 아직 안 만들어졌으면 역 검색만 쓴다
@@ -209,14 +238,14 @@
     });
     const paint = function () {
       state.pal = LY.readPalette();
-      [state.net, state.st, state.route, state.reach, state.guideLayer].forEach(function (l) { l.setPalette(state.pal); });
+      [state.net, state.st, state.route, state.reach, state.guideLayer, state.me].forEach(function (l) { l.setPalette(state.pal); });
       if (state.basemap) state.basemap.setPalette(state.pal);
     };
     paint();
     syncStationHint();
     map.on('zoomend', function () { state.net.onZoom(); syncStationHint(); });
     LY.watchTheme(paint);
-    if (state.myLoc) state.me.set(state.myLoc.lat, state.myLoc.lon);
+    if (state.myLoc) state.me.set(state.myLoc);
     refreshPins();
   }
 
@@ -359,7 +388,7 @@
       const ep = pointEndpoint(state.myLoc.lat, state.myLoc.lon, '내 위치');
       if (ep) { cb(ep); return; }
     }
-    if (!navigator.geolocation) { fallback('위치를 쓸 수 없어 지도 중심에서 출발합니다.'); return; }
+    if (!navigator.geolocation || geo.denied) { fallback('위치를 쓸 수 없어 지도 중심에서 출발합니다.'); return; }
     toast('내 위치를 찾는 중입니다…', 9000);
     try {
       navigator.geolocation.getCurrentPosition(function (pos) {
@@ -367,32 +396,128 @@
         settled = true;
         hideToast();
         setMyLoc(pos);
+        startWatch();   // 권한을 받았으니 내 위치 점을 계속 갱신한다
         const ep = pointEndpoint(pos.coords.latitude, pos.coords.longitude, '내 위치');
         if (!ep) { toast('내 위치에서 20km 안에 역이 없습니다. 출발지를 검색하세요.'); return; }
         cb(ep);
-      }, function () { hideToast(); fallback('위치를 쓸 수 없어 지도 중심에서 출발합니다.'); }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+      }, function (err) { noteGeoError(err); hideToast(); fallback('위치를 쓸 수 없어 지도 중심에서 출발합니다.'); }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
     } catch (e) { fallback('위치를 쓸 수 없어 지도 중심에서 출발합니다.'); }
     setTimeout(function () { hideToast(); fallback('위치를 찾지 못해 지도 중심에서 출발합니다.'); }, 9500);
   }
 
-  function setMyLoc(pos) {
-    state.myLoc = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy, t: Date.now() };
-    if (state.me) state.me.set(state.myLoc.lat, state.myLoc.lon);
+  /* ---------- 내 위치 (GPS) ----------
+     위치 권한을 받은 뒤에는 watchPosition 하나를 계속 돌려 파란 점(layers.js 의 MeLayer)을 갱신한다.
+     - 정확도: 길 안내 중에는 높게(enableHighAccuracy), 평소에는 배터리를 아끼려고 낮게. maximumAge 10초.
+     - 화면이 숨으면(다른 앱·화면 꺼짐) 멈추고, 다시 보이면 이어서 돈다.
+     - 내 위치 단추 상태(data-state): off(꺼짐) · searching(찾는 중) · located(찾음) · following(지도가 나를 따라감) · denied(쓸 수 없음)
+       following 은 사용자가 지도를 끌거나 다른 화면 맞추기(경로·역)가 일어나면 located 로 돌아간다.
+     - 오류는 알림(toast) 한 번만, 화면은 막지 않는다. 미리보기(claude.ai)처럼 위치가 막힌 곳에서는 그 뒤로 조용하다.
+       내 위치 단추를 직접 누른 경우에만 다시 알린다(누른 것에 대한 답). */
+  const geo = { watchId: null, high: false, wanted: false, follow: false, denied: false, told: false, waiting: false, centerOnce: false, staleTimer: 0 };
+
+  function setupGeo() {
+    state.ui.btnLocate.addEventListener('click', onLocateClick);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopWatch(true);        // 숨으면 멈춘다(다시 보이면 이어서)
+      else if (geo.wanted) startWatch();
+    });
+    syncLocate();
   }
 
-  // 내 위치 버튼: 지도를 내 위치로(quiet = 실패해도 알리지 않음)
-  function locateMe(quiet) {
-    if (!navigator.geolocation) { if (!quiet) toast(GEO_DENIED); return; }
-    if (!quiet) toast('내 위치를 찾는 중입니다…', 9000);
+  // 위치 갱신을 켠다(이미 같은 정확도로 돌고 있으면 그대로). 길 안내를 열고 닫을 때도 불러 정확도를 바꾼다.
+  function startWatch() {
+    if (!navigator.geolocation || geo.denied) return;
+    geo.wanted = true;
+    if (document.hidden) return;
+    const high = !!(state.guide && state.guide.isOpen());
+    if (geo.watchId != null && geo.high === high) return;
+    stopWatch(true);
+    geo.high = high;
     try {
-      navigator.geolocation.getCurrentPosition(function (pos) {
-        hideToast();
-        setMyLoc(pos);
-        if (state.map) { state.fit = null; state.fitToken++; state.map.setView([state.myLoc.lat, state.myLoc.lon], Math.max(state.map.getZoom(), 15), { animate: !state.reduceMotion }); }
-      }, function (err) {
-        if (!quiet) toast(err && err.code === 1 ? GEO_DENIED : '위치를 찾지 못했어요. 지도를 눌러 지점을 고르세요.');
-      }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
-    } catch (e) { if (!quiet) toast(GEO_DENIED); }
+      geo.watchId = navigator.geolocation.watchPosition(onFix, onWatchError, { enableHighAccuracy: high, maximumAge: 10000, timeout: 30000 });
+    } catch (e) { geo.watchId = null; noteGeoError({ code: 1 }); }
+    syncLocate();
+  }
+  function stopWatch(keepWanted) {
+    if (geo.watchId != null) { try { navigator.geolocation.clearWatch(geo.watchId); } catch (e) { /* 무시 */ } }
+    geo.watchId = null;
+    if (!keepWanted) geo.wanted = false;
+  }
+
+  function onFix(pos) {
+    setMyLoc(pos);
+    if (geo.waiting) { geo.waiting = false; hideToast(); }
+    if (geo.follow || geo.centerOnce) { geo.centerOnce = false; centerOnMe(); }
+    syncLocate();
+    if (state.guide && state.guide.isOpen()) state.guide.ping();   // 길 안내 지도 표시를 바로 갱신
+  }
+  function onWatchError(err) {
+    noteGeoError(err);
+    // 지하에서 GPS 가 안 잡히는 것(시간 초과 등)은 정상이다: 사용자가 기다리고 있을 때만 알린다
+    if (geo.waiting && !geo.denied) { geo.waiting = false; tellGeo('위치를 찾지 못했어요. 지도를 눌러 지점을 고르세요.', true); }
+    syncLocate();
+  }
+  // 권한 거부(code 1)면 멈추고 한 번 알린다
+  function noteGeoError(err) {
+    if (!err || err.code !== 1) return;
+    geo.denied = true; geo.follow = false; geo.centerOnce = false;
+    stopWatch();
+    tellGeo(state.guide && state.guide.isOpen() ? '위치를 쓸 수 없어 걸은 시간으로 위치를 추정합니다.' : GEO_DENIED, geo.waiting);
+    geo.waiting = false;
+    syncLocate();
+  }
+  function tellGeo(msg, force) {
+    if (geo.told && !force) return;
+    geo.told = true;
+    toast(msg);
+  }
+
+  function setMyLoc(pos) {
+    const c = pos.coords;
+    state.myLoc = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, t: Date.now(),
+      heading: c.heading != null && isFinite(c.heading) && (c.speed == null || c.speed > 0.3) ? c.heading : null };   // 멈춰 있으면 방향이 없다
+    if (state.me) { state.me.set(state.myLoc); state.me.setLook({ stale: false }); }
+    clearTimeout(geo.staleTimer);
+    geo.staleTimer = setTimeout(function () { if (state.me && !(state.guide && state.guide.isOpen())) state.me.setLook({ stale: true }); }, CFG.staleMs);
+  }
+
+  // 지도를 내 위치로(따라가기 중에는 확대는 그대로 두고 옮기기만)
+  function centerOnMe() {
+    if (!state.map || !state.myLoc) return;
+    state.fit = null; state.fitToken++;
+    const ll = [state.myLoc.lat, state.myLoc.lon];
+    if (state.map.getZoom() < 15) state.map.setView(ll, 16, { animate: !state.reduceMotion });
+    else state.map.panTo(ll, { animate: !state.reduceMotion });
+  }
+
+  // 내 위치 단추: 지도를 내 위치로 옮기고 따라가기를 켠다(권한이 막혔으면 다시 물어보고, 안 되면 알린다)
+  function onLocateClick() {
+    if (!navigator.geolocation) { toast(GEO_DENIED); return; }
+    geo.denied = false;          // 사용자가 브라우저 설정에서 권한을 다시 켰을 수 있다
+    geo.follow = true;
+    if (state.myLoc && Date.now() - state.myLoc.t < CFG.staleMs) centerOnMe();
+    else {
+      geo.waiting = true;
+      toast('내 위치를 찾는 중입니다…', 9000);
+      if (geo.watchId != null) {   // 이미 돌고 있는데 새 위치가 없음: 한 번 더 물어본다
+        try { navigator.geolocation.getCurrentPosition(onFix, onWatchError, { enableHighAccuracy: geo.high, maximumAge: 10000, timeout: 15000 }); } catch (e) { /* 무시 */ }
+      }
+    }
+    startWatch();
+    syncLocate();
+  }
+
+  function stopFollow() { if (geo.follow) { geo.follow = false; syncLocate(); } }
+
+  function syncLocate() {
+    const b = state.ui && state.ui.btnLocate;
+    if (!b) return;
+    const s = geo.denied ? 'denied' : geo.follow && state.myLoc ? 'following' : state.myLoc ? 'located' : geo.watchId != null || geo.waiting ? 'searching' : 'off';
+    const label = { off: '내 위치', searching: '내 위치 찾는 중', located: '내 위치로 이동', following: '내 위치를 따라가는 중', denied: '내 위치를 쓸 수 없음' }[s];
+    b.dataset.state = s;
+    b.setAttribute('aria-pressed', String(s === 'following'));
+    b.setAttribute('aria-label', label);
+    b.title = label;
   }
 
   /* =========================================================
@@ -428,6 +553,7 @@
     const p = state.plan;
     ST.planItems(state.G, p, state.speed);      // p.desc, p.items, p.view (steps.js)
     if (UG.walk) UG.walk.applyLegs(state.G, p, state.speed);
+    if (UG.transfer) UG.transfer.annotate(state.G, p, state.speed);   // 환승 카드 내용(item.xfer)과 환승 횟수(view.transfers)
     const v = p.view;
     v.nearest = p.nearest;
     v.blocked = state.blockCount;
@@ -576,6 +702,7 @@
      자동으로 맞춘 뒤 시트 높이가 바뀌면 다시 맞춘다. 사용자가 지도를 끌면 다시 맞추지 않는다. */
   function fitTo(pts, maxZoom) {
     if (!pts.length || !state.map) return;
+    stopFollow();   // 경로·역으로 지도를 맞추면 내 위치 따라가기는 멈춘다
     state.fit = { pts: pts, maxZoom: maxZoom };
     doFit(true);
   }
@@ -594,8 +721,10 @@
     const map = state.map, token = ++state.fitToken;
     const go = function () { if (token === state.fitToken) map.fitBounds(bounds, Object.assign(viewPadding(), opts || {})); };
     const s = map.getSize();
-    if (s.x > 50 && s.y > 50) { go(); return; }
-    map.once('resize', go);
+    if (s.x < 50 || s.y < 50) { map.once('resize', go); return; }
+    // Leaflet 은 확대 움직임 중에 들어온 새 보기 요청을 버린다: 움직임이 끝나면 맞춘다(마지막 요청만, token)
+    if (map._animatingZoom) { map.once('zoomend', go); return; }
+    go();
   }
 
   // 지도에서 가리지 않는 부분(위·아래·왼쪽 카드를 뺀 곳)
@@ -664,8 +793,9 @@
   function setupMapPicking() {
     const map = state.map;
     map.on('popupclose', function () { state.lastPopupClose = Date.now(); });
-    map.on('dragstart', function () {   // 사용자가 지도를 움직이면 자동 맞추기를 멈춘다
+    map.on('dragstart', function () {   // 사용자가 지도를 움직이면 자동 맞추기와 내 위치 따라가기를 멈춘다
       state.fitToken++; state.fit = null;
+      stopFollow();
       if (state.guide && state.guide.isOpen()) { state.guideFollow = false; state.guide.setFollow(false); }
     });
     map.on('click', function (ev) {
@@ -783,7 +913,7 @@
       runNearest(c.lat, c.lng, '지도 중심', true);
     };
     if (state.myLoc && Date.now() - state.myLoc.t < 60000) { runNearest(state.myLoc.lat, state.myLoc.lon, '내 위치', false); return; }
-    if (!navigator.geolocation) { fromCenter(); return; }
+    if (!navigator.geolocation || geo.denied) { fromCenter(); return; }
     toast('내 위치를 찾는 중입니다…', 9000);
     try {
       navigator.geolocation.getCurrentPosition(function (pos) {
@@ -791,8 +921,9 @@
         settled = true;
         hideToast();
         setMyLoc(pos);
+        startWatch();   // 권한을 받았으니 내 위치 점을 계속 갱신한다
         runNearest(pos.coords.latitude, pos.coords.longitude, '내 위치', false);
-      }, function () { hideToast(); fromCenter(); }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+      }, function (err) { noteGeoError(err); hideToast(); fromCenter(); }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
     } catch (e) { fromCenter(); }
     setTimeout(function () { if (!settled) { hideToast(); fromCenter(); } }, 9000);
   }
@@ -873,14 +1004,16 @@
     state.route.highlight(null);
     state.guide.open(p, UG.guide.buildCheckpoints(state.G, p), label, note, backtrack);
     syncChrome();
-    startGps();
+    stopFollow();
+    startWatch();   // 길 안내 중에는 정확도를 높여 다시 켠다(처음이면 위치 권한을 묻는다)
   }
 
   function closeGuideView() {
     if (!state.guide || !state.guide.isOpen()) return;
     state.guide.close();
-    stopGps();
     state.guideLayer.clear();
+    if (state.me) state.me.setLook({ hidden: false, tag: '', stale: !state.myLoc || Date.now() - state.myLoc.t > CFG.staleMs });
+    if (geo.wanted) startWatch();   // 평소 정확도로 되돌린다
     syncChrome();
   }
   function endGuide() {
@@ -888,25 +1021,44 @@
     if (state.plan) { drawPlan(true); showView('route', 'peek'); }
   }
 
-  // 지도 위: 지금 단계(마지막 확인 지점 -> 다음 확인 지점)를 강조하고, 다음 확인 지점과 지금 위치를 표시
+  // 지금 안내 중인 항목이 환승이면 그 환승 내용(transfer.js), 아니면 null
+  function guideXfer(gs, p) {
+    const it = p.next ? gs.plan.items[p.next.item] : null;
+    return it && it.kind === 'step' && it.step.type === 'transfer' && it.xfer ? it.xfer : null;
+  }
+
+  /* 지도 위: 지금 단계(마지막 확인 지점 -> 다음 확인 지점)를 강조하고, 다음 확인 지점과 지금 위치를 표시.
+     - 환승 단계: 두 노선 승강장 사이 화살표(모식도)로 바꿔 그린다.
+     - 지금 위치: 쓸 만한 GPS(최근 20초, 정확도 80m 안)가 있으면 파란 점, 경로에서 150m 넘게 떨어지면 '경로에서 벗어남'.
+                  없으면 추정 위치(마지막 확인 뒤 걸은 시간 × 속도)를 속이 빈 점선 고리 + '추정'으로. */
   function renderGuideMap(info) {
     const st = info.st, p = info.p, track = state.guideTrack;
     if (!track) return;
     const doneAt = st.cur >= 0 ? st.cps[st.cur].at : 0;
     const nextAt = p.next ? p.next.at : doneAt;
-    state.guideLayer.setSegment(p.next ? UG.guide.sliceTrack(track, doneAt, nextAt) : null);
-    state.guideLayer.setNext(p.next ? UG.guide.pointAt(track, nextAt) : null, p.next ? p.next.label : '');
-    let pos, mode, label;
-    const gps = state.gps;
-    if (gps && Date.now() - gps.t < 20000 && gps.acc <= 80) { pos = [gps.lat, gps.lon]; mode = 'gps'; label = 'GPS'; }
-    else {
+    const x = guideXfer(st, p);
+    state.guideLayer.setTransfer(x);
+    state.guideLayer.setSegment(p.next && !x ? UG.guide.sliceTrack(track, doneAt, nextAt) : null);
+    state.guideLayer.setNext(p.next && !x ? UG.guide.pointAt(track, nextAt) : null, p.next ? p.next.label : '');
+    const fix = state.myLoc;
+    const gpsOk = !!fix && Date.now() - fix.t < CFG.gpsFreshMs && fix.acc <= CFG.gpsGoodM;
+    let pos;
+    state.guideOff = 0;
+    if (gpsOk) {
+      pos = [fix.lat, fix.lon];
+      const off = UG.guide.distanceToTrack(track, fix.lat, fix.lon);
+      if (off > CFG.offRouteM) state.guideOff = off;
+      state.guideLayer.setEstimate(null);
+      state.me.setLook({ hidden: false, stale: false, tag: state.guideOff ? '경로에서 벗어남' : '' });
+      state.guide.setPosMode(state.guideOff ? '경로 밖 ' + PN.fmtDist(off) : 'GPS 위치', state.guideOff ? 'off' : 'gps');
+    } else {
       const walked = Math.min(state.guide.walkedM(), p.toNext_m);
       pos = UG.guide.pointAt(track, Math.min(doneAt + walked, track.total));
-      mode = 'est';
-      label = st.cur >= 0 && walked < 30 ? '확인한 곳' : '추정 위치';   // 추정 = 마지막 확인 뒤 걸은 시간 × 속도
+      const confirmed = st.cur >= 0 && walked < 30;   // 방금 '도착'을 눌렀으면 확인한 곳
+      state.guideLayer.setEstimate(pos, confirmed ? '확인한 곳' : '추정');
+      state.me.setLook({ hidden: true, tag: '' });     // 오래된 GPS 점은 숨긴다(추정 고리와 헷갈리지 않게)
+      state.guide.setPosMode(confirmed ? '확인한 곳' : '추정 위치', 'est');
     }
-    state.guideLayer.setPosition(pos, mode);
-    state.guide.setPosMode(label);
     state.guidePos = pos;
     if (info.stepChanged && state.guideFollow) fitGuideStep();
   }
@@ -915,10 +1067,18 @@
     const gs = state.guide && state.guide.state(), track = state.guideTrack;
     if (!gs || !track) return;
     const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m);
+    const x = guideXfer(gs, p);
+    if (x) {   // 환승: 역 안 두 승강장만 크게. 양 옆의 노선 이름표가 잘리지 않게 동서로 넉넉히(약 60m 이상) 잡는다
+      const dLat = Math.abs(x.to.lat - x.from.lat), dLon = Math.abs(x.to.lon - x.from.lon);
+      const padLon = Math.max(dLon * 0.7, 0.0007), padLat = Math.max(dLat * 0.25, 0.0002);
+      fitTo([[Math.min(x.from.lat, x.to.lat) - padLat, Math.min(x.from.lon, x.to.lon) - padLon],
+        [Math.max(x.from.lat, x.to.lat) + padLat, Math.max(x.from.lon, x.to.lon) + padLon]], 18);
+      return;
+    }
     const doneAt = gs.cur >= 0 ? gs.cps[gs.cur].at : 0;
     const pts = [];
     UG.guide.sliceTrack(track, doneAt, p.next ? p.next.at : doneAt).forEach(function (l) { l.forEach(function (q) { pts.push(q); }); });
-    if (state.guidePos) pts.push(state.guidePos);
+    if (state.guidePos && !(state.guideOff > 1000)) pts.push(state.guidePos);   // 아주 멀리 벗어났으면 지금 단계만
     if (pts.length) fitTo(pts, 17);
   }
 
@@ -929,21 +1089,6 @@
     closeGuideView();
     openStation(si, { tab: 'reach', arrived: p.to.kind === 'point' ? '목적지에 도착했습니다 · 가까운 역' : '도착했습니다' });
     return true;
-  }
-
-  function startGps() {
-    if (!navigator.geolocation || state.watchId != null) return;
-    try {
-      state.watchId = navigator.geolocation.watchPosition(function (pos) {
-        setMyLoc(pos);
-        state.gps = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy, t: Date.now() };
-      }, function () { /* 지하에서는 GPS 가 안 잡힌다: 추정 위치를 쓴다 */ }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 });
-    } catch (e) { state.watchId = null; }
-  }
-  function stopGps() {
-    if (state.watchId == null) return;
-    try { navigator.geolocation.clearWatch(state.watchId); } catch (e) { /* 무시 */ }
-    state.watchId = null;
   }
 
   // 앞이 막힘: 마지막 확인 지점 ~ 다음 체크포인트 사이를 막고, 마지막 확인 지점에서 다시 찾는다
@@ -1179,7 +1324,6 @@
     const ui = state.ui;
     ui.goUnder.addEventListener('click', goNearestUnderground);
     ui.goUnderMini.addEventListener('click', goNearestUnderground);
-    ui.btnLocate.addEventListener('click', function () { locateMe(false); });
     ui.btnInfo.addEventListener('click', function () { if (state.view === 'info') closeSheet(); else showView('info', 'half'); });
     // 레이어 펼침
     const setOpen = function (open) {

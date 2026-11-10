@@ -1,7 +1,8 @@
 /* layers.js — 지도와 지도 위 레이어 (Leaflet)
    - 철도망(구조별 선로), 역, 출구 번호, 간이 배경 지도(basemap.json), 경로, 도달 범위, 길 안내 표시, 내 위치.
    - 색은 모두 CSS 토큰(--safe 등)에서 읽는다. 테마가 바뀌면 setPalette 로 다시 칠한다.
-   - 그리는 층(아래 -> 위): 타일 200 · 간이 배경 300 · 지명 390 · 철도망 400 · 도달 범위 430 · 길 안내 강조 445 · 경로 455 · 역 470 · 표시(핀·출구) 600 · 팝업 700
+   - 그리는 층(아래 -> 위): 타일 200 · 간이 배경 300 · 지명 390 · 철도망 400 · 도달 범위 430 · 길 안내 강조 445 · 경로 455 · 역 470
+                           · 내 위치 정확도 원 480 · 표시(핀·출구) 600 · 내 위치 점 640 · 팝업 700
    - 경로를 보여 줄 때는 철도망을 흐리게(약 25%) 하고, 역은 경로가 지나는 역만 남긴다. */
 (function (root) {
   'use strict';
@@ -27,7 +28,7 @@
     return {
       safe: v('--safe'), route: v('--route-safe'), bridge: v('--bridge'), expo: v('--expo'), text: v('--text'),
       surface: v('--surface'), bg: v('--bg'), muted: v('--muted'), casing: v('--casing'), coast: v('--coast'), admin: v('--admin'),
-      reach: [v('--reach-1'), v('--reach-2'), v('--reach-3'), v('--reach-4')], sos: v('--sos')
+      reach: [v('--reach-1'), v('--reach-2'), v('--reach-3'), v('--reach-4')], sos: v('--sos'), me: v('--me')
     };
   }
 
@@ -57,10 +58,10 @@
     map.attributionControl.setPosition('bottomleft');   // 오른쪽 아래는 둥근 단추 자리
     map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
     map.attributionControl.addAttribution('© ' + OSM_LINK + ' 기여자 (ODbL)');
-    [['basemap', 300], ['placenames', 390], ['reach', 430], ['guide', 445], ['route', 455], ['stations', 470]].forEach(function (p) {
+    [['basemap', 300], ['placenames', 390], ['reach', 430], ['guide', 445], ['route', 455], ['stations', 470], ['meacc', 480], ['me', 640]].forEach(function (p) {
       map.createPane(p[0]).style.zIndex = p[1];
     });
-    map.getPane('placenames').style.pointerEvents = 'none';
+    ['placenames', 'meacc', 'me'].forEach(function (n) { map.getPane(n).style.pointerEvents = 'none'; });   // 누르기는 아래 지도·역으로
     return map;
   }
 
@@ -393,23 +394,56 @@
     };
   }
 
-  /* ---------- 길 안내 표시: 지금 단계 강조(경로 아래 노란 띠), 다음 확인 지점, 지금 위치(GPS 또는 추정) ---------- */
+  /* ---------- 길 안내 표시 ----------
+     지금 단계 강조(경로 아래 노란 띠), 다음 확인 지점, 추정 위치(GPS 가 없을 때: 속이 빈 점선 고리 + '추정' 글),
+     환승 단계의 승강장 그림(두 노선 승강장 허브 사이 화살표. 모식도라 직선으로 잇는다).
+     GPS 로 찾은 진짜 위치는 MeLayer(파란 점)가 그린다. */
   function GuideLayer(map) {
     const renderer = L.svg({ pane: 'guide', padding: 0.5 });
     const group = L.layerGroup().addTo(map);
-    let pal = null, seg = null, posMarker = null, nextMarker = null;
+    const xferGroup = L.layerGroup().addTo(map);
+    let pal = null, seg = null, posMarker = null, nextMarker = null, xfer = null, xferRenderer = null;
     function paintSeg() {
       group.clearLayers();
       if (!seg || !seg.length || !pal) return;
       L.polyline(seg, { renderer: renderer, interactive: false, color: pal.sos, weight: 26, opacity: 0.55, lineCap: 'round', lineJoin: 'round' }).addTo(group);
     }
+    // 환승 그림: 테두리 + 색 선(지하 청록, 지상 주황빨강) + 가운데 화살촉 + 양 끝 승강장 점과 노선 칩
+    function paintXfer() {
+      xferGroup.clearLayers();
+      if (!xfer || !pal) return;
+      if (!map.getPane('xfer')) map.createPane('xfer').style.zIndex = 462;   // 경로(455) 위
+      xferRenderer = xferRenderer || L.svg({ pane: 'xfer', padding: 0.5 });
+      const a = L.latLng(xfer.from.lat, xfer.from.lon), b = L.latLng(xfer.to.lat, xfer.to.lon);
+      const color = xfer.underground ? pal.route : pal.expo;
+      const opt = { renderer: xferRenderer, interactive: false, lineCap: 'round' };
+      L.polyline([a, b], Object.assign({ color: pal.casing, weight: 12, opacity: 1 }, opt)).addTo(xferGroup);
+      L.polyline([a, b], Object.assign({ color: color, weight: 6, opacity: 1, dashArray: xfer.underground ? null : '10 7' }, opt)).addTo(xferGroup);
+      // 화면 방향(메르카토르라 확대해도 각도가 같다)
+      const pa = map.project(a, 16), pb = map.project(b, 16);
+      const deg = Math.atan2(pb.y - pa.y, pb.x - pa.x) * 180 / Math.PI;
+      const right = pb.x >= pa.x;   // 이름표는 서로 바깥쪽에 단다(겹치지 않게)
+      L.marker(L.latLng((a.lat + b.lat) / 2, (a.lng + b.lng) / 2), {
+        icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<span class="xh-arrow" style="--c:' + color + ';transform:translate(-50%,-50%) rotate(' + deg.toFixed(1) + 'deg)"></span>' }),
+        keyboard: false, interactive: false, zIndexOffset: 1600
+      }).addTo(xferGroup);
+      [[a, xfer.from, right ? 'l' : 'r', '출발 승강장'], [b, xfer.to, right ? 'r' : 'l', '갈아탈 승강장']].forEach(function (h) {
+        const chipHtml = UG.lines ? UG.lines.chip(h[1].line) : esc(h[1].line);
+        L.marker(h[0], {
+          icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<span class="xh xh-' + h[2] + '"><span class="xh-dot"></span><span class="xh-t">' + chipHtml + '<span>승강장</span></span></span>' }),
+          keyboard: false, interactive: false, zIndexOffset: 1700, title: h[3] + ': ' + h[1].line
+        }).addTo(xferGroup);
+      });
+    }
     return {
-      setPalette: function (p) { pal = p; paintSeg(); },
+      setPalette: function (p) { pal = p; paintSeg(); paintXfer(); },
       setSegment: function (lines) { seg = lines; paintSeg(); },
-      // mode: 'gps' | 'est'
-      setPosition: function (latlng, mode) {
+      // x = transfer.js 의 info 결과(없으면 지운다)
+      setTransfer: function (x) { if ((x || null) === xfer) return; xfer = x || null; paintXfer(); },
+      // 추정 위치(GPS 없음): 속이 빈 점선 고리와 이름표('추정 위치', '확인한 곳'). latlng 이 없으면 지운다.
+      setEstimate: function (latlng, label) {
         if (!latlng) { if (posMarker) { map.removeLayer(posMarker); posMarker = null; } return; }
-        const html = '<span class="pos-dot pos-' + mode + '" aria-hidden="true"></span>';
+        const html = '<span class="pos-est" aria-hidden="true"><span class="pos-ring"></span><span class="pos-tag">' + esc(label || '추정') + '</span></span>';
         if (!posMarker) posMarker = L.marker(latlng, { icon: L.divIcon({ className: '', html: html, iconSize: [0, 0] }), keyboard: false, interactive: false, zIndexOffset: 2000 }).addTo(map);
         else { posMarker.setLatLng(latlng); posMarker.setIcon(L.divIcon({ className: '', html: html, iconSize: [0, 0] })); }
       },
@@ -421,20 +455,55 @@
           keyboard: false, interactive: false, zIndexOffset: 1500, title: '다음 확인 지점: ' + label
         }).addTo(map);
       },
-      clear: function () { seg = null; group.clearLayers(); this.setPosition(null); this.setNext(null); }
+      clear: function () { seg = null; group.clearLayers(); xfer = null; xferGroup.clearLayers(); this.setEstimate(null); this.setNext(null); }
     };
   }
 
-  /* ---------- 내 위치 점 ---------- */
+  /* ---------- 내 위치 (GPS) ----------
+     파란 점(흰 테두리) + 옅은 정확도 원 + 천천히 퍼지는 고리(움직임 줄이기 설정이면 없음) + 방향 부채꼴(heading 이 있을 때).
+     자기 층에 그려(점 640, 정확도 원 480) 경로·역·핀보다 늘 위에 보인다.
+     DOM 은 한 번만 만들고 위치가 바뀌면 옮기기만 한다(고리 움직임이 끊기지 않게).
+     fix = {lat, lon, acc(m), heading(도, 북쪽 0 · 시계 방향, 없으면 null)}
+     look = {stale: 오래된 위치(흐리게), hidden: 숨김(길 안내 중 GPS 가 끊겼을 때), tag: 점 옆 작은 경고 글} */
+  const ME_HTML = '<span class="me" aria-hidden="true"><svg class="me-head" viewBox="-30 -30 60 60"><path d="M0 0L-14-27A30 30 0 0 1 14-27Z"/></svg>' +
+    '<span class="me-pulse"></span><span class="me-dot"></span><span class="me-tag"></span></span>';
   function MeLayer(map) {
-    let m = null;
+    const renderer = L.svg({ pane: 'meacc', padding: 0.3 });
+    let m = null, circle = null, pal = null, fix = null;
+    const look = { stale: false, hidden: false, tag: '' };
+    function circleStyle() {
+      return { color: pal ? pal.me : '#3D8BFF', weight: 1.5, opacity: look.stale ? 0.3 : 0.6, fillColor: pal ? pal.me : '#3D8BFF', fillOpacity: look.stale ? 0.06 : 0.13 };
+    }
+    function paint() {
+      if (!fix || look.hidden) {
+        if (m) { map.removeLayer(m); m = null; }
+        if (circle) { map.removeLayer(circle); circle = null; }
+        return;
+      }
+      const ll = [fix.lat, fix.lon];
+      const r = Math.min(fix.acc || 0, 3000);   // 정확도가 아주 나쁘면(수 km) 원을 키우지 않는다
+      if (r >= 5) {
+        if (!circle) circle = L.circle(ll, Object.assign({ renderer: renderer, radius: r, interactive: false }, circleStyle())).addTo(map);
+        else { circle.setLatLng(ll); circle.setRadius(r); circle.setStyle(circleStyle()); }
+      } else if (circle) { map.removeLayer(circle); circle = null; }
+      if (!m) m = L.marker(ll, { pane: 'me', icon: L.divIcon({ className: '', html: ME_HTML, iconSize: [0, 0] }), keyboard: false, interactive: false }).addTo(map);
+      else m.setLatLng(ll);
+      const el = m.getElement() && m.getElement().firstChild;
+      if (!el) return;
+      el.classList.toggle('is-stale', look.stale);
+      const head = el.querySelector('.me-head');
+      const hasHead = fix.heading != null && isFinite(fix.heading);
+      head.style.display = hasHead ? '' : 'none';
+      if (hasHead) head.style.transform = 'translate(-50%, -50%) rotate(' + Math.round(fix.heading) + 'deg)';
+      const tag = el.querySelector('.me-tag');
+      tag.textContent = look.tag;
+      tag.hidden = !look.tag;
+    }
     return {
-      set: function (lat, lon) {
-        const ll = [lat, lon];
-        if (!m) m = L.marker(ll, { icon: L.divIcon({ className: '', html: '<span class="me-dot" aria-hidden="true"></span>', iconSize: [0, 0] }), keyboard: false, interactive: false, title: '내 위치', zIndexOffset: 900 }).addTo(map);
-        else m.setLatLng(ll);
-      },
-      clear: function () { if (m) { map.removeLayer(m); m = null; } }
+      set: function (f) { fix = f; paint(); },
+      setLook: function (o) { Object.keys(o || {}).forEach(function (k) { look[k] = o[k]; }); paint(); },
+      setPalette: function (p) { pal = p; if (circle) circle.setStyle(circleStyle()); },
+      clear: function () { fix = null; paint(); }
     };
   }
 

@@ -178,10 +178,15 @@
         '<span class="fact-v"><span class="num">' + PN.fmtDist(t.m) + '</span> · ' + (ST.SOURCE_KO[t.source] || '추정') + ' · ' +
         (t.ug ? '지하 통로' : '<span class="bad">지상</span>') + '</span></li>';
     }).join('') + '</ul>' : '<p class="muted">이 역에서 갈아탈 노선이 없습니다.</p>');
-    html += '<h3 class="sub-h">출구 <span class="muted">' + f.exits.length + '곳</span></h3>' + (f.exits.length ? '<ul class="exit-grid">' + f.exits.map(function (x) {
-      return '<li><button type="button" class="exit-chip" data-act="exit" data-exit="' + x.ent + '"><b>' + esc(x.ref ? x.ref + '번' : '번호 없음') + '</b><span class="num">' + PN.fmtDist(x.dist) + '</span></button></li>';
+    // 출구 주변 이름(서울교통공사 역세권 현황, extra.json 이 있을 때만)
+    const areas = f.exits.map(function (x) { return UG.transfer ? UG.transfer.exitAreas(f.si, x.ref) : []; });
+    const hasAreas = areas.some(function (a) { return a.length; });
+    html += '<h3 class="sub-h">출구 <span class="muted">' + f.exits.length + '곳</span></h3>' + (f.exits.length ? '<ul class="exit-grid' + (hasAreas ? ' has-areas' : '') + '">' + f.exits.map(function (x, i) {
+      return '<li><button type="button" class="exit-chip" data-act="exit" data-exit="' + x.ent + '"><b>' + esc(x.ref ? x.ref + '번' : '번호 없음') + '</b><span class="num">' + PN.fmtDist(x.dist) + '</span>' +
+        (areas[i].length ? '<small class="exit-area">' + esc(areas[i].slice(0, 3).join(', ')) + '</small>' : '') + '</button></li>';
     }).join('') + '</ul>' : '<p class="muted">출구 자료가 없습니다.</p>');
     html += '<p class="note">출구 거리는 역 중심에서 잰 직선 거리입니다. ' +
+      (hasAreas ? '출구 주변: ' + UG.transfer.EXITS_CREDIT + '. ' : '') +
       (f.depth ? '깊이(지면에서 승강장·레일면까지): 서울교통공사 역사심도정보(2024-11-04), 공공누리 제1유형. ' : '') +
       '데이터 신뢰도 ' + (CONF_LABEL[f.conf] || CONF_LABEL.unchecked) + ' · © OpenStreetMap 기여자</p>';
     return html;

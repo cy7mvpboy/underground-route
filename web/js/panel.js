@@ -2,7 +2,8 @@
    - 경로 결과: 지상 노출 배지(크게) -> 총 거리·걷는 시간 -> 지나는 노선 칩 -> 안내 시작 -> 단계 목록 -> 출처·가정.
    - 단계 목록은 steps.js 의 planItems 가 만든 items 를 그린다:
        {kind:'enter'|'exit'|'arrive'|'walk', …} 와 {kind:'step', step: ride/transfer/warning/surface}
-   - 각 단계 버튼에는 data-item(목록 위치)을 달아, 누르면 app.js 가 지도를 그 단계로 옮긴다. */
+   - 각 단계 버튼에는 data-item(목록 위치)을 달아, 누르면 app.js 가 지도를 그 단계로 옮긴다.
+   - 환승은 카드로 그린다(xfer*: 노선 칩, 갈아탈 방향, 승강장 깊이, 행동 안내 세 줄). 내용은 transfer.js 가 만든 item.xfer. */
 (function (root) {
   'use strict';
   const UG = root.UG = root.UG || {};
@@ -114,7 +115,8 @@
       '<div class="sv-head rc-head">' + headLine +
       '<div class="rc-main">' + expoBadge(view.exposed_m, true) +
       '<dl class="rc-nums"><div><dt>거리</dt><dd class="num">' + bigDist(view.total_m) + '</dd></div>' +
-      '<div><dt>걷는 시간</dt><dd class="num">' + bigTime(view.minutes) + '</dd></div></dl></div>' +
+      '<div><dt>걷는 시간</dt><dd class="num">' + bigTime(view.minutes) + '</dd></div>' +
+      (view.transfers ? '<div><dt>환승</dt><dd class="num"><b>' + view.transfers + '</b><small>회</small></dd></div>' : '') + '</dl></div>' +
       (lines.length ? '<p class="rc-lines" aria-label="지나는 노선">' + lines.map(function (n, i) {
         return (i ? '<span class="rc-sep" aria-hidden="true">›</span>' : '') + (n === '지상 걷기' ? '<span class="lc lc-walk">지상 걷기</span>' : chip(n));
       }).join('') + '</p>' : '') +
@@ -131,9 +133,17 @@
     if (view.usesPoint) notes += '<p class="note">출발·도착 지점과 출구 사이는 지상 노출로 셉니다.' + (view.street ? ' 실제 걷는 길로 쟀습니다.' : ' 걷는 길을 받지 못해 직선 거리 × 1.3으로 쟀습니다.') + '</p>';
     if (view.hasTransfer) {
       notes += '<p class="note">환승 통로는 양쪽 승강장이 모두 지하면 지하로 이어진다고 가정합니다. 환승 거리 출처: ' +
-        (view.seoulSource ? SEOUL_SRC + '. 그 밖의 역은 ' : '') + '추정(직선 거리 × 1.3 + 50m).</p>';
+        (view.seoulSource ? SEOUL_SRC + '(환승 시간은 그 기관 기준 초속 1.2m로 계산). 그 밖의 역은 ' : '') + '추정(직선 거리 × 1.3 + 50m). ' +
+        '승강장 깊이: 서울교통공사 역사심도정보(2024-11-04, 1~8호선만).</p>';
     }
-    notes += '<p class="note">데이터: © OpenStreetMap 기여자 (ODbL)' + (view.street ? ' · ' + esc(UG.walk ? UG.walk.ATTRIBUTION : '') : '') +
+    // 덧붙는 공식 자료(extra.json)를 쓴 곳이 있으면 출처를 밝힌다
+    const extraSrc = [];
+    if (view.items.some(function (it) { return it.xfer && it.xfer.fast; })) extraSrc.push(UG.transfer.FAST_CREDIT);
+    if (view.items.some(function (it) {
+      return (it.kind === 'exit' || it.kind === 'arrive') && [it.conn ? it.conn.ref : null].concat((it.others || []).map(function (o) { return o.ref; }))
+        .some(function (ref) { return ref && areasText(it.kind === 'exit' ? it.conn.si : it.si, ref); });
+    })) extraSrc.push(UG.transfer.EXITS_CREDIT);
+    notes += '<p class="note">데이터: © OpenStreetMap 기여자 (ODbL)' + (extraSrc.length ? ' · ' + esc(extraSrc.join(' · ')) : '') + (view.street ? ' · ' + esc(UG.walk ? UG.walk.ATTRIBUTION : '') : '') +
       '. 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 가정합니다. 실시간 피해 정보는 없습니다.</p>';
     R.notes.innerHTML = notes;
   }
@@ -146,17 +156,92 @@
       (meta ? '<span class="step-meta">' + meta + '</span>' : '') + '</button>';
   }
 
-  function exitsHtml(list, label) {
+  // si: 출구가 속한 역(출구 주변 이름을 찾을 때)
+  function exitsHtml(list, label, si) {
     if (!list || !list.length) return '';
     return '<details class="exits"><summary>' + esc(label) + ' (' + list.length + ')</summary><ul>' +
       list.map(function (x) {
+        const area = areasText(si, x.ref, 2);
         return '<li><button type="button" class="exit-btn" data-exit="' + x.ent + '"><span>' + esc(x.ref ? x.ref + '번 출구' : '번호 없는 출구') +
-          (x.chosen ? ' <span class="cur">· 안내한 출구</span>' : '') + '</span><span class="num">' + fmtDist(x.dist) + '</span></button></li>';
+          (x.chosen ? ' <span class="cur">· 안내한 출구</span>' : '') + (area ? '<small class="exit-area">' + esc(area) + '</small>' : '') +
+          '</span><span class="num">' + fmtDist(x.dist) + '</span></button></li>';
       }).join('') + '</ul></details>';
   }
 
   const WALK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.8" fill="currentColor" stroke="none"/><path d="M10 21l2.5-6 2.5 2.5V21M12.5 15L11 9.5l-3 2v3M11 9.5l3.5 1.5 2 2.5"/></svg>';
   function expo(m) { return '<span class="t-expo">지상 ' + fmtDist(m) + '</span>'; }
+
+  /* ---------- 환승 카드 (x = transfer.js 의 info 결과) ----------
+     단계 목록과 길 안내 카드가 같은 조각을 쓴다: 지하/지상 표시, 갈아탈 방향, 승강장 깊이, 짧은 행동 안내 세 줄. */
+  const XFER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14M15 4.5L18.5 8 15 11.5M20 16H6M9 12.5L5.5 16 9 19.5"/></svg>';
+  const MOVE_ICON = {   // 깊이 차이 화살표: 아래로 / 위로 / 같은 깊이(옆으로)
+    down: '<path d="M12 4v15M6.5 13.5L12 19l5.5-5.5"/>', up: '<path d="M12 20V5M6.5 10.5L12 5l5.5 5.5"/>', side: '<path d="M4 12h15M13.5 6.5L19 12l-5.5 5.5"/>'
+  };
+  function xferBadge(x) {
+    return x.underground ? '<span class="tag tag-ug">지하 통로</span>' : '<span class="tag tag-gr">지상 통로 · 노출</span>';
+  }
+  function xferChips(x) {
+    return '<span class="x-chips">' + chip(x.from.line) + '<span class="x-arrow" aria-label="에서">→</span>' + chip(x.to.line) + '</span>';
+  }
+  // '5호선 방화 방면으로 갈아타기 (다음 역 마포)'
+  function xferDirHtml(x) {
+    if (!x.dir) return '<p class="x-dir">' + chip(x.to.line) + ' 승강장으로 갈아타기</p>';
+    return '<p class="x-dir">' + chip(x.dir.line) + ' <b>' + esc(ro(x.dir.head)) + '</b> 갈아타기' +
+      (x.dir.terminal && x.dir.next ? ' <span class="muted">(다음 역 ' + esc(x.dir.next) + ')</span>' : '') + '</p>';
+  }
+  // 승강장 두 줄과 그 사이의 오르내림. 두 승강장 모두 지하인데 깊이 기록이 하나도 없으면 숨긴다.
+  function xferLevelsHtml(x) {
+    const T = UG.transfer;
+    if (!T || (!x.hasDepth && x.from.ug && x.to.ug)) return '';
+    const row = function (lv) {
+      return '<li class="xl-row">' + chip(lv.line) + '<span>승강장</span><span class="xl-v num">' + esc(T.levelText(lv)) + '</span></li>';
+    };
+    const d = x.delta_m, icon = d == null || Math.abs(d) < 1 ? 'side' : d > 0 ? 'down' : 'up';
+    return '<ol class="xl" aria-label="승강장 높이">' + row(x.from) +
+      '<li class="xl-move"><svg class="ic-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MOVE_ICON[icon] + '</svg>' +
+      (x.move ? '<b>' + esc(x.move) + '</b> · ' : '') + '통로 <span class="num">' + fmtDist(x.distance_m) + '</span></li>' +
+      row(x.to) + '</ol>';
+  }
+  // 길 안내 카드용 짧은 한 줄: '승강장 깊이 공항철도 자료 없음 → 5호선 B3 20.3m · 약 9m 아래로'
+  function xferLevelsLine(x) {
+    if (!x.hasDepth && x.from.ug && x.to.ug) return '';
+    const s = function (lv) {
+      if (/^B\d/.test(lv.floor)) return lv.floor + (lv.depth_m != null ? ' ' + lv.depth_m.toFixed(1) + 'm' : '');
+      return lv.floor || (lv.ug ? '자료 없음' : '지상');
+    };
+    return '<p class="x-lv">승강장 깊이 ' + esc(x.from.line + ' ' + s(x.from)) + ' <span aria-label="에서">→</span> ' + esc(x.to.line + ' ' + s(x.to)) +
+      (x.move ? ' · <b>' + esc(x.move) + '</b>' : '') + '</p>';
+  }
+  function xferMicroHtml(x) {
+    return '<ol class="x-micro" aria-label="환승 순서">' + x.micro.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ol>';
+  }
+  function xferMeta(x) {
+    return '<span class="num">' + fmtDist(x.distance_m) + '</span> · 약 ' + esc(UG.transfer ? UG.transfer.fmtMin(x.minutes) : fmtTime(x.minutes)) + ' · ' + esc(x.source_label) +
+      (x.credits && x.credits.length ? ' · ' + esc(x.credits.join(' · ')) : '');
+  }
+  // 빠른 환승(extra.json 이 있을 때만): '승강장 앞쪽(진행 방향) 환승 계단 · 4-2번 문 부근'(문 번호는 작게)
+  function xferFastHtml(x) {
+    if (!x.fast || !UG.transfer) return '';
+    const t = UG.transfer.fastText(x.fast);
+    return '<p class="x-fast"><svg class="ic-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h5v-5h5v-5h5V5h3"/></svg><span>' +
+      (x.fast.side ? esc(t).replace(x.fast.side, '<b>' + x.fast.side + '</b>') : esc(t)) +
+      (x.fast.door ? ' <small>· ' + esc(x.fast.door) + '번 문 부근</small>' : '') + '</span></p>';
+  }
+  // 출구 주변 이름(역세권 현황, extra.json 이 있을 때만): '동자동, 서울역 방면'
+  function areasText(si, ref, max) {
+    const a = UG.transfer ? UG.transfer.exitAreas(si, ref) : [];
+    return a.length ? a.slice(0, max || 3).join(', ') + ' 방면' : '';
+  }
+  // 단계 목록의 환승 카드: 위는 누르는 단추(지도에서 보기), 아래는 자세한 내용
+  function xferItemHtml(x, i, n) {
+    return '<li class="step step-x' + (x.underground ? '' : ' is-expo') + '">' +
+      '<button type="button" class="step-btn" data-item="' + i + '">' +
+      '<span class="step-no x" aria-hidden="true">' + XFER_ICON + '</span>' +
+      '<span class="step-title">' + n + esc(yeok(x.station)) + ' 환승 ' + xferBadge(x) + '</span>' +
+      '<span class="step-dir">' + xferChips(x) + '</span>' +
+      '<span class="step-meta">' + xferMeta(x) + '</span></button>' +
+      '<div class="x-more">' + xferDirHtml(x) + xferFastHtml(x) + xferLevelsHtml(x) + xferMicroHtml(x) + '</div></li>';
+  }
 
   function itemHtml(it, i) {
     const n = '<span class="sr-only">' + (i + 1) + '. </span>';
@@ -171,14 +256,15 @@
     }
     if (it.kind === 'exit') {
       const title = it.conn.kind === 'entrance' ? ro(exitName(it.stName, it.conn.ref)) + ' 나가기' : yeok(it.stName) + '에서 나가기 (출구 자료 없음)';
-      return '<li class="step">' + stepBtn(i, WALK_ICON, 's', n + esc(title), it.label ? esc(it.label) + '까지 걷기' : '',
-        expo(it.m) + ' · 약 ' + fmtTime(it.min)) +
-        exitsHtml(it.others, '출구가 막혔으면: 다른 출구') + '</li>';
+      const area = it.conn.kind === 'entrance' ? areasText(it.conn.si, it.conn.ref) : '';   // '5번 출구로 나가기 · 동자동, 서울역 방면'
+      return '<li class="step">' + stepBtn(i, WALK_ICON, 's', n + esc(title) + (area ? '<span class="step-area">· ' + esc(area) + '</span>' : ''),
+        it.label ? esc(it.label) + '까지 걷기' : '', expo(it.m) + ' · 약 ' + fmtTime(it.min)) +
+        exitsHtml(it.others, '출구가 막혔으면: 다른 출구', it.conn.si) + '</li>';
     }
     if (it.kind === 'arrive') {
       return '<li class="step">' + stepBtn(i, '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 21V4h10l-2 3.5 2 3.5H8v10z"/></svg>', 'e', n + esc(yeok(it.stName)) + ' 도착', '',
         it.others.length ? '출구 거리는 역 중심에서 잰 직선 거리입니다.' : '이 역은 출구 자료가 없습니다.') +
-        exitsHtml(it.others, '출구') + '</li>';
+        exitsHtml(it.others, '출구', it.si) + '</li>';
     }
     const s = it.step;
     if (s.type === 'warning') {
@@ -194,6 +280,7 @@
         esc(exitName(s.from_station, s.from_ref)) + '로 나가서 걷기 (지하로 이어진 길이 없음)',
         expo(s.distance_m) + ' · 약 ' + fmtTime(s.est_minutes)) + '</li>';
     }
+    if (s.type === 'transfer' && it.xfer) return xferItemHtml(it.xfer, i, n);
     if (s.type === 'transfer') {
       const src = ST.SOURCE_KO[s.source] || '';
       return '<li class="step">' + stepBtn(i, s.no, 't', n + '<span class="step-chips">' + chip(s.from_line) + '<span aria-hidden="true">→</span>' + chip(s.to_line) + '</span>' +
@@ -330,6 +417,8 @@
     esc: esc, yeok: yeok, ro: ro, fmtDist: fmtDist, fmtTime: fmtTime, exitName: exitName, shortRegion: shortRegion,
     bigDist: bigDist, bigTime: bigTime, expoClass: expoClass, expoBadge: expoBadge,
     mountRoute: mountRoute, renderRoute: renderRoute, messageHtml: messageHtml, routeLines: routeLines,
+    xferBadge: xferBadge, xferChips: xferChips, xferDirHtml: xferDirHtml, xferLevelsHtml: xferLevelsHtml, xferMicroHtml: xferMicroHtml, xferMeta: xferMeta,
+    xferFastHtml: xferFastHtml, xferLevelsLine: xferLevelsLine, areasText: areasText,
     computeStats: computeStats, renderStats: renderStats, exitPopupHtml: exitPopupHtml, pointPopupHtml: pointPopupHtml
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
