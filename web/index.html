@@ -1,0 +1,944 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>지하 철도망 지도</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: full-bleed canvas map; header card floats top-left; stats is a right-hand panel on wide screens and a bottom sheet on phones. */
+:root {
+  /* color: cool concrete neutrals, tunnel-signage ink, three structure colors that differ in hue AND lightness */
+  --bg: #DCE1E4;          /* map ground when no tiles */
+  --surface: #F8FAFB;     /* cards, popups */
+  --surface-2: #E8ECEF;   /* chips off, table zebra, bar track */
+  --ink: #13202B;
+  --muted: #55626D;
+  --rule: #C4CCD3;
+  --tunnel: #1E5CCC;      /* underground: deep blue, L~42 */
+  --bridge: #CC7A00;      /* bridge: amber, L~60 (lighter than red) */
+  --ground: #B3261E;      /* ground: brick red, L~40 */
+  --ok: #1D7349;
+  --warn: #8C5E00;
+  --na: #66717C;
+  --focus: #1E5CCC;
+  --attr-bg: rgb(248 250 252 / .86);
+  --shadow: 0 1px 2px rgb(19 32 43 / .14), 0 6px 18px rgb(19 32 43 / .12);
+  --tile-filter: grayscale(.8) contrast(.9) brightness(1.05);
+  --tile-opacity: .7;
+  /* type */
+  --font-ui: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --fs-xs: .75rem;
+  --fs-sm: .8125rem;
+  --fs-md: .9375rem;
+  --fs-lg: 1.0625rem;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1217; --surface: #141C23; --surface-2: #1D272F; --ink: #E2E8ED; --muted: #94A1AC; --rule: #2C3843;
+    --tunnel: #5B9AFF; --bridge: #F0AE3C; --ground: #EC5B50;
+    --ok: #5BC28C; --warn: #E0B652; --na: #8D98A2; --focus: #8AB8FF;
+    --attr-bg: rgb(20 28 35 / .86);
+    --shadow: 0 1px 2px rgb(0 0 0 / .5), 0 6px 18px rgb(0 0 0 / .4);
+    --tile-filter: invert(1) hue-rotate(180deg) grayscale(.75) brightness(.8) contrast(.9);
+    --tile-opacity: .55;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1217; --surface: #141C23; --surface-2: #1D272F; --ink: #E2E8ED; --muted: #94A1AC; --rule: #2C3843;
+  --tunnel: #5B9AFF; --bridge: #F0AE3C; --ground: #EC5B50;
+  --ok: #5BC28C; --warn: #E0B652; --na: #8D98A2; --focus: #8AB8FF;
+  --attr-bg: rgb(20 28 35 / .86);
+  --shadow: 0 1px 2px rgb(0 0 0 / .5), 0 6px 18px rgb(0 0 0 / .4);
+  --tile-filter: invert(1) hue-rotate(180deg) grayscale(.75) brightness(.8) contrast(.9);
+  --tile-opacity: .55;
+  color-scheme: dark;
+}
+
+/* ---------- page ---------- */
+html { height: 100%; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; }
+[hidden] { display: none !important; }
+body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: var(--fs-md); line-height: 1.45; -webkit-text-size-adjust: 100%; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 500; }
+
+.app { position: fixed; inset: 0; --sheet-offset: 0px; }
+#map { position: absolute; inset: 0; z-index: 0; }
+.card { background: var(--surface); color: var(--ink); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: var(--shadow); }
+
+/* ---------- header card ---------- */
+.head { position: absolute; z-index: 10; top: calc(12px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); width: 352px; max-width: calc(100% - 32px); padding: 12px; display: grid; gap: 10px; }
+.head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.head h1 { margin: 0; font-size: var(--fs-lg); font-weight: 700; letter-spacing: -.01em; text-wrap: balance; }
+.btn-ghost { flex: none; min-height: 30px; padding: 0 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); font-size: var(--fs-xs); font-weight: 500; cursor: pointer; }
+.btn-ghost:hover { border-color: var(--muted); }
+.btn-ghost[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+
+.layers { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.chip { position: relative; }
+.chip-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.chip-label { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 9px; border: 1px dashed var(--rule); border-radius: 6px; background: var(--surface-2); color: var(--muted); font-size: var(--fs-sm); white-space: nowrap; user-select: none; -webkit-user-select: none; }
+.chip-input:checked + .chip-label { border-style: solid; border-color: var(--ink); background: var(--surface); color: var(--ink); font-weight: 500; }
+.chip-input:focus-visible + .chip-label { outline: 2px solid var(--focus); outline-offset: 2px; }
+.sw { display: inline-block; flex: none; width: 16px; height: 4px; border-radius: 2px; background: var(--sw); }
+.chip-input:not(:checked) + .chip-label .sw { background: transparent; box-shadow: inset 0 0 0 1px var(--sw); }
+.sw-tunnel { --sw: var(--tunnel); }
+.sw-bridge { --sw: var(--bridge); }
+.sw-ground { --sw: var(--ground); }
+.sw-service { --sw: var(--muted); height: 2px; opacity: .8; }
+
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0; font-size: var(--fs-xs); color: var(--muted); }
+.meta .key { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink); }
+.dot-ug { background: var(--ink); box-shadow: 0 0 0 1px var(--surface); }
+.dot-gr { background: var(--surface); }
+.badge { margin-left: auto; padding: 1px 7px; border: 1px dashed var(--muted); border-radius: 4px; color: var(--ink); white-space: nowrap; }
+
+.safety { display: flex; align-items: baseline; gap: 8px; margin: 0; padding-top: 9px; border-top: 1px solid var(--rule); font-size: var(--fs-xs); color: var(--ink); }
+.safety b { flex: none; padding: 1px 5px; border: 1px solid var(--ink); border-radius: 3px; font-weight: 700; letter-spacing: .06em; }
+
+/* ---------- stats panel / sheet ---------- */
+.stats { position: absolute; z-index: 10; top: calc(12px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); width: 350px; max-width: calc(100% - 32px); max-height: calc(100% - 120px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; overflow: hidden; }
+.peek { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "main act" "bar bar"; align-items: center; gap: 8px 12px; width: 100%; padding: 12px 14px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: var(--radius); }
+.peek-main { grid-area: main; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: var(--fs-sm); color: var(--muted); }
+.peek-main b { color: var(--ink); font-size: var(--fs-md); }
+.peek-act { grid-area: act; display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); font-weight: 500; color: var(--ink); }
+.peek-act::after { content: ""; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translate(-2px, -2px); transition: transform .15s; }
+.peek[aria-expanded="true"] .peek-act::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.peek .sbar { grid-area: bar; }
+
+.sbar { display: flex; height: 8px; border-radius: 2px; overflow: hidden; background: var(--surface-2); }
+.sbar span { display: block; height: 100%; }
+.seg-tunnel { background: var(--tunnel); }
+.seg-bridge { background: var(--bridge); }
+.seg-ground { background: var(--ground); }
+
+.stats-body { overflow-y: auto; overscroll-behavior: contain; padding: 2px 14px 14px; border-top: 1px solid var(--rule); display: grid; gap: 8px; }
+.stats-body h2 { margin: 10px 0 0; font-size: var(--fs-xs); font-weight: 500; color: var(--muted); letter-spacing: .04em; }
+.note { margin: 0; font-size: var(--fs-xs); color: var(--muted); }
+.note.src { padding-top: 8px; border-top: 1px solid var(--rule); }
+
+.t { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.t th { padding: 4px 6px; border-bottom: 1px solid var(--rule); font-size: var(--fs-xs); font-weight: 500; color: var(--muted); text-align: left; white-space: nowrap; }
+.t td { padding: 6px; border-bottom: 1px solid var(--surface-2); vertical-align: middle; }
+.t th:first-child, .t td:first-child { padding-left: 0; }
+.t th:last-child, .t td:last-child { padding-right: 0; }
+.t .r { text-align: right; }
+.t tfoot td { border-bottom: 0; color: var(--muted); }
+.t-nation .key { display: inline-flex; align-items: center; gap: 7px; }
+.t-nation tbody td { font-weight: 500; }
+.share { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.mini { flex: none; width: 44px; height: 6px; border-radius: 1px; background: var(--surface-2); overflow: hidden; }
+.mini span { display: block; height: 100%; background: var(--tunnel); }
+.rg-btn { padding: 2px 0; border: 0; background: none; cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; white-space: nowrap; }
+.rg-btn:hover { text-decoration-color: var(--ink); }
+
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px 0 5px; border: 1px solid currentColor; border-radius: 999px; font-size: var(--fs-xs); line-height: 1.6; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor; }
+.pill-good { color: var(--ok); }
+.pill-good::before { background: currentColor; }
+.pill-caveat { color: var(--warn); }
+.pill-caveat::before { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+.pill-unchecked { color: var(--na); border-style: dashed; }
+
+/* ---------- loading / error ---------- */
+.status { position: absolute; z-index: 20; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100% - 32px)); padding: 14px 16px; display: grid; gap: 8px; }
+.status p { margin: 0; font-size: var(--fs-sm); }
+.status .detail { color: var(--muted); font-size: var(--fs-xs); }
+.status.is-error { border-color: var(--ground); }
+.status.is-error .title { color: var(--ground); font-weight: 500; }
+.progress { height: 3px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+.progress span { display: block; width: 30%; height: 100%; background: var(--tunnel); animation: slide 1.1s ease-in-out infinite; }
+@keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+.status .btn-ghost { justify-self: start; }
+
+/* ---------- phone ---------- */
+@media (max-width: 759px) {
+  .head { right: max(16px, env(safe-area-inset-right, 0px)); width: auto; max-width: none; padding: 10px 12px; gap: 8px; }
+  .stats { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-width: none; max-height: 62%; border-width: 1px 0 0; border-radius: 14px 14px 0 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .stats::before { content: ""; align-self: center; flex: none; width: 36px; height: 4px; margin-top: 6px; border-radius: 2px; background: var(--rule); }
+  .peek { padding: 8px 0 12px; }
+  .stats-body { padding: 2px 0 14px; }
+}
+
+/* ---------- Leaflet 1.9.4 essentials (inlined: the viewer blocks external stylesheets) ---------- */
+.leaflet-pane, .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-tile-container, .leaflet-pane > svg, .leaflet-pane > canvas, .leaflet-zoom-box, .leaflet-image-layer, .leaflet-layer { position: absolute; left: 0; top: 0; }
+.leaflet-container { overflow: hidden; background: var(--bg); font-family: var(--font-ui); font-size: var(--fs-xs); line-height: 1.5; -webkit-tap-highlight-color: transparent; outline-offset: -2px; }
+.leaflet-container:focus-visible { outline: 2px solid var(--focus); }
+.leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow { user-select: none; -webkit-user-select: none; -webkit-user-drag: none; }
+.leaflet-tile::selection { background: transparent; }
+.leaflet-marker-icon, .leaflet-marker-shadow { display: block; }
+.leaflet-container .leaflet-overlay-pane svg { max-width: none !important; max-height: none !important; }
+.leaflet-container img.leaflet-tile, .leaflet-container .leaflet-marker-pane img, .leaflet-container .leaflet-tile-pane img { max-width: none !important; max-height: none !important; width: auto; padding: 0; }
+.leaflet-container.leaflet-touch-zoom { touch-action: pan-x pan-y; }
+.leaflet-container.leaflet-touch-drag { touch-action: none; touch-action: pinch-zoom; }
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom { touch-action: none; }
+.leaflet-tile { filter: inherit; visibility: hidden; }
+.leaflet-tile-loaded { visibility: inherit; }
+.leaflet-zoom-box { width: 0; height: 0; z-index: 800; border: 2px dotted var(--focus); }
+.leaflet-pane { z-index: 400; }
+.leaflet-tile-pane { z-index: 200; filter: var(--tile-filter); opacity: var(--tile-opacity); }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane { z-index: 500; }
+.leaflet-marker-pane { z-index: 600; }
+.leaflet-tooltip-pane { z-index: 650; }
+.leaflet-popup-pane { z-index: 700; }
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg { z-index: 200; }
+.app.no-tiles .leaflet-tile-pane { display: none; }
+
+.leaflet-control { position: relative; z-index: 800; pointer-events: auto; float: left; clear: both; }
+.leaflet-top, .leaflet-bottom { position: absolute; z-index: 1000; pointer-events: none; }
+.leaflet-top { top: env(safe-area-inset-top, 0px); }
+.leaflet-bottom { bottom: max(var(--sheet-offset), env(safe-area-inset-bottom, 0px)); }
+.leaflet-left { left: max(16px, env(safe-area-inset-left, 0px)); }
+.leaflet-right { right: env(safe-area-inset-right, 0px); }
+.leaflet-right .leaflet-control { float: right; }
+.leaflet-top .leaflet-control { margin-top: 10px; }
+.leaflet-bottom .leaflet-control { margin-bottom: 10px; }
+.leaflet-right .leaflet-control { margin-right: 16px; }
+.leaflet-bottom .leaflet-control-attribution { margin: 0; }
+
+.leaflet-fade-anim .leaflet-popup { opacity: 0; transition: opacity .2s linear; }
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup { opacity: 1; }
+.leaflet-zoom-animated { transform-origin: 0 0; }
+.leaflet-zoom-anim .leaflet-zoom-animated { will-change: transform; transition: transform .25s cubic-bezier(0, 0, .25, 1); }
+.leaflet-zoom-anim .leaflet-tile, .leaflet-pan-anim .leaflet-tile { transition: none; }
+.leaflet-zoom-anim .leaflet-zoom-hide { visibility: hidden; }
+
+.leaflet-interactive { cursor: pointer; }
+.leaflet-grab { cursor: grab; }
+.leaflet-crosshair, .leaflet-crosshair .leaflet-interactive { cursor: crosshair; }
+.leaflet-popup-pane, .leaflet-control { cursor: auto; }
+.leaflet-dragging .leaflet-grab, .leaflet-dragging .leaflet-grab .leaflet-interactive { cursor: grabbing; }
+.leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-image-layer, .leaflet-pane > svg path, .leaflet-tile-container { pointer-events: none; }
+.leaflet-marker-icon.leaflet-interactive, .leaflet-image-layer.leaflet-interactive, .leaflet-pane > svg path.leaflet-interactive { pointer-events: auto; }
+
+.leaflet-bar { border: 1px solid var(--rule); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
+.leaflet-bar a { display: block; width: 36px; height: 36px; line-height: 34px; text-align: center; text-decoration: none; background: var(--surface); color: var(--ink); border-bottom: 1px solid var(--rule); font: 500 20px/34px var(--font-num); }
+.leaflet-bar a:last-child { border-bottom: 0; }
+.leaflet-bar a:hover { background: var(--surface-2); }
+.leaflet-bar a:focus-visible { outline-offset: -3px; }
+.leaflet-bar a.leaflet-disabled { cursor: default; color: var(--rule); background: var(--surface); }
+
+.leaflet-control-attribution { max-width: min(62vw, 460px); padding: 1px 6px; background: var(--attr-bg); color: var(--muted); font-size: 11px; line-height: 1.5; border-top-left-radius: 6px; }
+.leaflet-control-attribution a { color: var(--ink); text-decoration: none; }
+.leaflet-control-attribution a:hover, .leaflet-control-attribution a:focus-visible { text-decoration: underline; }
+.leaflet-attribution-flag { display: none !important; }
+.leaflet-control-scale-line { padding: 0 5px; border: 1.5px solid var(--ink); border-top: 0; background: var(--attr-bg); color: var(--ink); font: 500 10px/1.5 var(--font-num); white-space: nowrap; }
+
+.leaflet-popup { position: absolute; text-align: center; margin-bottom: 14px; }
+.leaflet-popup-content-wrapper { padding: 1px; text-align: left; border-radius: 10px; border: 1px solid var(--rule); }
+.leaflet-popup-content { margin: 12px 30px 12px 14px; min-height: 1px; font-size: var(--fs-sm); line-height: 1.45; }
+.leaflet-popup-tip-container { position: absolute; left: 50%; width: 40px; height: 20px; margin-top: -1px; margin-left: -20px; overflow: hidden; pointer-events: none; }
+.leaflet-popup-tip { width: 17px; height: 17px; padding: 1px; margin: -10px auto 0; transform: rotate(45deg); pointer-events: auto; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.leaflet-container a.leaflet-popup-close-button { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; border: 0; background: transparent; color: var(--muted); font: 20px/28px var(--font-ui); text-align: center; text-decoration: none; border-radius: 6px; }
+.leaflet-container a.leaflet-popup-close-button:hover { color: var(--ink); background: var(--surface-2); }
+
+/* ---------- station popup ---------- */
+.pop { display: grid; gap: 6px; min-width: 180px; }
+.pop p { margin: 0; }
+.pop-name { font-size: var(--fs-md); font-weight: 700; }
+.pop-status { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+.pop-lines { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; }
+.pop-lines li { display: flex; align-items: baseline; gap: 6px; }
+.tag { flex: none; padding: 0 5px; border-radius: 3px; font-size: 11px; font-weight: 500; line-height: 1.6; border: 1px solid var(--ink); }
+.tag-ug { background: var(--ink); color: var(--surface); }
+.tag-gr { background: var(--surface); color: var(--ink); }
+.pop-meta { font-size: var(--fs-xs); color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+<div class="app" id="app">
+  <div id="map" role="region" aria-label="전국 철도 선로 지도"></div>
+
+  <header class="card head" id="head">
+    <div class="head-row">
+      <h1>지하 철도망 지도</h1>
+      <button type="button" class="btn-ghost" id="only-under" aria-pressed="false">지하만 보기</button>
+    </div>
+    <fieldset class="layers" id="layers">
+      <legend class="sr-only">지도에 표시할 선로</legend>
+      <span class="chip"><input type="checkbox" class="chip-input" id="lyr-tunnel" data-layer="tunnel" checked><label class="chip-label" for="lyr-tunnel"><span class="sw sw-tunnel"></span>지하(터널)</label></span>
+      <span class="chip"><input type="checkbox" class="chip-input" id="lyr-bridge" data-layer="bridge" checked><label class="chip-label" for="lyr-bridge"><span class="sw sw-bridge"></span>교량</label></span>
+      <span class="chip"><input type="checkbox" class="chip-input" id="lyr-ground" data-layer="ground" checked><label class="chip-label" for="lyr-ground"><span class="sw sw-ground"></span>지상</label></span>
+      <span class="chip"><input type="checkbox" class="chip-input" id="lyr-service" data-layer="service" checked><label class="chip-label" for="lyr-service"><span class="sw sw-service"></span>측선</label></span>
+    </fieldset>
+    <p class="meta">
+      <span class="key"><span class="dot dot-ug"></span>지하역</span>
+      <span class="key"><span class="dot dot-gr"></span>지상역</span>
+      <span id="station-hint">역은 더 확대하면 보입니다</span>
+      <span class="badge" id="basemap-badge" hidden>배경 지도 없음 · 철도망만 표시</span>
+    </p>
+    <p class="safety"><b>안전</b><span>평시에는 철도 터널에 들어가면 안 됩니다.</span></p>
+  </header>
+
+  <section class="card stats" id="stats" aria-label="구조별 선로 통계">
+    <button type="button" class="peek" id="stats-toggle" aria-expanded="false" aria-controls="stats-body">
+      <span class="peek-main">
+        <span>전국 본선 <b class="num" id="peek-total">–</b> km</span>
+        <span>지하 <b class="num" id="peek-tunnel">–</b>%</span>
+      </span>
+      <span class="peek-act" id="stats-action">통계 보기</span>
+      <span class="sbar" id="peek-bar" role="img" aria-label="구조별 비율을 계산하는 중"></span>
+    </button>
+    <div class="stats-body" id="stats-body" hidden>
+      <h2>전국 본선 · 구조별</h2>
+      <table class="t t-nation">
+        <thead><tr><th scope="col">구조</th><th scope="col" class="r">km</th><th scope="col" class="r">비율</th></tr></thead>
+        <tbody id="nation-rows"></tbody>
+        <tfoot id="nation-foot"></tfoot>
+      </table>
+      <p class="note">km는 선로 길이의 합입니다. 복선은 두 번 셉니다.</p>
+      <p class="note" id="station-count"></p>
+      <h2>지역별 본선</h2>
+      <table class="t t-region">
+        <thead><tr><th scope="col">지역</th><th scope="col" class="r">km</th><th scope="col" class="r">지하 비율</th><th scope="col">신뢰도</th></tr></thead>
+        <tbody id="region-rows"></tbody>
+      </table>
+      <p class="note">지역 이름을 누르면 그 지역으로 이동합니다. 신뢰도는 좋음: 다른 자료와 대조해 맞음, 주의: 일부만 대조, 미검증: 대조하지 못함.</p>
+      <p class="note src" id="src-note">데이터: © OpenStreetMap 기여자 (ODbL)</p>
+    </div>
+  </section>
+
+  <div class="card status" id="status" role="status" aria-live="polite">
+    <p class="title" id="status-title">철도망 데이터를 불러오는 중입니다</p>
+    <div class="progress" id="status-progress"><span></span></div>
+    <p class="detail" id="status-detail">약 3 MB</p>
+    <button type="button" class="btn-ghost" id="retry" hidden>다시 시도</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* =========================================================
+     0. 설정
+     ========================================================= */
+  const CFG = {
+    dataUrl: 'data/graph.json',
+    tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    koreaBounds: [[33.9, 125.0], [38.7, 129.9]],
+    maxBounds: [[31.5, 122.0], [40.5, 133.0]],
+    stationMinZoom: 11,
+    wideQuery: '(min-width: 760px)',
+    prefsKey: 'ugmap.layers.v1'
+  };
+  const STRUCTS = ['tunnel', 'bridge', 'ground'];            // 선로 구조 (tables.structs 이름)
+  const LABEL = { tunnel: '지하(터널)', bridge: '교량', ground: '지상' };
+  const CONF_LABEL = { good: '좋음', caveat: '주의', unchecked: '미검증' };
+  const REGION_SHORT = {
+    '서울특별시': '서울', '경기도': '경기', '인천광역시': '인천', '부산광역시': '부산', '대구광역시': '대구',
+    '대전광역시': '대전', '세종특별자치시': '세종', '울산광역시': '울산', '강원특별자치도': '강원',
+    '충청북도': '충북', '충청남도': '충남', '전북특별자치도': '전북', '전남광주통합특별시': '전남·광주',
+    '경상북도': '경북', '경상남도': '경남'
+  };
+  const OSM_LINK = '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+  const DATA_ATTR = '데이터: © ' + OSM_LINK + ' 기여자 (ODbL)';
+  const TILE_ATTR = '배경 지도 © ' + OSM_LINK;
+  // 줌 단계별 선 굵기(px): 본선 / 측선
+  const MAIN_W = [1.6, 2.0, 2.6, 3.6];
+  const SVC_W = [0.7, 1.0, 1.4, 2.0];
+
+  /* =========================================================
+     1. 데이터 불러오기
+     ========================================================= */
+  class LoadError extends Error {
+    constructor(kind, detail) { super(kind); this.kind = kind; this.detail = detail; }
+  }
+
+  async function loadGraph(url, onProgress) {
+    let res;
+    try { res = await fetch(url); } catch (e) { throw new LoadError('network'); }
+    if (!res.ok) throw new LoadError('http', res.status);
+    let text;
+    try {
+      if (res.body && res.body.getReader && typeof TextDecoder !== 'undefined') {
+        const reader = res.body.getReader();
+        const chunks = [];
+        let size = 0;
+        for (;;) {
+          const r = await reader.read();
+          if (r.done) break;
+          chunks.push(r.value);
+          size += r.value.length;
+          if (onProgress) onProgress(size);
+        }
+        const buf = new Uint8Array(size);
+        let off = 0;
+        for (const c of chunks) { buf.set(c, off); off += c.length; }
+        text = new TextDecoder('utf-8').decode(buf);
+      } else {
+        text = await res.text();
+      }
+    } catch (e) { throw new LoadError('network'); }
+    let g;
+    try { g = JSON.parse(text); } catch (e) { throw new LoadError('format'); }
+    validateGraph(g);
+    return g;
+  }
+
+  function validateGraph(g) {
+    const ok = g && g.format === 'underground-route-graph' && g.version === 1 &&
+      g.tables && g.nodes && g.edges && Array.isArray(g.stations) &&
+      Array.isArray(g.edges.a) && Array.isArray(g.nodes.lat);
+    if (!ok) throw new LoadError('format');
+    const n = g.edges.a.length;
+    for (const k of ['b', 'len', 's', 'k', 'svc', 'rg', 'g']) {
+      if (!Array.isArray(g.edges[k]) || g.edges[k].length !== n) throw new LoadError('format');
+    }
+    return true;
+  }
+
+  /* =========================================================
+     2. 풀기와 모델 (Leaflet 없이 동작: 경로 탐색에서도 다시 쓴다)
+     ========================================================= */
+  // Google 인코딩 폴리라인(소수 5자리) -> [[lat, lon], ...]  (docs/graph-format.md 와 같은 알고리즘)
+  function decodePolyline(s) {
+    const pts = [];
+    let i = 0, lat = 0, lon = 0;
+    while (i < s.length) {
+      for (let k = 0; k < 2; k++) {
+        let r = 0, sh = 0, b;
+        do { b = s.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32);
+        const d = (r & 1) ? ~(r >> 1) : (r >> 1);
+        if (k === 0) lat += d; else lon += d;
+      }
+      pts.push([lat / 1e5, lon / 1e5]);
+    }
+    return pts;
+  }
+
+  function nodeLatLng(g, i) { return [g.nodes.lat[i] / 1e5, g.nodes.lon[i] / 1e5]; }
+
+  // 표 번호 -> 이름 변환에 필요한 값
+  function codes(g) {
+    const T = g.tables;
+    return {
+      track: T.kinds.indexOf('track'),
+      main: T.services.indexOf(''),
+      structKey: T.structs.map(function (name) { return STRUCTS.indexOf(name) >= 0 ? name : null; })
+    };
+  }
+
+  // 선로 간선을 구조 x 본선/측선으로 묶는다. 각 묶음은 선 조각 배열(멀티 폴리라인).
+  function buildTrackGroups(g) {
+    const E = g.edges, C = codes(g);
+    const groups = {};
+    STRUCTS.forEach(function (k) { groups[k] = { main: [], service: [] }; });
+    for (let e = 0; e < E.a.length; e++) {
+      if (E.k[e] !== C.track) continue;
+      const key = C.structKey[E.s[e]];
+      if (!key) continue;
+      const pts = E.g[e] ? decodePolyline(E.g[e]) : [nodeLatLng(g, E.a[e]), nodeLatLng(g, E.b[e])];
+      groups[key][E.svc[e] === C.main ? 'main' : 'service'].push(pts);
+    }
+    return groups;
+  }
+
+  function lineNames(T, ls) {
+    const set = T.line_sets[ls] || [];
+    const out = [];
+    set.forEach(function (i) { const n = T.lines[i]; if (n && out.indexOf(n) < 0) out.push(n); });
+    return out;
+  }
+
+  // 역: 허브(노선별 승강장)마다 노선 이름과 지하 여부. status = all | part | none
+  function buildStations(g) {
+    const T = g.tables;
+    return g.stations.map(function (s, i) {
+      const hubs = (s.hubs || []).map(function (h, j) {
+        return { node: h, lines: lineNames(T, (s.hub_ls || [])[j]), ug: (s.ug || [])[j] === 1 };
+      });
+      const ugN = hubs.filter(function (h) { return h.ug; }).length;
+      const status = hubs.length > 0 && ugN === hubs.length ? 'all' : (ugN > 0 ? 'part' : 'none');
+      return { index: i, name: s.name, lat: s.lat / 1e5, lon: s.lon / 1e5, region: s.rg, hubs: hubs, status: status };
+    });
+  }
+
+  // 본선 선로 끝점으로 전국·지역 범위 [남, 서, 북, 동]
+  function computeBounds(g) {
+    const E = g.edges, C = codes(g);
+    const all = [90, 180, -90, -180];
+    const regions = g.tables.regions.map(function () { return null; });
+    function grow(b, la, lo) { if (la < b[0]) b[0] = la; if (lo < b[1]) b[1] = lo; if (la > b[2]) b[2] = la; if (lo > b[3]) b[3] = lo; }
+    for (let e = 0; e < E.a.length; e++) {
+      if (E.k[e] !== C.track || E.svc[e] !== C.main) continue;
+      const r = E.rg[e];
+      if (r >= 0 && !regions[r]) regions[r] = [90, 180, -90, -180];
+      for (const n of [E.a[e], E.b[e]]) {
+        const la = g.nodes.lat[n] / 1e5, lo = g.nodes.lon[n] / 1e5;
+        grow(all, la, lo);
+        if (r >= 0) grow(regions[r], la, lo);
+      }
+    }
+    return { all: all, regions: regions };
+  }
+
+  /* =========================================================
+     3. 통계 (본선 선로 km, 구조별·지역별)
+     ========================================================= */
+  function computeStats(g) {
+    const E = g.edges, T = g.tables, C = codes(g);
+    const nation = { km: { tunnel: 0, bridge: 0, ground: 0 }, total: 0, service: 0 };
+    const regions = T.regions.map(function (r, i) {
+      return { index: i, name: r.name, conf: r.conf, km: { tunnel: 0, bridge: 0, ground: 0 }, total: 0 };
+    });
+    for (let e = 0; e < E.a.length; e++) {
+      if (E.k[e] !== C.track) continue;
+      const key = C.structKey[E.s[e]];
+      if (!key) continue;
+      const km = E.len[e] / 1000;
+      if (E.svc[e] !== C.main) { nation.service += km; continue; }
+      nation.km[key] += km;
+      nation.total += km;
+      const r = regions[E.rg[e]];
+      if (r) { r.km[key] += km; r.total += km; }
+    }
+    const stations = { total: 0, all: 0, part: 0 };
+    buildStations(g).forEach(function (s) {
+      stations.total++;
+      if (s.status === 'all') stations.all++;
+      else if (s.status === 'part') stations.part++;
+    });
+    return {
+      nation: nation,
+      regions: regions.filter(function (r) { return r.total > 0; }).sort(function (a, b) { return b.total - a.total; }),
+      stations: stations
+    };
+  }
+
+  /* =========================================================
+     4. 지도 그리기 (Leaflet, Canvas)
+     ========================================================= */
+  function readPalette() {
+    const cs = getComputedStyle(document.documentElement);
+    const v = function (n) { return cs.getPropertyValue(n).trim(); };
+    return { tunnel: v('--tunnel'), bridge: v('--bridge'), ground: v('--ground'), ink: v('--ink'), paper: v('--surface') };
+  }
+
+  function watchTheme(cb) {
+    let queued = false;
+    const fire = function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; cb(); });
+    };
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', fire); else if (mq.addListener) mq.addListener(fire);
+    new MutationObserver(fire).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+  }
+
+  function zoomTier(z) { return z < 8 ? 0 : z < 10 ? 1 : z < 13 ? 2 : 3; }
+
+  function lineStyle(key, tier, zt, pal) {
+    const main = tier === 'main';
+    return { color: pal[key], weight: (main ? MAIN_W : SVC_W)[zt], opacity: main ? 0.95 : 0.5, lineCap: 'round', lineJoin: 'round' };
+  }
+
+  function stationStyle(st, zoom, pal) {
+    const ug = st.status !== 'none';
+    return {
+      radius: zoom < 13 ? 3.5 : 5,
+      weight: 1.5,
+      color: ug ? pal.paper : pal.ink,
+      fillColor: ug ? pal.ink : pal.paper,
+      fillOpacity: 1,
+      opacity: 1
+    };
+  }
+
+  function createMap(reduceMotion) {
+    const map = L.map('map', {
+      preferCanvas: true,
+      zoomControl: false,
+      minZoom: 6,
+      maxZoom: 18,
+      zoomSnap: 0.5,
+      maxBounds: CFG.maxBounds,
+      maxBoundsViscosity: 0.8,
+      fadeAnimation: !reduceMotion,
+      zoomAnimation: !reduceMotion,
+      markerZoomAnimation: !reduceMotion,
+      inertia: !reduceMotion
+    });
+    L.control.zoom({ position: 'bottomright', zoomInTitle: '확대', zoomOutTitle: '축소' }).addTo(map);
+    L.control.scale({ position: 'bottomleft', imperial: false, maxWidth: 100 }).addTo(map);
+    map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+    map.attributionControl.addAttribution(DATA_ATTR);
+    return map;
+  }
+
+  // 배경 타일: 실패해도 철도망만으로 동작한다. onState('ok' | 'none')
+  function addBaseTiles(map, onState) {
+    const tiles = L.tileLayer(CFG.tileUrl, { maxZoom: 19, attribution: TILE_ATTR });
+    let loaded = 0, failed = 0, removed = false;
+    tiles.on('tileload', function () { loaded++; if (loaded === 1) onState('ok'); });
+    tiles.on('tileerror', function () {
+      failed++;
+      if (loaded > 0) return;
+      onState('none');
+      // 하나도 못 받았으면 더 요청하지 않는다(차단된 뷰어·오프라인)
+      if (failed >= 6 && !removed) { removed = true; map.removeLayer(tiles); }
+    });
+    tiles.addTo(map);
+    setTimeout(function () { if (loaded === 0) onState('none'); }, 8000);
+    return tiles;
+  }
+
+  // 그리는 순서: 측선 아래, 본선 위. 지상 -> 교량 -> 지하(맨 위)
+  function createNetwork(groups, renderer) {
+    const out = [];
+    ['service', 'main'].forEach(function (tier) {
+      ['ground', 'bridge', 'tunnel'].forEach(function (key) {
+        const parts = groups[key][tier];
+        if (!parts.length) return;
+        out.push({ key: key, tier: tier, parts: parts.length, layer: L.polyline(parts, { renderer: renderer, interactive: false, smoothFactor: 1.5 }) });
+      });
+    });
+    return out;
+  }
+
+  function createStationMarkers(stations, renderer, g, popupPad) {
+    return stations.map(function (st) {
+      const m = L.circleMarker([st.lat, st.lon], { renderer: renderer, bubblingMouseEvents: false, radius: 3.5 });
+      m.bindPopup(function () { return stationPopupHtml(st, g.tables); }, {
+        maxWidth: 280, autoPanPaddingTopLeft: popupPad.topLeft, autoPanPaddingBottomRight: popupPad.bottomRight
+      });
+      return m;
+    });
+  }
+
+  /* =========================================================
+     5. 화면 조각 (통계 패널, 팝업, 상태)
+     ========================================================= */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function fmtKm(v) { return Math.round(v).toLocaleString('ko-KR'); }
+  function pct(v, total) { return total > 0 ? v / total * 100 : 0; }
+  function fmtPct(v, total) { return pct(v, total).toFixed(1); }
+  function shortRegion(name) { return REGION_SHORT[name] || name; }
+
+  function shareBarHtml(km, total) {
+    return STRUCTS.map(function (k) {
+      return '<span class="seg-' + k + '" style="width:' + pct(km[k], total).toFixed(2) + '%"></span>';
+    }).join('');
+  }
+  function shareLabel(km, total) {
+    return STRUCTS.map(function (k) { return LABEL[k] + ' ' + fmtPct(km[k], total) + '%'; }).join(', ');
+  }
+  function confPill(conf) {
+    const c = CONF_LABEL[conf] ? conf : 'unchecked';
+    return '<span class="pill pill-' + c + '">' + CONF_LABEL[c] + '</span>';
+  }
+
+  function renderStats(ui, stats, g, onRegion) {
+    const n = stats.nation;
+    ui.peekTotal.textContent = fmtKm(n.total);
+    ui.peekTunnel.textContent = fmtPct(n.km.tunnel, n.total);
+    ui.peekBar.innerHTML = shareBarHtml(n.km, n.total);
+    ui.peekBar.setAttribute('aria-label', '전국 본선 구조 비율: ' + shareLabel(n.km, n.total));
+
+    ui.nationRows.innerHTML = STRUCTS.map(function (k) {
+      return '<tr><td><span class="key"><span class="sw sw-' + k + '"></span>' + LABEL[k] + '</span></td>' +
+        '<td class="r num">' + fmtKm(n.km[k]) + '</td><td class="r num">' + fmtPct(n.km[k], n.total) + '%</td></tr>';
+    }).join('');
+    ui.nationFoot.innerHTML =
+      '<tr><td>본선 합계</td><td class="r num">' + fmtKm(n.total) + '</td><td class="r num">100%</td></tr>' +
+      '<tr><td>측선(따로 셈)</td><td class="r num">' + fmtKm(n.service) + '</td><td></td></tr>';
+
+    const s = stats.stations;
+    ui.stationCount.textContent = '역 ' + s.total.toLocaleString('ko-KR') + '곳 중 지하역 ' + s.all.toLocaleString('ko-KR') +
+      '곳, 일부 노선만 지하인 역 ' + s.part.toLocaleString('ko-KR') + '곳.';
+
+    ui.regionRows.innerHTML = stats.regions.map(function (r) {
+      const share = pct(r.km.tunnel, r.total);
+      return '<tr>' +
+        '<td><button type="button" class="rg-btn" id="rg-' + r.index + '" data-region="' + r.index + '" title="' + esc(r.name) + '">' + esc(shortRegion(r.name)) + '</button></td>' +
+        '<td class="r num">' + fmtKm(r.total) + '</td>' +
+        '<td class="r"><span class="share"><span class="num">' + share.toFixed(1) + '%</span><span class="mini" aria-hidden="true"><span style="width:' + share.toFixed(1) + '%"></span></span></span></td>' +
+        '<td>' + confPill(r.conf) + '</td></tr>';
+    }).join('');
+    ui.regionRows.onclick = function (ev) {
+      const b = ev.target.closest('.rg-btn');
+      if (b) onRegion(+b.dataset.region);
+    };
+
+    const extra = (g.attribution || []).filter(function (a) { return a.indexOf('OpenStreetMap') < 0; });
+    ui.srcNote.textContent = '데이터: © OpenStreetMap 기여자 (ODbL)' + (g.osm_base ? ' · OSM 기준 ' + g.osm_base : '') +
+      (extra.length ? ' · ' + extra.join(' · ') : '');
+  }
+
+  function stationPopupHtml(st, T) {
+    const status = st.status === 'all' ? '지하역' : st.status === 'part' ? '일부 노선만 지하' : '지상역';
+    const dot = st.status === 'none' ? 'dot-gr' : 'dot-ug';
+    const lines = st.hubs.map(function (h) {
+      const names = h.lines.length ? h.lines.map(esc).join(', ') : '노선 이름 없음';
+      return '<li><span class="tag ' + (h.ug ? 'tag-ug">지하' : 'tag-gr">지상') + '</span><span>' + names + '</span></li>';
+    }).join('');
+    const reg = T.regions[st.region];
+    const meta = reg ? esc(reg.name) + ' · 데이터 신뢰도 ' + (CONF_LABEL[reg.conf] || CONF_LABEL.unchecked) : '';
+    return '<div class="pop"><p class="pop-name">' + esc(st.name) + '</p>' +
+      '<p class="pop-status"><span class="dot ' + dot + '"></span>' + status + '</p>' +
+      '<ul class="pop-lines">' + lines + '</ul>' +
+      (meta ? '<p class="pop-meta">' + meta + '</p>' : '') + '</div>';
+  }
+
+  function setStatus(ui, mode, title, detail) {
+    ui.status.hidden = mode === 'hidden';
+    ui.status.classList.toggle('is-error', mode === 'error');
+    ui.statusProgress.hidden = mode !== 'busy';
+    ui.statusTitle.textContent = title || '';
+    ui.statusDetail.textContent = detail || '';
+    ui.statusDetail.hidden = !detail;
+  }
+
+  const ERROR_TEXT = {
+    http: function (d) { return ['철도망 데이터를 불러오지 못했습니다 (HTTP ' + d + ').', 'data/graph.json 파일이 이 페이지와 같은 위치에 있어야 합니다.']; },
+    network: function () { return ['철도망 데이터를 받지 못했습니다.', '인터넷 연결을 확인한 뒤 다시 시도하세요.']; },
+    format: function () { return ['철도망 데이터 형식이 맞지 않습니다.', 'graph.json을 다시 만들어 올려 주세요.']; },
+    leaflet: function () { return ['지도 프로그램(Leaflet)을 불러오지 못했습니다.', '인터넷 연결을 확인한 뒤 페이지를 새로 고치세요. 통계는 아래 패널에서 볼 수 있습니다.']; }
+  };
+
+  /* =========================================================
+     6. 설정 저장 (이 브라우저에만)
+     ========================================================= */
+  function loadVis() {
+    const def = { tunnel: true, bridge: true, ground: true, service: true };
+    try {
+      const s = JSON.parse(localStorage.getItem(CFG.prefsKey) || 'null');
+      if (s && typeof s === 'object') Object.keys(def).forEach(function (k) { if (typeof s[k] === 'boolean') def[k] = s[k]; });
+    } catch (e) { /* 저장소를 못 쓰면 기본값 */ }
+    return def;
+  }
+  function saveVis(vis) {
+    try { localStorage.setItem(CFG.prefsKey, JSON.stringify(vis)); } catch (e) { /* 무시 */ }
+  }
+
+  /* =========================================================
+     7. 시작
+     ========================================================= */
+  function getUi() {
+    const $ = function (id) { return document.getElementById(id); };
+    return {
+      app: $('app'), head: $('head'), stats: $('stats'), statsToggle: $('stats-toggle'), statsBody: $('stats-body'),
+      statsAction: $('stats-action'), peekTotal: $('peek-total'), peekTunnel: $('peek-tunnel'), peekBar: $('peek-bar'),
+      nationRows: $('nation-rows'), nationFoot: $('nation-foot'), stationCount: $('station-count'), regionRows: $('region-rows'),
+      srcNote: $('src-note'), onlyUnder: $('only-under'), badge: $('basemap-badge'), stationHint: $('station-hint'),
+      status: $('status'), statusTitle: $('status-title'), statusDetail: $('status-detail'), statusProgress: $('status-progress'),
+      retry: $('retry'),
+      toggles: Array.prototype.slice.call(document.querySelectorAll('.chip-input'))
+    };
+  }
+
+  function boot() {
+    const ui = getUi();
+    const wide = matchMedia(CFG.wideQuery);
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const state = { ui: ui, wide: wide, vis: loadVis(), map: null, net: [], stations: [], markers: [], stLayer: null, pal: null, zt: -1, bounds: null, loading: false };
+
+    // 통계 패널: 넓은 화면은 펼침, 폰은 접음
+    setSheetOpen(state, wide.matches);
+    ui.statsToggle.addEventListener('click', function () { setSheetOpen(state, ui.statsBody.hidden); });
+    const syncOffset = function () { ui.app.style.setProperty('--sheet-offset', wide.matches ? '0px' : ui.stats.offsetHeight + 'px'); };
+    if (window.ResizeObserver) new ResizeObserver(syncOffset).observe(ui.stats);
+    window.addEventListener('resize', syncOffset);
+    syncOffset();
+
+    // 선로 토글
+    ui.toggles.forEach(function (el) {
+      el.checked = state.vis[el.dataset.layer];
+      el.addEventListener('change', function () { state.vis[el.dataset.layer] = el.checked; onVisChange(state); });
+    });
+    ui.onlyUnder.addEventListener('click', function () {
+      const only = isOnlyUnder(state.vis);
+      state.vis.tunnel = true;
+      state.vis.bridge = only;
+      state.vis.ground = only;
+      ui.toggles.forEach(function (el) { el.checked = state.vis[el.dataset.layer]; });
+      onVisChange(state);
+    });
+    syncOnlyUnder(state);
+
+    ui.retry.addEventListener('click', function () { start(state); });
+
+    if (window.L) {
+      try {
+        state.map = createMap(reduceMotion);
+        state.map.fitBounds(CFG.koreaBounds, viewPadding(state));
+        addBaseTiles(state.map, function (s) { setBasemap(state, s); });
+      } catch (e) {
+        state.map = null;
+      }
+    }
+    start(state);
+  }
+
+  async function start(state) {
+    const ui = state.ui;
+    if (state.loading) return;
+    state.loading = true;
+    ui.retry.hidden = true;
+    setStatus(ui, 'busy', '철도망 데이터를 불러오는 중입니다', '약 3 MB');
+    let g;
+    try {
+      g = await loadGraph(CFG.dataUrl, function (bytes) {
+        ui.statusDetail.textContent = (bytes / 1048576).toFixed(1) + ' MB 받음';
+      });
+    } catch (e) {
+      state.loading = false;
+      const t = (ERROR_TEXT[e.kind] || ERROR_TEXT.network)(e.detail);
+      setStatus(ui, 'error', t[0], t[1]);
+      ui.retry.hidden = false;
+      return;
+    }
+    state.graph = g;
+    state.bounds = computeBounds(g);
+    renderStats(ui, computeStats(g), g, function (i) { zoomToRegion(state, i); });
+
+    if (!state.map) {
+      const t = ERROR_TEXT.leaflet();
+      setStatus(ui, 'error', t[0], t[1]);
+      return;
+    }
+    setStatus(ui, 'busy', '선로를 그리는 중입니다', '선로 구간 ' + countTracks(g).toLocaleString('ko-KR') + '개');
+    await nextFrame();
+    drawNetwork(state, g);
+    const b = state.bounds.all;
+    if (b[0] < b[2]) state.map.fitBounds([[b[0], b[1]], [b[2], b[3]]], viewPadding(state));
+    setStatus(ui, 'hidden');
+  }
+
+  function countTracks(g) {
+    const t = codes(g).track;
+    let n = 0;
+    for (let e = 0; e < g.edges.k.length; e++) if (g.edges.k[e] === t) n++;
+    return n;
+  }
+
+  // 상태 문구가 먼저 그려지게 한 프레임 쉰다. 숨은 탭에서는 rAF 가 멈추므로 타이머로도 넘어간다.
+  function nextFrame() {
+    return new Promise(function (r) {
+      let done = false;
+      const go = function () { if (!done) { done = true; setTimeout(r, 0); } };
+      requestAnimationFrame(go);
+      setTimeout(go, 120);
+    });
+  }
+
+  function drawNetwork(state, g) {
+    const map = state.map;
+    state.pal = readPalette();
+    state.net = createNetwork(buildTrackGroups(g), L.canvas({ padding: 0.3 }));
+
+    map.createPane('stations').style.zIndex = 450;
+    const stRenderer = L.canvas({ pane: 'stations', padding: 0.3, tolerance: 10 });
+    state.stations = buildStations(g);
+    state.markers = createStationMarkers(state.stations, stRenderer, g, popupPadding(state));
+    state.stLayer = L.layerGroup(state.markers);
+
+    restyle(state, true);
+    applyVisibility(state);
+    syncStations(state);
+    map.on('zoomend', function () { restyle(state, false); syncStations(state); });
+    watchTheme(function () { state.pal = readPalette(); restyle(state, true); });
+  }
+
+  // 색은 매번 CSS 토큰에서 읽는다(테마 전환 대응). 굵기는 줌 단계가 바뀔 때만.
+  function restyle(state, force) {
+    const z = state.map.getZoom();
+    const zt = zoomTier(z);
+    if (force || zt !== state.zt) {
+      state.zt = zt;
+      state.net.forEach(function (n) { n.layer.setStyle(lineStyle(n.key, n.tier, zt, state.pal)); });
+      state.markers.forEach(function (m, i) { m.setStyle(stationStyle(state.stations[i], z, state.pal)); });
+    }
+  }
+
+  function applyVisibility(state) {
+    if (!state.map) return;
+    const map = state.map, vis = state.vis;
+    // 다시 넣을 때 순서를 지키려고 모두 뺐다가 정해진 순서로 넣는다
+    state.net.forEach(function (n) { map.removeLayer(n.layer); });
+    state.net.forEach(function (n) {
+      if (vis[n.key] && (n.tier === 'main' || vis.service)) n.layer.addTo(map);
+    });
+  }
+
+  function syncStations(state) {
+    const show = state.map.getZoom() >= CFG.stationMinZoom;
+    const has = state.map.hasLayer(state.stLayer);
+    if (show && !has) state.stLayer.addTo(state.map);
+    if (!show && has) { state.map.closePopup(); state.map.removeLayer(state.stLayer); }
+    state.ui.stationHint.textContent = show ? '역을 누르면 정보가 나옵니다' : '역은 더 확대하면 보입니다';
+    // 원 크기(줌 13 경계)는 restyle 이 줌 단계가 바뀔 때 맞춘다
+  }
+
+  function isOnlyUnder(v) { return v.tunnel && !v.bridge && !v.ground; }
+  function syncOnlyUnder(state) { state.ui.onlyUnder.setAttribute('aria-pressed', String(isOnlyUnder(state.vis))); }
+  function onVisChange(state) { saveVis(state.vis); syncOnlyUnder(state); applyVisibility(state); }
+
+  function setBasemap(state, s) {
+    state.ui.badge.hidden = s !== 'none';
+    state.ui.app.classList.toggle('no-tiles', s === 'none');
+  }
+
+  function setSheetOpen(state, open) {
+    const ui = state.ui;
+    ui.statsBody.hidden = !open;
+    ui.statsToggle.setAttribute('aria-expanded', String(open));
+    ui.statsAction.textContent = open ? '접기' : '통계 보기';
+  }
+
+  // 지도에 맞출 때 카드에 가리지 않게 여백을 준다
+  function viewPadding(state) {
+    const ui = state.ui, W = window.innerWidth, H = window.innerHeight;
+    const head = ui.head.getBoundingClientRect(), stats = ui.stats.getBoundingClientRect();
+    const clampX = function (v) { return Math.max(8, Math.min(v, W * 0.45)); };
+    const clampY = function (v) { return Math.max(8, Math.min(v, H * 0.45)); };
+    if (state.wide.matches) {
+      return {
+        paddingTopLeft: [clampX(head.right + 12), 16],
+        paddingBottomRight: [ui.statsBody.hidden ? 16 : clampX(W - stats.left + 12), 16]
+      };
+    }
+    return { paddingTopLeft: [12, clampY(head.bottom + 8)], paddingBottomRight: [12, clampY(H - stats.top + 8)] };
+  }
+
+  function popupPadding(state) {
+    const p = viewPadding(state);
+    return { topLeft: L.point(p.paddingTopLeft[0], p.paddingTopLeft[1]), bottomRight: L.point(p.paddingBottomRight[0], p.paddingBottomRight[1]) };
+  }
+
+  function zoomToRegion(state, i) {
+    if (!state.map || !state.bounds) return;
+    const b = state.bounds.regions[i];
+    if (!b) return;
+    if (!state.wide.matches) setSheetOpen(state, false);
+    state.map.fitBounds([[b[0], b[1]], [b[2], b[3]]], Object.assign(viewPadding(state), { maxZoom: 12 }));
+  }
+
+  /* 나중에 경로 탐색 화면에서 다시 쓰고, 노드 점검 스크립트에서도 부른다 */
+  globalThis.UGMap = {
+    loadGraph: loadGraph, validateGraph: validateGraph, decodePolyline: decodePolyline, nodeLatLng: nodeLatLng,
+    buildTrackGroups: buildTrackGroups, buildStations: buildStations, computeBounds: computeBounds, computeStats: computeStats
+  };
+
+  if (typeof document !== 'undefined' && document.getElementById('map')) boot();
+})();
+</script>
