@@ -101,6 +101,51 @@
     return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
   }
 
+  /* ---------- 지상 걷기 간선 (surface) ----------
+     지하로 갈 길이 없을 때(앞이 막힘, 끊긴 노선)만 쓰는 대비책: 1.5km 안의 다른 역끼리
+     가장 가까운 출입구(출입구 자료가 없으면 허브) 사이를 직선 × 1.3 길이의 지상 간선으로 잇는다.
+     graph.json 간선 뒤에 붙이므로 원래 간선 번호는 그대로고, route.py 와 같은 기본 탐색에서는 건너뛴다.
+     돌려주는 값: 첫 지상 걷기 간선 번호 */
+  const SURFACE_M = 1500, SURFACE_DETOUR = 1.3;
+  function addSurfaceLinks(g) {
+    if (g._surfaceFrom != null) return g._surfaceFrom;
+    const E = g.edges, T = g.tables, N = g.nodes;
+    const first = E.a.length;
+    if (T.kinds.indexOf('surface') < 0) T.kinds.push('surface');
+    const kind = T.kinds.indexOf('surface'), ground = T.structs.indexOf('ground');
+    const EN = g.entrances || { node: [], station: [] };
+    // 역마다 지상과 닿는 점: 출입구, 없으면 허브
+    const access = g.stations.map(function (s) { return { lat: s.lat / 1e5, lon: s.lon / 1e5, pts: [] }; });
+    for (let i = 0; i < EN.node.length; i++) if (access[EN.station[i]]) access[EN.station[i]].pts.push(EN.node[i]);
+    g.stations.forEach(function (s, si) { if (!access[si].pts.length) access[si].pts = s.hubs.slice(); });
+    // 위도 0.02도(약 2.2km) 칸으로 나눠 가까운 역만 비교한다
+    const cell = function (la, lo) { return Math.floor(la / 0.02) + ':' + Math.floor(lo / 0.02); };
+    const grid = new Map();
+    access.forEach(function (a, si) { const k = cell(a.lat, a.lon); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(si); });
+    const push = function (a, b, len, rg) {
+      E.a.push(a); E.b.push(b); E.len.push(Math.round(len * 10) / 10); E.s.push(ground); E.k.push(kind);
+      E.r.push(-1); E.svc.push(0); E.ls.push(0); E.rg.push(rg); E.src.push(0); E.g.push(''); E.tn.push(0);
+    };
+    access.forEach(function (A, s1) {
+      const ci = Math.floor(A.lat / 0.02), cj = Math.floor(A.lon / 0.02);
+      for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) {
+        (grid.get((ci + di) + ':' + (cj + dj)) || []).forEach(function (s2) {
+          if (s2 <= s1 || haversine(A.lat, A.lon, access[s2].lat, access[s2].lon) > SURFACE_M + 300) return;
+          let best = null;
+          A.pts.forEach(function (u) {
+            access[s2].pts.forEach(function (v) {
+              const d = haversine(N.lat[u] / 1e5, N.lon[u] / 1e5, N.lat[v] / 1e5, N.lon[v] / 1e5);
+              if (!best || d < best[2]) best = [u, v, d];
+            });
+          });
+          if (best && best[2] <= SURFACE_M) push(best[0], best[1], best[2] * SURFACE_DETOUR, g.stations[s1].rg);
+        });
+      }
+    });
+    Object.defineProperty(g, '_surfaceFrom', { value: first, enumerable: false });
+    return first;
+  }
+
   /* ---------- 색인 (한 번만 만든다) ---------- */
   // route.py 의 load_graph() 와 같은 내용을 만든다.
   //   weight[e]      : 간선 가중치(지하 1, 지상·교량 1000)
@@ -109,6 +154,7 @@
   //   nodeStation[v] : 허브·부착점 노드가 속한 역 번호(-1 = 없음)
   //   hubLines/hubShort : 허브 노드 -> 정식/짧은 노선 이름 목록
   function indexGraph(g) {
+    const surfaceFrom = addSurfaceLinks(g);   // 웹에서만 쓰는 '지상 걷기' 간선(기본 탐색에서는 쓰지 않는다)
     const E = g.edges, T = g.tables, N = g.nodes;
     const nNodes = N.f.length, nEdges = E.a.length;
 
@@ -151,7 +197,7 @@
 
     const codes = {
       track: T.kinds.indexOf('track'), platform: T.kinds.indexOf('platform'),
-      transfer: T.kinds.indexOf('transfer'), entrance: T.kinds.indexOf('entrance'),
+      transfer: T.kinds.indexOf('transfer'), entrance: T.kinds.indexOf('entrance'), surface: T.kinds.indexOf('surface'),
       main: T.services.indexOf('')
     };
 
@@ -159,7 +205,7 @@
       g: g, weight: weight, adjStart: adjStart, adjEdge: adjEdge, adjNode: adjNode,
       nodeStation: nodeStation, hubLines: hubLines, hubShort: hubShort,
       stationEntrances: stationEntrances, entranceAt: entranceAt, codes: codes,
-      nNodes: nNodes, nEdges: nEdges
+      nNodes: nNodes, nEdges: nEdges, surfaceFrom: surfaceFrom
     };
   }
 

@@ -276,7 +276,21 @@
     const renderer = L.svg({ pane: 'route', padding: 0.3 });
     const group = L.layerGroup().addTo(map);
     const marks = L.layerGroup().addTo(map);
-    let hl = null, pal = null, drawn = null;
+    const blockedGroup = L.layerGroup().addTo(map);   // 막은 구간
+    let hl = null, pal = null, drawn = null, blockedLines = [];
+
+    function paintBlocked() {
+      blockedGroup.clearLayers();
+      if (!blockedLines.length || !pal) return;
+      const opt = { renderer: renderer, interactive: false, lineCap: 'butt' };
+      L.polyline(blockedLines, Object.assign({ color: pal.paper, weight: 9, opacity: 0.9 }, opt)).addTo(blockedGroup);
+      L.polyline(blockedLines, Object.assign({ color: pal.ink, weight: 5, opacity: 0.9, dashArray: '3 5' }, opt)).addTo(blockedGroup);
+      const first = blockedLines[0], mid = first[Math.floor(first.length / 2)];
+      L.marker(mid, {
+        icon: L.divIcon({ className: '', html: '<span class="blocked-tag">막힘</span>', iconSize: [0, 0] }),
+        keyboard: false, interactive: false, title: '막은 구간'
+      }).addTo(blockedGroup);
+    }
 
     function pin(latlng, cls, text, title) {
       return L.marker(latlng, {
@@ -311,7 +325,8 @@
     }
 
     return {
-      setPalette: function (p) { pal = p; paint(); if (hl) hl.setStyle({ color: pal.ink }); },
+      setPalette: function (p) { pal = p; paint(); paintBlocked(); if (hl) hl.setStyle({ color: pal.ink }); },
+      setBlocked: function (lines) { blockedLines = lines || []; paintBlocked(); },
       // view: { segs, from: {lat,lon}|null, to, exits: [{lat, lon, ref, title}], warnings: [{lat, lon}] }
       show: function (view) {
         drawn = view;

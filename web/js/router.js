@@ -55,11 +55,13 @@
   /* ---------- 다익스트라 ----------
      sources, targets: [{node, cost}] (cost = 그 노드까지/부터의 시작 비용, 역이면 0)
      direct: 출발점에서 도착점까지 바로 걷는 비용(둘 다 지도 위 점일 때만, 아니면 Infinity)
+     surface: true 면 역 사이 '지상 걷기' 간선도 쓴다(지하로 갈 길이 없을 때의 대비책)
      도착 비용이 0 인 목표는 route.py 처럼 꺼내는 즉시 끝낸다.
      도착 비용이 있으면 가상 도착 노드 END(= 노드 수)를 두고 END 를 꺼낼 때 끝낸다.
      돌려주는 값: { end: 마지막 실제 노드(-1 = 바로 걷기), cost, prevEdge, prevNode } 또는 null */
-  function dijkstra(G, sources, targets, blocked, direct) {
+  function dijkstra(G, sources, targets, blocked, direct, surface) {
     const n = G.nNodes, END = n;
+    const noWalk = surface ? Infinity : G.surfaceFrom;   // 지상 걷기 간선(graph.js)은 surface 일 때만 쓴다
     const len = G.g.edges.len, weight = G.weight, adjStart = G.adjStart, adjEdge = G.adjEdge, adjNode = G.adjNode;
     const cost = new Float64Array(n + 1).fill(Infinity);
     const prevEdge = new Int32Array(n + 1).fill(-1);   // 노드 -> 직전 간선(-1 = 출발점)
@@ -86,7 +88,7 @@
       }
       for (let k = adjStart[v]; k < adjStart[v + 1]; k++) {
         const ei = adjEdge[k];
-        if (blocked && blocked.has(ei)) continue;
+        if (ei >= noWalk || (blocked && blocked.has(ei))) continue;
         const w = adjNode[k];
         const nc = c + len[ei] * weight[ei];
         if (nc < cost[w]) { cost[w] = nc; prevEdge[w] = ei; prevNode[w] = v; heap.push(nc, w); }
@@ -139,10 +141,12 @@
   }
 
   // 출발·도착 끝점 -> 다익스트라에 넣을 노드 목록
-  //   역:  {kind: 'station', si}          -> 허브들(비용 0)
+  //   역:  {kind: 'station', si, hubs?}   -> 허브들(비용 0). hubs 를 주면 그 허브만(예: 지하 허브)
+  //   노드: {kind: 'node', node}           -> 그래프 노드 하나(길 안내 중 '마지막으로 확인한 역'에서 다시 찾을 때)
   //   점:  {kind: 'point', lat, lon, conn} -> 연결 후보(비용 = 걷는 거리 × 지상 가중치)
   function endpointNodes(G, ep) {
-    if (ep.kind === 'station') return G.g.stations[ep.si].hubs.map(function (v) { return { node: v, cost: 0 }; });
+    if (ep.kind === 'station') return (ep.hubs || G.g.stations[ep.si].hubs).map(function (v) { return { node: v, cost: 0 }; });
+    if (ep.kind === 'node') return [{ node: ep.node, cost: 0 }];
     const exposed = G.g.weights.exposed;
     return ep.conn.map(function (c) { return { node: c.node, cost: c.len * exposed }; });
   }
@@ -168,7 +172,7 @@
       walk = GR.haversine(from.lat, from.lon, to.lat, to.lon) * DETOUR;
       direct = walk * g.weights.exposed;
     }
-    const res = dijkstra(G, src, dst, opts.blocked || null, direct);
+    const res = dijkstra(G, src, dst, opts.blocked || null, direct, !!opts.surface);
     if (!res) return null;
     if (res.end < 0) {   // 지하로 가는 것보다 지상으로 바로 걷는 쪽이 노출이 적다
       return { path: [], walk: true, walk_m: walk, startSi: -1, endSi: -1, startConn: null, endConn: null,
@@ -185,8 +189,8 @@
     const extra = (startConn ? startConn.len : 0) + (endConn ? endConn.len : 0);
     return {
       path: path, walk: false, walk_m: 0,
-      startSi: from.kind === 'station' ? from.si : startConn.si,
-      endSi: to.kind === 'station' ? to.si : endConn.si,
+      startSi: from.kind === 'station' ? from.si : from.kind === 'node' ? from.si : startConn.si,
+      endSi: to.kind === 'station' ? to.si : to.kind === 'node' ? to.si : endConn.si,
       startConn: startConn, endConn: endConn,
       path_m: pm, path_exposed_m: pe, total_m: pm + extra, exposed_m: pe + extra
     };

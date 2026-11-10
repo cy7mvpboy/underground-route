@@ -21,6 +21,7 @@
   --ground: #B3261E;      /* ground / exposure: brick red, L~40 */
   --ground-soft: #F7E3E1; /* exposure note background */
   --start: #1D7349;       /* 출발 pin */
+  --on-accent: #FFFFFF;   /* text on tunnel / ground / start fills */
   --ok: #1D7349;
   --warn: #8C5E00;
   --na: #66717C;
@@ -46,7 +47,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0C1217; --surface: #141C23; --surface-2: #1D272F; --ink: #E2E8ED; --muted: #94A1AC; --rule: #2C3843;
-    --tunnel: #5B9AFF; --bridge: #F0AE3C; --ground: #EC5B50; --ground-soft: #3A1C1A; --start: #5BC28C;
+    --tunnel: #5B9AFF; --bridge: #F0AE3C; --ground: #EC5B50; --ground-soft: #3A1C1A; --start: #5BC28C; --on-accent: #0C1217;
     --ok: #5BC28C; --warn: #E0B652; --na: #8D98A2; --focus: #8AB8FF;
     --coast: #66788A; --admin: #4A5866; --label: #8E9BA6;
     --attr-bg: rgb(20 28 35 / .86);
@@ -58,7 +59,7 @@
 }
 :root[data-theme="dark"] {
   --bg: #0C1217; --surface: #141C23; --surface-2: #1D272F; --ink: #E2E8ED; --muted: #94A1AC; --rule: #2C3843;
-  --tunnel: #5B9AFF; --bridge: #F0AE3C; --ground: #EC5B50; --ground-soft: #3A1C1A; --start: #5BC28C;
+  --tunnel: #5B9AFF; --bridge: #F0AE3C; --ground: #EC5B50; --ground-soft: #3A1C1A; --start: #5BC28C; --on-accent: #0C1217;
   --ok: #5BC28C; --warn: #E0B652; --na: #8D98A2; --focus: #8AB8FF;
   --coast: #66788A; --admin: #4A5866; --label: #8E9BA6;
   --attr-bg: rgb(20 28 35 / .86);
@@ -269,6 +270,71 @@ button, input, select { font: inherit; color: inherit; }
 .place-label { transform: translate(-50%, -50%); white-space: nowrap; color: var(--label); font-size: 12px; font-weight: 500; text-shadow: 0 0 3px var(--bg), 0 0 3px var(--bg), 0 0 2px var(--bg); pointer-events: none; }
 .place-label.region { font-size: 12px; font-weight: 500; letter-spacing: .08em; opacity: .7; }
 
+/* ---------- search extras ---------- */
+.ac-opt.is-online .ac-sub { color: var(--warn); }
+.ac-attr { padding: 6px 8px 2px; border-top: 1px solid var(--rule); margin-top: 4px; font-size: 11px; color: var(--muted); list-style: none; }
+
+/* ---------- route panel extras ---------- */
+.btn-primary { width: 100%; min-height: 46px; padding: 0 16px; border: 0; border-radius: 8px; background: var(--ink); color: var(--surface); font-size: var(--fs-lg); font-weight: 700; cursor: pointer; }
+.btn-primary:hover { filter: brightness(1.15); }
+.link-btn { padding: 0; border: 0; background: none; color: var(--ink); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.msg.blocked { border-style: dashed; }
+.near { display: grid; gap: 6px; }
+.near h2 { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: var(--fs-md); font-weight: 700; color: var(--ink); letter-spacing: 0; }
+.near-base { font-size: var(--fs-xs); font-weight: 500; color: var(--muted); }
+.near-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.near-btn { display: grid; gap: 2px; width: 100%; min-height: 48px; padding: 8px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); text-align: left; cursor: pointer; }
+.near-btn[aria-pressed="true"] { border: 2px solid var(--tunnel); padding: 7px 11px; }
+.near-name { font-weight: 700; }
+.near-meta { font-size: var(--fs-sm); color: var(--muted); }
+.near-meta .bad, .sum .bad, .step-meta .bad { color: var(--ground); font-weight: 500; }
+
+/* ---------- 가장 가까운 지하로 (floating action button) ---------- */
+.fab-under { position: absolute; z-index: 12; left: var(--map-left, var(--gutter-l)); top: calc(12px + env(safe-area-inset-top, 0px));
+  display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px 0 14px; border: 2px solid var(--surface); border-radius: 999px;
+  background: var(--tunnel); color: var(--on-accent); box-shadow: var(--shadow); font-size: var(--fs-md); font-weight: 700; cursor: pointer; white-space: nowrap; }
+.fab-under svg { width: 22px; height: 22px; flex: none; }
+.fab-under:hover { filter: brightness(1.08); }
+.blocked-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; background: var(--ink); color: var(--surface); font: 700 12px/1.4 var(--font-ui); transform: translate(-50%, -50%); white-space: nowrap; }
+
+/* ---------- 길 안내 모드 (full screen, large type) ---------- */
+html.guide-open .fab-under, html.guide-open .side { visibility: hidden; }
+.guide { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; background: var(--surface); color: var(--ink);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+.g-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px var(--gutter-r) 10px var(--gutter-l); border-bottom: 2px solid var(--ink); }
+.g-count { margin: 0; font-size: var(--fs-md); font-weight: 500; }
+.g-end { flex: none; min-height: 44px; padding: 0 14px; border: 2px solid var(--ink); border-radius: 8px; background: var(--surface); font-size: var(--fs-md); font-weight: 700; cursor: pointer; }
+.g-main { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px var(--gutter-r) 16px var(--gutter-l); display: flex; flex-direction: column; gap: 10px; }
+.g-main > * { margin: 0; }
+.g-warn { padding: 10px 12px; border-left: 6px solid var(--ground); border-radius: 0 8px 8px 0; background: var(--ground-soft); font-size: 1.125rem; font-weight: 700; color: var(--ink); }
+.g-line { font-size: 1.25rem; font-weight: 700; }
+.g-line .lb { font-size: 1rem; padding: 1px 8px; border: 2px solid var(--ink); vertical-align: 2px; }
+.g-title { font-size: clamp(1.75rem, 7vw, 2.5rem); line-height: 1.2; font-weight: 700; letter-spacing: -.01em; outline: none; }
+.g-next { font-size: 1.25rem; }
+.g-next b { font-weight: 700; }
+.g-dist { font-size: 1.375rem; }
+.g-dist .num { font-size: clamp(2.25rem, 10vw, 3rem); font-weight: 700; line-height: 1.1; }
+.g-sub { font-size: 1.0625rem; color: var(--muted); }
+.g-note { padding: 10px 12px; border: 2px solid var(--ink); border-radius: 8px; font-size: 1.0625rem; line-height: 1.5; }
+.g-cps { list-style: none; padding: 8px 0 0; border-top: 1px solid var(--rule); display: grid; gap: 0; font-size: 1.0625rem; }
+.g-cps li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 40px; padding: 4px 0; color: var(--muted); }
+.g-cps li .num { font-size: var(--fs-sm); font-weight: 400; }
+.g-mark { width: 14px; height: 14px; margin-left: 4px; border-radius: 50%; border: 2px solid var(--muted); background: var(--surface); }
+.g-cps li.done { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.g-cps li.done .g-mark { background: var(--muted); }
+.g-cps li.now { color: var(--ink); font-weight: 700; text-decoration: none; }
+.g-cps li.now .g-mark { width: 20px; height: 20px; margin-left: 1px; border: 5px solid var(--ink); }
+.g-actions { flex: none; display: grid; grid-template-columns: 3fr 2fr; gap: 10px; padding: 12px var(--gutter-r) 14px var(--gutter-l); border-top: 2px solid var(--ink); background: var(--surface); }
+.g-btn { display: grid; place-content: center; gap: 2px; min-height: 72px; padding: 6px 10px; border: 0; border-radius: 12px; font-size: 1.5rem; font-weight: 700; line-height: 1.15; cursor: pointer; text-align: center; }
+.g-btn small { font-size: .9375rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.g-arrive { background: var(--ink); color: var(--surface); }
+.g-block { background: var(--ground); color: var(--on-accent); }
+.g-btn:disabled { opacity: .35; cursor: default; }
+.g-btn:focus-visible, .g-end:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+@media (min-width: 760px) {
+  .g-main, .g-actions, .g-head { width: 100%; max-width: 720px; margin-left: auto; margin-right: auto; }
+}
+
 /* ---------- phone ---------- */
 @media (max-width: 759px) {
   .side { top: 0; left: 0; bottom: 0; right: 0; width: auto; max-width: none; gap: 0; justify-content: space-between; }
@@ -289,6 +355,10 @@ button, input, select { font: inherit; color: inherit; }
   .app-title { display: none; }
   .tabpanel { padding: 12px 16px 16px; }
   .lyr-pop { width: min(272px, calc(100vw - 32px)); }
+  .fab-under { top: auto; left: var(--gutter-l); bottom: calc(var(--sheet-offset) + 40px); }
+  .app.sheet-open .fab-under { display: none; }
+  .g-head { padding-top: 10px; }
+  .g-actions { grid-template-columns: 1fr 1fr; }
 }
 
 /* ---------- Leaflet 1.9.4 essentials (inlined: the viewer blocks external stylesheets) ---------- */
@@ -484,7 +554,34 @@ button, input, select { font: inherit; color: inherit; }
     <p class="meta">출구 번호는 크게 확대하면(줌 15 이상) 보입니다.</p>
   </div>
 
+  <!-- 가장 가까운 지하로: 내 위치(안 되면 지도 중심)에서 가까운 지하역 출구로 바로 안내 -->
+  <button type="button" class="fab-under" id="go-under">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11M7 9l5 5 5-5"/><path d="M3 18h18M6 21h12"/></svg>가장 가까운 지하로</button>
+
   <p class="card toast" id="toast" role="status" aria-live="polite" hidden></p>
+
+  <!-- 길 안내 모드: 큰 글씨, 체크포인트마다 '도착'을 누른다 -->
+  <section class="guide" id="guide" role="dialog" aria-modal="true" aria-labelledby="guide-title" hidden>
+    <header class="g-head">
+      <p class="g-count" id="guide-count" aria-live="polite"></p>
+      <button type="button" class="g-end" id="guide-end">안내 종료</button>
+    </header>
+    <div class="g-main">
+      <p class="g-warn" id="guide-warn" role="alert" hidden></p>
+      <p class="g-note" id="guide-note" aria-live="polite" hidden></p>
+      <p class="g-line" id="guide-line"></p>
+      <h2 class="g-title" id="guide-title" tabindex="-1"></h2>
+      <p class="g-next" id="guide-next"></p>
+      <p class="g-dist" id="guide-dist"></p>
+      <p class="g-sub" id="guide-step-left"></p>
+      <p class="g-sub" id="guide-walked" hidden></p>
+      <ol class="g-cps" id="guide-cps" aria-label="확인할 곳"></ol>
+    </div>
+    <footer class="g-actions">
+      <button type="button" class="g-btn g-arrive" id="guide-arrive">도착</button>
+      <button type="button" class="g-btn g-block" id="guide-block">앞이 막힘</button>
+    </footer>
+  </section>
 
   <div class="card status" id="status" role="status" aria-live="polite">
     <p class="title" id="status-title">철도망 데이터를 불러오는 중입니다</p>
@@ -499,6 +596,9 @@ button, input, select { font: inherit; color: inherit; }
 <script src="js/graph.js"></script>
 <script src="js/router.js"></script>
 <script src="js/steps.js"></script>
+<script src="js/nearest.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/places.js"></script>
 <!-- 화면 -->
 <script src="js/search.js"></script>
 <script src="js/layers.js"></script>

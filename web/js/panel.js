@@ -30,6 +30,30 @@
   function shortRegion(name) { return REGION_SHORT[name] || name; }
   function yeok(name) { return name.endsWith('역') ? name : name + '역'; }   // '서울역'에 '역'을 또 붙이지 않는다
   function exitName(stName, ref) { return yeok(stName) + ' ' + (ref ? ref + '번 출구' : '출구'); }
+  // 조사 '로/으로': 받침이 없거나 ㄹ 받침이면 '로' (예: 출구로, 서울역으로, 오금 방면으로)
+  function ro(word) {
+    const c = String(word).charCodeAt(String(word).length - 1);
+    if (c < 0xac00 || c > 0xd7a3) return word + '(으)로';
+    const jong = (c - 0xac00) % 28;
+    return word + (jong === 0 || jong === 8 ? '로' : '으로');
+  }
+
+  // '가장 가까운 지하로' 후보 목록. nb = { label, isCenter, options: [{name, ref, kind, len}], chosen }
+  function nearestHtml(nb, mpm) {
+    return '<section class="near" aria-labelledby="near-title">' +
+      '<h2 id="near-title">가장 가까운 지하역 <span class="near-base">' + (nb.isCenter ? '지도 중심 기준' : esc(nb.label) + ' 기준') + '</span></h2>' +
+      '<ol class="near-list">' + nb.options.map(function (o, i) {
+        return '<li><button type="button" class="near-btn" data-near="' + i + '" aria-pressed="' + (i === nb.chosen) + '">' +
+          '<span class="near-name">' + esc(o.kind === 'entrance' ? exitName(o.name, o.ref) : yeok(o.name) + ' (출구 자료 없음)') + '</span>' +
+          '<span class="near-meta"><span class="bad">지상 ' + fmtDist(o.len) + '</span> · 약 ' + fmtTime(o.len / mpm) + '</span></button></li>';
+      }).join('') + '</ol>' +
+      (nb.isCenter ? '<p class="note">내 위치를 쓸 수 없어 지도 가운데에서 찾았습니다. 지도를 옮긴 뒤 다시 누르면 그곳에서 찾습니다.</p>' : '') +
+      '</section>';
+  }
+
+  function blockedHtml(n) {
+    return n ? '<p class="msg blocked">막은 구간 ' + n + '곳을 빼고 찾았습니다. <button type="button" class="link-btn" data-action="unblock">모두 풀기</button></p>' : '';
+  }
 
   /* ---------- 길 안내 ---------- */
   // 처음 한 번 뼈대를 만든다(속도 선택 칸은 다시 그리지 않아 포커스가 유지된다).
@@ -60,21 +84,25 @@
         (info.toText ? '<p class="ep-note"><span class="k">도착</span> ' + esc(info.toText) + '</p>' : '') + '</div>';
     }
     html += '<div class="hint"><p><b>출발</b>과 <b>도착</b>을 고르면 지상 노출이 가장 적은 길을 찾습니다.</p>' +
-      '<p>역 이름을 입력하거나, 지도를 눌러 지점을 고르거나, 내 위치를 누르세요.</p>' +
+      '<p>역·장소 이름을 입력하거나, 지도를 눌러 지점을 고르거나, 내 위치를 누르세요.</p>' +
+      '<p>급할 때는 <b>가장 가까운 지하로</b>를 누르면 가까운 지하역 출구로 안내합니다.</p>' +
       '<p>지하로만 갈 수 없으면 지상으로 나가야 하는 곳과 거리를 빨간색으로 알려 줍니다.</p></div>';
-    R.top.innerHTML = html;
+    R.top.innerHTML = blockedHtml(info.blocked) + html;
     R.notes.innerHTML = '<p class="note src">데이터: © OpenStreetMap 기여자 (ODbL). 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 가정합니다.</p>';
   }
 
-  // view: { total_m, exposed_m, minutes, items, hasTransfer, seoulSource, usesPoint, speed }
+  // view: { total_m, exposed_m, minutes, items, hasTransfer, seoulSource, usesPoint, speed, nearest?, blocked }
   function renderRoute(R, view) {
     const exp = Math.round(view.exposed_m);
     R.top.innerHTML =
+      (view.nearest ? nearestHtml(view.nearest, view.speed * 1000 / 60) : '') +
+      blockedHtml(view.blocked) +
       '<dl class="sum">' +
       '<div><dt>총 거리</dt><dd class="num">' + fmtDist(view.total_m) + '</dd></div>' +
       '<div><dt>걷는 시간</dt><dd>' + fmtTime(view.minutes) + '</dd></div>' +
       '<div><dt>지상 노출</dt><dd class="num ' + (exp > 0 ? 'bad' : 'good') + '">' + fmtDist(exp) + '</dd></div>' +
-      '</dl>';
+      '</dl>' +
+      '<button type="button" class="btn-primary" data-action="guide">안내 시작</button>';
     R.speedRow.hidden = false;
     R.steps.innerHTML = view.items.map(itemHtml).join('');
     let notes = '';
@@ -138,6 +166,11 @@
       const until = s.ends_underground ? '다시 지하로 들어갈 때까지' : '도착할 때까지';
       return '<li class="step"><button type="button" class="warn" data-item="' + i + '">' + n + '※ <b>지상 노출 ' + fmtDist(s.exposure_m) + '</b> — ' +
         esc(where) + '에서 ' + (s.portal ? '터널을 나와 ' : '') + until + ' (' + esc(kinds) + ')</button></li>';
+    }
+    if (s.type === 'surface') {
+      return '<li class="step">' + stepBtn(i, s.no, 's', n + '지상으로 걸어 ' + esc(exitName(s.to_station, s.to_ref)) + '까지',
+        esc(exitName(s.from_station, s.from_ref)) + '로 나가서 걷기 (지하로 이어진 길이 없음)',
+        '<span class="bad">지상 ' + fmtDist(s.distance_m) + '</span> · 약 ' + fmtTime(s.est_minutes)) + '</li>';
     }
     if (s.type === 'transfer') {
       const src = ST.SOURCE_KO[s.source] || '';
@@ -279,7 +312,7 @@
   }
 
   UG.panel = {
-    esc: esc, yeok: yeok, fmtDist: fmtDist, fmtTime: fmtTime, exitName: exitName, shortRegion: shortRegion,
+    esc: esc, yeok: yeok, ro: ro, fmtDist: fmtDist, fmtTime: fmtTime, exitName: exitName, shortRegion: shortRegion,
     mountRoute: mountRoute, renderIdle: renderIdle, renderRoute: renderRoute, peekText: peekText,
     computeStats: computeStats, renderStats: renderStats,
     stationPopupHtml: stationPopupHtml, exitPopupHtml: exitPopupHtml, pointPopupHtml: pointPopupHtml

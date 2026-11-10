@@ -1,6 +1,7 @@
-/* app.js — 화면을 묶는 곳: 시작, 출발·도착 고르기, 경로 찾기, 안내 표시, 패널·레이어 버튼
-   모듈: graph.js(데이터) · router.js(탐색) · steps.js(안내 단계) · search.js(검색) · layers.js(지도) · panel.js(패널 HTML)
-   나중에 붙일 기능을 위한 연결점은 맨 아래 UG.app 에 모았다(길 안내 전체 화면, 가장 가까운 지하로, 장소 검색). */
+/* app.js — 화면을 묶는 곳: 시작, 출발·도착 고르기, 경로 찾기, 안내 표시, 가장 가까운 지하로, 길 안내 모드, 패널·레이어 버튼
+   모듈: graph.js(데이터) · router.js(탐색) · steps.js(안내 단계) · nearest.js(가까운 지하역) · guide.js(길 안내 모드)
+         places.js(오프라인 장소) · search.js(검색) · layers.js(지도) · panel.js(패널 HTML)
+   다른 코드가 쓸 수 있는 연결점은 맨 아래 UG.app 에 모았다. */
 (function (root) {
   'use strict';
   const UG = root.UG;
@@ -12,6 +13,7 @@
   const CFG = {
     dataUrl: 'data/graph.json',
     basemapUrl: 'data/basemap.json',
+    placesUrl: 'data/places.json',
     tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     koreaBounds: [[33.9, 125.0], [38.7, 129.9]],
     stationMinZoom: 11,
@@ -61,7 +63,7 @@
       lyrPop: $('lyr-pop'), onlyUnder: $('only-under'), stationHint: $('station-hint'),
       toggles: Array.prototype.slice.call(document.querySelectorAll('.chip-input')),
       toast: $('toast'), status: $('status'), statusTitle: $('status-title'), statusDetail: $('status-detail'),
-      statusProgress: $('status-progress'), retry: $('retry')
+      statusProgress: $('status-progress'), retry: $('retry'), goUnder: $('go-under')
     };
   }
 
@@ -69,7 +71,8 @@
     ui: null, wide: null, reduceMotion: false, vis: null, speed: 3.5,
     map: null, pal: null, G: null, g: null, bounds: null,
     net: null, st: null, exits: null, route: null, basemap: null, tiles: 'unknown', badge: null,
-    from: null, to: null, plan: null, blocked: new Set(), activeItem: -1,
+    from: null, to: null, plan: null, blocked: new Set(), blockCount: 0, activeItem: -1,
+    places: null, nearest: null, openSheetOnPlan: false, guide: null,
     loading: false, lastPopupClose: 0, fitToken: 0, listeners: []
   };
 
@@ -124,7 +127,10 @@
     state.G = GR.indexGraph(g);                 // 인접 목록 등은 한 번만 만든다
     state.bounds = LY.computeBounds(g);
     PN.renderStats(ui, PN.computeStats(g), g, zoomToRegion);
+    // 검색 제공자: 역 -> 오프라인 장소(places.json, 나중에 받음) -> 온라인 장소(Photon)
     SR.register(SR.stationProvider());
+    SR.register(SR.placesProvider(function () { return state.places; }));
+    SR.register(SR.photonProvider());
     ui.fromInput.disabled = ui.toInput.disabled = false;
 
     if (!state.map) {
@@ -138,8 +144,16 @@
     const b = state.bounds.all;
     if (b[0] < b[2] && !state.plan) fitSafe(L.latLngBounds([[b[0], b[1]], [b[2], b[3]]]));
     setStatus('hidden');
-    loadBasemap();
+    loadBasemap().then(loadPlaces);   // 둘 다 첫 화면을 막지 않는다
     emit();
+  }
+
+  // 오프라인 장소 색인: 없거나 아직 안 만들어졌으면 역 검색만 쓴다
+  async function loadPlaces() {
+    if (!UG.places) return;
+    let data;
+    try { data = await GR.fetchJson(CFG.placesUrl); } catch (e) { return; }
+    if (data && data.format === 'places-1' && Array.isArray(data.p)) state.places = data;
   }
 
   // 상태 문구가 먼저 그려지게 한 프레임 쉰다. 숨은 탭에서는 rAF 가 멈추므로 타이머로도 넘어간다.
@@ -256,6 +270,7 @@
 
   function setEndpoint(which, ep) {
     state[which] = ep;
+    state.nearest = null;                 // 직접 고르면 '가장 가까운 지하로' 후보는 지운다
     const input = which === 'from' ? state.ui.fromInput : state.ui.toInput;
     input.value = ep ? ep.text : '';
     update();
@@ -264,6 +279,7 @@
   function swapEndpoints() {
     const f = state.from;
     state.from = state.to; state.to = f;
+    state.nearest = null;
     state.ui.fromInput.value = state.from ? state.from.text : '';
     state.ui.toInput.value = state.to ? state.to.text : '';
     update();
@@ -271,6 +287,7 @@
 
   function clearAll() {
     state.from = state.to = null;
+    state.nearest = null;
     state.ui.fromInput.value = state.ui.toInput.value = '';
     update();
     if (state.map && state.bounds) {
@@ -290,13 +307,16 @@
     if (f.kind === 'station' && t.kind === 'station' && f.si === t.si) {
       renderIdle('출발과 도착이 같은 역입니다.'); refreshPins(); emit(); return;
     }
-    const route = RT.findRoute(state.G, f, t, { blocked: state.blocked });
+    // 지하로 갈 길이 없으면(막은 구간, 끊긴 노선) 역 사이를 지상으로 걷는 길도 넣어 다시 찾는다
+    const route = RT.findRoute(state.G, f, t, { blocked: state.blocked }) || RT.findRoute(state.G, f, t, { blocked: state.blocked, surface: true });
     if (!route) {
       renderIdle('경로를 찾지 못했습니다. 두 곳을 잇는 선로가 그래프에 없습니다.', true); refreshPins(); emit(); return;
     }
-    state.plan = { from: f, to: t, route: route };
+    state.plan = { from: f, to: t, route: route, nearest: state.nearest };
     // 폰: 시트를 접어 둔 채(요약 한 줄) 경로 전체를 지도에 보여 준다. 단계는 시트를 펼쳐 본다.
-    if (!state.wide.matches) setSheetOpen(false);
+    // '가장 가까운 지하로'는 후보 목록이 결과라서 시트를 펼친다.
+    if (!state.wide.matches) setSheetOpen(state.openSheetOnPlan);
+    state.openSheetOnPlan = false;
     describePlan();
     drawPlan(true);
     emit();
@@ -304,47 +324,15 @@
 
   // 속도가 바뀌면 단계만 다시 만든다(경로는 그대로)
   function describePlan() {
-    const p = state.plan, G = state.G, g = state.g, r = p.route;
-    const mpm = state.speed * 1000 / 60;
-    p.desc = r.walk ? { steps: [] } : ST.describe(G, r.startSi, r.path, state.speed);
-    const items = [];
-    if (r.walk) {
-      items.push({ kind: 'walk', m: r.walk_m, min: r.walk_m / mpm, latlngs: [[p.from.lat, p.from.lon], [p.to.lat, p.to.lon]] });
-    } else {
-      if (r.startConn) {
-        const c = r.startConn;
-        items.push({ kind: 'enter', conn: c, stName: g.stations[c.si].name, label: p.from.label, m: c.len, min: c.len / mpm,
-          latlngs: [[p.from.lat, p.from.lon], [c.lat, c.lon]] });
-      }
-      p.desc.steps.forEach(function (s) { items.push({ kind: 'step', step: s }); });
-      if (r.endConn) {
-        const c = r.endConn;
-        items.push({ kind: 'exit', conn: c, stName: g.stations[c.si].name, label: p.to.label, m: c.len, min: c.len / mpm,
-          latlngs: [[c.lat, c.lon], [p.to.lat, p.to.lon]], others: exitList(c.si, p.to.lat, p.to.lon, c.ent) });
-      } else {
-        const s = g.stations[r.endSi];
-        items.push({ kind: 'arrive', si: r.endSi, stName: s.name, latlngs: [[s.lat / 1e5, s.lon / 1e5]],
-          others: exitList(r.endSi, s.lat / 1e5, s.lon / 1e5, -1) });
-      }
-    }
-    p.items = items;
-    p.view = {
-      items: items, total_m: r.total_m, exposed_m: r.exposed_m, minutes: r.total_m / mpm, speed: state.speed,
-      usesPoint: !!(r.startConn || r.endConn || r.walk),
-      hasTransfer: p.desc.steps.some(function (s) { return s.type === 'transfer'; }),
-      seoulSource: p.desc.steps.some(function (s) { return s.type === 'transfer' && s.source === 'seoul_metro'; })
-    };
+    const p = state.plan;
+    ST.planItems(state.G, p, state.speed);      // p.desc, p.items, p.view (steps.js)
+    p.view.nearest = p.nearest;
+    p.view.blocked = state.blockCount;
     PN.renderRoute(state.R, p.view);
-    setPeek(PN.peekText(p.view));
-  }
-
-  // 역의 출구 목록(가까운 순). 거리는 기준점(고른 지점 또는 역 중심)에서 잰 직선 거리.
-  function exitList(si, lat, lon, chosen) {
-    const g = state.g, EN = g.entrances, N = g.nodes;
-    return state.G.stationEntrances[si].map(function (i) {
-      const v = EN.node[i];
-      return { ent: i, ref: EN.ref[i], dist: GR.haversine(lat, lon, N.lat[v] / 1e5, N.lon[v] / 1e5), chosen: i === chosen };
-    }).sort(function (a, b) { return a.dist - b.dist; });
+    if (p.nearest) {
+      const o = p.nearest.options[p.nearest.chosen];
+      setPeek('가장 가까운 지하: ' + PN.esc(o.kind === 'entrance' ? PN.exitName(o.name, o.ref) : PN.yeok(o.name)) + ' · 지상 <span class="bad">' + PN.fmtDist(o.len) + '</span>');
+    } else setPeek(PN.peekText(p.view));
   }
 
   function setSpeed(v) {
@@ -358,11 +346,11 @@
     const f = state.from, t = state.to;
     const desc = function (ep) {
       if (!ep) return '';
-      if (ep.kind === 'station') return ep.text;
+      if (ep.kind !== 'point') return ep.text;
       const c = ep.conn[0];
       return ep.text + ' · 가장 가까운 ' + (c.kind === 'entrance' ? '출구' : '역') + ' ' + PN.fmtDist(c.dist);
     };
-    PN.renderIdle(state.R, { message: message, error: error, fromText: desc(f), toText: desc(t) });
+    PN.renderIdle(state.R, { message: message, error: error, fromText: desc(f), toText: desc(t), blocked: state.blockCount });
     setSheetOpen(!state.ui.panel.classList.contains('is-collapsed'));   // '단계 보기' 문구를 되돌린다
     setPeek(message ? PN.esc(message) : f && !t ? '도착 역을 검색하거나 지도를 누르세요' : t && !f ? '출발 역을 검색하거나 지도를 누르세요' : '역을 검색하거나 지도를 눌러 고르세요');
   }
@@ -377,6 +365,13 @@
     state.route.pins(endpointLatLng(state.from), endpointLatLng(state.to));
     state.net.setDim(false);
     state.exits.setUsed([]);
+    drawBlocked();
+  }
+
+  // 막은 구간(앞이 막힘)을 지도에 회색 점선으로
+  function drawBlocked() {
+    const g = state.g;
+    state.route.setBlocked(Array.from(state.blocked).map(function (e) { return GR.edgeShape(g, e); }));
   }
 
   function drawPlan(fit) {
@@ -390,7 +385,10 @@
     };
     if (r.walk) push([[p.from.lat, p.from.lon], [p.to.lat, p.to.lon]], true, true);
     if (r.startConn) push([[p.from.lat, p.from.lon], [r.startConn.lat, r.startConn.lon]], true, true);
-    r.path.forEach(function (e) { push(GR.edgeShape(g, e.e, e.u), ST.isExposed(G, e.e), false); });
+    r.path.forEach(function (e) {   // 역 사이 지상 걷기 간선은 걷는 선으로
+      const walk = g.edges.k[e.e] === G.codes.surface;
+      push(GR.edgeShape(g, e.e, e.u), ST.isExposed(G, e.e), walk);
+    });
     if (r.endConn) push([[r.endConn.lat, r.endConn.lon], [p.to.lat, p.to.lon]], true, true);
     const exits = [];
     [r.startConn, r.endConn].forEach(function (c) {
@@ -400,6 +398,7 @@
     state.route.show({ segs: segs, from: endpointLatLng(p.from), to: endpointLatLng(p.to), exits: exits, warnings: warnings });
     state.exits.setUsed([r.startConn, r.endConn].filter(function (c) { return c && c.kind === 'entrance'; }).map(function (c) { return c.ent; }));
     state.net.setDim(true);
+    drawBlocked();
     if (fit) {
       const all = [];
       segs.forEach(function (s) { s.pts.forEach(function (q) { all.push(q); }); });
@@ -443,6 +442,7 @@
     const s = it.step;
     if (s.type === 'warning') return '<span class="bad">지상 노출 ' + PN.fmtDist(s.exposure_m) + '</span>';
     if (s.type === 'transfer') return '환승 · ' + PN.esc(s.station);
+    if (s.type === 'surface') return '지상 걷기 → ' + PN.esc(PN.exitName(s.to_station, s.to_ref));
     return PN.esc(s.label) + ' → ' + PN.esc(s.to_station);
   }
 
@@ -462,6 +462,14 @@
   }
 
   function onRouteViewClick(ev) {
+    const act = ev.target.closest('[data-action]');
+    if (act) {
+      if (act.dataset.action === 'guide') startGuide();
+      if (act.dataset.action === 'unblock') { state.blocked.clear(); state.blockCount = 0; update(); }
+      return;
+    }
+    const nb = ev.target.closest('[data-near]');
+    if (nb) { chooseNearest(+nb.dataset.near); return; }
     const b = ev.target.closest('[data-item]');
     if (b) { focusItem(+b.dataset.item); return; }
     const x = ev.target.closest('[data-exit]');
@@ -545,7 +553,8 @@
         isSet: function () { return !!state[which] && input.value === state[which].text; },
         onPick: function (r) {
           const ep = r.kind === 'station' ? stationEndpoint(r.si) : pointEndpoint(r.lat, r.lon, r.title, true);
-          if (ep) setEndpoint(which, ep);
+          if (!ep) { input.value = ''; toast('"' + r.title + '"에서 20km 안에 역이 없어 고를 수 없습니다.'); return; }
+          setEndpoint(which, ep);
           if (ep && !(state.from && state.to) && state.map) { state.fitToken++; state.map.setView([ep.lat, ep.lon], 14, { animate: !state.reduceMotion }); }
           // 출발을 고르면 도착 칸으로 넘어간다
           if (which === 'from' && !state.to) ui.toInput.focus();
@@ -557,6 +566,126 @@
     ui.locate.addEventListener('click', locate);
     ui.swap.addEventListener('click', swapEndpoints);
     ui.clear.addEventListener('click', clearAll);
+    ui.goUnder.addEventListener('click', goNearestUnderground);
+  }
+
+  /* =========================================================
+     7-1. 가장 가까운 지하로 (한 번 누르기)
+        내 위치(안 되면 지도 중심)에서 가장 가까운 지하역 출구 3곳을 보여 주고, 가장 가까운 곳으로 바로 안내한다.
+     ========================================================= */
+  function goNearestUnderground() {
+    if (!state.G) { toast('철도망 데이터를 불러오는 중입니다. 잠시 뒤 다시 누르세요.'); return; }
+    let settled = false;
+    const fromCenter = function () {
+      if (settled) return;
+      settled = true;
+      const c = state.map ? state.map.getCenter() : { lat: 37.5663, lng: 126.9779 };
+      runNearest(c.lat, c.lng, '지도 중심', true);
+    };
+    if (!navigator.geolocation) { fromCenter(); return; }
+    toast('내 위치를 찾는 중입니다…', 9000);
+    try {
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        if (settled) return;
+        settled = true;
+        state.ui.toast.hidden = true;
+        runNearest(pos.coords.latitude, pos.coords.longitude, '내 위치', false);
+      }, function () { state.ui.toast.hidden = true; fromCenter(); }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+    } catch (e) { fromCenter(); }
+  }
+
+  function runNearest(lat, lon, label, isCenter) {
+    const res = UG.nearest.nearestUnderground(state.G, lat, lon, { limit: 3 });
+    if (!res.options.length) {
+      const far = isFinite(res.nearest_m) ? ' 가장 가까운 지하역은 ' + PN.yeok(res.nearest_name) + '(직선 ' + PN.fmtDist(res.nearest_m) + ')입니다.' : '';
+      const msg = (isCenter ? '지도 중심' : '내 위치') + '에서 20km 안에 지하역이 없습니다.' + far +
+        (isCenter ? ' 지도를 옮긴 뒤 다시 누르세요.' : '');
+      state.from = state.to = null; state.nearest = null;
+      state.ui.fromInput.value = state.ui.toInput.value = '';
+      update();
+      renderIdle(msg, true);
+      if (!state.wide.matches) setSheetOpen(true);
+      toast(msg, 8000);
+      return;
+    }
+    state.nearest = { lat: lat, lon: lon, label: label, isCenter: isCenter, options: res.options, chosen: 0 };
+    chooseNearest(0);
+  }
+
+  function chooseNearest(i) {
+    const nb = state.nearest;
+    if (!nb || !nb.options[i]) return;
+    nb.chosen = i;
+    const ep = UG.nearest.endpointsFor(state.G, nb.lat, nb.lon, nb.options[i], nb.label);
+    state.from = ep.from; state.to = ep.to;
+    state.ui.fromInput.value = nb.isCenter ? '지도 중심' : '내 위치';
+    state.ui.toInput.value = ep.to.text + ' (지하 승강장)';
+    state.openSheetOnPlan = true;
+    update();
+  }
+
+  /* =========================================================
+     7-2. 길 안내 모드 (guide.js 의 GuideView)
+     ========================================================= */
+  function setupGuide() {
+    state.guide = UG.guide.GuideView({
+      root: document.getElementById('guide'), panel: PN, steps: ST, reduceMotion: state.reduceMotion,
+      getSpeed: function () { return state.speed; },
+      onArrive: function () { state.guide.arrive(); },
+      onBlock: guideBlock,
+      onEnd: function () { state.guide.close(); }
+    });
+  }
+
+  function startLabel(ep) {
+    if (!ep) return '출발';
+    if (ep.kind === 'station') return PN.yeok(state.g.stations[ep.si].name) + ' 출발';
+    return (ep.label || ep.text || '출발 지점') + ' 출발';
+  }
+
+  function startGuide() {
+    if (!state.plan) return;
+    if (!state.guide) setupGuide();
+    state.guide.open(state.plan, UG.guide.buildCheckpoints(state.G, state.plan), startLabel(state.plan.from), '', 0);
+  }
+
+  // 앞이 막힘: 마지막 확인 지점 ~ 다음 체크포인트 사이를 막고, 마지막 확인 지점에서 다시 찾는다
+  function guideBlock() {
+    const gs = state.guide.state();
+    if (!gs) return;
+    const r = UG.guide.planBlock(state.G, gs, state.guide.walkedM());
+    if (r.error) { toast(r.error, 8000); return; }
+    const added = Array.from(r.edges).filter(function (e) { return !state.blocked.has(e); });
+    added.forEach(function (e) { state.blocked.add(e); });
+    const from = r.from || gs.plan.from;
+    const route = RT.findRoute(state.G, from, gs.plan.to, { blocked: state.blocked }) ||
+      RT.findRoute(state.G, from, gs.plan.to, { blocked: state.blocked, surface: true });
+    if (!route) {
+      added.forEach(function (e) { state.blocked.delete(e); });
+      toast('그 구간을 막으면 갈 수 있는 길이 없어 막지 않았습니다.', 8000);
+      return;
+    }
+    state.blockCount++;
+    state.from = from; state.nearest = null;
+    state.ui.fromInput.value = from.text || '';
+    update();
+    const p = state.plan;
+    const back = r.restartLabel || startLabel(gs.plan.from).replace(/ 출발$/, '');
+    const diff = r.backtrack + p.view.total_m - r.oldLeft;
+    // 새 경로의 첫 움직임(역 안 이동은 건너뛴다)
+    const first = p.items.find(function (it) {
+      return it.kind === 'step' && (it.step.type === 'transfer' || it.step.type === 'surface' || (it.step.type === 'ride' && it.step._tracks_m > 0));
+    });
+    let how = '새 경로로 갑니다.';
+    if (first && first.step.type === 'ride') how = first.step.label + ' ' + PN.ro(first.step.terminal_direction || first.step.direction || '다음 역') + ' 갑니다.';
+    else if (first && first.step.type === 'transfer') how = first.step.from_line + '에서 ' + PN.ro(first.step.to_line) + ' 갈아탑니다.';
+    else if (first && first.step.type === 'surface') how = '지상으로 ' + PN.exitName(first.step.to_station, first.step.to_ref) + '까지 걷습니다.';
+    const note = '<b>막은 구간</b> ' + PN.esc(r.fromLabel || startLabel(gs.plan.from).replace(/ 출발$/, '')) + ' → ' + PN.esc(r.toLabel) + '<br>' +
+      (r.backtrack >= 10 ? PN.esc(PN.ro(back)) + ' 약 ' + PN.fmtDist(r.backtrack) + ' 되돌아간 뒤 ' : PN.esc(back) + '에서 ') +
+      PN.esc(how) + '<br>' +
+      '새 경로 ' + PN.fmtDist(p.view.total_m) + ' · 지상 ' + PN.fmtDist(p.view.exposed_m) +
+      ' (남은 거리 ' + (diff >= 0 ? '+' : '−') + PN.fmtDist(Math.abs(diff)) + ')';
+    state.guide.open(p, UG.guide.buildCheckpoints(state.G, p), back + (r.from ? ' (확인한 곳)' : ''), note, r.backtrack);
   }
 
   /* =========================================================
@@ -585,6 +714,7 @@
     const ui = state.ui;
     if (state.wide.matches) open = true;
     ui.panel.classList.toggle('is-collapsed', !open);
+    ui.app.classList.toggle('sheet-open', open && !state.wide.matches);   // 폰에서 시트를 펼치면 떠 있는 버튼을 숨긴다
     ui.sheetToggle.setAttribute('aria-expanded', String(open));
     ui.peekAct.textContent = open ? '접기' : state.plan ? '단계 보기' : '펼치기';
     if (state.syncSheet) state.syncSheet();
@@ -705,7 +835,9 @@
     plan: function () { return state.plan; },
     onPlan: function (cb) { state.listeners.push(cb); },
     stationEndpoint: stationEndpoint, pointEndpoint: pointEndpoint, setEndpoint: setEndpoint,
-    blocked: state.blocked, reroute: update, focusItem: focusItem, setSpeed: setSpeed, toast: toast
+    blocked: state.blocked, reroute: update, focusItem: focusItem, setSpeed: setSpeed, toast: toast,
+    goNearestUnderground: goNearestUnderground, runNearest: runNearest, startGuide: startGuide,
+    guide: function () { return state.guide; }
   };
 
   /* 예전 미리보기 화면과 점검 스크립트가 쓰던 도우미 */

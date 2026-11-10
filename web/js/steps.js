@@ -36,12 +36,13 @@
   }
 
   /* ---------- 1) 타기·환승 부분으로 나누기 ---------- */
+  // (웹에서만: 역 사이 '지상 걷기' 간선은 환승처럼 따로 한 부분 = 'surface' 단계)
   function splitParts(G, path) {
-    const kinds = G.g.edges.k, transfer = G.codes.transfer;
+    const kinds = G.g.edges.k, transfer = G.codes.transfer, surface = G.codes.surface;
     const parts = [];
     path.forEach(function (p, i) {
-      const kind = kinds[p.e] === transfer ? 'transfer' : 'ride';
-      if (kind === 'transfer' || !parts.length || parts[parts.length - 1].kind !== 'ride') parts.push({ kind: kind, idx: [] });
+      const kind = kinds[p.e] === transfer ? 'transfer' : kinds[p.e] === surface ? 'surface' : 'ride';
+      if (kind !== 'ride' || !parts.length || parts[parts.length - 1].kind !== 'ride') parts.push({ kind: kind, idx: [] });
       parts[parts.length - 1].idx.push(i);
     });
     return parts;
@@ -171,6 +172,24 @@
     };
   }
 
+  /* ---------- 지상 걷기 단계 (웹에서만) ----------
+     지하로 갈 길이 없어 한 역의 출구로 나가 다른 역 출구까지 지상으로 걷는 곳 */
+  function stationOfNode(G, v) {
+    if (G.nodeStation[v] >= 0) return G.nodeStation[v];
+    const i = G.entranceAt.get(v);
+    return i == null ? -1 : G.g.entrances.station[i];
+  }
+  function surfaceStep(G, path, i, mPerMin) {
+    const p = path[i], E = G.g.edges, EN = G.g.entrances, S = G.g.stations;
+    const a = stationOfNode(G, p.u), b = stationOfNode(G, p.v);
+    const ref = function (v) { const k = G.entranceAt.get(v); return k == null ? '' : EN.ref[k]; };
+    return {
+      type: 'surface', from_station: a >= 0 ? S[a].name : '', to_station: b >= 0 ? S[b].name : '',
+      from_ref: ref(p.u), to_ref: ref(p.v), distance_m: pyRound(E.len[p.e]), est_minutes: pyRound(E.len[p.e] / mPerMin),
+      exposure_m: pyRound(E.len[p.e]), _idx: [i], _to_si: b
+    };
+  }
+
   /* ---------- 지상 노출 경고 ----------
      지하에서 교량·지상으로 나가는 곳마다 하나(출발부터 지상이면 출발역에서 하나).
      at = 직전에 지난 역(after_m = 그 역에서 지난 거리), exposure_m = 다시 지하로 들어갈 때까지(또는 도착까지)의 노출 거리 */
@@ -224,6 +243,14 @@
         if (si >= 0) lastSi = si;
         return;
       }
+      if (part.kind === 'surface') {
+        const i = part.idx[0];
+        edgeStep[i] = steps.length;
+        const st = surfaceStep(G, path, i, mPerMin);
+        steps.push(st);
+        lastSi = st._to_si;
+        return;
+      }
       const lines = assignLines(G, path, part.idx);
       let j = 0;
       while (j < lines.length) {
@@ -251,6 +278,50 @@
     });
     warnings.forEach(function (w) { delete w.step; });
     return out;
+  }
+
+  /* ---------- 화면용 안내 목록 ----------
+     plan = { from, to, route(router.findRoute 결과) } 에 desc(describe 결과), items(안내 목록), view(요약)를 붙인다.
+     items: walk(지상으로 바로 걷기) | enter(출구로 들어가기) | step(ride/transfer/warning) | exit(출구로 나가기) | arrive(역 도착) */
+  function exitList(G, si, lat, lon, chosen) {
+    const EN = G.g.entrances, N = G.g.nodes, hav = UG.graph.haversine;
+    return G.stationEntrances[si].map(function (i) {
+      const v = EN.node[i];
+      return { ent: i, ref: EN.ref[i], dist: hav(lat, lon, N.lat[v] / 1e5, N.lon[v] / 1e5), chosen: i === chosen };
+    }).sort(function (a, b) { return a.dist - b.dist; });
+  }
+
+  function planItems(G, p, speedKmh) {
+    const speed = speedKmh || WALK_KMH, g = G.g, r = p.route, mpm = speed * 1000 / 60;
+    p.desc = r.walk ? { steps: [] } : describe(G, r.startSi, r.path, speed);
+    const items = [];
+    if (r.walk) {
+      items.push({ kind: 'walk', m: r.walk_m, min: r.walk_m / mpm, latlngs: [[p.from.lat, p.from.lon], [p.to.lat, p.to.lon]] });
+    } else {
+      if (r.startConn) {
+        const c = r.startConn;
+        items.push({ kind: 'enter', conn: c, stName: g.stations[c.si].name, label: p.from.label, m: c.len, min: c.len / mpm,
+          latlngs: [[p.from.lat, p.from.lon], [c.lat, c.lon]] });
+      }
+      p.desc.steps.forEach(function (s) { items.push({ kind: 'step', step: s }); });
+      if (r.endConn) {
+        const c = r.endConn;
+        items.push({ kind: 'exit', conn: c, stName: g.stations[c.si].name, label: p.to.label, m: c.len, min: c.len / mpm,
+          latlngs: [[c.lat, c.lon], [p.to.lat, p.to.lon]], others: exitList(G, c.si, p.to.lat, p.to.lon, c.ent) });
+      } else {
+        const s = g.stations[r.endSi];
+        items.push({ kind: 'arrive', si: r.endSi, stName: s.name, latlngs: [[s.lat / 1e5, s.lon / 1e5]],
+          others: exitList(G, r.endSi, s.lat / 1e5, s.lon / 1e5, -1) });
+      }
+    }
+    p.items = items;
+    p.view = {
+      items: items, total_m: r.total_m, exposed_m: r.exposed_m, minutes: r.total_m / mpm, speed: speed,
+      usesPoint: !!(r.startConn || r.endConn || r.walk),
+      hasTransfer: p.desc.steps.some(function (s) { return s.type === 'transfer'; }),
+      seoulSource: p.desc.steps.some(function (s) { return s.type === 'transfer' && s.source === 'seoul_metro'; })
+    };
+    return p;
   }
 
   /* ---------- 글 안내 (route.py 의 step_text 와 같은 문장) ---------- */
@@ -282,6 +353,10 @@
       return ['   ※ 지상 노출 | ' + where + '에서 ' + how + until + ' ' + fmtKm(s.exposure_m) + ' (' + kinds + ')'];
     }
     const no = circled(s.no);
+    if (s.type === 'surface') {
+      return [no + ' 지상 걷기 | ' + s.from_station + ' ' + (s.from_ref || '?') + '번 출구 → ' + s.to_station + ' ' + (s.to_ref || '?') +
+        '번 출구, ' + s.distance_m + 'm, 약 ' + fmtMinutes(s.est_minutes)];
+    }
     if (s.type === 'transfer') {
       return [no + ' 환승 | ' + s.station + ': ' + s.from_line + ' → ' + s.to_line + ', ' + s.distance_m + 'm, 약 ' +
         fmtMinutes(s.est_minutes) + ' (' + SOURCE_KO[s.source] + ', ' + (s.underground ? '지하' : '지상') + ')'];
@@ -306,7 +381,7 @@
 
   UG.steps = {
     WALK_KMH: WALK_KMH, STRUCT_KO: STRUCT_KO, SOURCE_KO: SOURCE_KO, pyRound: pyRound, isExposed: isExposed,
-    describe: describe, buildSteps: buildSteps, terminalDirection: terminalDirection,
+    describe: describe, buildSteps: buildSteps, terminalDirection: terminalDirection, planItems: planItems, exitList: exitList,
     fmtMinutes: fmtMinutes, fmtKm: fmtKm, fixed1: fixed1, circled: circled, stepText: stepText
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = UG.steps;
