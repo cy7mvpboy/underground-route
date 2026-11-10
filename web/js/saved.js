@@ -23,9 +23,14 @@
   }
   function valid(p) { return p && p.title && isFinite(p.lat) && isFinite(p.lon); }
 
-  /* ---------- 저장한 장소 ---------- */
+  /* ---------- 저장한 장소 ----------
+     시연(demo.js) 동안에는 useMemory(true): 저장한 장소를 이 브라우저 저장소 대신 메모리 목록에 둔다.
+     보는 사람이 저장해 둔 장소는 읽지도 바꾸지도 않고, 시연을 끝내면(useMemory(false)) 그대로 돌아온다. */
+  let memory = null;   // null = 브라우저 저장소를 쓴다, 배열 = 시연용 메모리 목록
+  function useMemory(on) { memory = on ? [] : null; }
+  function store(list) { if (memory) { memory = list; return true; } return set(KEY_SAVED, list); }
   function places() {
-    const list = get(KEY_SAVED, []);
+    const list = memory || get(KEY_SAVED, []);
     return Array.isArray(list) ? list.filter(valid) : [];
   }
   // 같은 저장 이름이 있으면 바꾼다. 돌려주는 값: 저장했으면 true(저장소를 못 쓰면 false)
@@ -37,10 +42,10 @@
     // 집 -> 가족 약속 장소 -> 나머지(저장한 순서) 순으로 둔다
     list.push(p);
     list.sort(function (a, b) { return rank(a) - rank(b); });
-    return set(KEY_SAVED, list);
+    return store(list);
   }
   function rank(p) { return p.name === HOME ? 0 : p.name === FAMILY ? 1 : 2; }
-  function removePlace(id) { return set(KEY_SAVED, places().filter(function (p) { return p.id !== id; })); }
+  function removePlace(id) { return store(places().filter(function (p) { return p.id !== id; })); }
   function placeByName(name) { return places().find(function (p) { return p.name === name; }) || null; }
 
   /* ---------- 최근 검색 ---------- */
@@ -58,7 +63,7 @@
 
   UG.saved = {
     HOME: HOME, FAMILY: FAMILY, get: get, set: set,
-    places: places, savePlace: savePlace, removePlace: removePlace, placeByName: placeByName,
+    places: places, savePlace: savePlace, removePlace: removePlace, placeByName: placeByName, useMemory: useMemory,
     recent: recent, addRecent: addRecent, clearRecent: clearRecent
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

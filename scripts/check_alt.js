@@ -62,11 +62,11 @@ for (const [a, b, why] of [['부산역@부산', '서면@부산', '이미 짧고 
   check(!alt, `${a} → ${b} (${why}): 지하 우선 ${km(main.total_m)}·지상 ${Math.round(main.exposed_m)}m, 지상 ${ALT.exposedW}로 찾으면 ${km(raw.total_m)}·지상 ${Math.round(raw.exposed_m)}m → 대안 없음`);
 }
 
-/* ---------- 앞이 막혀 다시 찾은 경로(시연 2번과 같은 막기) ---------- */
-console.log('\n[앞이 막힘 뒤] 여의도 → 광화문, 5호선 여의나루–마포 하저터널 막힘 (참고)');
+/* ---------- 앞이 막혀 다시 찾은 경로(시연 1번 이야기와 같은 막기: 공덕역 승강장에서 가족 약속 장소로) ---------- */
+console.log('\n[앞이 막힘 뒤] 공덕 → 한성백제, 5호선 마포–여의나루 하저터널 막힘 (참고)');
 {
-  const M = UG.demo.CONF.move, blocked = new Set();
-  const p = { from: st(M.from), to: st(M.to), route: RT.findRoute(G, st(M.from), st(M.to)) };
+  const M = UG.demo.CONF.story, from = '공덕@서울', blocked = new Set();
+  const p = { from: st(from), to: st(M.meet), route: RT.findRoute(G, st(from), st(M.meet)) };
   UG.steps.planItems(G, p, SPEED);
   const cps = UG.guide.buildCheckpoints(G, p), at = cps.findIndex((c) => c.si === UG.graph.findStation(G, M.blockAfter));
   const b = UG.guide.planBlock(G, { plan: p, cps, cur: at }, (cps[at + 1].at - cps[at].at) * M.blockFrac);
