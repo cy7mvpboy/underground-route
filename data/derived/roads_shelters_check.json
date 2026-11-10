@@ -1,0 +1,2846 @@
+{
+ "osm_base": {
+  "E": "2026-11-10T12:56:06Z",
+  "D": "2026-11-10T12:57:06Z",
+  "C": "2026-11-10T12:58:03Z",
+  "A1w": "2026-11-10T12:58:03Z",
+  "A1e": "2026-11-10T13:02:05Z",
+  "A2": "2026-11-10T13:02:05Z",
+  "B": "2026-11-10T13:04:06Z"
+ },
+ "missing_tiles": [],
+ "walk_factor": 1.3,
+ "dropped_foreign_ways": {
+  "일본": 3274,
+  "북한": 109
+ },
+ "by_category": {
+  "road": {
+   "ways": 18505,
+   "km": 3487.3
+  },
+  "other_highway": {
+   "ways": 6962,
+   "km": 568.8
+  },
+  "ped": {
+   "ways": 1881,
+   "km": 101.4
+  },
+  "building_passage": {
+   "ways": 615,
+   "km": 13.9
+  },
+  "other_tunnel_value": {
+   "ways": 39,
+   "km": 3.6
+  }
+ },
+ "tunnel_values": {
+  "yes": {
+   "ways": 27348,
+   "km": 4157.4
+  },
+  "building_passage": {
+   "ways": 615,
+   "km": 13.9
+  },
+  "covered": {
+   "ways": 6,
+   "km": 1.0
+  },
+  "avalanche_protector": {
+   "ways": 10,
+   "km": 0.9
+  },
+  "cave": {
+   "ways": 1,
+   "km": 0.8
+  },
+  "passage": {
+   "ways": 9,
+   "km": 0.6
+  },
+  "culvert": {
+   "ways": 8,
+   "km": 0.2
+  },
+  "underpass": {
+   "ways": 2,
+   "km": 0.1
+  },
+  "parking": {
+   "ways": 1,
+   "km": 0.0
+  },
+  "``": {
+   "ways": 1,
+   "km": 0.0
+  },
+  "-1": {
+   "ways": 1,
+   "km": 0.0
+  }
+ },
+ "road_by_highway": {
+  "motorway": {
+   "ways": 1551,
+   "km": 1380.2
+  },
+  "trunk": {
+   "ways": 1423,
+   "km": 843.4
+  },
+  "primary": {
+   "ways": 917,
+   "km": 344.3
+  },
+  "secondary": {
+   "ways": 1138,
+   "km": 324.3
+  },
+  "service": {
+   "ways": 6084,
+   "km": 204.5
+  },
+  "tertiary": {
+   "ways": 1552,
+   "km": 143.8
+  },
+  "residential": {
+   "ways": 2680,
+   "km": 109.1
+  },
+  "unclassified": {
+   "ways": 2489,
+   "km": 92.2
+  },
+  "trunk_link": {
+   "ways": 259,
+   "km": 20.8
+  },
+  "motorway_link": {
+   "ways": 208,
+   "km": 12.9
+  },
+  "primary_link": {
+   "ways": 117,
+   "km": 6.4
+  },
+  "secondary_link": {
+   "ways": 56,
+   "km": 3.7
+  },
+  "tertiary_link": {
+   "ways": 31,
+   "km": 1.6
+  }
+ },
+ "road_by_region": {
+  "경기도": {
+   "ways": 5347,
+   "km": 785.7
+  },
+  "경상남도": {
+   "ways": 1519,
+   "km": 439.9
+  },
+  "경상북도": {
+   "ways": 1719,
+   "km": 391.4
+  },
+  "강원특별자치도": {
+   "ways": 1191,
+   "km": 385.6
+  },
+  "전남광주통합특별시": {
+   "ways": 1686,
+   "km": 309.7
+  },
+  "충청북도": {
+   "ways": 1100,
+   "km": 200.5
+  },
+  "전북특별자치도": {
+   "ways": 1121,
+   "km": 182.7
+  },
+  "충청남도": {
+   "ways": 1662,
+   "km": 175.0
+  },
+  "서울특별시": {
+   "ways": 921,
+   "km": 170.1
+  },
+  "부산광역시": {
+   "ways": 415,
+   "km": 144.8
+  },
+  "대구광역시": {
+   "ways": 368,
+   "km": 81.7
+  },
+  "울산광역시": {
+   "ways": 363,
+   "km": 79.7
+  },
+  "인천광역시": {
+   "ways": 527,
+   "km": 64.0
+  },
+  "대전광역시": {
+   "ways": 338,
+   "km": 44.4
+  },
+  "세종특별자치시": {
+   "ways": 178,
+   "km": 29.4
+  },
+  "제주특별자치도": {
+   "ways": 46,
+   "km": 1.5
+  },
+  "(바다·경계 밖)": {
+   "ways": 4,
+   "km": 1.3
+  }
+ },
+ "ped_by_highway": {
+  "footway": {
+   "ways": 1234,
+   "km": 56.5
+  },
+  "cycleway": {
+   "ways": 329,
+   "km": 31.7
+  },
+  "path": {
+   "ways": 318,
+   "km": 13.2
+  }
+ },
+ "ped_by_region": {
+  "경기도": {
+   "ways": 568,
+   "km": 32.8
+  },
+  "서울특별시": {
+   "ways": 489,
+   "km": 28.6
+  },
+  "경상남도": {
+   "ways": 146,
+   "km": 7.7
+  },
+  "인천광역시": {
+   "ways": 118,
+   "km": 4.9
+  },
+  "대구광역시": {
+   "ways": 35,
+   "km": 4.8
+  },
+  "전남광주통합특별시": {
+   "ways": 89,
+   "km": 4.8
+  },
+  "대전광역시": {
+   "ways": 54,
+   "km": 3.1
+  },
+  "경상북도": {
+   "ways": 76,
+   "km": 2.9
+  },
+  "전북특별자치도": {
+   "ways": 51,
+   "km": 2.6
+  },
+  "충청남도": {
+   "ways": 69,
+   "km": 2.4
+  },
+  "강원특별자치도": {
+   "ways": 54,
+   "km": 2.1
+  },
+  "부산광역시": {
+   "ways": 43,
+   "km": 1.7
+  },
+  "세종특별자치시": {
+   "ways": 33,
+   "km": 1.3
+  },
+  "울산광역시": {
+   "ways": 29,
+   "km": 0.9
+  },
+  "충청북도": {
+   "ways": 20,
+   "km": 0.7
+  },
+  "제주특별자치도": {
+   "ways": 7,
+   "km": 0.1
+  }
+ },
+ "building_passage_by_highway": {
+  "service": {
+   "ways": 215,
+   "km": 5.5
+  },
+  "footway": {
+   "ways": 254,
+   "km": 4.6
+  },
+  "corridor": {
+   "ways": 25,
+   "km": 1.0
+  },
+  "secondary": {
+   "ways": 10,
+   "km": 0.7
+  },
+  "pedestrian": {
+   "ways": 15,
+   "km": 0.5
+  },
+  "residential": {
+   "ways": 11,
+   "km": 0.3
+  },
+  "tertiary": {
+   "ways": 12,
+   "km": 0.3
+  },
+  "path": {
+   "ways": 36,
+   "km": 0.3
+  },
+  "unclassified": {
+   "ways": 6,
+   "km": 0.2
+  },
+  "steps": {
+   "ways": 9,
+   "km": 0.1
+  },
+  "cycleway": {
+   "ways": 3,
+   "km": 0.1
+  },
+  "motorway_link": {
+   "ways": 5,
+   "km": 0.1
+  },
+  "motorway": {
+   "ways": 4,
+   "km": 0.1
+  },
+  "trunk": {
+   "ways": 4,
+   "km": 0.0
+  },
+  "living_street": {
+   "ways": 4,
+   "km": 0.0
+  },
+  "track": {
+   "ways": 2,
+   "km": 0.0
+  }
+ },
+ "other_highway": {
+  "construction": {
+   "ways": 324,
+   "km": 314.9
+  },
+  "track": {
+   "ways": 6123,
+   "km": 217.0
+  },
+  "pedestrian": {
+   "ways": 150,
+   "km": 13.6
+  },
+  "proposed": {
+   "ways": 11,
+   "km": 11.1
+  },
+  "busway": {
+   "ways": 32,
+   "km": 5.4
+  },
+  "steps": {
+   "ways": 223,
+   "km": 3.0
+  },
+  "living_street": {
+   "ways": 61,
+   "km": 2.4
+  },
+  "corridor": {
+   "ways": 30,
+   "km": 1.1
+  },
+  "road": {
+   "ways": 6,
+   "km": 0.3
+  },
+  "escape": {
+   "ways": 1,
+   "km": 0.0
+  },
+  "raceway": {
+   "ways": 1,
+   "km": 0.0
+  }
+ },
+ "road_flags": {
+  "방음터널(이름)": {
+   "ways": 0,
+   "km": 0.0
+  },
+  "지하차도(이름)": {
+   "ways": 958,
+   "km": 214.2
+  },
+  "covered=yes": 116,
+  "layer<0 없음": 1748
+ },
+ "tunnel_count": {
+  "components": 18095,
+  "tunnels": 15449,
+  "named": 4253,
+  ">=1km": 400,
+  ">=3km": 55
+ },
+ "longest20": [
+  {
+   "name": "인제양양터널",
+   "len_m": 10947,
+   "bores": 2,
+   "total_m": 21893,
+   "hw": "motorway",
+   "ref": "60",
+   "region": "강원특별자치도",
+   "lat": 37.97618,
+   "lon": 128.4626,
+   "osm_way": 504160887,
+   "also": []
+  },
+  {
+   "name": "센텀터널",
+   "len_m": 9269,
+   "bores": 2,
+   "total_m": 20102,
+   "hw": "trunk",
+   "ref": "66",
+   "region": "부산광역시",
+   "lat": 35.19988,
+   "lon": 129.08123,
+   "osm_way": 942012885,
+   "also": [
+    "동래IC"
+   ]
+  },
+  {
+   "name": "서부간선지하도로",
+   "len_m": 9083,
+   "bores": 2,
+   "total_m": 17882,
+   "hw": "trunk",
+   "ref": "",
+   "region": "서울특별시",
+   "lat": 37.50768,
+   "lon": 126.88086,
+   "osm_way": 975874973,
+   "also": []
+  },
+  {
+   "name": "남한산성터널",
+   "len_m": 8340,
+   "bores": 2,
+   "total_m": 16680,
+   "hw": "motorway",
+   "ref": "29",
+   "region": "경기도",
+   "lat": 37.469,
+   "lon": 127.17641,
+   "osm_way": 861225014,
+   "also": []
+  },
+  {
+   "name": "재약산터널",
+   "len_m": 7775,
+   "bores": 2,
+   "total_m": 15483,
+   "hw": "motorway",
+   "ref": "14",
+   "region": "경상남도",
+   "lat": 35.51872,
+   "lon": 128.97606,
+   "osm_way": 883124689,
+   "also": []
+  },
+  {
+   "name": "산성터널",
+   "len_m": 7543,
+   "bores": 2,
+   "total_m": 15677,
+   "hw": "trunk",
+   "ref": "77",
+   "region": "부산광역시",
+   "lat": 35.24065,
+   "lon": 129.07405,
+   "osm_way": 548907045,
+   "also": [
+    "윤산터널",
+    "장전지하차도"
+   ]
+  },
+  {
+   "name": "양북1터널",
+   "len_m": 7497,
+   "bores": 2,
+   "total_m": 14990,
+   "hw": "motorway",
+   "ref": "65",
+   "region": "경상북도",
+   "lat": 35.75902,
+   "lon": 129.37463,
+   "osm_way": 463687894,
+   "also": []
+  },
+  {
+   "name": "신월여의지하도로",
+   "len_m": 7374,
+   "bores": 2,
+   "total_m": 15266,
+   "hw": "trunk",
+   "ref": "",
+   "region": "서울특별시",
+   "lat": 37.52677,
+   "lon": 126.89752,
+   "osm_way": 862460944,
+   "also": []
+  },
+  {
+   "name": "금정산터널",
+   "len_m": 7115,
+   "bores": 2,
+   "total_m": 14198,
+   "hw": "motorway",
+   "ref": "600",
+   "region": "부산광역시",
+   "lat": 35.29134,
+   "lon": 129.06571,
+   "osm_way": 559625576,
+   "also": []
+  },
+  {
+   "name": "원산대로",
+   "len_m": 6839,
+   "bores": 2,
+   "total_m": 13670,
+   "hw": "primary",
+   "ref": "77",
+   "region": "충청남도",
+   "lat": 36.34248,
+   "lon": 126.47724,
+   "osm_way": 544572830,
+   "also": []
+  },
+  {
+   "name": "신불산터널",
+   "len_m": 6375,
+   "bores": 2,
+   "total_m": 12742,
+   "hw": "motorway",
+   "ref": "14",
+   "region": "울산광역시",
+   "lat": 35.52972,
+   "lon": 129.04276,
+   "osm_way": 869066578,
+   "also": []
+  },
+  {
+   "name": "진해터널",
+   "len_m": 6005,
+   "bores": 2,
+   "total_m": 12005,
+   "hw": "trunk",
+   "ref": "",
+   "region": "경상남도",
+   "lat": 35.15627,
+   "lon": 128.72226,
+   "osm_way": 931093776,
+   "also": []
+  },
+  {
+   "name": "인천북항터널",
+   "len_m": 5301,
+   "bores": 2,
+   "total_m": 10580,
+   "hw": "motorway",
+   "ref": "400",
+   "region": "인천광역시",
+   "lat": 37.48868,
+   "lon": 126.63096,
+   "osm_way": 484302142,
+   "also": []
+  },
+  {
+   "name": "강남순환로",
+   "len_m": 5187,
+   "bores": 2,
+   "total_m": 10747,
+   "hw": "trunk",
+   "ref": "94",
+   "region": "서울특별시",
+   "lat": 37.45954,
+   "lon": 126.93689,
+   "osm_way": 256125347,
+   "also": []
+  },
+  {
+   "name": "배후령터널",
+   "len_m": 5103,
+   "bores": 1,
+   "total_m": 5103,
+   "hw": "primary",
+   "ref": "46",
+   "region": "강원특별자치도",
+   "lat": 37.99252,
+   "lon": 127.79157,
+   "osm_way": 547941457,
+   "also": []
+  },
+  {
+   "name": "함양울산고속도로",
+   "len_m": 5082,
+   "bores": 2,
+   "total_m": 10028,
+   "hw": "motorway",
+   "ref": "14",
+   "region": "경상남도",
+   "lat": 35.46952,
+   "lon": 128.55174,
+   "osm_way": 1063310934,
+   "also": []
+  },
+  {
+   "name": "제2경인고속도로",
+   "len_m": 4871,
+   "bores": 2,
+   "total_m": 9702,
+   "hw": "motorway",
+   "ref": "110",
+   "region": "경기도",
+   "lat": 37.42998,
+   "lon": 126.93154,
+   "osm_way": 1125967331,
+   "also": []
+  },
+  {
+   "name": "광적1터널",
+   "len_m": 4592,
+   "bores": 2,
+   "total_m": 9164,
+   "hw": "motorway",
+   "ref": "400",
+   "region": "경기도",
+   "lat": 37.83774,
+   "lon": 126.92577,
+   "osm_way": 1054964131,
+   "also": []
+  },
+  {
+   "name": "죽령터널",
+   "len_m": 4571,
+   "bores": 2,
+   "total_m": 9135,
+   "hw": "motorway",
+   "ref": "55",
+   "region": "충청북도",
+   "lat": 36.90359,
+   "lon": 128.43074,
+   "osm_way": 38317236,
+   "also": []
+  },
+  {
+   "name": "가지산터널",
+   "len_m": 4570,
+   "bores": 2,
+   "total_m": 9088,
+   "hw": "trunk",
+   "ref": "24",
+   "region": "경상남도",
+   "lat": 35.5957,
+   "lon": 129.02296,
+   "osm_way": 542284767,
+   "also": []
+  }
+ ],
+ "famous": {
+  "신월여의 지하도로(제물포터널)": [
+   {
+    "name": "신월여의지하도로",
+    "len_m": 7374,
+    "bores": 2,
+    "total_m": 15266,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.52677,
+    "lon": 126.89752,
+    "osm_way": 862460944
+   }
+  ],
+  "서부간선 지하도로": [
+   {
+    "name": "서부간선지하도로",
+    "len_m": 9083,
+    "bores": 2,
+    "total_m": 17882,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.50768,
+    "lon": 126.88086,
+    "osm_way": 975874973
+   },
+   {
+    "name": "서부간선도로",
+    "len_m": 749,
+    "bores": 1,
+    "total_m": 1159,
+    "hw": "trunk_link",
+    "region": "경기도",
+    "lat": 37.44857,
+    "lon": 126.89448,
+    "osm_way": 760737012
+   },
+   {
+    "name": "서부간선로",
+    "len_m": 64,
+    "bores": 6,
+    "total_m": 334,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.50284,
+    "lon": 126.87687,
+    "osm_way": 313471707
+   }
+  ],
+  "남산1호터널": [
+   {
+    "name": "남산1호터널",
+    "len_m": 1539,
+    "bores": 2,
+    "total_m": 3078,
+    "hw": "primary",
+    "region": "서울특별시",
+    "lat": 37.54687,
+    "lon": 126.99851,
+    "osm_way": 135131177
+   }
+  ],
+  "남산2호터널": [
+   {
+    "name": "남산2호터널",
+    "len_m": 1626,
+    "bores": 2,
+    "total_m": 3248,
+    "hw": "secondary",
+    "region": "서울특별시",
+    "lat": 37.55259,
+    "lon": 126.9986,
+    "osm_way": 37930775
+   },
+   {
+    "name": "남산2호터널입구지하차도",
+    "len_m": 197,
+    "bores": 1,
+    "total_m": 197,
+    "hw": "secondary",
+    "region": "서울특별시",
+    "lat": 37.54303,
+    "lon": 126.98858,
+    "osm_way": 37399711
+   }
+  ],
+  "남산3호터널": [
+   {
+    "name": "남산3호터널",
+    "len_m": 1313,
+    "bores": 2,
+    "total_m": 2603,
+    "hw": "primary",
+    "region": "서울특별시",
+    "lat": 37.5515,
+    "lon": 126.98499,
+    "osm_way": 379943301
+   }
+  ],
+  "홍지문터널": [
+   {
+    "name": "홍지문터널",
+    "len_m": 1904,
+    "bores": 2,
+    "total_m": 3766,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.59886,
+    "lon": 126.96369,
+    "osm_way": 203924739
+   }
+  ],
+  "정릉터널": [
+   {
+    "name": "정릉터널",
+    "len_m": 1653,
+    "bores": 2,
+    "total_m": 3295,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.60822,
+    "lon": 126.98061,
+    "osm_way": 37930333
+   },
+   {
+    "name": "정릉지하차도",
+    "len_m": 62,
+    "bores": 1,
+    "total_m": 62,
+    "hw": "primary_link",
+    "region": "서울특별시",
+    "lat": 37.61159,
+    "lon": 126.99165,
+    "osm_way": 538081755
+   },
+   {
+    "name": "정릉로34길",
+    "len_m": 28,
+    "bores": 1,
+    "total_m": 28,
+    "hw": "residential",
+    "region": "서울특별시",
+    "lat": 37.59976,
+    "lon": 127.01849,
+    "osm_way": 1461858636
+   }
+  ],
+  "강남순환로(관악·봉천·서초 등)": [
+   {
+    "name": "강남순환로",
+    "len_m": 5187,
+    "bores": 2,
+    "total_m": 10747,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.45954,
+    "lon": 126.93689,
+    "osm_way": 256125347
+   },
+   {
+    "name": "봉천터널",
+    "len_m": 3220,
+    "bores": 2,
+    "total_m": 6525,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.4696,
+    "lon": 126.96052,
+    "osm_way": 486057426
+   },
+   {
+    "name": "서초터널",
+    "len_m": 2647,
+    "bores": 2,
+    "total_m": 5258,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.46815,
+    "lon": 127.00059,
+    "osm_way": 428769853
+   },
+   {
+    "name": "선암산터널",
+    "len_m": 205,
+    "bores": 1,
+    "total_m": 205,
+    "hw": "tertiary",
+    "region": "대구광역시",
+    "lat": 36.1674,
+    "lon": 128.79008,
+    "osm_way": 1433519735
+   },
+   {
+    "name": "선암지하차도",
+    "len_m": 164,
+    "bores": 1,
+    "total_m": 164,
+    "hw": "primary",
+    "region": "서울특별시",
+    "lat": 37.46015,
+    "lon": 127.0204,
+    "osm_way": 576208622
+   },
+   {
+    "name": "선암터널",
+    "len_m": 142,
+    "bores": 2,
+    "total_m": 279,
+    "hw": "secondary",
+    "region": "울산광역시",
+    "lat": 35.51255,
+    "lon": 129.31798,
+    "osm_way": 1096045029
+   }
+  ],
+  "구룡터널": [
+   {
+    "name": "구룡터널",
+    "len_m": 1171,
+    "bores": 2,
+    "total_m": 2338,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.46974,
+    "lon": 127.06501,
+    "osm_way": 277554691
+   },
+   {
+    "name": "구룡터널",
+    "len_m": 555,
+    "bores": 2,
+    "total_m": 1107,
+    "hw": "trunk",
+    "region": "경상남도",
+    "lat": 35.27846,
+    "lon": 128.62891,
+    "osm_way": 1018684448
+   }
+  ],
+  "북악터널": [
+   {
+    "name": "북악터널",
+    "len_m": 824,
+    "bores": 2,
+    "total_m": 1636,
+    "hw": "primary",
+    "region": "서울특별시",
+    "lat": 37.61171,
+    "lon": 126.98514,
+    "osm_way": 37930346
+   }
+  ],
+  "사직터널": [
+   {
+    "name": "사직터널",
+    "len_m": 152,
+    "bores": 4,
+    "total_m": 584,
+    "hw": "primary",
+    "region": "서울특별시",
+    "lat": 37.57303,
+    "lon": 126.96463,
+    "osm_way": 1497011731
+   }
+  ],
+  "금화터널": [
+   {
+    "name": "금화터널",
+    "len_m": 574,
+    "bores": 2,
+    "total_m": 1145,
+    "hw": "primary",
+    "region": "서울특별시",
+    "lat": 37.57016,
+    "lon": 126.95218,
+    "osm_way": 204778128
+   }
+  ],
+  "우면산터널": [
+   {
+    "name": "우면산터널",
+    "len_m": 1967,
+    "bores": 2,
+    "total_m": 3865,
+    "hw": "trunk",
+    "region": "서울특별시",
+    "lat": 37.47505,
+    "lon": 127.01377,
+    "osm_way": 723914139
+   }
+  ],
+  "상도터널": [
+   {
+    "name": "상도터널",
+    "len_m": 564,
+    "bores": 2,
+    "total_m": 1126,
+    "hw": "primary",
+    "region": "서울특별시",
+    "lat": 37.50847,
+    "lon": 126.95202,
+    "osm_way": 172263032
+   }
+  ],
+  "수정산터널(부산)": [],
+  "백양터널(부산)": [
+   {
+    "name": "백양터널",
+    "len_m": 2433,
+    "bores": 2,
+    "total_m": 4859,
+    "hw": "trunk",
+    "region": "부산광역시",
+    "lat": 35.17827,
+    "lon": 129.01457,
+    "osm_way": 59038277
+   }
+  ],
+  "만덕터널(부산)": [
+   {
+    "name": "만덕초읍(아시아드)터널",
+    "len_m": 2157,
+    "bores": 2,
+    "total_m": 4297,
+    "hw": "secondary",
+    "region": "부산광역시",
+    "lat": 35.19822,
+    "lon": 129.04235,
+    "osm_way": 941200322
+   },
+   {
+    "name": "만덕2터널",
+    "len_m": 1739,
+    "bores": 2,
+    "total_m": 3479,
+    "hw": "primary",
+    "region": "부산광역시",
+    "lat": 35.21164,
+    "lon": 129.05228,
+    "osm_way": 489504785
+   },
+   {
+    "name": "만덕1터널",
+    "len_m": 818,
+    "bores": 1,
+    "total_m": 818,
+    "hw": "secondary",
+    "region": "부산광역시",
+    "lat": 35.21256,
+    "lon": 129.05269,
+    "osm_way": 59344793
+   }
+  ],
+  "황령터널(부산)": [
+   {
+    "name": "황령대로",
+    "len_m": 1860,
+    "bores": 2,
+    "total_m": 3967,
+    "hw": "secondary",
+    "region": "부산광역시",
+    "lat": 35.14497,
+    "lon": 129.09192,
+    "osm_way": 74859415
+   }
+  ],
+  "대티터널(부산)": [
+   {
+    "name": "대티터널",
+    "len_m": 412,
+    "bores": 2,
+    "total_m": 816,
+    "hw": "primary",
+    "region": "부산광역시",
+    "lat": 35.10744,
+    "lon": 129.00884,
+    "osm_way": 1355936314
+   }
+  ],
+  "구덕터널(부산)": [
+   {
+    "name": "구덕터널",
+    "len_m": 1881,
+    "bores": 2,
+    "total_m": 3747,
+    "hw": "secondary",
+    "region": "부산광역시",
+    "lat": 35.12688,
+    "lon": 129.00522,
+    "osm_way": 164814099
+   }
+  ],
+  "부산 대심도(만덕-센텀)": [
+   {
+    "name": "센텀터널",
+    "len_m": 9269,
+    "bores": 2,
+    "total_m": 20102,
+    "hw": "trunk",
+    "region": "부산광역시",
+    "lat": 35.19988,
+    "lon": 129.08123,
+    "osm_way": 942012885
+   },
+   {
+    "name": "센텀시티지하도로",
+    "len_m": 1096,
+    "bores": 2,
+    "total_m": 2192,
+    "hw": "trunk",
+    "region": "부산광역시",
+    "lat": 35.16997,
+    "lon": 129.12656,
+    "osm_way": 360610648
+   },
+   {
+    "name": "센텀시티지하차도",
+    "len_m": 108,
+    "bores": 1,
+    "total_m": 108,
+    "hw": "secondary",
+    "region": "부산광역시",
+    "lat": 35.17673,
+    "lon": 129.12443,
+    "osm_way": 164600460
+   }
+  ],
+  "거가대교 해저터널(가덕해저터널)": [
+   {
+    "name": "거가대로",
+    "len_m": 3622,
+    "bores": 2,
+    "total_m": 8403,
+    "hw": "trunk",
+    "region": "부산광역시",
+    "lat": 35.01641,
+    "lon": 128.76662,
+    "osm_way": 31610441
+   },
+   {
+    "name": "거가대로",
+    "len_m": 1412,
+    "bores": 2,
+    "total_m": 2814,
+    "hw": "trunk",
+    "region": "부산광역시",
+    "lat": 35.03987,
+    "lon": 128.82659,
+    "osm_way": 129308870
+   },
+   {
+    "name": "거가대로",
+    "len_m": 916,
+    "bores": 2,
+    "total_m": 1790,
+    "hw": "trunk",
+    "region": "경상남도",
+    "lat": 34.92057,
+    "lon": 128.7124,
+    "osm_way": 53430277
+   },
+   {
+    "name": "가덕터널",
+    "len_m": 383,
+    "bores": 2,
+    "total_m": 760,
+    "hw": "motorway",
+    "region": "충청남도",
+    "lat": 36.18264,
+    "lon": 126.77438,
+    "osm_way": 108541622
+   },
+   {
+    "name": "월오가덕로",
+    "len_m": 29,
+    "bores": 1,
+    "total_m": 29,
+    "hw": "tertiary",
+    "region": "충청북도",
+    "lat": 36.60713,
+    "lon": 127.54592,
+    "osm_way": 1311631882
+   }
+  ],
+  "보령해저터널(충남)": [
+   {
+    "name": "원산대로",
+    "len_m": 6839,
+    "bores": 2,
+    "total_m": 13670,
+    "hw": "primary",
+    "region": "충청남도",
+    "lat": 36.34248,
+    "lon": 126.47724,
+    "osm_way": 544572830
+   }
+  ],
+  "인천북항터널": [
+   {
+    "name": "인천북항터널",
+    "len_m": 5301,
+    "bores": 2,
+    "total_m": 10580,
+    "hw": "motorway",
+    "region": "인천광역시",
+    "lat": 37.48868,
+    "lon": 126.63096,
+    "osm_way": 484302142
+   }
+  ]
+ },
+ "published_lengths": {
+  "신월여의지하도로": {
+   "km": 7.53,
+   "src": "https://news.seoul.go.kr/safe/archives/506675"
+  },
+  "서부간선지하도로": {
+   "km": 10.33,
+   "src": "https://mediahub.seoul.go.kr/archives/848695",
+   "note": "노선 전체 길이"
+  },
+  "남산1호터널": {
+   "km": 1.53,
+   "src": "summary",
+   "note": "상행 1,530m·하행 1,532m"
+  },
+  "남산2호터널": {
+   "km": 1.62,
+   "src": "summary"
+  },
+  "남산3호터널": {
+   "km": 1.28,
+   "src": "summary",
+   "note": "1,280m·1,270m"
+  },
+  "홍지문터널": {
+   "km": 1.892,
+   "src": "summary"
+  },
+  "관악터널(강남순환로)": {
+   "km": 4.99,
+   "src": "https://news.seoul.go.kr/citybuild/archives/231148 (summary)"
+  },
+  "봉천터널": {
+   "km": 3.23,
+   "src": "https://news.seoul.go.kr/citybuild/archives/231148 (summary)"
+  },
+  "서초터널": {
+   "km": 2.653,
+   "src": "https://news.seoul.go.kr/citybuild/archives/231148 (summary)"
+  },
+  "백양터널": {
+   "km": 2.34,
+   "src": "https://www.fnnews.com/news/202406171107466932 (summary)"
+  },
+  "만덕센텀 대심도": {
+   "km": 9.62,
+   "src": "https://www.hankyung.com/amp/2026021058506"
+  },
+  "만덕3터널(계획)": {
+   "km": 2.24,
+   "src": "https://m.go.seoul.co.kr/news/2016/02/18/20160218500251"
+  },
+  "정릉터널": {
+   "km": null,
+   "src": "확인 못 함"
+  },
+  "수정산터널": {
+   "km": null,
+   "src": "확인 못 함"
+  }
+ },
+ "shelter_datasets": [
+  {
+   "name": "행정안전부_민방위대피시설 조회서비스",
+   "id": "data.go.kr 15155067",
+   "url": "https://www.data.go.kr/data/15155067/openapi.do",
+   "coverage": "전국",
+   "coords": "있음, EPSG:5174(보정계수 없는 Bessel 중부원점 TM), 응답 항목 이름은 확인 못 함",
+   "fields": "시설명, 시설구분, 주소, 지상·지하, 면적, 최대 수용인원, 운영상태, 지정·해제 이력",
+   "format": "REST JSON+XML, 매일 갱신",
+   "license": "이용허락범위 제한 없음, 무료",
+   "access": "공공데이터포털 회원 가입 + 활용신청(자동승인), 개발 계정 하루 10,000건"
+  },
+  {
+   "name": "행정안전부_생활안전지도 민방위대피소",
+   "id": "data.go.kr 15149489",
+   "url": "https://www.data.go.kr/data/15149489/openapi.do",
+   "coverage": "전국",
+   "coords": "WMS 지도로만(제공 항목에 좌표 없음)",
+   "fields": "대피시설일련번호, 대피가능인원수, 시설구분, 상세주소, 법정동코드, 평상시활용유형, 시설면적, 개방여부, 도로명주소, 관리기관명",
+   "format": "WMS(LINK), JSON·XML",
+   "license": "제한 없음",
+   "access": "생활안전지도 키(확인 안 함)"
+  },
+  {
+   "name": "서울시 ○○구 민방위대피시설 인허가 정보",
+   "id": "data.seoul.go.kr OA-20035(강북), OA-20036(도봉) 등",
+   "url": "https://data.seoul.go.kr/dataList/OA-20035/S/1/datasetView.do",
+   "coverage": "자치구별(25개 구 모두인지 확인 안 함)",
+   "coords": "EPSG:5174 TM, 위경도 없음",
+   "fields": "확인 못 함",
+   "format": "시트·Open API(파일 없음)",
+   "license": "공공누리 1유형, 매일 갱신(3일 전 자료), 폐업 포함",
+   "access": "Open API는 서울시 인증키"
+  },
+  {
+   "name": "지자체 파일(위경도 있음)",
+   "id": "대전 대덕구 15159914, 경남 의령군 15112085, 경기 광주시 15120873(SHP), 대전 유성구 15108921",
+   "url": "https://www.data.go.kr/biz/dcat/metadata/15159914.do",
+   "coverage": "시·군·구 몇 곳",
+   "coords": "곳마다 다름",
+   "fields": "곳마다 다름",
+   "format": "CSV·SHP·API",
+   "license": "제한 없음",
+   "access": "곳마다 다름"
+  },
+  {
+   "name": "안전디딤돌 앱·국민재난안전포털",
+   "id": "",
+   "url": "",
+   "coverage": "전국",
+   "coords": "화면 지도",
+   "fields": "",
+   "format": "앱·웹",
+   "license": "",
+   "access": "공개 일괄 내려받기·API를 찾지 못함"
+  }
+ ],
+ "named_city_tunnels": {
+  "서울특별시": [
+   [
+    "서부간선지하도로",
+    9083
+   ],
+   [
+    "신월여의지하도로",
+    7374
+   ],
+   [
+    "강남순환로",
+    5187
+   ],
+   [
+    "고덕터널",
+    3822
+   ],
+   [
+    "봉천터널",
+    3220
+   ],
+   [
+    "수락산터널",
+    2915
+   ],
+   [
+    "도봉지하차도",
+    2657
+   ],
+   [
+    "서초터널",
+    2647
+   ],
+   [
+    "우면산터널",
+    1967
+   ],
+   [
+    "홍지문터널",
+    1904
+   ],
+   [
+    "정릉터널",
+    1653
+   ],
+   [
+    "남산2호터널",
+    1626
+   ],
+   [
+    "남산1호터널",
+    1539
+   ],
+   [
+    "남산3호터널",
+    1313
+   ],
+   [
+    "구룡터널",
+    1171
+   ],
+   [
+    "세곡터널",
+    1113
+   ],
+   [
+    "장지지하차도",
+    1092
+   ],
+   [
+    "내곡터널",
+    1037
+   ],
+   [
+    "남부순환로",
+    952
+   ],
+   [
+    "오패산터널",
+    913
+   ],
+   [
+    "일원터널",
+    843
+   ],
+   [
+    "북악터널",
+    824
+   ],
+   [
+    "대모지하차도",
+    737
+   ],
+   [
+    "개봉지하차도",
+    655
+   ],
+   [
+    "외발산지하차도",
+    624
+   ],
+   [
+    "구기터널",
+    617
+   ],
+   [
+    "인천국제공항고속도로",
+    617
+   ],
+   [
+    "금화터널",
+    574
+   ],
+   [
+    "상도터널",
+    564
+   ],
+   [
+    "신원지하차도",
+    503
+   ],
+   [
+    "매헌지하차도",
+    503
+   ]
+  ],
+  "부산광역시": [
+   [
+    "센텀터널",
+    9269
+   ],
+   [
+    "산성터널",
+    7543
+   ],
+   [
+    "금정산터널",
+    7115
+   ],
+   [
+    "거가대로",
+    3622
+   ],
+   [
+    "천마지하도로",
+    2494
+   ],
+   [
+    "백양터널",
+    2433
+   ],
+   [
+    "수정터널",
+    2354
+   ],
+   [
+    "웅장로",
+    2162
+   ],
+   [
+    "만덕초읍(아시아드)터널",
+    2157
+   ],
+   [
+    "구덕터널",
+    1881
+   ],
+   [
+    "장평지하차도",
+    1868
+   ],
+   [
+    "황령대로",
+    1860
+   ],
+   [
+    "곰내터널",
+    1833
+   ],
+   [
+    "만덕2터널",
+    1739
+   ],
+   [
+    "개좌터널",
+    1649
+   ],
+   [
+    "신선대지하도로",
+    1524
+   ],
+   [
+    "충장지하차도",
+    1440
+   ],
+   [
+    "거가대로",
+    1412
+   ],
+   [
+    "두명터널",
+    1365
+   ],
+   [
+    "광안터널",
+    1158
+   ],
+   [
+    "센텀시티지하도로",
+    1096
+   ],
+   [
+    "철마4터널",
+    959
+   ],
+   [
+    "녹산터널",
+    882
+   ],
+   [
+    "금정터널 사갱2",
+    854
+   ],
+   [
+    "만덕1터널",
+    818
+   ],
+   [
+    "부산터널",
+    700
+   ],
+   [
+    "해운대터널",
+    674
+   ],
+   [
+    "철마1터널",
+    655
+   ],
+   [
+    "방곡터널",
+    582
+   ],
+   [
+    "장산2터널",
+    582
+   ],
+   [
+    "장산1터널",
+    542
+   ],
+   [
+    "오륜터널",
+    524
+   ],
+   [
+    "기장1터널",
+    507
+   ]
+  ]
+ },
+ "han_crossing_road_tunnels": [],
+ "proximity": {
+  "len>=0m/300m": {
+   "tunnels": 15449,
+   "road_portals": 36293,
+   "near_station_exit": 1613,
+   "near_rail_portal": 748,
+   "near_either": 2285,
+   "tunnels_with_a_near_portal": 1076,
+   "tunnels_with_2plus_near_portals": 980
+  },
+  "len>=0m/800m": {
+   "tunnels": 15449,
+   "road_portals": 36293,
+   "near_station_exit": 5649,
+   "near_rail_portal": 2929,
+   "near_either": 7756,
+   "tunnels_with_a_near_portal": 3505,
+   "tunnels_with_2plus_near_portals": 3399
+  },
+  "len>=300m/300m": {
+   "tunnels": 1447,
+   "road_portals": 5858,
+   "near_station_exit": 106,
+   "near_rail_portal": 75,
+   "near_either": 174,
+   "tunnels_with_a_near_portal": 73,
+   "tunnels_with_2plus_near_portals": 55
+  },
+  "len>=300m/800m": {
+   "tunnels": 1447,
+   "road_portals": 5858,
+   "near_station_exit": 380,
+   "near_rail_portal": 348,
+   "near_either": 678,
+   "tunnels_with_a_near_portal": 227,
+   "tunnels_with_2plus_near_portals": 208
+  },
+  "len>=1000m/300m": {
+   "tunnels": 400,
+   "road_portals": 1925,
+   "near_station_exit": 25,
+   "near_rail_portal": 29,
+   "near_either": 49,
+   "tunnels_with_a_near_portal": 20,
+   "tunnels_with_2plus_near_portals": 14
+  },
+  "len>=1000m/800m": {
+   "tunnels": 400,
+   "road_portals": 1925,
+   "near_station_exit": 103,
+   "near_rail_portal": 112,
+   "near_either": 206,
+   "tunnels_with_a_near_portal": 65,
+   "tunnels_with_2plus_near_portals": 62
+  }
+ },
+ "range_trips": [
+  {
+   "from_station": "교대",
+   "to": "센텀터널 먼 쪽 끝 [35.18181, 129.11922]",
+   "tunnel": "센텀터널",
+   "region": "부산광역시",
+   "rail_only_exposure_m": 1890,
+   "rail_only_exit": "망미역 출구 2번",
+   "rail_only_exit_latlon": [
+    35.17133,
+    129.10966
+   ],
+   "rail_only_exit_to_dest_m": 1454,
+   "tunnel_exposure_m": 378,
+   "tunnel_inside_m": 5772,
+   "saving_m": 1512
+  },
+  {
+   "from_station": "선유도",
+   "to": "서부간선지하도로 먼 쪽 끝 [37.46758, 126.88456]",
+   "tunnel": "서부간선지하도로",
+   "region": "서울특별시",
+   "rail_only_exposure_m": 1777,
+   "rail_only_exit": "가산디지털단지역 출구 7번",
+   "rail_only_exit_latlon": [
+    37.47971,
+    126.88205
+   ],
+   "rail_only_exit_to_dest_m": 1367,
+   "tunnel_exposure_m": 355,
+   "tunnel_inside_m": 8715,
+   "saving_m": 1422
+  },
+  {
+   "from_station": "여의도",
+   "to": "신월여의지하도로 먼 쪽 끝 [37.52635, 126.84025]",
+   "tunnel": "신월여의지하도로",
+   "region": "서울특별시",
+   "rail_only_exposure_m": 1069,
+   "rail_only_exit": "까치산역 출구 3번",
+   "rail_only_exit_latlon": [
+    37.53181,
+    126.84654
+   ],
+   "rail_only_exit_to_dest_m": 822,
+   "tunnel_exposure_m": 476,
+   "tunnel_inside_m": 7374,
+   "saving_m": 593
+  },
+  {
+   "from_station": "숭의",
+   "to": "인천북항터널 먼 쪽 끝 [37.5098, 126.62769]",
+   "tunnel": "인천북항터널",
+   "region": "인천광역시",
+   "rail_only_exposure_m": 8235,
+   "rail_only_exit": "석남역 출구 2번",
+   "rail_only_exit_latlon": [
+    37.50623,
+    126.67312
+   ],
+   "rail_only_exit_to_dest_m": 4027,
+   "tunnel_exposure_m": 595,
+   "tunnel_inside_m": 5301,
+   "saving_m": 7640
+  },
+  {
+   "from_station": "관악산",
+   "to": "강남순환로 먼 쪽 끝 [37.43825, 126.90742]",
+   "tunnel": "강남순환로",
+   "region": "서울특별시",
+   "rail_only_exposure_m": 5880,
+   "rail_only_exit": "선로·터널 출입구 점",
+   "rail_only_exit_latlon": [
+    37.44774,
+    126.89764
+   ],
+   "rail_only_exit_to_dest_m": 1363,
+   "tunnel_exposure_m": 55,
+   "tunnel_inside_m": 4892,
+   "saving_m": 5825
+  },
+  {
+   "from_station": "사가정",
+   "to": "용마터널 먼 쪽 끝 [37.5768, 127.12337]",
+   "tunnel": "용마터널",
+   "region": "경기도",
+   "rail_only_exposure_m": 2239,
+   "rail_only_exit": "장자호수공원역 출구 1번",
+   "rail_only_exit_latlon": [
+    37.58749,
+    127.13751
+   ],
+   "rail_only_exit_to_dest_m": 1722,
+   "tunnel_exposure_m": 389,
+   "tunnel_inside_m": 2798,
+   "saving_m": 1850
+  },
+  {
+   "from_station": "마들",
+   "to": "도봉지하차도 먼 쪽 끝 [37.64272, 127.05418]",
+   "tunnel": "도봉지하차도",
+   "region": "서울특별시",
+   "rail_only_exposure_m": 1118,
+   "rail_only_exit": "중계역 출구 5번",
+   "rail_only_exit_latlon": [
+    37.64528,
+    127.0634
+   ],
+   "rail_only_exit_to_dest_m": 860,
+   "tunnel_exposure_m": 698,
+   "tunnel_inside_m": 2657,
+   "saving_m": 420
+  },
+  {
+   "from_station": "남태령",
+   "to": "서초터널 먼 쪽 끝 [37.46261, 127.01708]",
+   "tunnel": "서초터널",
+   "region": "서울특별시",
+   "rail_only_exposure_m": 2312,
+   "rail_only_exit": "선바위역 출구 4번",
+   "rail_only_exit_latlon": [
+    37.45136,
+    127.00276
+   ],
+   "rail_only_exit_to_dest_m": 1778,
+   "tunnel_exposure_m": 766,
+   "tunnel_inside_m": 2611,
+   "saving_m": 1546
+  },
+  {
+   "from_station": "남부터미널",
+   "to": "우면산터널 먼 쪽 끝 [37.46439, 127.01837]",
+   "tunnel": "우면산터널",
+   "region": "서울특별시",
+   "rail_only_exposure_m": 2433,
+   "rail_only_exit": "양재시민의숲역 출구 5번",
+   "rail_only_exit_latlon": [
+    37.46946,
+    127.03859
+   ],
+   "rail_only_exit_to_dest_m": 1871,
+   "tunnel_exposure_m": 585,
+   "tunnel_inside_m": 1967,
+   "saving_m": 1848
+  },
+  {
+   "from_station": "동매",
+   "to": "장평지하차도 먼 쪽 끝 [35.08488, 128.99184]",
+   "tunnel": "장평지하차도",
+   "region": "부산광역시",
+   "rail_only_exposure_m": 1719,
+   "rail_only_exit": "장림역 출구 6번",
+   "rail_only_exit_latlon": [
+    35.0828,
+    128.97753
+   ],
+   "rail_only_exit_to_dest_m": 1322,
+   "tunnel_exposure_m": 604,
+   "tunnel_inside_m": 1868,
+   "saving_m": 1115
+  },
+  {
+   "from_station": "전포",
+   "to": "황령대로 먼 쪽 끝 [35.14975, 129.08971]",
+   "tunnel": "황령대로",
+   "region": "부산광역시",
+   "rail_only_exposure_m": 2148,
+   "rail_only_exit": "경성대·부경대역 출구 6번",
+   "rail_only_exit_latlon": [
+    35.13727,
+    129.09958
+   ],
+   "rail_only_exit_to_dest_m": 1653,
+   "tunnel_exposure_m": 478,
+   "tunnel_inside_m": 1859,
+   "saving_m": 1670
+  },
+  {
+   "from_station": "판교",
+   "to": "광장지하차도 먼 쪽 끝 [37.40401, 127.11266]",
+   "tunnel": "광장지하차도",
+   "region": "경기도",
+   "rail_only_exposure_m": 1259,
+   "rail_only_exit": "판교역 출구 1번",
+   "rail_only_exit_latlon": [
+    37.39535,
+    127.11149
+   ],
+   "rail_only_exit_to_dest_m": 968,
+   "tunnel_exposure_m": 996,
+   "tunnel_inside_m": 1844,
+   "saving_m": 263
+  }
+ ],
+ "urban_corridors": {
+  "count": 82,
+  "other_end_beyond_800m_of_ug_exit": 31,
+  "list": [
+   {
+    "tunnel": "센텀터널",
+    "region": "부산광역시",
+    "len_m": 9269,
+    "inside_m": 5772,
+    "osm_way": 942012885,
+    "end1_exit": "교대",
+    "end1_m": 291,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     35.18181,
+     129.11922
+    ]
+   },
+   {
+    "tunnel": "서부간선지하도로",
+    "region": "서울특별시",
+    "len_m": 9083,
+    "inside_m": 8715,
+    "osm_way": 975874973,
+    "end1_exit": "선유도",
+    "end1_m": 273,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.46758,
+     126.88456
+    ]
+   },
+   {
+    "tunnel": "신월여의지하도로",
+    "region": "서울특별시",
+    "len_m": 7374,
+    "inside_m": 7374,
+    "osm_way": 862460944,
+    "end1_exit": "여의도",
+    "end1_m": 366,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.52635,
+     126.84025
+    ]
+   },
+   {
+    "tunnel": "인천북항터널",
+    "region": "인천광역시",
+    "len_m": 5301,
+    "inside_m": 5301,
+    "osm_way": 484302142,
+    "end1_exit": "숭의",
+    "end1_m": 458,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.5098,
+     126.62769
+    ]
+   },
+   {
+    "tunnel": "강남순환로",
+    "region": "서울특별시",
+    "len_m": 5187,
+    "inside_m": 4892,
+    "osm_way": 256125347,
+    "end1_exit": "관악산",
+    "end1_m": 42,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.43825,
+     126.90742
+    ]
+   },
+   {
+    "tunnel": "용마터널",
+    "region": "경기도",
+    "len_m": 2798,
+    "inside_m": 2798,
+    "osm_way": 505990900,
+    "end1_exit": "사가정",
+    "end1_m": 299,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.5768,
+     127.12337
+    ]
+   },
+   {
+    "tunnel": "도봉지하차도",
+    "region": "서울특별시",
+    "len_m": 2657,
+    "inside_m": 2657,
+    "osm_way": 830250852,
+    "end1_exit": "마들",
+    "end1_m": 537,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.64272,
+     127.05418
+    ]
+   },
+   {
+    "tunnel": "서초터널",
+    "region": "서울특별시",
+    "len_m": 2647,
+    "inside_m": 2611,
+    "osm_way": 428769853,
+    "end1_exit": "남태령",
+    "end1_m": 589,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.46261,
+     127.01708
+    ]
+   },
+   {
+    "tunnel": "우면산터널",
+    "region": "서울특별시",
+    "len_m": 1967,
+    "inside_m": 1967,
+    "osm_way": 723914139,
+    "end1_exit": "남부터미널",
+    "end1_m": 450,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.46439,
+     127.01837
+    ]
+   },
+   {
+    "tunnel": "장평지하차도",
+    "region": "부산광역시",
+    "len_m": 1868,
+    "inside_m": 1868,
+    "osm_way": 1150052930,
+    "end1_exit": "동매",
+    "end1_m": 465,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     35.08488,
+     128.99184
+    ]
+   },
+   {
+    "tunnel": "황령대로",
+    "region": "부산광역시",
+    "len_m": 1860,
+    "inside_m": 1859,
+    "osm_way": 74859415,
+    "end1_exit": "전포",
+    "end1_m": 368,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     35.14975,
+     129.08971
+    ]
+   },
+   {
+    "tunnel": "광장지하차도",
+    "region": "경기도",
+    "len_m": 1846,
+    "inside_m": 1844,
+    "osm_way": 172744393,
+    "end1_exit": "판교",
+    "end1_m": 766,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.40401,
+     127.11266
+    ]
+   },
+   {
+    "tunnel": "불암산터널",
+    "region": "경기도",
+    "len_m": 1637,
+    "inside_m": 1627,
+    "osm_way": 52873343,
+    "end1_exit": "별내별가람",
+    "end1_m": 795,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.67524,
+     127.08996
+    ]
+   },
+   {
+    "tunnel": "남산2호터널",
+    "region": "서울특별시",
+    "len_m": 1626,
+    "inside_m": 1626,
+    "osm_way": 37930775,
+    "end1_exit": "동대입구",
+    "end1_m": 468,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.54462,
+     126.99005
+    ]
+   },
+   {
+    "tunnel": "만월산터널",
+    "region": "인천광역시",
+    "len_m": 1536,
+    "inside_m": 1504,
+    "osm_way": 229094965,
+    "end1_exit": "부평",
+    "end1_m": 752,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.46942,
+     126.72542
+    ]
+   },
+   {
+    "tunnel": "화랑지하차도",
+    "region": "경기도",
+    "len_m": 1433,
+    "inside_m": 1433,
+    "osm_way": 154281379,
+    "end1_exit": "판교",
+    "end1_m": 670,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.40405,
+     127.10447
+    ]
+   },
+   {
+    "tunnel": "남산3호터널",
+    "region": "서울특별시",
+    "len_m": 1313,
+    "inside_m": 1313,
+    "osm_way": 379943301,
+    "end1_exit": "회현",
+    "end1_m": 479,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.54482,
+     126.98836
+    ]
+   },
+   {
+    "tunnel": "센텀시티지하도로",
+    "region": "부산광역시",
+    "len_m": 1096,
+    "inside_m": 1096,
+    "osm_way": 360610648,
+    "end1_exit": "센텀시티",
+    "end1_m": 215,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     35.17487,
+     129.12266
+    ]
+   },
+   {
+    "tunnel": "원적산터널",
+    "region": "인천광역시",
+    "len_m": 1052,
+    "inside_m": 1037,
+    "osm_way": 226095211,
+    "end1_exit": "석남",
+    "end1_m": 442,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.50905,
+     126.69275
+    ]
+   },
+   {
+    "tunnel": "죽전지하차도",
+    "region": "경기도",
+    "len_m": 929,
+    "inside_m": 929,
+    "osm_way": 406000952,
+    "end1_exit": "동천",
+    "end1_m": 111,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.33016,
+     127.1039
+    ]
+   },
+   {
+    "tunnel": "상현지하차도",
+    "region": "경기도",
+    "len_m": 913,
+    "inside_m": 913,
+    "osm_way": 842289814,
+    "end1_exit": "상현",
+    "end1_m": 276,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.30529,
+     127.07801
+    ]
+   },
+   {
+    "tunnel": "동부대로3지하차도",
+    "region": "경기도",
+    "len_m": 901,
+    "inside_m": 898,
+    "osm_way": 587826287,
+    "end1_exit": "동탄",
+    "end1_m": 632,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.19386,
+     127.0882
+    ]
+   },
+   {
+    "tunnel": "망포지하도로",
+    "region": "경기도",
+    "len_m": 870,
+    "inside_m": 863,
+    "osm_way": 1546807162,
+    "end1_exit": "망포",
+    "end1_m": 619,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.23548,
+     127.05821
+    ]
+   },
+   {
+    "tunnel": "공원터널",
+    "region": "경기도",
+    "len_m": 798,
+    "inside_m": 798,
+    "osm_way": 486882320,
+    "end1_exit": "신흥",
+    "end1_m": 453,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.43419,
+     127.15198
+    ]
+   },
+   {
+    "tunnel": "대모지하차도",
+    "region": "서울특별시",
+    "len_m": 737,
+    "inside_m": 735,
+    "osm_way": 1491841412,
+    "end1_exit": "개포동",
+    "end1_m": 769,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.47871,
+     127.06384
+    ]
+   },
+   {
+    "tunnel": "(이름 없음 service)",
+    "region": "경기도",
+    "len_m": 587,
+    "inside_m": 587,
+    "osm_way": 1251536111,
+    "end1_exit": "하남검단산",
+    "end1_m": 629,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.54587,
+     127.22154
+    ]
+   },
+   {
+    "tunnel": "금화터널",
+    "region": "서울특별시",
+    "len_m": 574,
+    "inside_m": 574,
+    "osm_way": 204778128,
+    "end1_exit": "독립문",
+    "end1_m": 447,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.56884,
+     126.94892
+    ]
+   },
+   {
+    "tunnel": "남태령지하차도",
+    "region": "경기도",
+    "len_m": 570,
+    "inside_m": 569,
+    "osm_way": 187927698,
+    "end1_exit": "선바위",
+    "end1_m": 700,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.44388,
+     126.99719
+    ]
+   },
+   {
+    "tunnel": "동탄원천로",
+    "region": "경기도",
+    "len_m": 486,
+    "inside_m": 486,
+    "osm_way": 554902894,
+    "end1_exit": "매탄권선",
+    "end1_m": 410,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.24414,
+     127.03788
+    ]
+   },
+   {
+    "tunnel": "수영터널",
+    "region": "부산광역시",
+    "len_m": 459,
+    "inside_m": 459,
+    "osm_way": 74859421,
+    "end1_exit": "망미",
+    "end1_m": 414,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     35.16404,
+     129.10517
+    ]
+   },
+   {
+    "tunnel": "난곡터널",
+    "region": "서울특별시",
+    "len_m": 372,
+    "inside_m": 372,
+    "osm_way": 470202036,
+    "end1_exit": "신림",
+    "end1_m": 720,
+    "end2_exit": null,
+    "end2_m": null,
+    "end2_same_island": false,
+    "end2_latlon": [
+     37.47842,
+     126.91995
+    ]
+   },
+   {
+    "tunnel": "봉천터널",
+    "region": "서울특별시",
+    "len_m": 3220,
+    "inside_m": 3220,
+    "osm_way": 486057426,
+    "end1_exit": "관악산",
+    "end1_m": 279,
+    "end2_exit": "사당",
+    "end2_m": 577,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.46999,
+     126.98298
+    ]
+   },
+   {
+    "tunnel": "수정터널",
+    "region": "부산광역시",
+    "len_m": 2354,
+    "inside_m": 2339,
+    "osm_way": 74859416,
+    "end1_exit": "좌천",
+    "end1_m": 191,
+    "end2_exit": "동의대",
+    "end2_m": 629,
+    "end2_same_island": true,
+    "end2_latlon": [
+     35.14811,
+     129.03379
+    ]
+   },
+   {
+    "tunnel": "만덕2터널",
+    "region": "부산광역시",
+    "len_m": 1739,
+    "inside_m": 1739,
+    "osm_way": 489504785,
+    "end1_exit": "만덕",
+    "end1_m": 617,
+    "end2_exit": "미남",
+    "end2_m": 619,
+    "end2_same_island": true,
+    "end2_latlon": [
+     35.2098,
+     129.06235
+    ]
+   },
+   {
+    "tunnel": "남산1호터널",
+    "region": "서울특별시",
+    "len_m": 1539,
+    "inside_m": 1539,
+    "osm_way": 135131177,
+    "end1_exit": "한강진",
+    "end1_m": 247,
+    "end2_exit": "충무로",
+    "end2_m": 656,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.55501,
+     126.99319
+    ]
+   },
+   {
+    "tunnel": "충장지하차도",
+    "region": "부산광역시",
+    "len_m": 1440,
+    "inside_m": 1440,
+    "osm_way": 1495772808,
+    "end1_exit": "초량",
+    "end1_m": 368,
+    "end2_exit": "부산",
+    "end2_m": 494,
+    "end2_same_island": true,
+    "end2_latlon": [
+     35.10948,
+     129.0409
+    ]
+   },
+   {
+    "tunnel": "루원지하차도",
+    "region": "인천광역시",
+    "len_m": 1273,
+    "inside_m": 1273,
+    "osm_way": 503705339,
+    "end1_exit": "가정",
+    "end1_m": 476,
+    "end2_exit": "가정",
+    "end2_m": 799,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.52438,
+     126.6833
+    ]
+   },
+   {
+    "tunnel": "경부동탄터널",
+    "region": "경기도",
+    "len_m": 1215,
+    "inside_m": 1215,
+    "osm_way": 1006864288,
+    "end1_exit": "동탄",
+    "end1_m": 503,
+    "end2_exit": "동탄",
+    "end2_m": 629,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.19401,
+     127.0956
+    ]
+   },
+   {
+    "tunnel": "경부고속도로",
+    "region": "경기도",
+    "len_m": 1212,
+    "inside_m": 1212,
+    "osm_way": 1006864289,
+    "end1_exit": "동탄",
+    "end1_m": 502,
+    "end2_exit": "동탄",
+    "end2_m": 630,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.19401,
+     127.09535
+    ]
+   },
+   {
+    "tunnel": "장지지하차도",
+    "region": "서울특별시",
+    "len_m": 1092,
+    "inside_m": 1092,
+    "osm_way": 615657925,
+    "end1_exit": "장지",
+    "end1_m": 365,
+    "end2_exit": "복정",
+    "end2_m": 773,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.47454,
+     127.13492
+    ]
+   },
+   {
+    "tunnel": "분당수서로",
+    "region": "경기도",
+    "len_m": 984,
+    "inside_m": 400,
+    "osm_way": 601306036,
+    "end1_exit": "성남",
+    "end1_m": 40,
+    "end2_exit": "성남",
+    "end2_m": 398,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.39848,
+     127.11999
+    ]
+   },
+   {
+    "tunnel": "오패산터널",
+    "region": "서울특별시",
+    "len_m": 913,
+    "inside_m": 913,
+    "osm_way": 380240545,
+    "end1_exit": "미아",
+    "end1_m": 270,
+    "end2_exit": "수유",
+    "end2_m": 390,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.63492,
+     127.0284
+    ]
+   },
+   {
+    "tunnel": "백현지하차도",
+    "region": "경기도",
+    "len_m": 904,
+    "inside_m": 896,
+    "osm_way": 46709892,
+    "end1_exit": "수내",
+    "end1_m": 399,
+    "end2_exit": "정자",
+    "end2_m": 551,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.37221,
+     127.10425
+    ]
+   },
+   {
+    "tunnel": "일원터널",
+    "region": "서울특별시",
+    "len_m": 843,
+    "inside_m": 843,
+    "osm_way": 275627431,
+    "end1_exit": "일원",
+    "end1_m": 644,
+    "end2_exit": "일원",
+    "end2_m": 670,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.48475,
+     127.07587
+    ]
+   },
+   {
+    "tunnel": "(이름 없음 service)",
+    "region": "인천광역시",
+    "len_m": 735,
+    "inside_m": 735,
+    "osm_way": 233534522,
+    "end1_exit": "인천공항1터미널",
+    "end1_m": 267,
+    "end2_exit": "인천공항1터미널",
+    "end2_m": 272,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.44861,
+     126.45569
+    ]
+   },
+   {
+    "tunnel": "시흥대로",
+    "region": "경기도",
+    "len_m": 704,
+    "inside_m": 703,
+    "osm_way": 1524222323,
+    "end1_exit": "시흥시청",
+    "end1_m": 26,
+    "end2_exit": "시흥능곡",
+    "end2_m": 587,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.37575,
+     126.80848
+    ]
+   },
+   {
+    "tunnel": "서비스차량 전용통로",
+    "region": "인천광역시",
+    "len_m": 703,
+    "inside_m": 703,
+    "osm_way": 1460580839,
+    "end1_exit": "인천공항1터미널",
+    "end1_m": 260,
+    "end2_exit": "인천공항1터미널",
+    "end2_m": 264,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.44826,
+     126.45582
+    ]
+   },
+   {
+    "tunnel": "부산터널",
+    "region": "부산광역시",
+    "len_m": 700,
+    "inside_m": 700,
+    "osm_way": 165382028,
+    "end1_exit": "부산",
+    "end1_m": 622,
+    "end2_exit": "동대신",
+    "end2_m": 637,
+    "end2_same_island": true,
+    "end2_latlon": [
+     35.11223,
+     129.02453
+    ]
+   },
+   {
+    "tunnel": "(이름 없음 service)",
+    "region": "인천광역시",
+    "len_m": 690,
+    "inside_m": 690,
+    "osm_way": 1460580855,
+    "end1_exit": "인천공항1터미널",
+    "end1_m": 320,
+    "end2_exit": "인천공항1터미널",
+    "end2_m": 326,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.44997,
+     126.45466
+    ]
+   },
+   {
+    "tunnel": "운양지하차도",
+    "region": "경기도",
+    "len_m": 688,
+    "inside_m": 422,
+    "osm_way": 153019075,
+    "end1_exit": "운양",
+    "end1_m": 458,
+    "end2_exit": "운양",
+    "end2_m": 786,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.65342,
+     126.69317
+    ]
+   },
+   {
+    "tunnel": "상도터널",
+    "region": "서울특별시",
+    "len_m": 564,
+    "inside_m": 564,
+    "osm_way": 172263032,
+    "end1_exit": "노들",
+    "end1_m": 182,
+    "end2_exit": "상도",
+    "end2_m": 364,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.50616,
+     126.9507
+    ]
+   },
+   {
+    "tunnel": "시청지하차도",
+    "region": "경기도",
+    "len_m": 535,
+    "inside_m": 535,
+    "osm_way": 554635919,
+    "end1_exit": "수원시청",
+    "end1_m": 404,
+    "end2_exit": "수원시청",
+    "end2_m": 583,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.25946,
+     127.02363
+    ]
+   },
+   {
+    "tunnel": "백양누리 지하 1층 도로",
+    "region": "서울특별시",
+    "len_m": 497,
+    "inside_m": 446,
+    "osm_way": 670634604,
+    "end1_exit": "신촌",
+    "end1_m": 493,
+    "end2_exit": "신촌",
+    "end2_m": 623,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.56454,
+     126.93827
+    ]
+   },
+   {
+    "tunnel": "문현터널",
+    "region": "부산광역시",
+    "len_m": 492,
+    "inside_m": 492,
+    "osm_way": 74859528,
+    "end1_exit": "지게골",
+    "end1_m": 204,
+    "end2_exit": "지게골",
+    "end2_m": 626,
+    "end2_same_island": true,
+    "end2_latlon": [
+     35.13949,
+     129.07982
+    ]
+   },
+   {
+    "tunnel": "와석지하차도",
+    "region": "부산광역시",
+    "len_m": 487,
+    "inside_m": 480,
+    "osm_way": 629747830,
+    "end1_exit": "화명",
+    "end1_m": 291,
+    "end2_exit": "화명",
+    "end2_m": 657,
+    "end2_same_island": true,
+    "end2_latlon": [
+     35.23647,
+     129.02126
+    ]
+   },
+   {
+    "tunnel": "방화터널",
+    "region": "서울특별시",
+    "len_m": 487,
+    "inside_m": 487,
+    "osm_way": 226738945,
+    "end1_exit": "방화",
+    "end1_m": 350,
+    "end2_exit": "방화",
+    "end2_m": 717,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.58278,
+     126.81723
+    ]
+   },
+   {
+    "tunnel": "동망봉터널 (Dongmangbong Tunnel)",
+    "region": "서울특별시",
+    "len_m": 481,
+    "inside_m": 481,
+    "osm_way": 26238056,
+    "end1_exit": "창신",
+    "end1_m": 56,
+    "end2_exit": "보문",
+    "end2_m": 177,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.58441,
+     127.01728
+    ]
+   },
+   {
+    "tunnel": "정자지하차도",
+    "region": "경기도",
+    "len_m": 473,
+    "inside_m": 471,
+    "osm_way": 186410687,
+    "end1_exit": "정자",
+    "end1_m": 361,
+    "end2_exit": "정자",
+    "end2_m": 770,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.35959,
+     127.10431
+    ]
+   },
+   {
+    "tunnel": "화곡터널",
+    "region": "서울특별시",
+    "len_m": 442,
+    "inside_m": 416,
+    "osm_way": 481303647,
+    "end1_exit": "까치산",
+    "end1_m": 255,
+    "end2_exit": "화곡",
+    "end2_m": 433,
+    "end2_same_island": true,
+    "end2_latlon": [
+     37.53785,
+     126.84289
+    ]
+   },
+   {
+    "tunnel": "2순환로",
+    "region": "전남광주통합특별시",
+    "len_m": 418,
+    "inside_m": 375,
+    "osm_way": 57678511,
+    "end1_exit": "소태",
+    "end1_m": 548,
+    "end2_exit": "소태",
+    "end2_m": 602,
+    "end2_same_island": true,
+    "end2_latlon": [
+     35.11753,
+     126.93625
+    ]
+   }
+  ]
+ },
+ "bridge_candidates": {
+  "pairs": 1,
+  "saving_vs_best_alt_over_500m": 0,
+  "saving_vs_rail_over_1km": 0,
+  "top": [
+   {
+    "island1": "신촌 등 1역",
+    "island2": "서울역 · 시청 등 391역",
+    "tunnel": "백양누리 지하 1층 도로",
+    "tunnel_len_m": 497,
+    "inside_m": 497,
+    "region": "서울특별시",
+    "osm_way": 670634604,
+    "end1": "신촌역 출구 2번",
+    "end1_m": 623,
+    "end2": "신촌역 출구 2번",
+    "end2_m": 547,
+    "exposure_with_tunnel_m": 1521,
+    "rail_only_exposure_m": 1833,
+    "rail_only_total_m": 2709,
+    "surface_direct_walk_m": 943,
+    "saving_vs_rail_m": 312,
+    "saving_vs_best_alt_m": -578
+   }
+  ]
+ },
+ "example_trips": [
+  {
+   "from": "신촌",
+   "to": "신촌",
+   "via": "백양누리 지하 1층 도로",
+   "rail_only": {
+    "exposure_m": 1833,
+    "total_m": 8103
+   },
+   "with_road_tunnel": {
+    "exposure_m": 1521,
+    "total_m": 2137
+   },
+   "surface_direct_walk_m": 915
+  }
+ ],
+ "osm_shelters_seoul": {
+  "files": {
+   "shelters_seoul_tags.json": "missing",
+   "shelters_seoul_names.json": "missing"
+  },
+  "seoul_only": true,
+  "counts": {},
+  "examples": {}
+ }
+}
