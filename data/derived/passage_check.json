@@ -1,0 +1,1726 @@
+{
+ "source": {
+  "dataset": "서울특별시_서울시 지하철역 연계 지하도 공간정보",
+  "data_go_kr": "https://www.data.go.kr/data/15098161/openapi.do",
+  "seoul_open_data": "https://data.seoul.go.kr/dataList/OA-21213/S/1/datasetView.do",
+  "code_table_candidate": "https://data.seoul.go.kr/dataList/OA-21208/S/1/datasetView.do (도보네트워크_링크노드유형코드.xlsx, 내려받지 않음)",
+  "reference_year_on_portal": 2020,
+  "registered_data_go_kr": "2022-01-11",
+  "graph": "web/data/graph.json (읽기만)"
+ },
+ "basic": {
+  "rows": 6564,
+  "nodes": 3492,
+  "links": 3072,
+  "link_ends_not_in_node_table": 31,
+  "station_labels": 299,
+  "total_km": 104.58,
+  "wkt_len_err_m_p50_p99": [
+   0.029,
+   0.253
+  ],
+  "node_types": {
+   "0": {
+    "count": 1476,
+    "degree(4=4+)": {
+     "0": 25,
+     "1": 207,
+     "2": 117,
+     "3": 966,
+     "4": 161
+    },
+    "elevator_flag": 169,
+    "lift_flag": 4,
+    "osm_entrance_within_10m": 183,
+    "osm_entrance_within_20m": 664,
+    "osm_entrance_within_40m": 1305,
+    "median_m_to_osm_entrance": 21.7
+   },
+   "1": {
+    "count": 2015,
+    "degree(4=4+)": {
+     "0": 66,
+     "1": 1832,
+     "2": 98,
+     "3": 15,
+     "4": 4
+    },
+    "elevator_flag": 383,
+    "lift_flag": 79,
+    "osm_entrance_within_10m": 1211,
+    "osm_entrance_within_20m": 1738,
+    "osm_entrance_within_40m": 1962,
+    "median_m_to_osm_entrance": 8.3
+   },
+   "2": {
+    "count": 1,
+    "degree(4=4+)": {
+     "1": 1
+    },
+    "elevator_flag": 1,
+    "lift_flag": 0,
+    "osm_entrance_within_10m": 0,
+    "osm_entrance_within_20m": 0,
+    "osm_entrance_within_40m": 1,
+    "median_m_to_osm_entrance": 22.5
+   },
+   "X": {
+    "count": 31,
+    "degree(4=4+)": {
+     "1": 25,
+     "2": 3,
+     "3": 3
+    },
+    "elevator_flag": 0,
+    "lift_flag": 0,
+    "osm_entrance_within_10m": 11,
+    "osm_entrance_within_20m": 15,
+    "osm_entrance_within_40m": 26,
+    "median_m_to_osm_entrance": 20.9
+   }
+  },
+  "link_types": {
+   "1000": {
+    "count": 3005,
+    "km": 102.77,
+    "median_m": 26.2,
+    "max_m": 376.9,
+    "end_node_types": {
+     "0-1": 1827,
+     "0-0": 1052,
+     "1-1": 102,
+     "1-X": 14,
+     "0-X": 9,
+     "0-2": 1
+    },
+    "an_end_within_20m_of_osm_entrance": 2352,
+    "stations": {
+     "종로5가": 28,
+     "서울역": 28,
+     "왕십리(성동구청)": 28,
+     "종로3가": 27,
+     "사당": 27,
+     "종합운동장": 27,
+     "청담": 26,
+     "양재(서초구청)": 25,
+     "강남": 24,
+     "종각": 23
+    }
+   },
+   "1011": {
+    "count": 25,
+    "km": 0.79,
+    "median_m": 17.6,
+    "max_m": 235.9,
+    "end_node_types": {
+     "0-1": 11,
+     "0-0": 7,
+     "0-X": 5,
+     "1-X": 1,
+     "1-1": 1
+    },
+    "an_end_within_20m_of_osm_entrance": 20,
+    "stations": {
+     "옥수": 10,
+     "녹번": 10,
+     "서대문": 1,
+     "월계": 1,
+     "연신내": 1,
+     "역촌": 1,
+     "응암": 1
+    }
+   },
+   "1111": {
+    "count": 42,
+    "km": 1.03,
+    "median_m": 23.5,
+    "max_m": 80.3,
+    "end_node_types": {
+     "0-1": 27,
+     "0-X": 8,
+     "0-0": 4,
+     "1-X": 3
+    },
+    "an_end_within_20m_of_osm_entrance": 39,
+    "stations": {
+     "수유(강북구청)": 8,
+     "강동": 8,
+     "미아사거리": 6,
+     "당고개": 6,
+     "미아(서울사이버대학)": 5,
+     "쌍문": 4,
+     "등촌": 2,
+     "종로3가": 1,
+     "영등포시장": 1,
+     "교대(법원.검찰청)": 1
+    }
+   }
+  },
+  "label_mismatch_link_vs_node": [
+   [
+    "신당",
+    "창신",
+    40
+   ],
+   [
+    "금천구청",
+    "독산",
+    6
+   ],
+   [
+    "독바위",
+    "응암",
+    2
+   ],
+   [
+    "미아사거리",
+    "쌍문",
+    1
+   ],
+   [
+    "공항시장",
+    "양천향교",
+    1
+   ],
+   [
+    "노량진",
+    "사당",
+    1
+   ]
+  ],
+  "labels_with_links_but_no_nodes": [
+   "신당"
+  ]
+ },
+ "components": {
+  "count_with_links": 387,
+  "isolated_nodes": 91,
+  "nodes_per_component_p10_p50_p90": [
+   2,
+   8,
+   17
+  ],
+  "km_per_component_p10_p50_p90": [
+   0.03,
+   0.21,
+   0.55
+  ],
+  "extent_m_p10_p50_p90": [
+   25.67,
+   113.71,
+   272.92
+  ]
+ },
+ "hub_coverage_by_line_seoul_underground": {
+  "5호선": {
+   "hubs": 52,
+   "within_40m": 47,
+   "within_80m": 49
+  },
+  "7호선": {
+   "hubs": 39,
+   "within_40m": 35,
+   "within_80m": 37
+  },
+  "6호선": {
+   "hubs": 38,
+   "within_40m": 32,
+   "within_80m": 37
+  },
+  "9호선": {
+   "hubs": 37,
+   "within_40m": 34,
+   "within_80m": 36
+  },
+  "2호선": {
+   "hubs": 32,
+   "within_40m": 32,
+   "within_80m": 32
+  },
+  "3호선": {
+   "hubs": 32,
+   "within_40m": 27,
+   "within_80m": 32
+  },
+  "4호선": {
+   "hubs": 21,
+   "within_40m": 19,
+   "within_80m": 20
+  },
+  "우이신설선": {
+   "hubs": 13,
+   "within_40m": 10,
+   "within_80m": 12
+  },
+  "수인분당선": {
+   "hubs": 11,
+   "within_40m": 11,
+   "within_80m": 11
+  },
+  "신림선": {
+   "hubs": 11,
+   "within_40m": 3,
+   "within_80m": 3
+  },
+  "1호선": {
+   "hubs": 10,
+   "within_40m": 8,
+   "within_80m": 10
+  },
+  "8호선": {
+   "hubs": 10,
+   "within_40m": 10,
+   "within_80m": 10
+  },
+  "경의중앙선": {
+   "hubs": 6,
+   "within_40m": 4,
+   "within_80m": 6
+  },
+  "공항철도": {
+   "hubs": 6,
+   "within_40m": 4,
+   "within_80m": 5
+  },
+  "신분당선": {
+   "hubs": 6,
+   "within_40m": 5,
+   "within_80m": 6
+  },
+  "2호선 신정지선": {
+   "hubs": 5,
+   "within_40m": 5,
+   "within_80m": 5
+  },
+  "GTX-A": {
+   "hubs": 3,
+   "within_40m": 1,
+   "within_80m": 3
+  },
+  "(노선 없음)": {
+   "hubs": 2,
+   "within_40m": 2,
+   "within_80m": 2
+  },
+  "2호선 성수지선": {
+   "hubs": 2,
+   "within_40m": 1,
+   "within_80m": 2
+  },
+  "김포골드라인": {
+   "hubs": 1,
+   "within_40m": 1,
+   "within_80m": 1
+  },
+  "서해선": {
+   "hubs": 1,
+   "within_40m": 1,
+   "within_80m": 1
+  },
+  "수서평택고속선": {
+   "hubs": 1,
+   "within_40m": 0,
+   "within_80m": 0
+  }
+ },
+ "focus_stations": {
+  "서울역": {
+   "structure": {
+    "components": 2,
+    "links": 28,
+    "km": 1.392,
+    "exits_type1": 18,
+    "osm_entrances": 20
+   },
+   "hubs": [
+    {
+     "line": "1호선",
+     "underground": true,
+     "to_passage_line_m": 2.3
+    },
+    {
+     "line": "경부선",
+     "underground": false,
+     "to_passage_line_m": 127.0
+    },
+    {
+     "line": "공항철도",
+     "underground": true,
+     "to_passage_line_m": 183.0
+    },
+    {
+     "line": "경의중앙선",
+     "underground": false,
+     "to_passage_line_m": 95.3
+    },
+    {
+     "line": "4호선",
+     "underground": true,
+     "to_passage_line_m": 4.8
+    },
+    {
+     "line": "(노선 없음)",
+     "underground": false,
+     "to_passage_line_m": 134.2
+    },
+    {
+     "line": "GTX-A",
+     "underground": true,
+     "to_passage_line_m": 40.7
+    }
+   ],
+   "transfers": [
+    {
+     "from": "1호선",
+     "to": "경부선",
+     "graph_len_m": 266.9,
+     "graph_src": "estimated",
+     "hub_straight_m": 167.6,
+     "off_from_m": 2.3,
+     "off_to_m": 127.0,
+     "passage_m": 270.7,
+     "covered": false
+    },
+    {
+     "from": "1호선",
+     "to": "공항철도",
+     "graph_len_m": 309.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 227.8,
+     "off_from_m": 2.3,
+     "off_to_m": 183.0,
+     "passage_m": 45.7,
+     "covered": false
+    },
+    {
+     "from": "1호선",
+     "to": "경의중앙선",
+     "graph_len_m": 164.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 257.5,
+     "off_from_m": 2.3,
+     "off_to_m": 95.3,
+     "passage_m": 255.5,
+     "covered": false
+    },
+    {
+     "from": "1호선",
+     "to": "4호선",
+     "graph_len_m": 159.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 208.3,
+     "off_from_m": 2.3,
+     "off_to_m": 4.8,
+     "passage_m": 232.7,
+     "covered": true,
+     "passage_plus_offsets_m": 239.8,
+     "ratio_to_graph": 1.51
+    },
+    {
+     "from": "1호선",
+     "to": "(노선 없음)",
+     "graph_len_m": 403.2,
+     "graph_src": "estimated",
+     "hub_straight_m": 272.4,
+     "off_from_m": 2.3,
+     "off_to_m": 134.2,
+     "passage_m": 338.9,
+     "covered": false
+    },
+    {
+     "from": "1호선",
+     "to": "GTX-A",
+     "graph_len_m": 116.9,
+     "graph_src": "estimated",
+     "hub_straight_m": 50.6,
+     "off_from_m": 2.3,
+     "off_to_m": 40.7,
+     "passage_m": 40.1,
+     "covered": false
+    },
+    {
+     "from": "경부선",
+     "to": "공항철도",
+     "graph_len_m": 205.8,
+     "graph_src": "estimated",
+     "hub_straight_m": 120.5,
+     "off_from_m": 127.0,
+     "off_to_m": 183.0,
+     "passage_m": 316.4,
+     "covered": false
+    },
+    {
+     "from": "경부선",
+     "to": "경의중앙선",
+     "graph_len_m": 553.7,
+     "graph_src": "estimated",
+     "hub_straight_m": 388.6,
+     "off_from_m": 127.0,
+     "off_to_m": 95.3,
+     "passage_m": 526.2,
+     "covered": false
+    },
+    {
+     "from": "경부선",
+     "to": "4호선",
+     "graph_len_m": 236.4,
+     "graph_src": "estimated",
+     "hub_straight_m": 143.0,
+     "off_from_m": 127.0,
+     "off_to_m": 4.8,
+     "passage_m": 38.0,
+     "covered": false
+    },
+    {
+     "from": "경부선",
+     "to": "(노선 없음)",
+     "graph_len_m": 190.4,
+     "graph_src": "estimated",
+     "hub_straight_m": 107.7,
+     "off_from_m": 127.0,
+     "off_to_m": 134.2,
+     "passage_m": 133.5,
+     "covered": false
+    },
+    {
+     "from": "경부선",
+     "to": "GTX-A",
+     "graph_len_m": 332.0,
+     "graph_src": "estimated",
+     "hub_straight_m": 216.8,
+     "off_from_m": 127.0,
+     "off_to_m": 40.7,
+     "passage_m": 310.7,
+     "covered": false
+    },
+    {
+     "from": "공항철도",
+     "to": "경의중앙선",
+     "graph_len_m": 532.7,
+     "graph_src": "estimated",
+     "hub_straight_m": 372.3,
+     "off_from_m": 183.0,
+     "off_to_m": 95.3,
+     "passage_m": 293.7,
+     "covered": false
+    },
+    {
+     "from": "공항철도",
+     "to": "4호선",
+     "graph_len_m": 224.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 263.0,
+     "off_from_m": 183.0,
+     "off_to_m": 4.8,
+     "passage_m": 278.4,
+     "covered": false
+    },
+    {
+     "from": "공항철도",
+     "to": "(노선 없음)",
+     "graph_len_m": 267.5,
+     "graph_src": "estimated",
+     "hub_straight_m": 167.1,
+     "off_from_m": 183.0,
+     "off_to_m": 134.2,
+     "passage_m": 384.6,
+     "covered": false
+    },
+    {
+     "from": "공항철도",
+     "to": "GTX-A",
+     "graph_len_m": 410.1,
+     "graph_src": "estimated",
+     "hub_straight_m": 277.1,
+     "off_from_m": 183.0,
+     "off_to_m": 40.7,
+     "passage_m": 78.2,
+     "covered": false
+    },
+    {
+     "from": "경의중앙선",
+     "to": "4호선",
+     "graph_len_m": 323.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 465.1,
+     "off_from_m": 95.3,
+     "off_to_m": 4.8,
+     "passage_m": 488.2,
+     "covered": false
+    },
+    {
+     "from": "경의중앙선",
+     "to": "(노선 없음)",
+     "graph_len_m": 691.6,
+     "graph_src": "estimated",
+     "hub_straight_m": 494.2,
+     "off_from_m": 95.3,
+     "off_to_m": 134.2,
+     "passage_m": 594.5,
+     "covered": false
+    },
+    {
+     "from": "경의중앙선",
+     "to": "GTX-A",
+     "graph_len_m": 361.7,
+     "graph_src": "estimated",
+     "hub_straight_m": 240.5,
+     "off_from_m": 95.3,
+     "off_to_m": 40.7,
+     "passage_m": 215.5,
+     "covered": false
+    },
+    {
+     "from": "4호선",
+     "to": "(노선 없음)",
+     "graph_len_m": 260.1,
+     "graph_src": "estimated",
+     "hub_straight_m": 161.6,
+     "off_from_m": 4.8,
+     "off_to_m": 134.2,
+     "passage_m": 106.2,
+     "covered": false
+    },
+    {
+     "from": "4호선",
+     "to": "GTX-A",
+     "graph_len_m": 359.5,
+     "graph_src": "estimated",
+     "hub_straight_m": 238.3,
+     "off_from_m": 4.8,
+     "off_to_m": 40.7,
+     "passage_m": 272.8,
+     "covered": false
+    },
+    {
+     "from": "(노선 없음)",
+     "to": "GTX-A",
+     "graph_len_m": 465.9,
+     "graph_src": "estimated",
+     "hub_straight_m": 319.7,
+     "off_from_m": 134.2,
+     "off_to_m": 40.7,
+     "passage_m": 379.0,
+     "covered": false
+    }
+   ]
+  },
+  "시청": {
+   "structure": {
+    "components": 2,
+    "links": 23,
+    "km": 0.971,
+    "exits_type1": 13,
+    "osm_entrances": 16
+   },
+   "hubs": [
+    {
+     "line": "2호선",
+     "underground": true,
+     "to_passage_line_m": 1.7
+    },
+    {
+     "line": "1호선",
+     "underground": true,
+     "to_passage_line_m": 4.0
+    }
+   ],
+   "transfers": [
+    {
+     "from": "2호선",
+     "to": "1호선",
+     "graph_len_m": 101.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 289.6,
+     "off_from_m": 1.7,
+     "off_to_m": 4.0,
+     "passage_m": 328.9,
+     "covered": true,
+     "passage_plus_offsets_m": 334.6,
+     "ratio_to_graph": 3.31
+    }
+   ]
+  },
+  "종로3가": {
+   "structure": {
+    "components": 2,
+    "links": 28,
+    "km": 0.791,
+    "exits_type1": 16,
+    "osm_entrances": 16
+   },
+   "hubs": [
+    {
+     "line": "1호선",
+     "underground": true,
+     "to_passage_line_m": 0.7
+    },
+    {
+     "line": "3호선",
+     "underground": true,
+     "to_passage_line_m": 1.3
+    },
+    {
+     "line": "5호선",
+     "underground": true,
+     "to_passage_line_m": 24.3
+    }
+   ],
+   "transfers": [
+    {
+     "from": "1호선",
+     "to": "3호선",
+     "graph_len_m": 118.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 180.5,
+     "off_from_m": 0.7,
+     "off_to_m": 1.3,
+     "passage_m": 187.4,
+     "covered": true,
+     "passage_plus_offsets_m": 189.4,
+     "ratio_to_graph": 1.61
+    },
+    {
+     "from": "1호선",
+     "to": "5호선",
+     "graph_len_m": 312.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 262.6,
+     "off_from_m": 0.7,
+     "off_to_m": 24.3,
+     "passage_m": 308.5,
+     "covered": true,
+     "passage_plus_offsets_m": 333.4,
+     "ratio_to_graph": 1.07
+    },
+    {
+     "from": "3호선",
+     "to": "5호선",
+     "graph_len_m": 117.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 102.5,
+     "off_from_m": 1.3,
+     "off_to_m": 24.3,
+     "passage_m": 121.0,
+     "covered": true,
+     "passage_plus_offsets_m": 146.6,
+     "ratio_to_graph": 1.25
+    }
+   ]
+  },
+  "동대문역사문화공원": {
+   "structure": {
+    "components": 3,
+    "links": 19,
+    "km": 0.92,
+    "exits_type1": 14,
+    "osm_entrances": 13
+   },
+   "hubs": [
+    {
+     "line": "4호선",
+     "underground": true,
+     "to_passage_line_m": 10.6
+    },
+    {
+     "line": "5호선",
+     "underground": true,
+     "to_passage_line_m": 34.4
+    },
+    {
+     "line": "2호선",
+     "underground": true,
+     "to_passage_line_m": 3.8
+    }
+   ],
+   "transfers": [
+    {
+     "from": "4호선",
+     "to": "5호선",
+     "graph_len_m": 107.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 128.1,
+     "off_from_m": 10.6,
+     "off_to_m": 34.4,
+     "passage_m": 119.1,
+     "covered": true,
+     "passage_plus_offsets_m": 164.1,
+     "ratio_to_graph": 1.53
+    },
+    {
+     "from": "4호선",
+     "to": "2호선",
+     "graph_len_m": 45.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 77.2,
+     "off_from_m": 10.6,
+     "off_to_m": 3.8,
+     "passage_m": 97.8,
+     "covered": true,
+     "passage_plus_offsets_m": 112.2,
+     "ratio_to_graph": 2.49
+    },
+    {
+     "from": "5호선",
+     "to": "2호선",
+     "graph_len_m": 234.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 199.8,
+     "off_from_m": 34.4,
+     "off_to_m": 3.8,
+     "passage_m": 216.8,
+     "covered": true,
+     "passage_plus_offsets_m": 255.0,
+     "ratio_to_graph": 1.09
+    }
+   ]
+  },
+  "고속터미널": {
+   "structure": {
+    "components": 1,
+    "links": 20,
+    "km": 1.037,
+    "exits_type1": 13,
+    "osm_entrances": 10
+   },
+   "hubs": [
+    {
+     "line": "3호선",
+     "underground": true,
+     "to_passage_line_m": 3.3
+    },
+    {
+     "line": "9호선",
+     "underground": true,
+     "to_passage_line_m": 1.3
+    },
+    {
+     "line": "7호선",
+     "underground": true,
+     "to_passage_line_m": 13.2
+    }
+   ],
+   "transfers": [
+    {
+     "from": "3호선",
+     "to": "9호선",
+     "graph_len_m": 155.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 115.3,
+     "off_from_m": 3.3,
+     "off_to_m": 1.3,
+     "passage_m": 115.3,
+     "covered": true,
+     "passage_plus_offsets_m": 119.9,
+     "ratio_to_graph": 0.77
+    },
+    {
+     "from": "3호선",
+     "to": "7호선",
+     "graph_len_m": 169.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 141.4,
+     "off_from_m": 3.3,
+     "off_to_m": 13.2,
+     "passage_m": 140.5,
+     "covered": true,
+     "passage_plus_offsets_m": 157.0,
+     "ratio_to_graph": 0.93
+    },
+    {
+     "from": "9호선",
+     "to": "7호선",
+     "graph_len_m": 314.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 256.1,
+     "off_from_m": 1.3,
+     "off_to_m": 13.2,
+     "passage_m": 255.8,
+     "covered": true,
+     "passage_plus_offsets_m": 270.3,
+     "ratio_to_graph": 0.86
+    }
+   ]
+  },
+  "교대": {
+   "structure": {
+    "components": 1,
+    "links": 17,
+    "km": 1.021,
+    "exits_type1": 15,
+    "osm_entrances": 14
+   },
+   "hubs": [
+    {
+     "line": "2호선",
+     "underground": true,
+     "to_passage_line_m": 1.0
+    },
+    {
+     "line": "3호선",
+     "underground": true,
+     "to_passage_line_m": 0.4
+    }
+   ],
+   "transfers": [
+    {
+     "from": "2호선",
+     "to": "3호선",
+     "graph_len_m": 75.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 137.7,
+     "off_from_m": 1.0,
+     "off_to_m": 0.4,
+     "passage_m": 176.1,
+     "covered": true,
+     "passage_plus_offsets_m": 177.5,
+     "ratio_to_graph": 2.37
+    }
+   ]
+  },
+  "사당": {
+   "structure": {
+    "components": 1,
+    "links": 27,
+    "km": 1.023,
+    "exits_type1": 17,
+    "osm_entrances": 14
+   },
+   "hubs": [
+    {
+     "line": "2호선",
+     "underground": true,
+     "to_passage_line_m": 0.7
+    },
+    {
+     "line": "4호선",
+     "underground": true,
+     "to_passage_line_m": 1.7
+    }
+   ],
+   "transfers": [
+    {
+     "from": "2호선",
+     "to": "4호선",
+     "graph_len_m": 74.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 90.8,
+     "off_from_m": 0.7,
+     "off_to_m": 1.7,
+     "passage_m": 112.1,
+     "covered": true,
+     "passage_plus_offsets_m": 114.5,
+     "ratio_to_graph": 1.55
+    }
+   ]
+  },
+  "왕십리": {
+   "structure": {
+    "components": 1,
+    "links": 28,
+    "km": 0.858,
+    "exits_type1": 13,
+    "osm_entrances": 14
+   },
+   "hubs": [
+    {
+     "line": "5호선",
+     "underground": true,
+     "to_passage_line_m": 40.0
+    },
+    {
+     "line": "2호선",
+     "underground": true,
+     "to_passage_line_m": 6.6
+    },
+    {
+     "line": "경의중앙선",
+     "underground": false,
+     "to_passage_line_m": 2.6
+    },
+    {
+     "line": "수인분당선",
+     "underground": false,
+     "to_passage_line_m": 5.2
+    }
+   ],
+   "transfers": [
+    {
+     "from": "5호선",
+     "to": "2호선",
+     "graph_len_m": 86.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 71.5,
+     "off_from_m": 40.0,
+     "off_to_m": 6.6,
+     "passage_m": 39.3,
+     "covered": true,
+     "passage_plus_offsets_m": 85.9,
+     "ratio_to_graph": 1.0
+    },
+    {
+     "from": "5호선",
+     "to": "경의중앙선",
+     "graph_len_m": 198.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 149.7,
+     "off_from_m": 40.0,
+     "off_to_m": 2.6,
+     "passage_m": 168.9,
+     "covered": true,
+     "passage_plus_offsets_m": 211.5,
+     "ratio_to_graph": 1.07
+    },
+    {
+     "from": "5호선",
+     "to": "수인분당선",
+     "graph_len_m": 244.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 165.6,
+     "off_from_m": 40.0,
+     "off_to_m": 5.2,
+     "passage_m": 194.3,
+     "covered": true,
+     "passage_plus_offsets_m": 239.5,
+     "ratio_to_graph": 0.98
+    },
+    {
+     "from": "2호선",
+     "to": "경의중앙선",
+     "graph_len_m": 50.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 121.8,
+     "off_from_m": 6.6,
+     "off_to_m": 2.6,
+     "passage_m": 129.6,
+     "covered": true,
+     "passage_plus_offsets_m": 138.8,
+     "ratio_to_graph": 2.78
+    },
+    {
+     "from": "2호선",
+     "to": "수인분당선",
+     "graph_len_m": 99.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 139.6,
+     "off_from_m": 6.6,
+     "off_to_m": 5.2,
+     "passage_m": 155.0,
+     "covered": true,
+     "passage_plus_offsets_m": 166.8,
+     "ratio_to_graph": 1.69
+    },
+    {
+     "from": "경의중앙선",
+     "to": "수인분당선",
+     "graph_len_m": 73.5,
+     "graph_src": "estimated",
+     "hub_straight_m": 17.8,
+     "off_from_m": 2.6,
+     "off_to_m": 5.2,
+     "passage_m": 25.5,
+     "covered": true,
+     "passage_plus_offsets_m": 33.3,
+     "ratio_to_graph": 0.45
+    }
+   ]
+  },
+  "신도림": {
+   "structure": {
+    "components": 2,
+    "links": 9,
+    "km": 0.477,
+    "exits_type1": 8,
+    "osm_entrances": 6
+   },
+   "hubs": [
+    {
+     "line": "2호선",
+     "underground": true,
+     "to_passage_line_m": 7.6
+    },
+    {
+     "line": "1호선",
+     "underground": false,
+     "to_passage_line_m": 30.5
+    },
+    {
+     "line": "2호선 신정지선",
+     "underground": true,
+     "to_passage_line_m": 8.4
+    }
+   ],
+   "transfers": [
+    {
+     "from": "2호선",
+     "to": "1호선",
+     "graph_len_m": 81.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 47.8,
+     "off_from_m": 7.6,
+     "off_to_m": 30.5,
+     "passage_m": null,
+     "covered": false
+    },
+    {
+     "from": "2호선",
+     "to": "2호선 신정지선",
+     "graph_len_m": 81.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 0.9,
+     "off_from_m": 7.6,
+     "off_to_m": 8.4,
+     "passage_m": 0.4,
+     "covered": true,
+     "passage_plus_offsets_m": 16.4,
+     "ratio_to_graph": 0.2
+    },
+    {
+     "from": "1호선",
+     "to": "2호선 신정지선",
+     "graph_len_m": 81.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 47.0,
+     "off_from_m": 30.5,
+     "off_to_m": 8.4,
+     "passage_m": null,
+     "covered": false
+    }
+   ]
+  },
+  "김포공항": {
+   "structure": {
+    "components": 1,
+    "links": 9,
+    "km": 0.59,
+    "exits_type1": 5,
+    "osm_entrances": 4
+   },
+   "hubs": [
+    {
+     "line": "5호선",
+     "underground": true,
+     "to_passage_line_m": 3.2
+    },
+    {
+     "line": "9호선",
+     "underground": true,
+     "to_passage_line_m": 11.0
+    },
+    {
+     "line": "김포골드라인",
+     "underground": true,
+     "to_passage_line_m": 28.4
+    },
+    {
+     "line": "공항철도",
+     "underground": true,
+     "to_passage_line_m": 12.4
+    },
+    {
+     "line": "서해선",
+     "underground": true,
+     "to_passage_line_m": 34.6
+    }
+   ],
+   "transfers": [
+    {
+     "from": "5호선",
+     "to": "9호선",
+     "graph_len_m": 106.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 24.9,
+     "off_from_m": 3.2,
+     "off_to_m": 11.0,
+     "passage_m": 55.9,
+     "covered": true,
+     "passage_plus_offsets_m": 70.1,
+     "ratio_to_graph": 0.66
+    },
+    {
+     "from": "5호선",
+     "to": "김포골드라인",
+     "graph_len_m": 200.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 56.4,
+     "off_from_m": 3.2,
+     "off_to_m": 28.4,
+     "passage_m": 116.3,
+     "covered": true,
+     "passage_plus_offsets_m": 147.9,
+     "ratio_to_graph": 0.74
+    },
+    {
+     "from": "5호선",
+     "to": "공항철도",
+     "graph_len_m": 122.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 44.5,
+     "off_from_m": 3.2,
+     "off_to_m": 12.4,
+     "passage_m": 55.8,
+     "covered": true,
+     "passage_plus_offsets_m": 71.4,
+     "ratio_to_graph": 0.59
+    },
+    {
+     "from": "5호선",
+     "to": "서해선",
+     "graph_len_m": 100.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 257.8,
+     "off_from_m": 3.2,
+     "off_to_m": 34.6,
+     "passage_m": 265.0,
+     "covered": true,
+     "passage_plus_offsets_m": 302.9,
+     "ratio_to_graph": 3.03
+    },
+    {
+     "from": "9호선",
+     "to": "김포골드라인",
+     "graph_len_m": 118.4,
+     "graph_src": "estimated",
+     "hub_straight_m": 52.9,
+     "off_from_m": 11.0,
+     "off_to_m": 28.4,
+     "passage_m": 172.2,
+     "covered": true,
+     "passage_plus_offsets_m": 211.6,
+     "ratio_to_graph": 1.79
+    },
+    {
+     "from": "9호선",
+     "to": "공항철도",
+     "graph_len_m": 80.9,
+     "graph_src": "estimated",
+     "hub_straight_m": 23.4,
+     "off_from_m": 11.0,
+     "off_to_m": 12.4,
+     "passage_m": 0.2,
+     "covered": true,
+     "passage_plus_offsets_m": 23.6,
+     "ratio_to_graph": 0.29
+    },
+    {
+     "from": "9호선",
+     "to": "서해선",
+     "graph_len_m": 356.4,
+     "graph_src": "estimated",
+     "hub_straight_m": 235.5,
+     "off_from_m": 11.0,
+     "off_to_m": 34.6,
+     "passage_m": 209.1,
+     "covered": true,
+     "passage_plus_offsets_m": 254.7,
+     "ratio_to_graph": 0.71
+    },
+    {
+     "from": "김포골드라인",
+     "to": "공항철도",
+     "graph_len_m": 144.4,
+     "graph_src": "estimated",
+     "hub_straight_m": 72.6,
+     "off_from_m": 28.4,
+     "off_to_m": 12.4,
+     "passage_m": 172.1,
+     "covered": true,
+     "passage_plus_offsets_m": 212.9,
+     "ratio_to_graph": 1.47
+    },
+    {
+     "from": "김포골드라인",
+     "to": "서해선",
+     "graph_len_m": 336.4,
+     "graph_src": "estimated",
+     "hub_straight_m": 220.3,
+     "off_from_m": 28.4,
+     "off_to_m": 34.6,
+     "passage_m": 381.3,
+     "covered": true,
+     "passage_plus_offsets_m": 444.3,
+     "ratio_to_graph": 1.32
+    },
+    {
+     "from": "공항철도",
+     "to": "서해선",
+     "graph_len_m": 349.3,
+     "graph_src": "estimated",
+     "hub_straight_m": 230.1,
+     "off_from_m": 12.4,
+     "off_to_m": 34.6,
+     "passage_m": 209.2,
+     "covered": true,
+     "passage_plus_offsets_m": 256.3,
+     "ratio_to_graph": 0.73
+    }
+   ]
+  },
+  "공덕": {
+   "structure": {
+    "components": 2,
+    "links": 15,
+    "km": 0.929,
+    "exits_type1": 11,
+    "osm_entrances": 10
+   },
+   "hubs": [
+    {
+     "line": "5호선",
+     "underground": true,
+     "to_passage_line_m": 11.0
+    },
+    {
+     "line": "경의중앙선",
+     "underground": true,
+     "to_passage_line_m": 0.2
+    },
+    {
+     "line": "6호선",
+     "underground": true,
+     "to_passage_line_m": 3.5
+    },
+    {
+     "line": "공항철도",
+     "underground": true,
+     "to_passage_line_m": 8.0
+    }
+   ],
+   "transfers": [
+    {
+     "from": "5호선",
+     "to": "경의중앙선",
+     "graph_len_m": 214.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 179.3,
+     "off_from_m": 11.0,
+     "off_to_m": 0.2,
+     "passage_m": null,
+     "covered": false
+    },
+    {
+     "from": "5호선",
+     "to": "6호선",
+     "graph_len_m": 73.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 63.6,
+     "off_from_m": 11.0,
+     "off_to_m": 3.5,
+     "passage_m": 101.4,
+     "covered": true,
+     "passage_plus_offsets_m": 115.9,
+     "ratio_to_graph": 1.59
+    },
+    {
+     "from": "5호선",
+     "to": "공항철도",
+     "graph_len_m": 275.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 187.9,
+     "off_from_m": 11.0,
+     "off_to_m": 8.0,
+     "passage_m": null,
+     "covered": false
+    },
+    {
+     "from": "경의중앙선",
+     "to": "6호선",
+     "graph_len_m": 152.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 143.8,
+     "off_from_m": 0.2,
+     "off_to_m": 3.5,
+     "passage_m": null,
+     "covered": false
+    },
+    {
+     "from": "경의중앙선",
+     "to": "공항철도",
+     "graph_len_m": 62.8,
+     "graph_src": "estimated",
+     "hub_straight_m": 10.2,
+     "off_from_m": 0.2,
+     "off_to_m": 8.0,
+     "passage_m": 6.5,
+     "covered": true,
+     "passage_plus_offsets_m": 14.7,
+     "ratio_to_graph": 0.23
+    },
+    {
+     "from": "6호선",
+     "to": "공항철도",
+     "graph_len_m": 265.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 153.6,
+     "off_from_m": 3.5,
+     "off_to_m": 8.0,
+     "passage_m": null,
+     "covered": false
+    }
+   ]
+  },
+  "여의도": {
+   "structure": {
+    "components": 1,
+    "links": 10,
+    "km": 0.349,
+    "exits_type1": 7,
+    "osm_entrances": 6
+   },
+   "hubs": [
+    {
+     "line": "9호선",
+     "underground": true,
+     "to_passage_line_m": 12.2
+    },
+    {
+     "line": "5호선",
+     "underground": true,
+     "to_passage_line_m": 1.8
+    }
+   ],
+   "transfers": [
+    {
+     "from": "9호선",
+     "to": "5호선",
+     "graph_len_m": 68.0,
+     "graph_src": "seoul_metro",
+     "hub_straight_m": 15.8,
+     "off_from_m": 12.2,
+     "off_to_m": 1.8,
+     "passage_m": 7.4,
+     "covered": true,
+     "passage_plus_offsets_m": 21.4,
+     "ratio_to_graph": 0.31
+    }
+   ]
+  }
+ },
+ "focus_transfer_summary": {
+  "pairs": 59,
+  "covered_both_hubs_within_40m_and_connected": 33,
+  "covered_with_seoul_metro_len": 25,
+  "seoul_metro_ratio_0.67_to_1.5": 10,
+  "ratio_passage_to_seoul_metro_p10_p50_p90": [
+   0.59,
+   1.09,
+   2.78
+  ]
+ },
+ "seoul_transfer_summary": {
+  "pairs": 167,
+  "covered_both_hubs_within_40m_and_connected": 84,
+  "covered_with_seoul_metro_len": 58,
+  "seoul_metro_ratio_0.67_to_1.5": 23,
+  "ratio_passage_to_seoul_metro_p10_p50_p90": [
+   0.31,
+   1.23,
+   2.82
+  ],
+  "stations": 83
+ },
+ "hub_coverage_total_seoul_underground": {
+  "hubs": 339,
+  "within_40m": 292,
+  "within_80m": 320
+ },
+ "inter_station": {
+  "km_link_mid_farther_than_150m_from_any_hub": 7.23,
+  "km_link_mid_farther_than_250m_from_any_hub": 1.15,
+  "km_link_mid_farther_than_400m_from_any_hub": 0.38,
+  "far_250m_by_label_m": {
+   "청담": 755,
+   "동대문역사문화공원": 145,
+   "마곡": 102,
+   "고속터미널": 81,
+   "남구로": 66
+  },
+  "components_near_2plus_stations(150m)": [],
+  "arcade_pairs": [
+   {
+    "pair": [
+     "시청",
+     "을지로입구"
+    ],
+    "station_center_m": 613,
+    "closest_passage_nodes_m": 329,
+    "connected": false
+   },
+   {
+    "pair": [
+     "을지로입구",
+     "을지로3가"
+    ],
+    "station_center_m": 876,
+    "closest_passage_nodes_m": 545,
+    "connected": false
+   },
+   {
+    "pair": [
+     "을지로3가",
+     "을지로4가"
+    ],
+    "station_center_m": 499,
+    "closest_passage_nodes_m": 402,
+    "connected": false
+   },
+   {
+    "pair": [
+     "을지로4가",
+     "동대문역사문화공원"
+    ],
+    "station_center_m": 867,
+    "closest_passage_nodes_m": 485,
+    "connected": false
+   },
+   {
+    "pair": [
+     "종각",
+     "종로3가"
+    ],
+    "station_center_m": 749,
+    "closest_passage_nodes_m": 341,
+    "connected": false
+   },
+   {
+    "pair": [
+     "종로3가",
+     "종로5가"
+    ],
+    "station_center_m": 930,
+    "closest_passage_nodes_m": 592,
+    "connected": false
+   },
+   {
+    "pair": [
+     "명동",
+     "회현"
+    ],
+    "station_center_m": 744,
+    "closest_passage_nodes_m": 434,
+    "connected": false
+   },
+   {
+    "pair": [
+     "강남",
+     "신논현"
+    ],
+    "station_center_m": 835,
+    "closest_passage_nodes_m": 629,
+    "connected": false
+   },
+   {
+    "pair": [
+     "강남",
+     "역삼"
+    ],
+    "station_center_m": 875,
+    "closest_passage_nodes_m": 621,
+    "connected": false
+   },
+   {
+    "pair": [
+     "잠실",
+     "잠실새내"
+    ],
+    "station_center_m": 1299,
+    "closest_passage_nodes_m": 1005,
+    "connected": false
+   },
+   {
+    "pair": [
+     "삼성",
+     "종합운동장"
+    ],
+    "station_center_m": 1077,
+    "closest_passage_nodes_m": 786,
+    "connected": false
+   },
+   {
+    "pair": [
+     "영등포",
+     "영등포시장"
+    ],
+    "station_center_m": 831,
+    "closest_passage_nodes_m": 700,
+    "connected": false
+   },
+   {
+    "pair": [
+     "고속터미널",
+     "신반포"
+    ],
+    "station_center_m": 767,
+    "closest_passage_nodes_m": 522,
+    "connected": false
+   },
+   {
+    "pair": [
+     "서울역",
+     "회현"
+    ],
+    "station_center_m": 755,
+    "closest_passage_nodes_m": 351,
+    "connected": false
+   },
+   {
+    "pair": [
+     "시청",
+     "종각"
+    ],
+    "station_center_m": 905,
+    "closest_passage_nodes_m": 554,
+    "connected": false
+   },
+   {
+    "pair": [
+     "충무로",
+     "명동"
+    ],
+    "station_center_m": 683,
+    "closest_passage_nodes_m": 427,
+    "connected": false
+   }
+  ]
+ },
+ "exits": {
+  "osm_entrances_seoul": 1818,
+  "type1_nodes": 2015,
+  "matched_osm_to_type1_1to1_within_20m": 1631,
+  "osm_entrances_with_any_passage_node_within_20m": 1680,
+  "legs_with_hub_within_40m_of_same_component": 1376,
+  "straight_m_p10_p50_p90": [
+   25.0,
+   55.0,
+   126.9
+  ],
+  "passage_plus_off_m_p10_p50_p90": [
+   43.8,
+   88.1,
+   165.0
+  ],
+  "ratio_p10_p50_p90": [
+   1.08,
+   1.42,
+   2.44
+  ],
+  "ratio_over_2": 240,
+  "examples_longest_extra": [
+   {
+    "station": "양재",
+    "ref": "6",
+    "straight_m": 30.7,
+    "passage_m": 195.5,
+    "hub_off_m": 12.0,
+    "passage_plus_off_m": 207.5,
+    "match_m": 15.5
+   },
+   {
+    "station": "종합운동장",
+    "ref": "15",
+    "straight_m": 208.0,
+    "passage_m": 363.5,
+    "hub_off_m": 6.1,
+    "passage_plus_off_m": 369.6,
+    "match_m": 7.8
+   },
+   {
+    "station": "종합운동장",
+    "ref": "10",
+    "straight_m": 134.4,
+    "passage_m": 288.1,
+    "hub_off_m": 6.1,
+    "passage_plus_off_m": 294.2,
+    "match_m": 13.6
+   },
+   {
+    "station": "논현",
+    "ref": "2",
+    "straight_m": 18.7,
+    "passage_m": 152.7,
+    "hub_off_m": 22.3,
+    "passage_plus_off_m": 175.0,
+    "match_m": 8.9
+   },
+   {
+    "station": "천호",
+    "ref": "9",
+    "straight_m": 18.7,
+    "passage_m": 155.4,
+    "hub_off_m": 17.9,
+    "passage_plus_off_m": 173.3,
+    "match_m": 7.9
+   },
+   {
+    "station": "잠실",
+    "ref": "9",
+    "straight_m": 88.6,
+    "passage_m": 231.2,
+    "hub_off_m": 9.7,
+    "passage_plus_off_m": 241.0,
+    "match_m": 19.3
+   }
+  ]
+ },
+ "data_age": {
+  "new_lines_hub_to_passage_m": {
+   "신림선": {
+    "opened": "2022-05",
+    "seoul_ug_hubs": 11,
+    "hubs": {
+     "서원": null,
+     "대방": 152.2,
+     "신림": 21.4,
+     "보라매": 17.0,
+     "관악산": null,
+     "서울대벤처타운": null,
+     "당곡": null,
+     "보라매병원": null,
+     "보라매공원": null,
+     "서울지방병무청": null,
+     "샛강": 17.4
+    }
+   },
+   "GTX-A": {
+    "opened": "2024-03(수서)·2024-12(서울역)",
+    "seoul_ug_hubs": 3,
+    "hubs": {
+     "수서": 38.7,
+     "서울역": 40.7,
+     "연신내": 48.0
+    }
+   },
+   "서해선": {
+    "opened": "2023-07(김포공항)",
+    "seoul_ug_hubs": 1,
+    "hubs": {
+     "김포공항": 34.6
+    }
+   }
+  },
+  "new_stations": {
+   "강일": {
+    "opened": "5호선 2021-03",
+    "label_in_data": true
+   },
+   "암사역사공원": {
+    "opened": "8호선 2024-08",
+    "label_in_data": false
+   }
+  },
+  "graph_seoul_underground_stations": 265,
+  "graph_seoul_underground_without_passage_component": [
+   "4.19민주묘지",
+   "관악산",
+   "광명사거리",
+   "당곡",
+   "보라매공원",
+   "보라매병원",
+   "서울대벤처타운",
+   "서울지방병무청",
+   "서원",
+   "양평",
+   "철산"
+  ]
+ }
+}
