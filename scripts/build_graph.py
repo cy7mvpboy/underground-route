@@ -11,6 +11,7 @@
 #   6) 좌표를 줄여(더글러스-포이커 5m, 소수 5자리) 압축 JSON으로 저장하고, 점검 결과를 report로 남긴다.
 #   7) 이름: 간선마다 운행 노선(예: 3호선, LINE_TABLE로 통일)과 선로의 선 이름(예: 일산선)을 따로 담고,
 #      노선 relation의 정차역 순서(line_routes)를 남겨 길 안내에서 '오금 방면' 같은 방면을 찾게 한다.
+#   8) 역 깊이: 서울교통공사 역 깊이 자료(1~8호선)를 역·노선에 맞춰 stations[].depth로 남긴다(자료가 있는 역만).
 # 사용법(프로젝트 폴더에서): python -I scripts\build_graph.py
 # 지하 판정: tunnel 태그가 있고 no가 아니면 지하. layer<0만 있는 선로는 지상으로 둔다(docs\data-check.md 4.4절).
 import csv
@@ -766,8 +767,9 @@ def han_crossing(pts, river, box):
     return any(segments_cross(p1, p2, q1, q2) for p1, p2 in zip(pts, pts[1:]) for q1, q2 in zip(river, river[1:]))
 
 
-def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station_out, entrance_out, line_routes):
-    """압축 JSON을 만든다. 간선은 열(column)별 배열, 선 모양은 인코딩 폴리라인."""
+def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station_out, entrance_out, line_routes, depths):
+    """압축 JSON을 만든다. 간선은 열(column)별 배열, 선 모양은 인코딩 폴리라인.
+    depths: 역 번호 → 깊이 기록 목록(station_depths). 기록이 있는 역에만 stations[].depth를 넣는다."""
     regions = sorted({e["attr"][4] for e in edges})
     region_idx = {r: i for i, r in enumerate(regions)}
     line_names = sorted({l for e in edges for l in e["attr"][3]})
@@ -809,6 +811,17 @@ def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station
     for t in entrance_edges:
         add(t["a"], t["b"], t["len"], t["struct"], "entrance", t["region"])
 
+    stations_json = []
+    for si, s in enumerate(station_out):
+        st = {"name": s["name"], "names": s["names"], "lat": round(s["p"][0] * 1e5), "lon": round(s["p"][1] * 1e5),
+              "rg": region_idx[s["region"]], "hubs": [h["node"] for h in s["hubs"]],
+              "hub_ls": [ls_index(h["lines"]) for h in s["hubs"]], "ug": [1 if h["ug"] else 0 for h in s["hubs"]],
+              "plat": [a["node"] for a in s["atts"]]}
+        if depths.get(si):  # 서울교통공사 역 깊이 자료가 있는 역만
+            st["depth"] = [{"line": line_idx[d["line"]], "floor": d["floor"], "platform_m": d["platform_m"],
+                            "track_m": d["track_m"]} for d in depths[si]]
+        stations_json.append(st)
+
     graph = {
         "format": "underground-route-graph", "version": 1,
         "attribution": ["© OpenStreetMap contributors (ODbL)",
@@ -823,10 +836,7 @@ def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station
         "nodes": {"lat": [round(n["p"][0] * 1e5) for n in nodes], "lon": [round(n["p"][1] * 1e5) for n in nodes],
                   "f": [n["flag"] for n in nodes]},
         "edges": cols,
-        "stations": [{"name": s["name"], "names": s["names"], "lat": round(s["p"][0] * 1e5), "lon": round(s["p"][1] * 1e5),
-                      "rg": region_idx[s["region"]], "hubs": [h["node"] for h in s["hubs"]],
-                      "hub_ls": [ls_index(h["lines"]) for h in s["hubs"]], "ug": [1 if h["ug"] else 0 for h in s["hubs"]],
-                      "plat": [a["node"] for a in s["atts"]]} for s in station_out],
+        "stations": stations_json,
         "entrances": {"node": [x["node"] for x in entrance_out], "station": [x["station"] for x in entrance_out],
                       "ref": [x["ref"] for x in entrance_out]},
         "presets": {"han_crossings": [{"e": h["e"], "s": h["s"], "lines": h["lines"]} for h in han]},
@@ -868,7 +878,11 @@ def main():
     station_index_of_node = {n: out_of_group[g] for n, g in node_group.items() if g in out_of_group}
     line_routes = build_line_routes(routes, station_index_of_node, station_out)
     print(f"노선 relation 정차 순서 {len(line_routes)}개")
-    graph, han = write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station_out, entrance_out, line_routes)
+    depth_rows = match_depth_rows(station_out)
+    depths = station_depths(depth_rows)
+    print(f"서울교통공사 역 깊이 자료 {len(depth_rows)}행 중 {sum(1 for r in depth_rows if r[2])}행을 역 {len(depths)}개에 반영")
+    graph, han = write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station_out, entrance_out, line_routes,
+                             depths)
 
     # ---------- 점검 결과 ----------
     report = stats(graph, len(edges))
@@ -883,7 +897,7 @@ def main():
     }
     report["seoul_transfer_csv"] = csv_result
     report["entrances"] = ent_stats
-    report["seoul_depth_check"] = depth_check(station_out)
+    report["seoul_depth_check"] = depth_check(depth_rows)
     report["han_crossings"] = han
     report["names"] = name_stats(graph)
     with open(OUT_REPORT, "w", encoding="utf-8") as f:
@@ -948,21 +962,47 @@ DEPTH_ALIASES = {  # 역 깊이 자료(2024)의 옛 이름·줄임말 → 현재
 }
 
 
-def depth_check(station_out):
-    """서울교통공사 역 깊이 자료(B층 = 지하, 고가·지상 = 지상)와 그래프의 승강장 지하 여부를 비교한다."""
+def match_depth_rows(station_out):
+    """서울교통공사 역 깊이 자료의 행마다 맞는 (역 번호, 부착점) 목록을 찾는다.
+    결과: [(행, 노선 이름, [(stations 번호, 부착점), ...])]. 서울·경기 역에서 이름(원래 이름 먼저, 없으면 DEPTH_ALIASES의
+    바뀐 이름)이 같고, 부착점의 노선이 자료의 호선(지선 포함, has_line)인 것을 고른다."""
     by_name = defaultdict(list)
-    for s in station_out:
+    for si, s in enumerate(station_out):
         if s["region"] in ("서울특별시", "경기도"):
             for n in s["names"]:
-                by_name[n].append(s)
-    res = {"rows": 0, "agree": 0, "disagree": [], "no_match": []}
+                by_name[n].append(si)
+    out = []
     for row in read_cp949_csv(SEOUL_DEPTH):
-        res["rows"] += 1
-        line, floor = seoul_csv_line(row[1]), row[3].strip()
-        expect_ug = floor.startswith("B")
-        got = []
+        line = seoul_csv_line(row[1])
+        hits = []
         for name in (row[2], DEPTH_ALIASES.get(row[2].strip(), "")):  # 원래 이름 먼저, 없으면 바뀐 이름
-            got = got or [a["ug"] for s in by_name.get(normalize_name(name), ()) for a in s["atts"] if has_line(a["lines"], line)]
+            hits = hits or [(si, a) for si in by_name.get(normalize_name(name), ())
+                            for a in station_out[si]["atts"] if has_line(a["lines"], line)]
+        out.append((row, line, hits))
+    return out
+
+
+def station_depths(depth_rows):
+    """역 번호 → 깊이 기록 목록(자료 순서). 기록: {"line": 노선 이름, "floor": 층수 글자 그대로,
+    "platform_m": 정거장깊이, "track_m": 선로기준정거장깊이}. 노선 이름은 그 역 부착점의 노선 중 자료 호선과 같은 것
+    (없으면 지선, 예: 용답 → '2호선 성수지선')이라 stations[].hub_ls의 노선과 맞춰 볼 수 있다."""
+    out = defaultdict(list)
+    for row, label, hits in depth_rows:
+        for si in dict.fromkeys(si for si, _ in hits):
+            lines = sorted({l for sj, a in hits if sj == si for l in a["lines"] if has_line([l], label)})
+            out[si].append({"line": label if label in lines else lines[0], "floor": row[3].strip(),
+                            "platform_m": float(row[8]), "track_m": float(row[7])})
+    return out
+
+
+def depth_check(depth_rows):
+    """서울교통공사 역 깊이 자료(B층 = 지하, 고가·지상 = 지상)와 그래프의 승강장 지하 여부를 비교한다."""
+    res = {"rows": 0, "agree": 0, "disagree": [], "no_match": []}
+    for row, line, hits in depth_rows:
+        res["rows"] += 1
+        floor = row[3].strip()
+        expect_ug = floor.startswith("B")
+        got = [a["ug"] for _, a in hits]
         if not got:
             res["no_match"].append(f"{row[1]}호선 {row[2]}")
         elif all(g == expect_ug for g in got):
