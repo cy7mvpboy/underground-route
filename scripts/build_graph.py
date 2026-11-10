@@ -9,6 +9,8 @@
 #   4) 출입구: subway_entrance를 300m 안의 역 허브에 잇는다(지상 → 지하 진입점).
 #   5) 속성이 같은 선로가 이어지는 중간 점(차수 2)은 없애 그래프를 줄인다.
 #   6) 좌표를 줄여(더글러스-포이커 5m, 소수 5자리) 압축 JSON으로 저장하고, 점검 결과를 report로 남긴다.
+#   7) 이름: 간선마다 운행 노선(예: 3호선, LINE_TABLE로 통일)과 선로의 선 이름(예: 일산선)을 따로 담고,
+#      노선 relation의 정차역 순서(line_routes)를 남겨 길 안내에서 '오금 방면' 같은 방면을 찾게 한다.
 # 사용법(프로젝트 폴더에서): python -I scripts\build_graph.py
 # 지하 판정: tunnel 태그가 있고 no가 아니면 지하. layer<0만 있는 선로는 지상으로 둔다(docs\data-check.md 4.4절).
 import csv
@@ -155,29 +157,138 @@ def read_cp949_csv(path):
 
 
 # ---------- 노선 이름 ----------
+# 노선(운행 계통) 이름표: (정식 이름, 짧은 이름, OSM에 나오는 다른 이름들)
+#   - 정식 이름은 전국에서 하나뿐이다. 수도권은 '1호선'처럼 쓰고, 다른 도시는 '부산 1호선'처럼 도시 이름을 붙인다.
+#   - 짧은 이름은 안내 화면에 쓴다(지선은 본선 번호만: '2호선 성수지선' → '2호선').
+#   - 다른 이름: relation 이름(정리 후)이나 선로(way) 이름 중 이 노선을 가리키는 것. 같은 노선이 두 이름으로 나오지 않게 합친다.
+#   - 표에 없는 이름(예: 경부선, 경부고속선)은 그대로 정식·짧은 이름으로 쓴다.
+LINE_TABLE = [
+    ("1호선", "1호선", ["수도권 전철 1호선", "서울 지하철 1호선"]),
+    ("2호선", "2호선", ["서울 지하철 2호선"]),
+    ("2호선 성수지선", "2호선", ["서울 지하철 2호선 성수지선"]),
+    ("2호선 신정지선", "2호선", ["서울 지하철 2호선 신정지선"]),
+    ("3호선", "3호선", ["수도권 전철 3호선", "서울 지하철 3호선"]),
+    ("4호선", "4호선", ["수도권 전철 4호선", "서울 지하철 4호선"]),
+    ("5호선", "5호선", ["서울 지하철 5호선"]),
+    ("6호선", "6호선", ["서울 지하철 6호선"]),
+    ("7호선", "7호선", ["서울 지하철 7호선"]),
+    ("8호선", "8호선", ["서울 지하철 8호선"]),
+    ("9호선", "9호선", ["서울 지하철 9호선"]),
+    ("경의중앙선", "경의중앙선", ["경의·중앙선", "수도권 전철 경의·중앙선"]),
+    ("수인분당선", "수인분당선", ["수인·분당선"]),
+    ("신분당선", "신분당선", []),
+    ("공항철도", "공항철도", ["인천국제공항철도"]),
+    ("GTX-A", "GTX-A", ["수도권 광역급행철도 A선", "수도권광역급행철도에이선"]),
+    ("경춘선", "경춘선", ["수도권 전철 경춘선"]),
+    ("경강선", "경강선", ["수도권 전철 경강선"]),
+    ("서해선", "서해선", ["수도권 전철 서해선"]),
+    ("신림선", "신림선", ["서울 경전철 신림선"]),
+    ("우이신설선", "우이신설선", []),
+    ("김포골드라인", "김포골드라인", ["김포 골드라인"]),
+    ("용인경전철", "용인경전철", ["용인 경전철"]),
+    ("의정부경전철", "의정부경전철", []),
+    ("인천 1호선", "인천 1호선", ["인천 도시철도 1호선"]),
+    ("인천 2호선", "인천 2호선", ["인천 도시철도 2호선"]),
+    ("인천공항 자기부상철도", "자기부상철도", []),
+    ("인천공항 셔틀트레인", "셔틀트레인", ["인천국제공항트레인"]),
+    ("월미바다열차", "월미바다열차", []),
+    ("부산 1호선", "부산 1호선", ["부산 도시철도 1호선"]),
+    ("부산 2호선", "부산 2호선", ["부산 도시철도 2호선"]),
+    ("부산 3호선", "부산 3호선", ["부산 도시철도 3호선"]),
+    ("부산 4호선", "부산 4호선", ["부산 도시철도 4호선"]),
+    ("부산김해경전철", "부산김해경전철", []),
+    ("동해선 광역전철", "동해선", []),
+    ("대구 1호선", "대구 1호선", ["대구 도시철도 1호선", "안심~하양 복선전철"]),
+    ("대구 2호선", "대구 2호선", ["대구 도시철도 2호선"]),
+    ("대구 3호선", "대구 3호선", ["대구 도시철도 3호선"]),
+    ("대경선", "대경선", []),
+    ("대전 1호선", "대전 1호선", ["대전 도시철도 1호선"]),
+    ("광주 1호선", "광주 1호선", ["광주 도시철도 1호선"]),
+    ("광주 2호선", "광주 2호선", ["광주 도시철도 2호선"]),
+]
+LINE_ALIAS = {alias: canon for canon, _, aliases in LINE_TABLE for alias in [canon] + aliases}
+LINE_SHORT = {canon: short for canon, short, _ in LINE_TABLE}
+
+# 노선 relation에 들지 않은 선로(way)의 노선을 선 이름으로 정하는 표. 이 선을 다니는 노선이 하나뿐인 경우만 넣는다.
+# (예: 서울역 공항철도 승강장 부근의 '인천국제공항선' way 몇 개는 relation에 빠져 있다.)
+# 표에 없으면 선 이름을 그대로 노선 이름으로 쓴다(경부선처럼 도시철도가 아닌 선로).
+TRACK_SERVICE = {
+    "인천국제공항선": "공항철도", "일산선": "3호선", "경인선": "1호선", "수인선": "수인분당선",
+    "진접선": "4호선", "별내선": "8호선", "성수지선": "2호선 성수지선", "신정지선": "2호선 신정지선",
+}
+
+
+def track_name(name):
+    """선로(way) 이름을 선 이름으로 가볍게 정리한다: 앞뒤 공백 제거, 'X본선' → 'X선'(예: 경부본선 → 경부선),
+    노선을 가리키는 이름은 정식 노선 이름으로(예: '서울 지하철 1호선' → '1호선', '부산 도시철도 1호선' → '부산 1호선')."""
+    s = (name or "").strip()
+    m = re.fullmatch(r"(.{2,})본선", s)
+    if m:
+        s = m.group(1) + "선"
+    return LINE_ALIAS.get(s, s)
+
 
 def clean_line_name(name):
-    """노선 relation 이름을 노선 이름으로: '서울 지하철 9호선 급행: 개화 → …' → '서울 지하철 9호선'."""
+    """노선 relation 이름을 정식 노선 이름으로: '서울 지하철 9호선 급행: 개화 → …' → '9호선'."""
     s = re.split(r"\s*:\s*", name)[0]
     s = re.sub(r"\s*\(.*?\)", "", s)
     for suffix in (" 급행", " 셔틀", " 일반열차", " 직통열차", " 내선순환", " 외선순환", " 경인·경원 계통"):
         s = s.replace(suffix, "")
-    return {"인천국제공항철도": "공항철도", "수도권 광역급행철도 A선": "GTX-A"}.get(s.strip(), s.strip())
+    return LINE_ALIAS.get(s.strip(), s.strip())
 
 
-def way_line_names(routes):
-    """way ID → 그 선로를 지나는 도시철도·광역전철 노선 이름 집합. KTX·무궁화 같은 열차 운행 계통은 뺀다."""
-    out = defaultdict(set)
+def metro_routes(routes):
+    """도시철도·광역전철 노선 relation만 고른다. KTX·무궁화 같은 열차 운행 계통은 뺀다."""
+    out = []
     for r in routes:
         t = r.get("tags", {})
         metro = t.get("route") in ("subway", "light_rail", "monorail")
         commuter = t.get("route") == "train" and (t.get("service") in ("commuter", "commute") or t.get("network") == "수도권 전철")
-        if not (metro or commuter) or not t.get("name"):
-            continue
-        line = clean_line_name(t["name"])
+        if (metro or commuter) and t.get("name"):
+            out.append(r)
+    return out
+
+
+def way_line_names(routes):
+    """way ID → 그 선로를 지나는 노선의 정식 이름 집합."""
+    out = defaultdict(set)
+    for r in metro_routes(routes):
+        line = clean_line_name(r["tags"]["name"])
         for m in r["members"]:
             if m["type"] == "way":
                 out[m["ref"]].add(line)
+    return out
+
+
+def route_direction(r, last_name):
+    """노선 relation 하나의 방면 표시: 순환선은 '내선순환'/'외선순환', 나머지는 '<마지막 정차역> 방면'."""
+    for word in ("내선순환", "외선순환"):
+        if word in r["tags"]["name"]:
+            return word
+    return f"{last_name} 방면"
+
+
+def build_line_routes(routes, station_index_of_node, station_out):
+    """노선 relation마다 정차역 순서(역 번호 목록)와 방면을 만든다. 길 안내에서 '오금 방면' 같은 종착역 방면을 찾는 데 쓴다.
+    station_index_of_node: 정차 위치·역 OSM 노드 ID → 역 번호(stations 배열 위치)."""
+    out, seen = [], set()
+    for r in metro_routes(routes):
+        st = []
+        for m in r["members"]:
+            if m["type"] == "node" and m.get("role", "").startswith("stop"):
+                si = station_index_of_node.get(m["ref"])
+                if si is not None and (not st or st[-1] != si):
+                    st.append(si)
+        if len(st) < 2:
+            continue
+        loop = st[0] == st[-1]
+        name = route_direction(r, station_out[st[-1]]["name"])
+        if loop and name.endswith(" 방면"):  # 순환인데 내선·외선 표시가 없으면 방면을 정할 수 없다
+            continue
+        key = (clean_line_name(r["tags"]["name"]), name, tuple(st))
+        if key not in seen:
+            seen.add(key)
+            out.append({"line": key[0], "dir": name, "loop": 1 if loop else 0, "st": st})
     return out
 
 
@@ -193,17 +304,20 @@ def classify(tags):
 
 
 def load_tracks(route_lines):
-    """ways_kr.json을 읽어 그래프용 선로 목록과 노드 좌표 사전을 만든다."""
+    """ways_kr.json을 읽어 그래프용 선로 목록과 노드 좌표 사전을 만든다.
+    선로 속성 attr = (구조, 철도 종류, 측선 종류, 노선 이름들, 지역, 선 이름).
+    노선 이름: 노선 relation에서 가져오고, relation이 없으면 선 이름으로 정한다(TRACK_SERVICE 표, 없으면 선 이름 그대로)."""
     tracks, coord = [], {}
     for w in load_json(WAYS):
         if w["region"] in EXCLUDED_REGIONS:
             continue
         tags = w["tags"]
-        lines = sorted(route_lines.get(w["id"], ())) or ([tags["name"]] if tags.get("name") else [])
+        tn = track_name(tags.get("name"))
+        lines = sorted(route_lines.get(w["id"], ())) or ([TRACK_SERVICE.get(tn, tn)] if tn else [])
         service = tags.get("service") if tags.get("service") in SERVICE_SIDE else ""
         tracks.append({
             "id": w["id"], "nodes": list(w["nodes"]),
-            "attr": (classify(tags), w["railway"], service, tuple(lines), w["region"]),
+            "attr": (classify(tags), w["railway"], service, tuple(lines), w["region"], tn),
         })
         for n, p in zip(w["nodes"], w["geom"]):
             coord[n] = (p[0], p[1])
@@ -450,24 +564,24 @@ def contract(edges, n_nodes, keep):
 # ---------- 4. 환승·출입구 ----------
 
 def seoul_csv_line(s):
-    """서울교통공사 자료의 노선 표기를 OSM 노선 이름으로 바꾼다."""
+    """서울교통공사 자료의 노선 표기를 정식 노선 이름(LINE_TABLE)으로 바꾼다."""
     s = s.strip()
     if s.endswith("호선") and s[:-2].isdigit():
         s = s[:-2]
+    if s.isdigit():
+        return s + "호선"
     table = {
-        "1": "수도권 전철 1호선", "2": "서울 지하철 2호선", "3": "수도권 전철 3호선", "4": "수도권 전철 4호선",
-        "5": "서울 지하철 5호선", "6": "서울 지하철 6호선", "7": "서울 지하철 7호선", "8": "서울 지하철 8호선",
-        "9": "서울 지하철 9호선", "공항철도": "공항철도", "경의중앙선": "경의·중앙선", "수인분당선": "수인·분당선",
-        "신분당선": "신분당선", "우이신설선": "우이신설선", "신림선": "서울 경전철 신림선",
-        "김포골드라인": "김포 골드라인", "서해선": "수도권 전철 서해선", "경춘선": "수도권 전철 경춘선",
-        "경원선": "수도권 전철 1호선",  # 석계: 경원선 = 1호선
-        "국철": "수인·분당선",          # 수서: 3호선 ↔ 국철(수인·분당선으로 봄)
+        "공항철도": "공항철도", "경의중앙선": "경의중앙선", "수인분당선": "수인분당선",
+        "신분당선": "신분당선", "우이신설선": "우이신설선", "신림선": "신림선",
+        "김포골드라인": "김포골드라인", "서해선": "서해선", "경춘선": "경춘선",
+        "경원선": "1호선",      # 석계: 경원선 = 1호선
+        "국철": "수인분당선",   # 수서: 3호선 ↔ 국철(수인분당선으로 봄)
     }
     return table.get(s)
 
 
 def has_line(lines, label):
-    """노선 이름 목록에 label(지선 포함, 예: '서울 지하철 2호선 성수지선')이 있는가."""
+    """노선 이름 목록에 label(지선 포함, 예: '2호선' → '2호선 성수지선'도 맞음)이 있는가."""
     return any(l == label or l.startswith(label + " ") for l in lines)
 
 
@@ -547,6 +661,7 @@ def build_stations(stations, groups, att, nodes, edges, osm_to_node):
             unattached.append({"name": name, "osm": osm, "lat": round(p[0], 5), "lon": round(p[1], 5)})
             continue
         s = {"name": name, "names": sorted(set().union(*(stations[i]["names"] for i in members))), "p": p, "osm": osm,
+             "group": g,
              "atts": atts, "region": Counter(a["region"] for a in atts).most_common(1)[0][0],
              "methods": Counter(att[g].values()), "hubs": []}
         by_lines = defaultdict(list)
@@ -651,12 +766,14 @@ def han_crossing(pts, river, box):
     return any(segments_cross(p1, p2, q1, q2) for p1, p2 in zip(pts, pts[1:]) for q1, q2 in zip(river, river[1:]))
 
 
-def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station_out, entrance_out):
+def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station_out, entrance_out, line_routes):
     """압축 JSON을 만든다. 간선은 열(column)별 배열, 선 모양은 인코딩 폴리라인."""
     regions = sorted({e["attr"][4] for e in edges})
     region_idx = {r: i for i, r in enumerate(regions)}
     line_names = sorted({l for e in edges for l in e["attr"][3]})
     line_idx = {l: i for i, l in enumerate(line_names)}
+    track_names = [""] + sorted({e["attr"][5] for e in edges} - {""})  # 0번 = 이름 없음
+    track_idx = {n: i for i, n in enumerate(track_names)}
     line_sets, line_set_idx = [], {}
 
     def ls_index(lines):
@@ -667,24 +784,24 @@ def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station
         return line_set_idx[key]
 
     ls_index(())
-    cols = {k: [] for k in ("a", "b", "len", "s", "k", "r", "svc", "ls", "rg", "src", "g")}
+    cols = {k: [] for k in ("a", "b", "len", "s", "k", "r", "svc", "ls", "rg", "src", "g", "tn")}
 
-    def add(a, b, length, struct, kind, region, railway="", service="", lines=(), src="", pts=None):
+    def add(a, b, length, struct, kind, region, railway="", service="", lines=(), src="", pts=None, tn=""):
         for k, v in (("a", a), ("b", b), ("len", round(length, 1)), ("s", STRUCTS.index(struct)),
                      ("k", KINDS.index(kind)), ("r", RAILWAYS.index(railway) if railway else -1),
                      ("svc", SERVICES.index(service)), ("ls", ls_index(lines)), ("rg", region_idx[region]),
-                     ("src", SOURCES.index(src)), ("g", encode_polyline(pts) if pts else "")):
+                     ("src", SOURCES.index(src)), ("g", encode_polyline(pts) if pts else ""), ("tn", track_idx[tn])):
             cols[k].append(v)
 
     river = [[(p["lat"], p["lon"]) for p in e["geometry"]] for e in load_json(HAN_RIVER)["elements"] if e["type"] == "way"][0]
     box = (min(p[0] for p in river), min(p[1] for p in river), max(p[0] for p in river), max(p[1] for p in river))
     han = []
     for e in edges:
-        struct, railway, service, lines, region = e["attr"]
+        struct, railway, service, lines, region, tn = e["attr"]
         pts = douglas_peucker(e["pts"], DP_TOLERANCE_M)
         if han_crossing(pts, river, box):
             han.append({"e": len(cols["a"]), "s": struct, "lines": list(lines), "ways": sorted(e["ways"])})
-        add(e["a"], e["b"], e["len"], struct, "track", region, railway, service, lines, "", pts)
+        add(e["a"], e["b"], e["len"], struct, "track", region, railway, service, lines, "", pts, tn)
     for t in platform_edges:
         add(t["a"], t["b"], t["len"], t["struct"], "platform", t["region"])
     for t in transfers:
@@ -700,7 +817,9 @@ def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station
         "weights": {"under": 1, "exposed": 1000},
         "tables": {"structs": STRUCTS, "under_structs": sorted(UNDER_STRUCTS), "kinds": KINDS, "sources": SOURCES,
                    "railways": RAILWAYS, "services": SERVICES, "lines": line_names, "line_sets": line_sets,
-                   "regions": [{"name": r, "conf": CONFIDENCE.get(r, "unchecked")} for r in regions]},
+                   "regions": [{"name": r, "conf": CONFIDENCE.get(r, "unchecked")} for r in regions],
+                   "line_short": [LINE_SHORT.get(l, l) for l in line_names],
+                   "line_metro": [1 if l in LINE_SHORT else 0 for l in line_names], "track_names": track_names},
         "nodes": {"lat": [round(n["p"][0] * 1e5) for n in nodes], "lon": [round(n["p"][1] * 1e5) for n in nodes],
                   "f": [n["flag"] for n in nodes]},
         "edges": cols,
@@ -711,6 +830,8 @@ def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station
         "entrances": {"node": [x["node"] for x in entrance_out], "station": [x["station"] for x in entrance_out],
                       "ref": [x["ref"] for x in entrance_out]},
         "presets": {"han_crossings": [{"e": h["e"], "s": h["s"], "lines": h["lines"]} for h in han]},
+        "line_routes": [{"l": line_idx[r["line"]], "dir": r["dir"], "loop": r["loop"], "st": r["st"]}
+                        for r in line_routes if r["line"] in line_idx],
     }
     os.makedirs(os.path.dirname(OUT_GRAPH), exist_ok=True)
     with open(OUT_GRAPH, "w", encoding="utf-8") as f:
@@ -739,7 +860,15 @@ def main():
     station_out, unattached, platform_edges = build_stations(stations, groups, att, nodes, edges, osm_to_node)
     transfers, csv_result = build_transfers(station_out, nodes)
     entrance_edges, entrance_out, ent_stats = link_entrances(station_out, nodes)
-    graph, han = write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station_out, entrance_out)
+
+    # 노선 relation의 정차 순서(종착역 방면 안내용): 정차 위치·역 노드 → 역 번호
+    out_of_group = {s["group"]: i for i, s in enumerate(station_out)}
+    node_group = {s["id"]: station_group[i] for i, s in enumerate(stations) if s["type"] == "node"}
+    node_group.update(stop_group)
+    station_index_of_node = {n: out_of_group[g] for n, g in node_group.items() if g in out_of_group}
+    line_routes = build_line_routes(routes, station_index_of_node, station_out)
+    print(f"노선 relation 정차 순서 {len(line_routes)}개")
+    graph, han = write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station_out, entrance_out, line_routes)
 
     # ---------- 점검 결과 ----------
     report = stats(graph, len(edges))
@@ -756,6 +885,7 @@ def main():
     report["entrances"] = ent_stats
     report["seoul_depth_check"] = depth_check(station_out)
     report["han_crossings"] = han
+    report["names"] = name_stats(graph)
     with open(OUT_REPORT, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=1)
     size = os.path.getsize(OUT_GRAPH)
@@ -792,6 +922,21 @@ def stats(graph, n_track):
         "components_all": components(lambda i: True),
         "components_tunnel_tracks": components(lambda i: E["k"][i] == track and E["s"][i] == tunnel),
         "components_underground_walk": components(lambda i: E["s"][i] in under),
+    }
+
+
+def name_stats(graph):
+    """노선·선 이름 점검: 노선 수, 짧은 이름이 다른 노선, 본선 선로 길이가 긴 선 이름 30개."""
+    E, tb = graph["edges"], graph["tables"]
+    km = Counter()
+    for i in range(len(E["a"])):
+        if tb["kinds"][E["k"][i]] == "track" and not E["svc"][i]:
+            km[tb["track_names"][E["tn"][i]]] += E["len"][i] / 1000
+    return {
+        "lines": len(tb["lines"]), "track_names": len(tb["track_names"]) - 1,
+        "short_differs": {l: s for l, s in zip(tb["lines"], tb["line_short"]) if l != s},
+        "line_routes": len(graph["line_routes"]),
+        "top_track_names_km": [[n or "(이름 없음)", round(v, 1)] for n, v in km.most_common(30)],
     }
 
 
