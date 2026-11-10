@@ -15,6 +15,7 @@
        화면 오른쪽·왼쪽 절반 누르기, 밀기(스와이프)로도 넘긴다. 주소 끝 #3 은 3번 슬라이드다.
     2. 소개 페이지: 주소 끝 #page, 또는 화면 너비 760px 미만. 슬라이드를 세로로 쌓고 아래에 말할 거리를 둔다.
     3. 인쇄(PDF): 슬라이드 한 장 = 한 쪽(1280×720, 16:9). 메모와 조작 화면은 빠진다.
+  발표는 실시간이다. 시연은 앱의 #demo 를 브라우저 탭으로 띄워 하고, 5번 슬라이드는 그 대비용이다.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -121,6 +122,7 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
 .code .em { color: #FFFFFF; text-decoration: underline; text-decoration-color: var(--sos); text-decoration-thickness: 2px; text-underline-offset: 6px; }
 
 /* ===================== 슬라이드별 ===================== */
+.tag { font-size: 18px; font-weight: 500; color: var(--safe-text); margin-bottom: 14px; }   /* 덱 전체에서 두 번만(어려웠던 것 1·2) */
 
 /* 1. 제목 */
 .s1 { background: radial-gradient(640px 520px at 82% 56%, rgb(46 196 182 / .10), transparent 70%), var(--bg); }
@@ -128,38 +130,18 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
 .s1-mark svg { width: 100%; height: 100%; display: block; }
 .s1-name { font-size: 150px; line-height: 1; font-weight: 700; letter-spacing: -.04em; }
 .s1-what { margin-top: 30px; max-width: 700px; font-size: 32px; line-height: 1.4; font-weight: 500; letter-spacing: -.02em; color: #DCE7E5; }
-.s1-meta { margin-top: 40px; font-size: 18px; color: var(--muted); }
 
-/* 2. 상황 */
-.s2 .h1 { font-size: 76px; line-height: 1.12; letter-spacing: -.035em; }
+/* 2. 문제 */
+.s2 .h1 { font-size: 64px; line-height: 1.16; letter-spacing: -.03em; }
+.s2 .h1 .q { color: var(--sos); }
 .s2 .lines { margin-top: 36px; }
 .s2 .lines li { font-size: 30px; }
-.s2 .src { margin-top: 28px; }
+.s2 .src { margin-top: 30px; }
+.map-crop { margin: 0; width: 400px; height: 556px; border-radius: 26px; overflow: hidden; box-shadow: 0 0 0 1.5px #2E4449, 0 28px 60px rgb(0 0 0 / .55); }
+.map-crop img { display: block; width: 100%; height: auto; }
 
-/* 3. 문제 */
-.s3 { justify-content: center; }
-.s3 .h1 { font-size: 60px; max-width: 1000px; }
-.s3 .lines { margin-top: 48px; border-left: 3px solid var(--line-strong); padding-left: 28px; }
-.s3 .lines li { font-size: 30px; }
-
-/* 4. 하는 일 */
-.s4 .h1 { font-size: 60px; }
-.s4 .lines li { font-size: 26px; }
-
-/* 5. 비용 규칙 */
-.eq { font-size: 116px; line-height: 1.06; font-weight: 700; letter-spacing: -.04em; }
-.eq > span { display: block; }
-.eq .a { color: var(--expo-text); }
-.eq .b { color: var(--safe-text); }
-.eq .sign { color: var(--muted); font-weight: 500; margin-right: .18em; }
-.s5 .lines { margin-top: 36px; }
-.s5 .lines li { font-size: 24px; }
-.alt-line { margin-top: 18px; padding: 14px 18px; border: 1.5px dashed rgb(255 176 32 / .55); border-radius: 12px; background: rgb(255 176 32 / .06); font-size: 22px; line-height: 1.45; color: #E9D9B4; font-weight: 500; }
-.s5 .cap { max-width: 270px; }
-.fig { display: flex; flex-direction: column; align-items: center; }
-
-/* 6. 한강 */
-.s6 .h1 { font-size: 46px; max-width: 1060px; }
+/* 3. 한강 */
+.s3 .h1 { font-size: 46px; }
 .han { position: relative; margin-top: 22px; width: 1104px; height: 430px; border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
 .han > img { display: block; width: 100%; height: 100%; object-fit: cover; }   /* 그림 자체를 어둡게 해 두었다(인쇄 때 CSS filter가 큰 비트맵이 되지 않게) */
 .mk { position: absolute; width: 0; height: 0; }
@@ -170,7 +152,6 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
 .mk .below { top: 26px; left: 50%; transform: translateX(-50%); }
 .mk .above { bottom: 26px; left: 50%; transform: translateX(-50%); }
 .mk .right { left: 28px; top: -15px; }
-.mk .left { right: 28px; top: -15px; }
 .han-legend { position: absolute; right: 16px; top: 14px; padding: 10px 14px; border-radius: 10px; background: rgb(11 18 20 / .88); font-size: 15px; color: var(--muted); line-height: 1.8; }
 .han-legend i { display: inline-block; width: 16px; height: 16px; border-radius: 50%; vertical-align: -3px; margin-right: 8px; border: 3px solid var(--route-safe); }
 .han-legend .up i { border: 2.5px dashed var(--expo-text); }
@@ -178,88 +159,74 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
 .han-inset img { display: block; width: 100%; height: auto; }
 .han-inset p { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .han-inset b { color: var(--text); }
-.s6 .src { margin-top: 14px; font-size: 16px; }
+.han-credit { position: absolute; right: 12px; bottom: 8px; font-size: 11px; color: var(--muted); opacity: .8; }
+.han-note { margin-top: 16px; font-size: 21px; color: var(--muted); font-weight: 500; }
+.han-note b { color: var(--expo-text); font-weight: 700; }
 
-/* 7. 시연 */
-.s7 .h1 { font-size: 46px; }
-.demo-row { margin-top: 26px; display: flex; gap: 16px; align-items: flex-start; }
-.demo-row > li { width: 214px; display: flex; flex-direction: column; align-items: center; }
-.demo-row .phone { --h: 420px; }
-.demo-row .cap { text-align: center; font-size: 15px; margin-top: 12px; }
-.demo-qr { flex: 1; align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.demo-qr .qr-card { --qr: 156px; padding: 12px; }
-.demo-qr p { margin-top: 14px; font-family: var(--mono); font-size: 14px; color: var(--muted); text-align: center; line-height: 1.45; overflow-wrap: anywhere; }
-.demo-qr p b { color: var(--sos); font-weight: 500; }
+/* 4. 해결 한 줄 + 시연 */
+.s4 { justify-content: center; }
+.s4-say { font-size: 46px; line-height: 1.32; font-weight: 700; letter-spacing: -.025em; max-width: 1060px; }
+.s4-say .a { color: var(--expo-text); }
+.s4-say .b { color: var(--safe-text); }
+.s4-demo { margin-top: 72px; display: flex; align-items: baseline; gap: 28px; flex-wrap: wrap; }
+.s4-demo b { font-size: 64px; font-weight: 700; letter-spacing: -.03em; color: var(--sos); }
+.s4-demo span { font-size: 64px; font-weight: 700; letter-spacing: -.03em; }
+.s4-url { margin-top: 18px; font-family: var(--mono); font-size: 20px; color: var(--muted); }
 
-/* 8. 길 안내 */
-.s8 .h1 { font-size: 44px; }
-.guide-row { flex: 1; min-height: 0; margin-top: 26px; display: grid; grid-template-columns: 500px minmax(0, 1fr) auto; gap: 34px; align-items: center; }
-.card-shot { margin: 0; }
-.card-shot img { display: block; width: 100%; height: auto; border-radius: 26px; box-shadow: 0 0 0 1px #2E4449, 0 24px 50px rgb(0 0 0 / .5); }
-.marks li { font-size: 21px; line-height: 1.45; color: #CFDCDA; font-weight: 500; }
-.marks li + li { margin-top: 22px; }
-.marks b { display: block; font-size: 23px; color: var(--text); }
-.marks .red b { color: var(--expo-text); }
-.s8 .phone { --h: 530px; }
+/* 5. 시연 백업 */
+.s5 .h1 { font-size: 46px; }
+.strip { margin: auto 0; display: flex; justify-content: space-between; align-items: flex-start; }
+.strip > li { width: 172px; display: flex; flex-direction: column; align-items: center; }
+.strip .phone { --h: 352px; padding: 7px; }
+.strip .phone img { border-radius: calc(var(--h) * .075 - 7px); }
+.strip .cap { text-align: center; font-size: 15px; margin-top: 12px; line-height: 1.45; }
+.s5-url { font-size: 16px; color: var(--muted); }
+.s5-url span { font-family: var(--mono); color: var(--text); }
 
-/* 9. GPS·인터넷 없이 */
-.s9 .cols { gap: 48px; }
-.s9 .h1 { font-size: 46px; }
-.s9 .lines li { font-size: 24px; }
-.phones2 { display: flex; gap: 22px; align-items: flex-start; }
-.phones2 li { display: flex; flex-direction: column; align-items: center; }
-.phones2 .phone { --h: 540px; }
-
-/* 10. 구조 */
-.s10 .h1 { font-size: 48px; }
-.mid { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
-.arch { margin-top: 0; }
-.arch svg { display: block; width: 100%; height: auto; }
-.arch-m { display: none; }
-.deploy { margin-top: 40px; font-size: 22px; color: var(--muted); font-weight: 500; }
-.deploy b { color: var(--text); }
-
-/* 11. 코드 ① */
-.s11 .h1 { font-size: 52px; }
-.s11-row { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
-.s11 .code pre { font-size: 22px; padding: 16px 0; }
-.why { margin-top: 28px; }
+/* 6·7. 코드 */
+.s6 .h1, .s7 .h1 { font-size: 50px; }
+.s6-row { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.s6 .code pre { font-size: 22px; padding: 16px 0; }
+.why { margin-top: 26px; }
 .why p { font-size: 26px; line-height: 1.5; font-weight: 500; color: #CFDCDA; }
 .why p + p { margin-top: 8px; }
 .why b { color: var(--text); }
 .why .t { color: var(--expo-text); }
 .why .small { font-size: 16px; color: var(--muted); font-weight: 400; }
-
-/* 12. 코드 ② */
-.s12-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+.s7-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
 .weights { display: flex; gap: 10px; padding-bottom: 8px; }
 .weights span { font-size: 20px; font-weight: 700; padding: 8px 16px; border-radius: 10px; }
 .weights .w-u { color: var(--safe-text); background: var(--safe-soft); }
 .weights .w-e { color: var(--expo-text); background: var(--expo-soft); }
-.s12 .mid .code:first-child { margin-top: 0; }
-.s12 .code + .code { margin-top: 22px; }
+.mid { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.s7 .code + .code { margin-top: 18px; }
+.s7 .code pre { padding: 14px 0; }
+.tie { margin-top: 22px; font-size: 24px; font-weight: 500; color: #CFDCDA; }
+.tie b { color: var(--expo-text); }
+.tie code { font-size: 22px; color: var(--text); background: #0E181B; border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; }
 
-/* 13. 검증 */
-.s13 .h1 { font-size: 46px; }
-.s13-mid { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
-.term { margin-top: 0; }
-.term pre { font-size: 18px; line-height: 1.8; }
-.term .ok { color: var(--safe-text); }
-.term .dim { color: #7E9693; font-weight: 400; }
-.s13 .lines { margin-top: 34px; }
-.s13 .lines li { font-size: 26px; }
+/* 8. 폰 안에서 */
+.s8 .h1 { font-size: 48px; }
+.arch { margin-top: 0; }
+.arch svg { display: block; width: 100%; height: auto; }
+.arch-m { display: none; }
+.s8-line { margin-top: 30px; font-size: 23px; line-height: 1.55; color: #CFDCDA; font-weight: 500; }
+.s8-line b { color: var(--text); }
 
-/* 14. 마무리 */
-.s14 .cols { align-items: center; }
-.s14-link { display: block; font-size: 58px; line-height: 1.14; font-weight: 700; letter-spacing: -.02em; color: var(--route-safe); }
-.s14-gh { margin-top: 24px; font-family: var(--mono); font-size: 22px; color: var(--text); }
-.s14-gh span { font-family: var(--font); font-size: 17px; color: var(--muted); margin-right: 16px; }
-.safety { margin-top: 44px; padding: 14px 20px; border-radius: 12px; border: 1.5px solid rgb(255 212 0 / .7); background: rgb(255 212 0 / .07); font-size: 25px; font-weight: 700; color: var(--sos); }
-.scope { margin-top: 18px; font-size: 21px; line-height: 1.5; color: #CFDCDA; font-weight: 500; }
-.s14 .qr-card { --qr: 300px; }
-.s14 .src { font-size: 15px; }
-.no-qr .s14 .cols { grid-template-columns: minmax(0, 1fr); }
-.no-qr .s14-link { font-size: 66px; }
+/* 9. 마무리 */
+.s9 .cols { align-items: center; gap: 56px; }
+.s9 .h1 { font-size: 46px; }
+.s9-link { display: block; margin-top: 24px; font-size: 34px; line-height: 1.2; font-weight: 700; letter-spacing: -.01em; color: var(--route-safe); }
+.s9-gh { margin-top: 10px; font-family: var(--mono); font-size: 19px; color: var(--text); }
+.s9-gh span { font-family: var(--font); font-size: 16px; color: var(--muted); margin-right: 14px; }
+.state { margin-top: 30px; }
+.state li { font-size: 21px; line-height: 1.5; color: #CFDCDA; font-weight: 500; }
+.state li + li { margin-top: 6px; }
+.state b { color: var(--text); margin-right: 6px; }
+.safety { margin-top: 22px; padding: 12px 18px; border-radius: 12px; border: 1.5px solid rgb(255 212 0 / .7); background: rgb(255 212 0 / .07); font-size: 22px; font-weight: 700; color: var(--sos); }
+.s9 .qr-card { --qr: 290px; }
+.no-qr .s9 .cols { grid-template-columns: minmax(0, 1fr); }
+
 
 /* ===================== 보기 방식 1: 발표 ===================== */
 .mode-present body { overflow: hidden; }
@@ -308,81 +275,68 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
   .mode-page .stage { position: static; transform: none; width: auto; height: auto; overflow: visible; padding: 36px 20px 8px; }
   .mode-page .notes { margin: 18px 20px 36px; }
   .mode-page .notes li { font-size: 15px; }
-  .mode-page .h1, .mode-page .s3 .h1, .mode-page .s4 .h1, .mode-page .s6 .h1, .mode-page .s7 .h1, .mode-page .s8 .h1,
-  .mode-page .s9 .h1, .mode-page .s10 .h1, .mode-page .s11 .h1, .mode-page .s13 .h1 { font-size: 26px; }
+  .mode-page .h1, .mode-page .s2 .h1, .mode-page .s3 .h1, .mode-page .s5 .h1, .mode-page .s6 .h1, .mode-page .s7 .h1,
+  .mode-page .s8 .h1, .mode-page .s9 .h1 { font-size: 26px; }
+  .mode-page br.wide { display: none; }   /* 넓은 무대용 줄바꿈 */
   .mode-page .lines { margin-top: 16px; }
-  .mode-page .lines li, .mode-page .s2 .lines li, .mode-page .s3 .lines li, .mode-page .s4 .lines li, .mode-page .s5 .lines li,
-  .mode-page .s9 .lines li, .mode-page .s13 .lines li { font-size: 17px; }
-  .mode-page .lines li + li { margin-top: 8px; }
+  .mode-page .lines li, .mode-page .s2 .lines li { font-size: 17px; }
   .mode-page .src { margin-top: 16px; font-size: 12px; }
   .mode-page .cols { display: flex; flex-direction: column; align-items: stretch; gap: 26px; }
-  .mode-page .cols > .phone, .mode-page .cols > .fig, .mode-page .cols > .qr-card, .mode-page .cols > .phones2 { align-self: center; }
+  .mode-page .cols > .phone, .mode-page .cols > .qr-card, .mode-page .cols > .map-crop { align-self: center; }
   .mode-page .phone { --h: 440px; box-shadow: 0 0 0 1.5px #2E4449, 0 14px 30px rgb(0 0 0 / .5); }
-  .mode-page .cap { font-size: 14px; }
+  .mode-page .cap { font-size: 13px; }
+  .mode-page .tag { font-size: 13px; margin-bottom: 8px; }
 
-  .mode-page .s1-what br, .mode-page .s3 .h1 br, .mode-page .s6 .h1 br { display: none; }   /* 넓은 무대용 줄바꿈 */
   .mode-page .s1-mark { width: 52px; height: 52px; margin-bottom: 16px; }
   .mode-page .s1-name { font-size: 64px; }
   .mode-page .s1-what { font-size: 19px; margin-top: 14px; }
-  .mode-page .s1-meta { font-size: 13px; margin-top: 14px; }
-
-  .mode-page .s2 .h1 { font-size: 36px; }
-  .mode-page .s2 .src { margin-top: 12px; }
-  .mode-page .s3 .lines { margin-top: 18px; padding-left: 16px; }
-
-  .mode-page .eq { font-size: 52px; }
-  .mode-page .alt-line { font-size: 15px; padding: 10px 12px; }
+  .mode-page .map-crop { width: 100%; max-width: 335px; height: auto; aspect-ratio: 400 / 556; }
 
   .mode-page .han { width: auto; height: auto; margin: 16px -20px 0; border-radius: 0; }
   .mode-page .han > img { height: auto; }
   .mode-page .mk i { left: -9px; top: -9px; width: 18px; height: 18px; border-width: 2.5px; box-shadow: 0 0 0 2px rgb(11 18 20 / .7); }
-  .mode-page .mk span { display: none; }
+  .mode-page .mk span, .mode-page .han-inset { display: none; }
   .mode-page .han-legend { position: static; margin: 10px 20px 0; padding: 0; background: none; font-size: 13px; }
-  .mode-page .han-inset { display: none; }
+  .mode-page .han-credit { position: static; display: block; margin: 4px 20px 0; }
+  .mode-page .han-note { font-size: 14px; }
 
-  .mode-page .demo-row { flex-wrap: wrap; justify-content: center; gap: 22px 12px; margin-top: 18px; }
-  .mode-page .demo-row > li { width: calc(50% - 6px); }
-  .mode-page .demo-row .phone { --h: 300px; }
-  .mode-page .demo-row .cap { font-size: 13px; }
-  .mode-page .demo-qr { flex: 1 1 100%; }
-  .mode-page .demo-qr .qr-card { --qr: 150px; }
+  .mode-page .s4-say { font-size: 22px; }
+  .mode-page .s4-demo { margin-top: 24px; gap: 10px; }
+  .mode-page .s4-demo b, .mode-page .s4-demo span { font-size: 28px; }
+  .mode-page .s4-url { font-size: 12px; overflow-wrap: anywhere; }
 
-  .mode-page .guide-row { display: flex; flex-direction: column; gap: 22px; margin-top: 16px; }
-  .mode-page .card-shot img { border-radius: 16px; }
-  .mode-page .marks li { font-size: 15px; }
-  .mode-page .marks li + li { margin-top: 12px; }
-  .mode-page .marks b { font-size: 16px; }
-  .mode-page .s8 .phone { --h: 440px; align-self: center; }
+  .mode-page .strip { flex-wrap: wrap; justify-content: center; gap: 22px 12px; margin: 18px 0 0; }
+  .mode-page .strip > li { width: calc(50% - 6px); }
+  .mode-page .strip .phone { --h: 300px; }
+  .mode-page .s5-url { margin-top: 16px; font-size: 12px; overflow-wrap: anywhere; }
 
-  .mode-page .phones2 { justify-content: center; gap: 12px; }
-  .mode-page .phones2 .phone { --h: 330px; }
-
-  .mode-page .arch { margin-top: 16px; }
-  .mode-page .arch svg { display: none; }
-  .mode-page .arch-m { display: block; }
-  .mode-page .deploy { margin-top: 18px; font-size: 15px; }
-
-  .mode-page .s11-row { display: block; margin-top: 16px; }
+  .mode-page .s6-row { display: block; margin-top: 16px; }
   .mode-page .why { margin-top: 18px; }
   .mode-page .why p { font-size: 16px; }
   .mode-page .why .small { font-size: 12px; }
-
-  .mode-page .s12-head { display: block; }
+  .mode-page .s7-head { display: block; }
   .mode-page .weights { margin-top: 10px; }
   .mode-page .weights span { font-size: 14px; padding: 5px 10px; }
   .mode-page .code { margin-top: 16px; }
   .mode-page .code-h { font-size: 12px; padding: 9px 14px; }
-  .mode-page .code pre, .mode-page .s11 .code pre, .mode-page .term pre { font-size: 12.5px; line-height: 1.6; padding: 10px 0; }
+  .mode-page .code pre, .mode-page .s6 .code pre { font-size: 12.5px; line-height: 1.6; padding: 10px 0; }
   .mode-page .code .ln { white-space: pre-wrap; word-break: break-all; padding: 0 14px; }
+  .mode-page .tie { font-size: 15px; }
+  .mode-page .tie code { font-size: 13px; }
 
-  .mode-page .s14-link { font-size: 26px; }
-  .mode-page .s14-gh { font-size: 13px; overflow-wrap: anywhere; }
-  .mode-page .s14-gh span { font-size: 13px; display: block; margin-bottom: 2px; }
-  .mode-page .safety { margin-top: 20px; font-size: 16px; padding: 10px 12px; }
-  .mode-page .scope { font-size: 15px; }
+  .mode-page .arch svg { display: none; }
+  .mode-page .arch-m { display: block; margin-top: 16px; }
+  .mode-page .s8-line { margin-top: 18px; font-size: 15px; }
+
+  .mode-page .s9-link { font-size: 24px; overflow-wrap: anywhere; }
+  .mode-page .s9-gh { font-size: 13px; overflow-wrap: anywhere; }
+  .mode-page .s9-gh span { font-size: 13px; display: block; margin-bottom: 2px; }
+  .mode-page .state li { font-size: 15px; }
+  .mode-page .safety { font-size: 16px; padding: 10px 12px; }
   .mode-page .qr-card { padding: 12px; }
-  .mode-page .s14 .qr-card { --qr: 200px; }
+  .mode-page .s9 .qr-card { --qr: 200px; }
 }
+
 
 /* 좁은 화면용 구조도 (세로 흐름) */
 .flow-m li { position: relative; padding: 10px 14px; margin-bottom: 22px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); font-size: 15px; font-weight: 700; }
@@ -429,126 +383,50 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
           </svg>
         </div>
         <h1 class="s1-name">지하로</h1>
-        <p class="s1-what">공습 때 지상에 나가는 거리가 가장 짧은 길을<br>전국 철도 터널로 찾아 안내하는 웹 앱</p>
-        <p class="s1-meta">COM's 해커톤 2026 · 주제 전쟁 · 혼자 참가</p>
+        <p class="s1-what">공습 때 지상에 나가는 거리가 가장 짧은 길을<br class="wide"> 전국 철도 터널로 찾아 안내하는 웹 앱</p>
       </div>
       <figure class="phone" style="--h:596px"><img src="../docs/screens/v4-dark-01-first-load.jpg" alt="지하로 첫 화면: 서울 철도망 지도와 '가장 가까운 지하로 대피' 단추"></figure>
     </div>
   </div></div>
   <aside class="notes" data-time="10초">
     <ul>
-      <li>이름: 지하로, 혼자 만듦</li>
-      <li>한 줄: 공습 때 지상 노출이 가장 짧은 길을 철도 터널로 안내</li>
-      <li>순서: 상황 → 문제 → 하는 일 → 시연 → 코드</li>
+      <li>지하로, 혼자 만듦 (COM's 해커톤 2026, 주제 전쟁)</li>
+      <li>한 줄: 공습 때 지상 노출이 가장 짧은 길을 철도 터널로</li>
+      <li>순서: 문제 → 한강 → 시연 → 어려웠던 것 두 가지 → 부탁 하나</li>
     </ul>
-    <p class="memo"><b>3분 버전</b> 8초</p>
+    <p class="memo"><b>3분 버전</b> 5초</p>
   </aside>
 </section>
 
-<!-- 2 상황 ---------------------------------------------------------->
-<section class="slide" data-title="상황">
+<!-- 2 문제 ---------------------------------------------------------->
+<section class="slide" data-title="문제">
   <div class="frame"><div class="stage s2">
     <div class="cols">
       <div>
-        <h2 class="h1"><span class="expo">공습경보.</span><br>지금 서울 시청 앞</h2>
+        <h2 class="h1">공습경보가 울리면<br class="wide"> 행동요령은<br class="wide"> <span class="q nw">‘가장 가까운 지하로’</span></h2>
         <ul class="lines">
-          <li>정부 행동요령: 가장 가까운 지하로 대피</li>
+          <li>지도 앱 경로는 어느 구간이 터널인지 쓰지 않는다</li>
         </ul>
         <p class="src">출처: 대한민국 정책브리핑, 영등포구청, 국민재난안전포털 행동요령</p>
       </div>
-      <figure class="phone" style="--h:596px"><img src="../docs/screens/slides-02-cityhall.jpg" alt="서울 시청 앞에 내 위치 점, 아래에 '가장 가까운 지하로 대피' 단추"></figure>
+      <figure class="map-crop"><img src="../docs/screens/story-02-alert.jpg" alt="공덕오거리 부근 지도 위 '공습경보' 표시와 내 위치"></figure>
     </div>
   </div></div>
-  <aside class="notes" data-time="20초">
+  <aside class="notes" data-time="25초">
     <ul>
-      <li>가정: 공습경보, 나는 서울 시청 앞 길 위</li>
-      <li>행동요령은 '가장 가까운 지하로' (정책브리핑·구청·국민재난안전포털)</li>
-      <li>화면: 파란 점 = 내 위치, 아래 노란 단추 하나</li>
-      <li>단추 → 시청역 5번 출구, 지상 60m (시연에서 보여 줌)</li>
+      <li>지금 공덕오거리 길 위에 있다고 해 보자 (화면: 공습경보)</li>
+      <li>행동요령: 가장 가까운 지하 (정책브리핑·구청·국민재난안전포털)</li>
+      <li>지도 앱: 어디가 터널인지, 어디서 지상으로 나오는지 경로에 없음</li>
+      <li>지하에선 GPS 안 잡힘, 전시엔 통신 불안</li>
     </ul>
     <p class="memo"><b>3분 버전</b> 15초</p>
   </aside>
 </section>
 
-<!-- 3 문제 ---------------------------------------------------------->
-<section class="slide" data-title="문제">
+<!-- 3 한강 (지금 모습) --------------------------------------------->
+<section class="slide" data-title="한강 하저터널">
   <div class="frame"><div class="stage s3">
-    <h2 class="h1">지도 앱 경로는<br>어느 구간이 터널인지 쓰지 않는다</h2>
-    <ul class="lines">
-      <li>터널 갈림길에서 어느 쪽으로 갈지 알려 주지 않는다</li>
-      <li>지하에서는 GPS가 잡히지 않고, 전시에는 통신이 불안하다</li>
-    </ul>
-  </div></div>
-  <aside class="notes" data-time="20초">
-    <ul>
-      <li>지도 앱 길찾기: 어느 구간이 터널인지, 어디서 지상으로 나오는지 경로에 없음</li>
-      <li>터널 안 갈림길 안내 없음</li>
-      <li>지하 = GPS 없음, 전시 = 통신 불안</li>
-      <li>전국에 지하 철도망은 이미 있음 → 그 연결 구조를 길찾기에 씀</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 뺌. 2번에서 한 문장으로</p>
-  </aside>
-</section>
-
-<!-- 4 하는 일 ------------------------------------------------------->
-<section class="slide" data-title="지하로가 하는 일">
-  <div class="frame"><div class="stage s4">
-    <div class="cols">
-      <div>
-        <h2 class="h1">서울역 → 강남역<br>18.0km, 지상 노출 <span class="safe">0m</span></h2>
-        <ul class="lines">
-          <li>공항철도, 5호선, 9호선, 신분당선을 갈아타는 길 (환승 3번)</li>
-          <li>걸어서 5시간 8분 (시속 3.5km)</li>
-        </ul>
-      </div>
-      <figure class="phone" style="--h:596px"><img src="../docs/screens/slides-04-seoul-gangnam.jpg" alt="경로 결과: 서울역에서 강남역까지 18.0km, 지상 노출 0m, 환승 3"></figure>
-    </div>
-  </div></div>
-  <aside class="notes" data-time="25초">
-    <ul>
-      <li>출발·도착만 정하면 경로 카드</li>
-      <li>지상 노출 0m = 처음부터 끝까지 터널과 지하 통로</li>
-      <li>노선 4개, 환승 3번, 환승 통로 거리까지 계산</li>
-      <li>걷는 속도 시속 3.0·3.5·4.0km 중 고름</li>
-      <li>지상 구간이 있으면 카드와 지도에 빨강으로</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 20초</p>
-  </aside>
-</section>
-
-<!-- 5 비용 규칙 ----------------------------------------------------->
-<section class="slide" data-title="비용 규칙">
-  <div class="frame"><div class="stage s5">
-    <div class="cols">
-      <div>
-        <p class="eq" aria-label="지상 1미터는 지하 1킬로미터와 같다"><span class="a">지상 1m</span><span class="b"><span class="sign">=</span>지하 1km</span></p>
-        <ul class="lines">
-          <li>지하로만 가는 길이 있으면 그 길을 고른다</li>
-        </ul>
-        <p class="alt-line">지상을 2km 이하로 더 걸어 시간이 20% 또는 30분 이상 줄면 대안을 한 줄 보여 준다</p>
-      </div>
-      <div class="fig">
-        <figure class="phone" style="--h:530px"><img src="../docs/screens/slides-05-oksu-apgujeong.jpg" alt="옥수역에서 압구정역: 24.0km, 지상 노출 336m, 대안 한 줄 '지상 1.2km 걸으면 22km 짧아요'"></figure>
-        <p class="cap">옥수 → 압구정: 지하 우선 <b>24.0km</b><br>대안은 지상 1.2km, 22km 짧음</p>
-      </div>
-    </div>
-  </div></div>
-  <aside class="notes" data-time="35초">
-    <ul>
-      <li>비용 = 길이 × 가중치: 지하 1, 지상·교량 1000</li>
-      <li>지하로만 가는 길이 있으면 저절로 그 길, 없으면 지상 구간이 가장 짧은 길</li>
-      <li>옥수→압구정: 3호선은 동호대교(교량)로 건넘 → 지하 우선이면 24.0km 돌아감</li>
-      <li>대안 조건: 지상 증가 2km 이하 + 시간 20% 또는 30분 이상 단축 (router.js 23행 ALT)</li>
-      <li>대안은 누를 때만 바뀜, 기본은 지하 우선</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 25초</p>
-  </aside>
-</section>
-
-<!-- 6 한강 하저터널 ------------------------------------------------->
-<section class="slide" data-title="데이터에서 찾은 것">
-  <div class="frame"><div class="stage s6">
-    <h2 class="h1">서울에서 한강을 지하로만 건너는 길은<br>5호선 하저터널 두 곳뿐이다</h2>
+    <h2 class="h1">서울에서 한강을 지하로만 건너는 길은<br class="wide"> 5호선 하저터널 두 곳뿐이다</h2>
     <div class="han">
       <img src="../docs/screens/slides-06-han-river.jpg" alt="서울 한강 부근 철도망 지도. 한강을 건너는 하저터널 다섯 곳 표시">
       <div class="mk up" style="left:20.02%;top:28.6%"><i></i><span class="right">서해선</span></div>
@@ -558,113 +436,150 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
       <div class="mk up" style="left:80.07%;top:42.56%"><i></i><span class="above">8호선</span></div>
       <p class="han-legend"><span><i></i>양쪽 강변 모두 지하로 이어짐</span><br><span class="up"><i></i>한쪽 강변에서 지상으로 나옴</span></p>
       <figure class="han-inset"><img src="../docs/screens/slides-04-network.jpg" alt="전국 철도망"><p><b>전국 역 1,275곳</b></p></figure>
+      <p class="han-credit">© OpenStreetMap contributors</p>
     </div>
-    <p class="src">한강 철도 횡단 12곳 중 교량 7곳, 하저터널 5곳. 선로 © OpenStreetMap contributors, 지도 타일 © OpenStreetMap</p>
+    <p class="han-note"><b>시연 길에서 두 곳을 다 막으면 가장 나은 길도 지상 721m</b> · 한강 철도 횡단 12곳 중 교량 7곳, 하저터널 5곳</p>
   </div></div>
-  <aside class="notes" data-time="35초">
+  <aside class="notes" data-time="25초">
     <ul>
       <li>OSM 한강 중심선과 만나는 선로 12곳: 교량 7, 하저터널 5 (출처와 12곳 모두 일치)</li>
       <li>수인분당선·8호선·서해선 하저터널은 한쪽 강변에서 지상으로 나옴</li>
-      <li>남북을 지하로 오가는 길은 5호선 두 곳으로 몰림</li>
-      <li>검사 예: 여의도→광화문에서 5호선 하저터널을 막으면 지상 720m (수인분당선으로 우회)</li>
-      <li>전국 역 1,275곳(지하역 577곳), 출구 4,551곳, 환승 425건이 한 그래프</li>
+      <li>지하로만 건너는 길은 5호선 두 곳 → 시연에서 이 둘이 나옴</li>
+      <li>시연 길에서 둘 다 막으면 가장 나은 길도 지상 721m</li>
+      <li>전국 역 1,275곳(지하역 577곳)이 한 그래프</li>
     </ul>
-    <p class="memo"><b>3분 버전</b> 뺌</p>
+    <p class="memo"><b>3분 버전</b> 15초</p>
   </aside>
 </section>
 
-<!-- 7 시연 ---------------------------------------------------------->
+<!-- 4 해결 한 줄 + 시연 전환 --------------------------------------->
+<section class="slide" data-title="해결 한 줄">
+  <div class="frame"><div class="stage s4">
+    <p class="s4-say">지하로는 <span class="a">지상 1m</span>를 <span class="b">지하 1km</span>만큼 비싸게 계산해<br class="wide"> 지상에 나가는 거리가 가장 짧은 길을 찾는다</p>
+    <p class="s4-demo"><b>시연</b><span>공덕 → 한성백제</span></p>
+    <p class="s4-url"><a href="https://cy7mvpboy.github.io/underground-route/#demo" target="_blank" rel="noopener">cy7mvpboy.github.io/underground-route/#demo</a></p>
+  </div></div>
+  <aside class="notes" data-time="10초">
+    <ul>
+      <li>한 문장: 지상 1m = 지하 1km 비용 → 터널로만 가는 길이 있으면 그 길</li>
+      <li>시연: 공습 때 가족 약속 장소(한성백제역)까지</li>
+      <li>브라우저 탭으로 전환 (#demo 미리 열어 둠, ×60)</li>
+    </ul>
+    <p class="memo"><b>3분 버전</b> 5초</p>
+  </aside>
+</section>
+
+<!-- 5 시연 백업 ----------------------------------------------------->
 <section class="slide" data-title="시연">
-  <div class="frame"><div class="stage s7">
-    <h2 class="h1">시나리오 4개, GPS와 인터넷 없이 재생</h2>
-    <ul class="demo-row">
-      <li><figure class="phone"><img src="../docs/screens/slides-07-1-nearest.jpg" alt="가장 가까운 지하: 시청역 5번 출구, 지상 노출 60m"></figure><p class="cap">시청 앞 공습<br>→ 시청역 5번 출구, <span class="nw">지상 60m</span></p></li>
-      <li><figure class="phone"><img src="../docs/screens/slides-07-2-reroute.jpg" alt="마포역에서 한성백제역: 23.8km, 지상 노출 0m"></figure><p class="cap">마포–여의나루 막힘<br>→ 광나루–천호, <span class="nw">지상 0m</span></p></li>
-      <li><figure class="phone"><img src="../docs/screens/slides-07-3-busan.jpg" alt="부산역에서 해운대역: 18.5km, 지상 노출 0m, 환승 2"></figure><p class="cap">부산역 → 해운대<br>18.5km, 지상 0m, 환승 2번</p></li>
-      <li><figure class="phone"><img src="../docs/screens/slides-07-4-seoul-busan.jpg" alt="서울역에서 부산역: 423.6km 중 지상 노출 190.3km"></figure><p class="cap">서울역 → 부산역<br>423.6km 중 지상 190.3km</p></li>
-      <li class="demo-qr">
-        <figure class="qr-card"><div class="qr" data-qr="https://cy7mvpboy.github.io/underground-route/#demo" role="img" aria-label="시연 주소 QR 코드"></div></figure>
-        <p>cy7mvpboy.github.io/<br>underground-route/<b>#demo</b></p>
-      </li>
-    </ul>
+  <div class="frame"><div class="stage s5">
+    <h2 class="h1">공덕오거리 → 한성백제역: 지상은 첫 출구까지 138m</h2>
+    <ol class="strip">
+      <li><figure class="phone"><img src="../docs/screens/story-03-nearest.jpg" alt="공습경보, 가장 가까운 지하: 공덕역 2번 출구 지상 138m"></figure><p class="cap">공덕역 2번 출구<br>지상 138m</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story-06-route.jpg" alt="한성백제역까지 지하로 23.1km, 지상 0m"></figure><p class="cap">한성백제역까지 23.1km<br>지상 0m</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story-09-block.jpg" alt="하저터널 막힘, 마포역까지 834m 되돌아가기"></figure><p class="cap">마포–여의나루 막힘<br>마포역으로 834m 되돌아감</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story-10-reroute.jpg" alt="한강 아래 다른 하나, 광나루–천호로 23.8km 지상 0m"></figure><p class="cap">다른 하저터널 광나루–천호<br>23.8km, 지상 0m</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story-12-junction.jpg" alt="강동 지나 갈림길, 오른쪽 갈래 둔촌동 방면"></figure><p class="cap">강동 지나 갈림길<br>오른쪽 갈래, 둔촌동 방면</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story-14-arrive.jpg" alt="한성백제역 도착, 지하에 들어간 뒤 지상 노출 0m"></figure><p class="cap">한성백제역 도착<br>지하에 들어간 뒤 지상 0m</p></li>
+    </ol>
+    <p class="s5-url">시연 모드: <span>cy7mvpboy.github.io/underground-route/#demo</span> · 14장면, ×60에서 약 92초</p>
   </div></div>
-  <aside class="notes" data-time="인트로 10초 + 시연 약 120초">
+  <aside class="notes" data-time="150초 (재생 약 92초 + 멈춤)">
     <ul>
-      <li>#demo: 앱의 실제 함수로 재생, GPS·인터넷 안 씀</li>
-      <li>시청 앞: 단추 한 번 → 출구 후보 3곳 거리순 (시청 5번 60m, 을지로입구 1-1번 371m, 광화문 5번 512m)</li>
-      <li>공덕→한성백제: 마포–여의나루 하저터널 막힘 → 마포역으로 834m 되돌아가 광나루–천호</li>
-      <li>부산: 연산·수영에서 환승</li>
-      <li>장거리: 도시 안은 지하, 도시 사이는 지상(빨강)</li>
-      <li>시간 없으면 앞의 두 개만. 앱이 안 열리면 이 슬라이드로 설명</li>
+      <li>장면 1–2: 평소 가족 약속 장소(한성백제역) 저장 → 공습경보, 공덕오거리</li>
+      <li>장면 3 [Space 멈춤]: 단추 하나 → 공덕역 2번 출구, 지상 138m (후보 3곳 거리순)</li>
+      <li>장면 4–6: 출구 → 승강장, 한성백제까지 23.1km 지상 0m, 한강은 마포–여의나루 하저터널 [멈춤]</li>
+      <li>장면 7–8: 안내 시작, GPS 없이 걸음으로 위치 추정 ('추정' 표시)</li>
+      <li>장면 9 [멈춤]: 하저터널 막힘 → '앞이 막힘' → 마포역까지 834m 되돌아가 다시 찾음</li>
+      <li>장면 10: 아까 본 다른 하나, 광나루–천호 23.8km 지상 0m (둘 다 막히면 721m)</li>
+      <li>장면 11–12: 빨리 감기 → 강동 갈림길, 오른쪽 갈래 둔촌동 방면 [멈춤 가능]</li>
+      <li>장면 13–14: 한성백제역 도착, 지하에 들어간 뒤 지상 0m</li>
+      <li>조작: Space 재생/멈춤, → 다음 장면, 속도 단추 ×30·×60·×120, Esc 끝</li>
     </ul>
-    <p class="memo"><b>3분 버전</b> 70초 · 막힘 시나리오만, 시연 중 "GPS와 인터넷 없이 돈다"를 한 번</p>
+    <p class="memo"><b>3분 버전</b> 100초 · ×60 그대로 멈추지 않고, 장면 3과 9에서 한 문장씩</p>
+    <p class="memo"><b>앱이 안 열리면</b> 이 슬라이드로 같은 순서로 설명</p>
   </aside>
 </section>
 
-<!-- 8 길 안내 ------------------------------------------------------->
-<section class="slide" data-title="길 안내">
-  <div class="frame"><div class="stage s8">
-    <h2 class="h1">강동역 지나 260m 갈림길: 오른쪽 갈래, 둔촌동 방면</h2>
-    <div class="guide-row">
-      <figure class="card-shot"><img src="../docs/screens/slides-08-junction-card.jpg" alt="안내 카드: 5호선 마천지선, 갈림길 오른쪽 갈래, 바로 앞, 둔촌동 방면, Y자 그림"></figure>
-      <ul class="marks">
-        <li><b>갈림길</b>갈 갈래와 방면을 Y자 그림으로</li>
-        <li><b>여기서 나가기</b>가까운 출구 후보를 거리순으로</li>
-        <li class="red"><b>앞이 막힘</b>그 구간을 빼고 마지막 확인 지점부터 다시 찾기</li>
-      </ul>
-      <figure class="phone"><img src="../docs/screens/slides-08-exit-here.jpg" alt="여기서 나가기 목록: 강동역 2-1번 출구 291m 등, 아래에 통과와 앞이 막힘 단추"></figure>
-    </div>
-  </div></div>
-  <aside class="notes" data-time="30초">
-    <ul>
-      <li>카드: 노선, 방면, 남은 거리만 큰 글씨로</li>
-      <li>갈림길: 왼쪽·오른쪽·직진 + Y자, 지도에는 갈래 이름표</li>
-      <li>역 도착·갈림길 통과 때 큰 단추('도착', '통과')로 위치 보정</li>
-      <li>여기서 나가기: 역 출구, 터널 출입구, 수직구·비상 출구, 차량기지 후보</li>
-      <li>앞이 막힘: 같은 터널 반대 선로도 빼고 다시 탐색</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 뺌</p>
-  </aside>
-</section>
-
-<!-- 9 GPS·인터넷 없이 ----------------------------------------------->
-<section class="slide" data-title="GPS·인터넷 없이">
-  <div class="frame"><div class="stage s9">
-    <div class="cols">
-      <div>
-        <h2 class="h1">터널 안에서는 걸음 수와 보폭으로 위치를 추정한다</h2>
-        <ul class="lines">
-          <li>역에 닿아 ‘도착’을 누르면 위치를 바로잡는다</li>
-          <li>한 번 열면 앱과 데이터 <b>7.6MB</b>를 기기에 저장한다</li>
-          <li>그 뒤에는 인터넷 없이 다시 열어도 경로를 찾는다</li>
-        </ul>
+<!-- 6 어려웠던 것 1: 어디가 지하인가 ------------------------------>
+<section class="slide" data-title="어려웠던 것 1: 어디가 지하인가">
+  <div class="frame"><div class="stage s6">
+    <p class="tag">어려웠던 것 1</p>
+    <h2 class="h1">tunnel 태그가 있는 선로만 지하로 본다</h2>
+    <div class="s6-row">
+      <figure class="code">
+        <figcaption class="code-h"><b>scripts/build_graph.py</b><span>298–304</span></figcaption>
+        <pre><code><span class="ln"><span class="k">def</span> <span class="f">classify</span>(tags):</span>
+<span class="ln">    t, b = tags.<span class="f">get</span>(<span class="s">"tunnel"</span>), tags.<span class="f">get</span>(<span class="s">"bridge"</span>)</span>
+<span class="ln hl">    <span class="k">if</span> t <span class="k">and</span> t != <span class="s">"no"</span>:</span>
+<span class="ln hl">        <span class="k">return</span> <span class="wu">"tunnel"</span></span>
+<span class="ln">    <span class="k">if</span> b <span class="k">and</span> b != <span class="s">"no"</span>:</span>
+<span class="ln">        <span class="k">return</span> <span class="s">"bridge"</span></span>
+<span class="ln">    <span class="k">return</span> <span class="we">"ground"</span>  <span class="c"># layer&lt;0, covered=yes도 지상으로 둔다</span></span></code></pre>
+      </figure>
+      <div class="why">
+        <p><b>layer&lt;0은 지하로 치지 않는다</b></p>
+        <p>경부선 금정~수원 약 16km는 OSM에서 <span class="t">layer=-1</span>이지만 실제로는 지상이다</p>
+        <p class="small">경인일보: 금정~군포~당정 4.84km 지상 운행 (docs/data-check.md 4.4절)</p>
       </div>
-      <ul class="phones2">
-        <li><figure class="phone"><img src="../docs/screens/v2-dark-08-guide-estimate.jpg" alt="길 안내 중 추정 위치 표시"></figure><p class="cap">추정 위치</p></li>
-        <li><figure class="phone"><img src="../docs/screens/offline-1-info-ready.jpg" alt="정보 탭: 오프라인 사용 준비됨 7.6MB"></figure><p class="cap">오프라인 사용 준비됨</p></li>
-      </ul>
     </div>
   </div></div>
   <aside class="notes" data-time="25초">
     <ul>
-      <li>폰 가속도 센서로 걸음 세기, 보폭은 자동 보정</li>
-      <li>'추정' 표시 = GPS 대신 걸음으로 계산한 위치</li>
-      <li>역 도착 때 '도착' → 위치를 역으로 맞춤</li>
-      <li>서비스 워커가 앱 파일과 철도망 데이터(약 7.6MB) 저장, 정보 탭에 '오프라인 사용 준비됨'</li>
-      <li>배경 지도 타일은 본 곳만 저장, 지상 도보 구간은 인터넷이 될 때만 실제 길로</li>
+      <li>classify 하나가 지하·교량·지상 판정 전부</li>
+      <li>tunnel 태그(no 아님) → 지하, bridge → 교량, 나머지 지상</li>
+      <li>layer=-1만 있는 선로는 지상: 경부선 금정~수원, 선로 4줄</li>
+      <li>전국에서 layer&lt;0이고 tunnel 없는 본선 90.1km 중 63.6km가 이 경부선</li>
+      <li>한계: 동대구처럼 역 건물 밑 선로를 tunnel로 그린 곳은 지하로 계산됨</li>
     </ul>
-    <p class="memo"><b>3분 버전</b> 뺌. 시연 중 한 문장으로</p>
+    <p class="memo"><b>3분 버전</b> 뺌</p>
   </aside>
 </section>
 
-<!-- 10 구조 --------------------------------------------------------->
-<section class="slide" data-title="구조">
-  <div class="frame"><div class="stage s10">
+<!-- 7 어려웠던 것 2: 지하만 가는 길 ------------------------------->
+<section class="slide" data-title="어려웠던 것 2: 지하만 가는 길">
+  <div class="frame"><div class="stage s7">
+    <p class="tag">어려웠던 것 2</p>
+    <div class="s7-head">
+      <h2 class="h1">비용 = 길이 × 가중치</h2>
+      <p class="weights"><span class="w-u">지하 1</span><span class="w-e">지상·교량 1000</span></p>
+    </div>
+    <div class="mid">
+    <figure class="code">
+      <figcaption class="code-h"><b>web/js/graph.js</b><span>188</span></figcaption>
+      <pre><code><span class="ln"><span class="k">for</span> <span class="p">(</span><span class="k">let</span> e = <span class="nu">0</span><span class="p">;</span> e &lt; nEdges<span class="p">;</span> e++<span class="p">)</span></span>
+<span class="ln">  weight[e] = under.<span class="f">has</span>(E.s[e]) ? <span class="wu">g.weights.under</span> : <span class="we">g.weights.exposed</span><span class="p">;</span></span></code></pre>
+    </figure>
+    <figure class="code">
+      <figcaption class="code-h"><b>web/js/router.js</b><span>101–104</span></figcaption>
+      <pre><code><span class="ln"><span class="k">if</span> (ei &gt;= noWalk || (blocked &amp;&amp; <span class="em">blocked.<span class="f">has</span>(ei)</span>)) <span class="k">continue</span><span class="p">;</span></span>
+<span class="ln"><span class="k">const</span> w = adjNode[k]<span class="p">;</span></span>
+<span class="ln hl"><span class="k">const</span> nc = c + <span class="em">len[ei] * weight[ei]</span><span class="p">;</span></span>
+<span class="ln"><span class="k">if</span> (nc &lt; cost[w]) { cost[w] = nc<span class="p">;</span> prevEdge[w] = ei<span class="p">;</span> prevNode[w] = v<span class="p">;</span> heap.<span class="f">push</span>(nc, w)<span class="p">;</span> }</span></code></pre>
+    </figure>
+    <p class="tie"><b>앞이 막힘</b>은 그 간선을 <code>blocked</code>에 넣고 같은 탐색을 다시 부른다</p>
+    </div>
+  </div></div>
+  <aside class="notes" data-time="25초">
+    <ul>
+      <li>graph.js 188: 간선마다 가중치. 구조가 지하면 1, 아니면 1000 → 지상 1m = 지하 1km</li>
+      <li>router.js 103: 다음 노드 비용 = 지금 비용 + 길이 × 가중치</li>
+      <li>104: 더 싸면 갱신하고 힙에 넣기 → 가장 싼 길부터 넓혀 감</li>
+      <li>101: 막힌 간선은 건너뜀 = 시연 장면 9의 '앞이 막힘'</li>
+      <li>질문 대비: 대안은 지상 가중치 15로 다시 탐색 (23행 ALT), 다익스트라 전체는 71–108행</li>
+    </ul>
+    <p class="memo"><b>코드 기준</b> 2026-11-11 저장소. graph.js 188행은 한 줄을 두 줄로 나눠 보여 줌(내용 그대로), router.js는 들여쓰기만 줄임.</p>
+    <p class="memo"><b>3분 버전</b> 25초 · 103행과 101행</p>
+  </aside>
+</section>
+
+<!-- 8 폰 안에서 끝난다 --------------------------------------------->
+<section class="slide" data-title="폰 안에서 끝난다">
+  <div class="frame"><div class="stage s8">
     <h2 class="h1">서버 없이 폰에서 3.2MB 그래프로 경로를 계산한다</h2>
     <div class="mid">
     <div class="arch">
       <svg viewBox="0 0 1104 372" role="img" aria-labelledby="arch-t">
-        <title id="arch-t">데이터 수집(OSM 선로와 공공데이터)에서 Python 빌드를 거쳐 3.2MB graph.json을 만들고, 브라우저가 그래프 해석, 다익스트라, 안내 단계, 지도·안내 화면 순서로 계산한다. 서비스 워커가 앱과 데이터를 기기에 저장한다.</title>
+        <title id="arch-t">데이터 수집(OSM 선로와 공공데이터)에서 Python 빌드를 거쳐 3.2MB graph.json을 만들고, 브라우저가 그래프 해석, 다익스트라, 안내 단계, 지도·안내 화면 순서로 계산한다. 서비스 워커가 앱과 데이터 7.6MB를 기기에 저장한다.</title>
         <defs>
           <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
             <path d="M0 0L10 5L0 10z" fill="#2EC4B6"/>
@@ -711,146 +626,51 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
           </g>
 
           <rect x="516" y="330" width="588" height="42" rx="10" fill="none" stroke="#3A5257" stroke-width="1.5" stroke-dasharray="6 5"/>
-          <text x="810" y="358" text-anchor="middle" font-size="18" font-weight="500" fill="#9FB3B0">서비스 워커: 오프라인 저장 (앱 + 데이터 7.6MB)</text>
+          <text x="810" y="358" text-anchor="middle" font-size="18" font-weight="500" fill="#9FB3B0">서비스 워커: 앱 + 데이터 7.6MB 저장 → 인터넷 없이 다시 열림</text>
         </g>
       </svg>
       <ol class="arch-m" aria-hidden="true"></ol>
     </div>
-    <p class="deploy">배포: 정적 파일만 <b>GitHub Pages</b>(무료)에</p>
+    <p class="s8-line">터널 안 위치는 걸음 수와 보폭으로 추정한다.<br class="wide"> 브라우저 경로는 <b>Node 검사 14개</b>와 Python 기준 구현 비교로 확인했다.</p>
     </div>
-  </div></div>
-  <aside class="notes" data-time="25초">
-    <ul>
-      <li>build_graph.py: OSM 선로를 역·분기점 단위 간선으로 나누고 지하·교량·지상 분류</li>
-      <li>결과는 graph.json 하나, 3.2MB (노드 36,990, 간선 43,162)</li>
-      <li>브라우저가 받아서 다익스트라. Node 검사에서 서울역→강남 탐색 3.9ms</li>
-      <li>서버·DB 없음, GitHub Pages 무료</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 뺌</p>
-  </aside>
-</section>
-
-<!-- 11 코드 ① 지하 판정 -------------------------------------------->
-<section class="slide" data-title="코드 ① 지하 판정">
-  <div class="frame"><div class="stage s11">
-    <h2 class="h1">tunnel 태그가 있는 선로만 지하로 본다</h2>
-    <div class="s11-row">
-      <figure class="code">
-        <figcaption class="code-h"><b>scripts/build_graph.py</b><span>298–304</span></figcaption>
-        <pre><code><span class="ln"><span class="k">def</span> <span class="f">classify</span>(tags):</span>
-<span class="ln">    t, b = tags.<span class="f">get</span>(<span class="s">"tunnel"</span>), tags.<span class="f">get</span>(<span class="s">"bridge"</span>)</span>
-<span class="ln hl">    <span class="k">if</span> t <span class="k">and</span> t != <span class="s">"no"</span>:</span>
-<span class="ln hl">        <span class="k">return</span> <span class="wu">"tunnel"</span></span>
-<span class="ln">    <span class="k">if</span> b <span class="k">and</span> b != <span class="s">"no"</span>:</span>
-<span class="ln">        <span class="k">return</span> <span class="s">"bridge"</span></span>
-<span class="ln">    <span class="k">return</span> <span class="we">"ground"</span>  <span class="c"># layer&lt;0, covered=yes도 지상으로 둔다</span></span></code></pre>
-      </figure>
-      <div class="why">
-        <p><b>layer&lt;0은 지하로 치지 않는다</b></p>
-        <p>경부선 금정~수원 약 16km는 OSM에서 <span class="t">layer=-1</span>이지만 실제로는 지상이다</p>
-        <p class="small">경인일보: 금정~군포~당정 4.84km 지상 운행 (docs/data-check.md 4.4절)</p>
-      </div>
-    </div>
-  </div></div>
-  <aside class="notes" data-time="35초">
-    <ul>
-      <li>classify 하나가 지하·교량·지상 판정 전부</li>
-      <li>tunnel 태그(no 아님) → 지하, bridge → 교량, 나머지 지상</li>
-      <li>layer=-1만 있는 선로는 지상: 경부선 금정~수원, 선로 4줄</li>
-      <li>전국에서 layer&lt;0이고 tunnel 없는 본선 90.1km 중 63.6km가 이 경부선</li>
-      <li>한계: 동대구처럼 역 건물 밑 선로를 tunnel로 그린 곳은 지하로 계산됨</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 뺌</p>
-  </aside>
-</section>
-
-<!-- 12 코드 ② 경로 탐색 -------------------------------------------->
-<section class="slide" data-title="코드 ② 경로 탐색">
-  <div class="frame"><div class="stage s12">
-    <div class="s12-head">
-      <h2 class="h1">비용 = 길이 × 가중치</h2>
-      <p class="weights"><span class="w-u">지하 1</span><span class="w-e">지상·교량 1000</span></p>
-    </div>
-    <div class="mid">
-    <figure class="code">
-      <figcaption class="code-h"><b>web/js/graph.js</b><span>188</span></figcaption>
-      <pre><code><span class="ln"><span class="k">for</span> <span class="p">(</span><span class="k">let</span> e = <span class="nu">0</span><span class="p">;</span> e &lt; nEdges<span class="p">;</span> e++<span class="p">)</span></span>
-<span class="ln">  weight[e] = under.<span class="f">has</span>(E.s[e]) ? <span class="wu">g.weights.under</span> : <span class="we">g.weights.exposed</span><span class="p">;</span></span></code></pre>
-    </figure>
-    <figure class="code">
-      <figcaption class="code-h"><b>web/js/router.js</b><span>101–104</span></figcaption>
-      <pre><code><span class="ln"><span class="k">if</span> (ei &gt;= noWalk || (blocked &amp;&amp; blocked.<span class="f">has</span>(ei))) <span class="k">continue</span><span class="p">;</span></span>
-<span class="ln"><span class="k">const</span> w = adjNode[k]<span class="p">;</span></span>
-<span class="ln hl"><span class="k">const</span> nc = c + <span class="em">len[ei] * weight[ei]</span><span class="p">;</span></span>
-<span class="ln"><span class="k">if</span> (nc &lt; cost[w]) { cost[w] = nc<span class="p">;</span> prevEdge[w] = ei<span class="p">;</span> prevNode[w] = v<span class="p">;</span> heap.<span class="f">push</span>(nc, w)<span class="p">;</span> }</span></code></pre>
-    </figure>
-    </div>
-  </div></div>
-  <aside class="notes" data-time="40초">
-    <ul>
-      <li>graph.js 188: 간선마다 가중치. 구조가 지하면 1, 아니면 1000</li>
-      <li>router.js 103: 다음 노드 비용 = 지금 비용 + 길이 × 가중치</li>
-      <li>104: 더 싸면 갱신하고 힙에 넣기 → 가장 싼 길부터 넓혀 감</li>
-      <li>101: 막힌 간선은 건너뜀 → '앞이 막힘'도 같은 함수를 다시 부름</li>
-      <li>질문 대비: 대안은 지상 가중치 15로 다시 탐색 (23행 ALT), 다익스트라 전체는 71–108행</li>
-    </ul>
-    <p class="memo"><b>코드 기준</b> 2026-11-11 저장소. graph.js 188행은 한 줄을 두 줄로 나눠 보여 줌(내용 그대로), router.js는 들여쓰기만 줄임.</p>
-    <p class="memo"><b>3분 버전</b> 30초 · 103행에 집중</p>
-  </aside>
-</section>
-
-<!-- 13 검증 --------------------------------------------------------->
-<section class="slide" data-title="검증">
-  <div class="frame"><div class="stage s13">
-    <h2 class="h1">역 쌍 9개에서 브라우저와 Python 기준 구현의 경로가 같다</h2>
-    <div class="s13-mid">
-    <figure class="code term">
-      <figcaption class="code-h"><b>node scripts\check_router.js</b><span>출력 일부</span></figcaption>
-      <pre><code><span class="ln"><span class="ok">OK</span>  서울역→강남: JS 17952m / 노출 0m / 7단계 | PY 17952m / 노출 0m / 7단계 <span class="dim">…</span></span>
-<span class="ln"><span class="ok">OK</span>  부산역→서면: JS 5327m / 노출 0m / 1단계 | PY 5327m / 노출 0m / 1단계 <span class="dim">…</span></span>
-<span class="ln"><span class="ok">OK</span>  여의도→광화문 (5호선 한강 횡단 막음): JS 23391m / 노출 720m / 10단계 | PY 23391m / 노출 720m / 10단계 <span class="dim">…</span></span>
-<span class="ln">모두 같음</span></code></pre>
-    </figure>
-    <ul class="lines">
-      <li>Node 자동 검사 14개: 길 안내, 재탐색, 갈림길, 걸음 추정, 오프라인 저장 등</li>
-      <li>지하·지상 표시 40곳을 위키백과·언론 자료와 대조해 틀린 표시를 찾지 못했다</li>
-    </ul>
-    </div>
-  </div></div>
-  <aside class="notes" data-time="25초">
-    <ul>
-      <li>check_router: 같은 역 쌍을 route.py(Python)와 router.js로 풀어 경로·거리·안내 문장 비교</li>
-      <li>9쌍에 5호선 한강 횡단을 막은 경우 포함</li>
-      <li>검사 14개는 node scripts\check_*.js. 2026-11-11 전부 통과, 발표 직전 다시 실행</li>
-      <li>40곳 = 장대터널 7 + 도시철도 구간 21 + 한강 횡단 12, 나무위키 64건 대조도 불일치 0</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 뺌</p>
-  </aside>
-</section>
-
-<!-- 14 마무리 ------------------------------------------------------->
-<section class="slide" data-title="마무리">
-  <div class="frame"><div class="stage s14">
-    <div class="cols">
-      <div>
-        <a class="s14-link" href="https://cy7mvpboy.github.io/underground-route/">cy7mvpboy.github.io<br>/underground-route/</a>
-        <p class="s14-gh"><span>GitHub</span>github.com/cy7mvpboy/underground-route</p>
-        <p class="safety">평시에는 철도 터널에 들어가면 안 된다</p>
-        <p class="scope">철도만 넣은 이유: 한강을 건너는 도로 터널이 OSM에 하나도 없다</p>
-      </div>
-      <figure class="qr-card"><div class="qr" data-qr="https://cy7mvpboy.github.io/underground-route/" role="img" aria-label="서비스 주소 QR 코드"></div></figure>
-    </div>
-    <p class="src">© OpenStreetMap contributors (ODbL), 서울교통공사·서울시·국토교통부 공공데이터</p>
   </div></div>
   <aside class="notes" data-time="15초">
     <ul>
-      <li>설치·계정 없이 링크로, 홈 화면에 추가 가능</li>
-      <li>평시 터널 출입 금지 안내는 앱 첫 화면과 정보 탭에도</li>
-      <li>도로 터널 OSM 3,487km 조사: 한강 횡단 0, 철도 지하 덩어리를 잇는 것도 사실상 없음</li>
-      <li>민방위 대피시설 좌표는 인증키가 필요한 API 하나뿐 → 경로에 안 넣음</li>
+      <li>graph.json 하나 3.2MB (노드 36,990, 간선 43,162), 서버·DB 없음, GitHub Pages 무료</li>
+      <li>한 번 열면 서비스 워커가 7.6MB 저장 → 인터넷 없이 다시 열림</li>
+      <li>걸음 세기 + 보폭 자동 보정, 역에서 '도착'으로 보정</li>
+      <li>check_router: 역 쌍 9개에서 Python과 같은 경로·거리·안내 문장. 검사 14개 전부 통과(11-11)</li>
+    </ul>
+    <p class="memo"><b>3분 버전</b> 뺌</p>
+  </aside>
+</section>
+
+<!-- 9 마무리 -------------------------------------------------------->
+<section class="slide" data-title="마무리">
+  <div class="frame"><div class="stage s9">
+    <div class="cols">
+      <div>
+        <h2 class="h1">지금 열어서 홈 화면에 추가해 두면<br class="wide"> 인터넷이 끊겨도 열린다</h2>
+        <a class="s9-link" href="https://cy7mvpboy.github.io/underground-route/">cy7mvpboy.github.io/underground-route/</a>
+        <p class="s9-gh"><span>GitHub</span>github.com/cy7mvpboy/underground-route</p>
+        <ul class="state">
+          <li><b>되는 것</b>전국 역 1,275곳 사이 지하 우선 경로, 터널 안 안내, 인터넷 없이 다시 열기</li>
+          <li><b>안 되는 것</b>실시간 피해 정보. 막힌 곳은 사용자가 ‘앞이 막힘’으로 알린다</li>
+        </ul>
+        <p class="safety">평시에는 철도 터널에 들어가면 안 된다</p>
+      </div>
+      <figure class="qr-card"><div class="qr" data-qr="https://cy7mvpboy.github.io/underground-route/" role="img" aria-label="서비스 주소 QR 코드"></div></figure>
+    </div>
+  </div></div>
+  <aside class="notes" data-time="15초">
+    <ul>
+      <li>지금 모습: 한강을 지하로 건너는 길은 두 곳, 지도 앱에는 안 보임</li>
+      <li>바라는 모습: 경보가 울리기 전에 각자 폰에 이 지도가 이미 저장돼 있음</li>
+      <li>부탁: 지금 QR로 열고 홈 화면에 추가 (iOS는 공유 → 홈 화면에 추가)</li>
+      <li>철도만 넣은 이유: 한강을 건너는 도로 터널이 OSM에 하나도 없음, 대피소 좌표는 인증키 API뿐</li>
       <li>감사합니다</li>
     </ul>
-    <p class="memo"><b>3분 버전</b> 12초 · 링크와 QR</p>
+    <p class="memo"><b>3분 버전</b> 15초</p>
   </aside>
 </section>
 
@@ -901,7 +721,7 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
     ol.removeAttribute('aria-hidden');
     var sw = document.createElement('p');
     sw.className = 'flow-m-sw arch-m';
-    sw.textContent = '서비스 워커: 오프라인 저장 (앱 + 데이터 7.6MB)';
+    sw.textContent = '서비스 워커: 앱 + 데이터 7.6MB 저장 → 인터넷 없이 다시 열림';
     ol.parentNode.appendChild(sw);
   })();
 
