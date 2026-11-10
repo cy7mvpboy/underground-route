@@ -1,0 +1,4321 @@
+[
+ {
+  "idx": 0,
+  "line": "서울 지하철 1호선",
+  "city": "서울",
+  "from": "서울역",
+  "to": "청량리",
+  "namu_type": "fully_underground",
+  "namu_length_km": 7.8,
+  "source_url": "https://namu.wiki/w/서울 지하철 1호선",
+  "osm_from": [
+   "node/5772099311",
+   "node/6036160343",
+   "node/7368810705",
+   "node/8574527311",
+   "node/8829280690"
+  ],
+  "osm_to": [
+   "node/3436803670",
+   "node/7176735174"
+  ],
+  "snap_m": 23,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 7.69,
+  "tunnel_km": 7.69,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "터널 100.0% (≥ 95%)",
+  "note": "",
+  "way_ids": [
+   379994106,
+   379994109,
+   379994110,
+   637016272,
+   637016278,
+   782891445
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 1,
+  "line": "수도권 전철 1호선",
+  "city": "서울",
+  "from": "(서울 지하철 1호선 구간 제외 전 구간)",
+  "to": "",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 1호선",
+  "method": "노선 전체 선로 km(복선은 두 번 셈)에서 제외 구간을 뺌",
+  "excluded_ways": [
+   379994103,
+   379994106,
+   379994109,
+   379994110,
+   379994111,
+   637016267,
+   637016272,
+   637016278,
+   637016283,
+   768714278,
+   782891445,
+   936298320
+  ],
+  "osm_km": 562.631,
+  "tunnel_km": 15.91,
+  "bridge_km": 100.899,
+  "ground_km": 445.822,
+  "layer_neg_km": 64.04,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.972,
+  "han_crossing": [
+   {
+    "way": 299211069,
+    "structure": "bridge"
+   },
+   {
+    "way": 298992058,
+    "structure": "bridge"
+   },
+   {
+    "way": 311747034,
+    "structure": "bridge"
+   },
+   {
+    "way": 311747058,
+    "structure": "bridge"
+   },
+   {
+    "way": 315423454,
+    "structure": "bridge"
+   },
+   {
+    "way": 37928390,
+    "structure": "bridge"
+   }
+  ],
+  "verdict": "match",
+  "basis": "비터널 97% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   27694985,
+   37928390,
+   45121376,
+   48391424,
+   51795972,
+   99011076,
+   99011469,
+   112552719,
+   112552721,
+   112552731,
+   118175654,
+   167714001,
+   167718880,
+   231020824,
+   231020836,
+   273213983,
+   273213984,
+   298992058,
+   298992061,
+   299211068,
+   299211069,
+   308993738,
+   308993740,
+   308993741,
+   310013689,
+   310013691,
+   310013692,
+   310013693,
+   310013695,
+   310361895,
+   310361898,
+   310361900,
+   310361901,
+   310361912,
+   310361938,
+   311595593,
+   311595595,
+   311595596,
+   311595598,
+   311595599,
+   311595600,
+   311595613,
+   311595621,
+   311725613,
+   311725617,
+   311725619,
+   311725620,
+   311725621,
+   311725622,
+   311725623,
+   311725624,
+   311725625,
+   311725637,
+   311725639,
+   311725640,
+   311725641,
+   311725643,
+   311725653,
+   311725658,
+   311725661,
+   311725666,
+   311725670,
+   311725686,
+   311725702,
+   311725708,
+   311747022,
+   311747031,
+   311747034,
+   311747037,
+   311747043,
+   311747050,
+   311747058,
+   313919150,
+   313919151,
+   313919152,
+   313919153,
+   314992663,
+   315014314,
+   315014315,
+   315014331
+  ]
+ },
+ {
+  "idx": 2,
+  "line": "수도권 전철 1호선",
+  "city": "서울",
+  "from": "노량진",
+  "to": "용산",
+  "namu_type": "bridge",
+  "namu_length_km": 1.11,
+  "source_url": "https://namu.wiki/w/한강/교량",
+  "osm_from": [
+   "node/5840686670",
+   "node/9485597747"
+  ],
+  "osm_to": [
+   "node/5840686671"
+  ],
+  "snap_m": 37,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 2.617,
+  "tunnel_km": 0.0,
+  "bridge_km": 1.115,
+  "ground_km": 1.501,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [
+   {
+    "way": 311747034,
+    "structure": "bridge"
+   }
+  ],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   311747034,
+   380135996,
+   405672578,
+   1025048369
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 3,
+  "line": "서울 지하철 2호선",
+  "city": "서울",
+  "from": "신대방",
+  "to": "대림",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 2호선",
+  "osm_from": [
+   "node/6033314471"
+  ],
+  "osm_to": [
+   "node/6048953572"
+  ],
+  "snap_m": 18,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 2.227,
+  "tunnel_km": 0.0,
+  "bridge_km": 2.227,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   640443230
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 4,
+  "line": "서울 지하철 2호선",
+  "city": "서울",
+  "from": "당산",
+  "to": "합정",
+  "namu_type": "bridge",
+  "namu_length_km": 1.36,
+  "source_url": "https://namu.wiki/w/서울 지하철 2호선",
+  "osm_from": [
+   "node/6033312683",
+   "node/8822741689"
+  ],
+  "osm_to": [
+   "node/5916874391"
+  ],
+  "snap_m": 63,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.658,
+  "tunnel_km": 0.0,
+  "bridge_km": 1.479,
+  "ground_km": 0.179,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [
+   {
+    "way": 261477607,
+    "structure": "bridge"
+   }
+  ],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   261477607,
+   1032005336
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 5,
+  "line": "서울 지하철 2호선",
+  "city": "서울",
+  "from": "한양대",
+  "to": "잠실나루",
+  "namu_type": "bridge",
+  "namu_length_km": 1.27,
+  "source_url": "https://namu.wiki/w/서울 지하철 2호선",
+  "osm_from": [
+   "node/5935554444"
+  ],
+  "osm_to": [
+   "node/5933687057"
+  ],
+  "snap_m": 4,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 7.445,
+  "tunnel_km": 0.0,
+  "bridge_km": 7.445,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [
+   {
+    "way": 628671356,
+    "structure": "bridge"
+   }
+  ],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   625534094,
+   628671356,
+   628671358,
+   1458437482
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 6,
+  "line": "서울 지하철 2호선 성수지선",
+  "city": "서울",
+  "from": "성수",
+  "to": "신답",
+  "namu_type": "bridge",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 2호선",
+  "osm_from": [
+   "node/5935554450"
+  ],
+  "osm_to": [
+   "node/6049150843"
+  ],
+  "snap_m": 99,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 3.029,
+  "tunnel_km": 0.0,
+  "bridge_km": 1.197,
+  "ground_km": 1.831,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   598334266,
+   619733912
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 7,
+  "line": "서울 지하철 3호선",
+  "city": "서울",
+  "from": "옥수",
+  "to": "옥수",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 3호선",
+  "osm_station": "node/11164853360",
+  "snap_m": 19,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.531,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.531,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   1025707745,
+   1025707746,
+   1549330928
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 8,
+  "line": "서울 지하철 3호선",
+  "city": "서울",
+  "from": "압구정",
+  "to": "옥수",
+  "namu_type": "bridge",
+  "namu_length_km": 1.22,
+  "source_url": "https://namu.wiki/w/한강/교량",
+  "osm_from": [
+   "node/6033544405"
+  ],
+  "osm_to": [
+   "node/11164853360",
+   "node/5933896994"
+  ],
+  "snap_m": 19,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.898,
+  "tunnel_km": 0.428,
+  "bridge_km": 1.275,
+  "ground_km": 0.195,
+  "layer_neg_km": 0.195,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.775,
+  "han_crossing": [
+   {
+    "way": 352670190,
+    "structure": "bridge"
+   }
+  ],
+  "verdict": "match",
+  "basis": "비터널 77% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   352670190,
+   406947060,
+   406947062
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.428,
+    "ways": [
+     406947060
+    ],
+    "start": [
+     37.526136,
+     127.02847
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 9,
+  "line": "서울 지하철 3호선",
+  "city": "서울",
+  "from": "동작",
+  "to": "동작",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 3호선",
+  "verdict": "not_found",
+  "reason": "역 '동작'이 노선 선로에서 2129m 떨어짐(기준 800m)"
+ },
+ {
+  "idx": 10,
+  "line": "서울 지하철 4호선",
+  "city": "서울",
+  "from": "동작",
+  "to": "이촌",
+  "namu_type": "bridge",
+  "namu_length_km": 1.245,
+  "source_url": "https://namu.wiki/w/서울 지하철 4호선",
+  "osm_from": [
+   "node/5770979639",
+   "node/8145379643"
+  ],
+  "osm_to": [
+   "node/5351281122",
+   "node/7238508817"
+  ],
+  "snap_m": 24,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 2.59,
+  "tunnel_km": 1.018,
+  "bridge_km": 1.41,
+  "ground_km": 0.162,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.607,
+  "han_crossing": [
+   {
+    "way": 65370644,
+    "structure": "bridge"
+   }
+  ],
+  "verdict": "match",
+  "basis": "비터널 61% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   65370644,
+   178441449,
+   1014279318,
+   1014279320
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 1.018,
+    "ways": [
+     178441449
+    ],
+    "start": [
+     37.518392,
+     126.983259
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 11,
+  "line": "서울 지하철 4호선",
+  "city": "서울",
+  "from": "동작",
+  "to": "이수",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 4호선",
+  "osm_from": [
+   "node/5770979639",
+   "node/8145379643"
+  ],
+  "osm_to": [
+   "node/6048953582",
+   "node/9420130583"
+  ],
+  "snap_m": 15,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.859,
+  "tunnel_km": 1.415,
+  "bridge_km": 0.2,
+  "ground_km": 0.244,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.239,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "구간 안 비터널 0.44km (0.2km 이상이면 일치). ‘동작대교 이후 지상 구간 존재 시사’라고만 씀",
+  "note": "",
+  "way_ids": [
+   640794359,
+   640794365,
+   775906331,
+   1014279316
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.347,
+    "ways": [
+     640794365
+    ],
+    "start": [
+     37.501391,
+     126.98146
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.068,
+    "ways": [
+     775906331
+    ],
+    "start": [
+     37.49661,
+     126.982582
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 12,
+  "line": "서울 지하철 4호선",
+  "city": "서울",
+  "from": "상계",
+  "to": "불암산(구 당고개)",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 4호선",
+  "osm_from": [
+   "node/9165988119"
+  ],
+  "osm_to": [
+   "node/6036154649"
+  ],
+  "snap_m": 6,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.099,
+  "tunnel_km": 0.0,
+  "bridge_km": 1.099,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   321132038,
+   468599630
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 13,
+  "line": "서울 지하철 5호선",
+  "city": "서울",
+  "from": "방화",
+  "to": "하남검단산",
+  "namu_type": "fully_underground",
+  "namu_length_km": 52.9,
+  "source_url": "https://namu.wiki/w/서울 지하철 5호선",
+  "osm_from": [
+   "node/6039314033"
+  ],
+  "osm_to": [
+   "node/5400271021"
+  ],
+  "snap_m": 14,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 52.993,
+  "tunnel_km": 52.993,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [
+   {
+    "way": 275694429,
+    "structure": "tunnel"
+   },
+   {
+    "way": 335526234,
+    "structure": "tunnel"
+   }
+  ],
+  "verdict": "match",
+  "basis": "터널 100.0% (≥ 95%)",
+  "note": "",
+  "way_ids": [
+   275694429,
+   297130061,
+   297130063,
+   321157203,
+   335526234,
+   344446755,
+   379994124,
+   396816939,
+   470218950,
+   562553424,
+   582453448,
+   835465991,
+   835465995,
+   837538870,
+   922807803,
+   922807808,
+   922807809,
+   1420114417
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 14,
+  "line": "서울 지하철 5호선",
+  "city": "서울",
+  "from": "천호",
+  "to": "광나루",
+  "namu_type": "river_tunnel",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/한강/교량",
+  "osm_from": [
+   "node/5801572034"
+  ],
+  "osm_to": [
+   "node/6039313609"
+  ],
+  "snap_m": 6,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.945,
+  "tunnel_km": 1.945,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [
+   {
+    "way": 641231870,
+    "structure": "tunnel"
+   }
+  ],
+  "verdict": "match",
+  "basis": "한강 위 선로 구조: tunnel",
+  "note": "",
+  "way_ids": [
+   641231870
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 15,
+  "line": "서울 지하철 6호선",
+  "city": "서울",
+  "from": "신내",
+  "to": "신내",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 6호선",
+  "osm_station": "node/7186344001",
+  "snap_m": 20,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.334,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.0,
+  "ground_km": 0.334,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   378591439,
+   864037258,
+   864037259,
+   864037261,
+   864037262
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 16,
+  "line": "서울 지하철 7호선",
+  "city": "서울",
+  "from": "장암",
+  "to": "도봉산",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 7호선",
+  "osm_from": [
+   "node/6046633857"
+  ],
+  "osm_to": [
+   "node/5814312742",
+   "node/5814312743"
+  ],
+  "snap_m": 27,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.34,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.609,
+  "ground_km": 0.73,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   321131946,
+   455642424,
+   554737600,
+   787105659
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 17,
+  "line": "서울 지하철 7호선",
+  "city": "서울",
+  "from": "청담",
+  "to": "자양",
+  "namu_type": "bridge",
+  "namu_length_km": 1.211,
+  "source_url": "https://namu.wiki/w/서울 지하철 7호선",
+  "osm_from": [
+   "node/6048954787"
+  ],
+  "osm_to": [
+   "node/6048955198"
+  ],
+  "snap_m": 79,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 2.051,
+  "tunnel_km": 1.035,
+  "bridge_km": 1.016,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.495,
+  "han_crossing": [
+   {
+    "way": 787102145,
+    "structure": "bridge"
+   }
+  ],
+  "verdict": "match",
+  "basis": "비터널 50% < 50%지만 한강 위 선로가 모두 교량(역~강변 지하 진입부 포함 때문)",
+  "note": "",
+  "way_ids": [
+   787102145,
+   1107051090
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 1.035,
+    "ways": [
+     1107051090
+    ],
+    "start": [
+     37.518999,
+     127.051509
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 18,
+  "line": "서울 지하철 8호선",
+  "city": "서울",
+  "from": "복정",
+  "to": "산성",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 8호선",
+  "osm_from": [
+   "node/5408273777",
+   "node/7908597456"
+  ],
+  "osm_to": [
+   "node/6094326925"
+  ],
+  "snap_m": 48,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 2.66,
+  "tunnel_km": 1.552,
+  "bridge_km": 0.066,
+  "ground_km": 1.042,
+  "layer_neg_km": 1.042,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.417,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "구간 안 비터널 1.11km (0.2km 이상이면 일치). ‘남위례역이 유일한 지상역’이라고 씀",
+  "note": "",
+  "way_ids": [
+   70986660,
+   321132020,
+   354884725,
+   434577588,
+   434577606,
+   434577612,
+   434577630,
+   970070472,
+   970070473
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.958,
+    "ways": [
+     321132020
+    ],
+    "start": [
+     37.470157,
+     127.12661
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.593,
+    "ways": [
+     70986660
+    ],
+    "start": [
+     37.459859,
+     127.144435
+    ]
+   }
+  ],
+  "focus": {
+   "osm_station": "node/6094326926",
+   "snap_m": 20,
+   "radius_m": 150,
+   "name": "남위례",
+   "osm_km": 0.611,
+   "tunnel_km": 0.0,
+   "bridge_km": 0.048,
+   "ground_km": 0.563,
+   "way_ids": [
+    434577612,
+    649359346,
+    649359347,
+    970070472
+   ]
+  }
+ },
+ {
+  "idx": 19,
+  "line": "서울 지하철 9호선",
+  "city": "서울",
+  "from": "개화",
+  "to": "개화",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/서울 지하철 9호선",
+  "osm_station": "node/8232932947",
+  "snap_m": 31,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.208,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.0,
+  "ground_km": 0.208,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   551414364,
+   1162781117
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 20,
+  "line": "수인분당선",
+  "city": "경기/인천",
+  "from": "연수",
+  "to": "한대앞",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 수인·분당선",
+  "osm_from": [
+   "node/5910775694"
+  ],
+  "osm_to": [
+   "node/6586939086"
+  ],
+  "snap_m": 72,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 22.954,
+  "tunnel_km": 0.0,
+  "bridge_km": 10.941,
+  "ground_km": 12.014,
+  "layer_neg_km": 2.577,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   58528337,
+   58548715,
+   58548716,
+   58548717,
+   58548718,
+   58548721,
+   196292940,
+   196292943,
+   196292944,
+   196292947,
+   226702956,
+   226702974,
+   553033070,
+   553277310,
+   553277312,
+   603285534,
+   603285535,
+   625745835,
+   625745838,
+   625745841,
+   625745842,
+   625745843,
+   625745851,
+   625745853,
+   626070226,
+   626070231,
+   626070232,
+   626070233,
+   626070238,
+   626070255,
+   626070256,
+   626070257,
+   626070258,
+   626520414,
+   626520417,
+   654087838,
+   654087839,
+   774616850,
+   774616851,
+   774616858,
+   774616859,
+   777243258,
+   777243259,
+   833822501,
+   846859472,
+   846859473,
+   846882012,
+   848345073,
+   848345074,
+   1221937580
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 21,
+  "line": "수인분당선",
+  "city": "경기",
+  "from": "사리",
+  "to": "사리",
+  "namu_type": "semi_underground",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 수인·분당선",
+  "osm_station": "node/5511790792",
+  "snap_m": 21,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.573,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.0,
+  "ground_km": 0.573,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   833822491,
+   833822492
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 22,
+  "line": "수인분당선",
+  "city": "경기",
+  "from": "야목",
+  "to": "어천",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 수인·분당선",
+  "osm_from": [
+   "node/5511790791"
+  ],
+  "osm_to": [
+   "node/5511790790"
+  ],
+  "snap_m": 74,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 2.547,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.247,
+  "ground_km": 2.3,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   833822476,
+   833822477,
+   843904527,
+   843904528,
+   843904531,
+   843904532
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 23,
+  "line": "수인분당선",
+  "city": "서울",
+  "from": "왕십리",
+  "to": "청량리",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 수인·분당선",
+  "osm_from": [
+   "node/14068922496",
+   "node/5225311374",
+   "node/7916699664",
+   "node/7916699665"
+  ],
+  "osm_to": [
+   "node/3436803670",
+   "node/7176735174"
+  ],
+  "snap_m": 42,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.717,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.246,
+  "ground_km": 1.471,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   405404112,
+   405430423,
+   405430939,
+   405430941,
+   405430943,
+   405430953,
+   405431931,
+   405431933,
+   405451624,
+   778783888,
+   778783892,
+   778783893,
+   778783895,
+   1568955443
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 24,
+  "line": "신분당선",
+  "city": "경기",
+  "from": "광교",
+  "to": "광교",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/신분당선",
+  "osm_station": "node/6271638115",
+  "snap_m": 50,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.446,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.068,
+  "ground_km": 0.378,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   669314229,
+   669314230,
+   669704821,
+   951688073,
+   951688074,
+   951688075
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 25,
+  "line": "공항철도",
+  "city": "서울",
+  "from": "디지털미디어시티",
+  "to": "마곡나루",
+  "namu_type": "bridge",
+  "namu_length_km": 2.393,
+  "source_url": "https://namu.wiki/w/인천국제공항철도",
+  "osm_from": [
+   "node/5919544687",
+   "node/8724752444",
+   "node/8724752445"
+  ],
+  "osm_to": [
+   "node/14323007531",
+   "node/5968926272"
+  ],
+  "snap_m": 17,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 8.281,
+  "tunnel_km": 2.532,
+  "bridge_km": 3.965,
+  "ground_km": 1.784,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.694,
+  "han_crossing": [
+   {
+    "way": 484898237,
+    "structure": "bridge"
+   }
+  ],
+  "verdict": "match",
+  "basis": "비터널 69% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   484898233,
+   484898234,
+   484898237,
+   484898239,
+   484898241,
+   484938499,
+   484938518,
+   484938525,
+   484938538,
+   484938548,
+   484938561,
+   484938579,
+   484938587,
+   484967796,
+   485013539,
+   717931774,
+   786503040,
+   1011917964,
+   1078962697,
+   1078962699,
+   1078962702,
+   1078962703
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 1.564,
+    "ways": [
+     717931774
+    ],
+    "start": [
+     37.578165,
+     126.896903
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.078,
+    "ways": [
+     484938579
+    ],
+    "start": [
+     37.591195,
+     126.874038
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.891,
+    "ways": [
+     484967796
+    ],
+    "start": [
+     37.57267,
+     126.834391
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 26,
+  "line": "공항철도",
+  "city": "인천",
+  "from": "계양",
+  "to": "운서",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/인천국제공항철도",
+  "osm_from": [
+   "node/3152004117",
+   "node/3152004118"
+  ],
+  "osm_to": [
+   "node/3225282387"
+  ],
+  "snap_m": 14,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 23.987,
+  "tunnel_km": 0.12,
+  "bridge_km": 4.033,
+  "ground_km": 19.834,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.995,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   224373996,
+   224373997,
+   224374005,
+   227332892,
+   227332893,
+   227332894,
+   227332898,
+   227332901,
+   227332902,
+   227332903,
+   227332904,
+   227332905,
+   227332908,
+   227332913,
+   227332914,
+   227332915,
+   228171572,
+   233790948,
+   233790949,
+   316419044,
+   316419046,
+   316419048,
+   316419051,
+   316419052,
+   316419053,
+   316419055,
+   316419058,
+   316419059,
+   316419060,
+   316419064,
+   316419067,
+   316419069,
+   316533227,
+   627050941,
+   627050944,
+   717926135,
+   717926136,
+   1544333196
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.12,
+    "ways": [
+     227332904
+    ],
+    "start": [
+     37.552692,
+     126.608017
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 27,
+  "line": "공항철도",
+  "city": "인천",
+  "from": "인천공항1터미널",
+  "to": "인천공항2터미널",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/인천국제공항철도",
+  "osm_from": [
+   "node/5919544816"
+  ],
+  "osm_to": [
+   "node/5919544839"
+  ],
+  "snap_m": 6,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 5.796,
+  "tunnel_km": 4.219,
+  "bridge_km": 0.0,
+  "ground_km": 1.577,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.272,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "구간 안 비터널 1.58km (0.2km 이상이면 일치). 인포박스 '지상구간'은 두 역 사이 일부를 뜻함. 위키백과 인천공항2터미널역: '이 역과 인천공항1터미널역 사이에는 일부 지상 구간이 존재한다'",
+  "note": "",
+  "way_ids": [
+   484909308,
+   484909312,
+   484909313,
+   484914518,
+   584130479,
+   627050964,
+   627050970,
+   627050972,
+   627050976,
+   627050979,
+   717928404,
+   717929680
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 1.935,
+    "ways": [
+     584130479,
+     627050964,
+     717928404,
+     627050972,
+     627050970,
+     484909308
+    ],
+    "start": [
+     37.447176,
+     126.452766
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.284,
+    "ways": [
+     484909313,
+     627050976,
+     627050979,
+     484909312,
+     717929680
+    ],
+    "start": [
+     37.453221,
+     126.424706
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 28,
+  "line": "수도권 전철 경의·중앙선",
+  "city": "서울",
+  "from": "홍대입구",
+  "to": "효창공원앞",
+  "namu_type": "fully_underground",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 경의·중앙선",
+  "osm_from": [
+   "node/13055976391",
+   "node/14323007528",
+   "node/5919544685"
+  ],
+  "osm_to": [
+   "node/14323007529",
+   "node/6041674894"
+  ],
+  "snap_m": 53,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 3.67,
+  "tunnel_km": 3.67,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "터널 100.0% (≥ 95%)",
+  "note": "",
+  "way_ids": [
+   408518378,
+   1572425990
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 29,
+  "line": "수도권 전철 경의·중앙선",
+  "city": "서울/경기",
+  "from": "(홍대입구~효창공원앞 제외 전 구간)",
+  "to": "",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 경의·중앙선",
+  "method": "노선 전체 선로 km(복선은 두 번 셈)에서 제외 구간을 뺌",
+  "excluded_ways": [
+   408518378,
+   847193802,
+   1572425990,
+   1572425991
+  ],
+  "osm_km": 270.718,
+  "tunnel_km": 41.583,
+  "bridge_km": 38.072,
+  "ground_km": 191.064,
+  "layer_neg_km": 1.917,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.846,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 85% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   31286802,
+   31286803,
+   31286807,
+   125062196,
+   125062201,
+   308993307,
+   308993309,
+   308993310,
+   308993311,
+   308993312,
+   315423458,
+   333395023,
+   384884906,
+   384884908,
+   398955583,
+   398955584,
+   398955585,
+   398955586,
+   398955587,
+   398955588,
+   398955589,
+   398955592,
+   398955595,
+   398955598,
+   398955602,
+   398955605,
+   398958837,
+   398958838,
+   398958839,
+   398958840,
+   398965987,
+   398965990,
+   398965994,
+   398965998,
+   398966005,
+   398966010,
+   398966012,
+   398966013,
+   399014816,
+   399014817,
+   399014818,
+   399014819,
+   399014820,
+   399014821,
+   399014822,
+   399014823,
+   399014824,
+   399014825,
+   399014827,
+   399014828,
+   399014829,
+   399014830,
+   399014831,
+   399014832,
+   399017635,
+   399017636,
+   399017638,
+   399017639,
+   399017642,
+   399017643,
+   399017644,
+   399017645,
+   399017646,
+   399017647,
+   399026492,
+   399026493,
+   399026494,
+   399026495,
+   399026496,
+   399026497,
+   399026498,
+   399026499,
+   399026500,
+   400290742,
+   400290743,
+   400290744,
+   400290745,
+   400290746,
+   400290747,
+   400290748
+  ]
+ },
+ {
+  "idx": 30,
+  "line": "수도권 전철 경춘선",
+  "city": "서울/경기/강원",
+  "from": "청량리",
+  "to": "춘천",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 경춘선",
+  "osm_from": [
+   "node/3436803670",
+   "node/7176735174"
+  ],
+  "osm_to": [
+   "node/5821698813"
+  ],
+  "snap_m": 28,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 84.944,
+  "tunnel_km": 32.031,
+  "bridge_km": 24.33,
+  "ground_km": 28.583,
+  "layer_neg_km": 0.785,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.623,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 62% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   45769762,
+   45769763,
+   45769820,
+   45769822,
+   169515574,
+   174582231,
+   174582233,
+   174582235,
+   174582236,
+   174582237,
+   174582241,
+   174582242,
+   174582243,
+   174582347,
+   174583105,
+   174583106,
+   174583108,
+   174583110,
+   174583111,
+   174583112,
+   182491024,
+   182491032,
+   203125340,
+   203125342,
+   203125343,
+   203125344,
+   203125345,
+   203125347,
+   203125348,
+   203125351,
+   203125352,
+   203125354,
+   203125355,
+   272813473,
+   272813474,
+   272813475,
+   272838021,
+   272838022,
+   272838023,
+   272838024,
+   272838025,
+   272838026,
+   272839891,
+   272839892,
+   272839893,
+   272839895,
+   273248956,
+   273248958,
+   273248959,
+   273248961,
+   273294917,
+   273294919,
+   273311552,
+   273311553,
+   273311554,
+   273311555,
+   273312244,
+   273312245,
+   273312246,
+   273312247,
+   273312664,
+   273312665,
+   273312666,
+   273386365,
+   273386366,
+   273386367,
+   273386368,
+   273386896,
+   273386897,
+   273483699,
+   273483700,
+   274202275,
+   274894226,
+   274894229,
+   274894230,
+   309623054,
+   309623059,
+   360893016,
+   360893017,
+   372835080
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.547,
+    "ways": [
+     309623054
+    ],
+    "start": [
+     37.605044,
+     127.102999
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.38,
+    "ways": [
+     400422666
+    ],
+    "start": [
+     37.619956,
+     127.106108
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.605,
+    "ways": [
+     174583111
+    ],
+    "start": [
+     37.642573,
+     127.217857
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 3.134,
+    "ways": [
+     45769822
+    ],
+    "start": [
+     37.653576,
+     127.251204
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.144,
+    "ways": [
+     272813473
+    ],
+    "start": [
+     37.652441,
+     127.31928
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.627,
+    "ways": [
+     634647704,
+     203125351
+    ],
+    "start": [
+     37.662723,
+     127.341066
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.353,
+    "ways": [
+     203125348
+    ],
+    "start": [
+     37.672303,
+     127.369946
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.42,
+    "ways": [
+     547964096
+    ],
+    "start": [
+     37.701172,
+     127.386699
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.259,
+    "ways": [
+     273248958
+    ],
+    "start": [
+     37.71435,
+     127.390245
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.506,
+    "ways": [
+     273248961
+    ],
+    "start": [
+     37.723082,
+     127.400563
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.241,
+    "ways": [
+     272839895
+    ],
+    "start": [
+     37.72919,
+     127.413282
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.417,
+    "ways": [
+     272838025
+    ],
+    "start": [
+     37.740817,
+     127.437622
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 3.542,
+    "ways": [
+     591184625
+    ],
+    "start": [
+     37.773464,
+     127.463402
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.467,
+    "ways": [
+     274894230
+    ],
+    "start": [
+     37.797446,
+     127.492421
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.41,
+    "ways": [
+     273312244
+    ],
+    "start": [
+     37.802739,
+     127.497849
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.51,
+    "ways": [
+     273312247
+    ],
+    "start": [
+     37.808571,
+     127.502567
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.52,
+    "ways": [
+     273311553
+    ],
+    "start": [
+     37.823637,
+     127.529643
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.235,
+    "ways": [
+     273311552
+    ],
+    "start": [
+     37.832465,
+     127.559582
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.552,
+    "ways": [
+     273312665
+    ],
+    "start": [
+     37.828345,
+     127.601978
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.99,
+    "ways": [
+     273386365
+    ],
+    "start": [
+     37.823626,
+     127.606967
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 3.08,
+    "ways": [
+     273386896
+    ],
+    "start": [
+     37.805919,
+     127.639646
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.552,
+    "ways": [
+     583713666
+    ],
+    "start": [
+     37.807144,
+     127.67735
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.541,
+    "ways": [
+     583713664
+    ],
+    "start": [
+     37.808464,
+     127.696807
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 31,
+  "line": "수도권 전철 서해선",
+  "city": "경기",
+  "from": "일산",
+  "to": "능곡",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 서해선",
+  "osm_from": [
+   "node/368636257"
+  ],
+  "osm_to": [
+   "node/5448527919"
+  ],
+  "snap_m": 84,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 8.466,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.082,
+  "ground_km": 8.384,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   405576591,
+   838994932,
+   838994933,
+   838994934,
+   838994935,
+   896567005,
+   1070104520,
+   1070104521,
+   1093495079,
+   1094479367,
+   1094479374,
+   1094479381,
+   1094479382,
+   1202254920,
+   1202254921,
+   1202254923
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 32,
+  "line": "수도권 전철 서해선",
+  "city": "경기",
+  "from": "신현",
+  "to": "시흥시청",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 전철 서해선",
+  "osm_from": [
+   "node/5921531694"
+  ],
+  "osm_to": [
+   "node/5921531691"
+  ],
+  "snap_m": 12,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 3.59,
+  "tunnel_km": 1.316,
+  "bridge_km": 0.284,
+  "ground_km": 1.99,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.634,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "구간 안 비터널 2.27km (0.2km 이상이면 일치). ‘두 역 모두 지하역이나 사이에 지상구간 있음’",
+  "note": "",
+  "way_ids": [
+   545419309,
+   598066101,
+   605009657,
+   605009658,
+   605009660,
+   605009661,
+   605009662,
+   605009663,
+   605009665
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.528,
+    "ways": [
+     545419309
+    ],
+    "start": [
+     37.409689,
+     126.787881
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.788,
+    "ways": [
+     598066101
+    ],
+    "start": [
+     37.388886,
+     126.803571
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 33,
+  "line": "수도권 광역급행철도 A선(GTX-A)",
+  "city": "경기/서울",
+  "from": "운정중앙",
+  "to": "동탄",
+  "namu_type": "fully_underground",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/수도권 광역급행철도 A선",
+  "method": "두 역 사이 최단 선로 경로(구간별)",
+  "legs": [
+   {
+    "from": "운정중앙",
+    "to": "서울역",
+    "km": 32.313,
+    "osm_from": [
+     "node/12237749725"
+    ],
+    "osm_to": [
+     "node/5772099311",
+     "node/6036160343",
+     "node/7368810705",
+     "node/8574527311",
+     "node/8829280690"
+    ],
+    "snap_m": 7
+   },
+   {
+    "from": "수서",
+    "to": "동탄",
+    "km": 32.34,
+    "osm_from": [
+     "node/11697304775",
+     "node/2346858840",
+     "node/7637880030",
+     "node/7908597454"
+    ],
+    "osm_to": [
+     "node/14283788967",
+     "node/5535381367"
+    ],
+    "snap_m": 48
+   }
+  ],
+  "osm_km": 64.653,
+  "tunnel_km": 64.653,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "터널 100.0% (≥ 95%)",
+  "note": "",
+  "way_ids": [
+   588474657,
+   588474658,
+   923712311,
+   968529921,
+   1106264479,
+   1262631298,
+   1262631302,
+   1262631312,
+   1268124408,
+   1268124412
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 34,
+  "line": "경강선",
+  "city": "경기/강원",
+  "from": "판교",
+  "to": "여주",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/경강선",
+  "osm_from": [
+   "node/5927786493",
+   "node/8308318738"
+  ],
+  "osm_to": [
+   "node/5930629972"
+  ],
+  "snap_m": 37,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 55.996,
+  "tunnel_km": 28.606,
+  "bridge_km": 9.817,
+  "ground_km": 17.572,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.489,
+  "han_crossing": [],
+  "verdict": "ambiguous",
+  "basis": "나무위키에 구조 서술 없음: ‘판교~여주 구간 지상/지하 구분 없음’",
+  "note": "",
+  "way_ids": [
+   584251557,
+   589046324,
+   589046325,
+   589046326,
+   589046327,
+   589046328,
+   589046329,
+   589046330,
+   589046331,
+   589046332,
+   589046333,
+   589046334,
+   589046335,
+   589046336,
+   589046338,
+   589046339,
+   589046340,
+   589046341,
+   589046342,
+   589046343,
+   589046344,
+   589046345,
+   589046346,
+   589046347,
+   589046349,
+   589046350,
+   589046351,
+   589046352,
+   589046353,
+   589046354,
+   589046355,
+   589046358,
+   589046359,
+   589046360,
+   589046361,
+   589046362,
+   589046363,
+   589046364,
+   589046365,
+   589046368,
+   589046369,
+   589046370,
+   589046371,
+   589046374,
+   589046376,
+   589046408,
+   589046410,
+   589046411,
+   589046412,
+   589046419,
+   589046420,
+   589046422,
+   589046423,
+   589046425,
+   589046426,
+   589046427,
+   589046429,
+   627907296,
+   628040345,
+   628199067,
+   628199071,
+   628199074,
+   628199077,
+   628199106,
+   628199111,
+   628199114,
+   892900376,
+   892900378,
+   985113334,
+   985113337,
+   1128363998,
+   1434651158
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 8.117,
+    "ways": [
+     628040345
+    ],
+    "start": [
+     37.394697,
+     127.111567
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 4.322,
+    "ways": [
+     589046327
+    ],
+    "start": [
+     37.409974,
+     127.205645
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 4.243,
+    "ways": [
+     589046331
+    ],
+    "start": [
+     37.395603,
+     127.260892
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.548,
+    "ways": [
+     589046334
+    ],
+    "start": [
+     37.362815,
+     127.324301
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 4.942,
+    "ways": [
+     589046341
+    ],
+    "start": [
+     37.346584,
+     127.363355
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 4.857,
+    "ways": [
+     589046350
+    ],
+    "start": [
+     37.299835,
+     127.41168
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.052,
+    "ways": [
+     589046360
+    ],
+    "start": [
+     37.25724,
+     127.476618
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.039,
+    "ways": [
+     628199106
+    ],
+    "start": [
+     37.264313,
+     127.503936
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.026,
+    "ways": [
+     589046419
+    ],
+    "start": [
+     37.293334,
+     127.580811
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.045,
+    "ways": [
+     589046425
+    ],
+    "start": [
+     37.29251,
+     127.588663
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.415,
+    "ways": [
+     589046422
+    ],
+    "start": [
+     37.29218,
+     127.590605
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 35,
+  "line": "경강선",
+  "city": "강원",
+  "from": "서원주",
+  "to": "강릉",
+  "namu_type": "unknown",
+  "namu_length_km": 120.7,
+  "source_url": "https://namu.wiki/w/경강선",
+  "osm_from": [
+   "node/4826452445"
+  ],
+  "osm_to": [
+   "node/8223919750"
+  ],
+  "snap_m": 66,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 120.327,
+  "tunnel_km": 75.605,
+  "bridge_km": 12.038,
+  "ground_km": 32.683,
+  "layer_neg_km": 0.096,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.372,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "터널 OSM 75.6km vs 나무위키 76.0km (±15% 기준)",
+  "note": "",
+  "way_ids": [
+   205456411,
+   335214250,
+   335214251,
+   483192224,
+   483192230,
+   483192235,
+   483192239,
+   483192241,
+   483192245,
+   483392478,
+   483392480,
+   483392483,
+   483392484,
+   483412591,
+   483412596,
+   483412598,
+   483412599,
+   483412601,
+   483412604,
+   483412606,
+   483412607,
+   496704445,
+   540020217,
+   540020221,
+   540020223,
+   540020230,
+   540020232,
+   540020236,
+   540020241,
+   540020246,
+   545414810,
+   545414811,
+   545414812,
+   545414813,
+   545414814,
+   545414815,
+   545415422,
+   545483089,
+   545483093,
+   545483094,
+   545483096,
+   545483097,
+   545483100,
+   545483102,
+   545483105,
+   545483106,
+   545483109,
+   545483110,
+   545483112,
+   545483113,
+   545483116,
+   545483119,
+   545483120,
+   545483123,
+   545488734,
+   545488739,
+   545488741,
+   545488744,
+   545488747,
+   545488748,
+   545488751,
+   545488753,
+   545488754,
+   545488757,
+   545488758,
+   545488760,
+   545488761,
+   545488764,
+   545488765,
+   545488774,
+   545488777,
+   545488781,
+   545488785,
+   545488789,
+   545488802,
+   545488805,
+   545488808,
+   545488826,
+   545488833,
+   545488837
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.693,
+    "ways": [
+     540020241
+    ],
+    "start": [
+     37.342259,
+     127.867329
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.341,
+    "ways": [
+     540020221
+    ],
+    "start": [
+     37.349822,
+     127.887843
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.052,
+    "ways": [
+     557886937
+    ],
+    "start": [
+     37.367055,
+     127.918001
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.296,
+    "ways": [
+     557886934
+    ],
+    "start": [
+     37.368708,
+     127.920473
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.211,
+    "ways": [
+     557886776
+    ],
+    "start": [
+     37.414177,
+     127.951537
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.398,
+    "ways": [
+     557886784
+    ],
+    "start": [
+     37.418177,
+     127.956137
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.744,
+    "ways": [
+     587700754
+    ],
+    "start": [
+     37.422728,
+     127.961333
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.912,
+    "ways": [
+     584241253
+    ],
+    "start": [
+     37.434495,
+     127.978706
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.347,
+    "ways": [
+     483192245
+    ],
+    "start": [
+     37.457335,
+     127.987325
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.443,
+    "ways": [
+     587700761,
+     557886858,
+     557886862
+    ],
+    "start": [
+     37.468145,
+     127.9921
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.459,
+    "ways": [
+     483192230
+    ],
+    "start": [
+     37.485731,
+     128.014878
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.476,
+    "ways": [
+     483412604
+    ],
+    "start": [
+     37.495066,
+     128.028605
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.606,
+    "ways": [
+     496704445
+    ],
+    "start": [
+     37.500858,
+     128.037131
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 3.431,
+    "ways": [
+     557886877
+    ],
+    "start": [
+     37.512223,
+     128.065547
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 4.685,
+    "ways": [
+     557886911
+    ],
+    "start": [
+     37.525647,
+     128.112937
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 3.817,
+    "ways": [
+     546962160
+    ],
+    "start": [
+     37.518811,
+     128.167506
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 8.271,
+    "ways": [
+     545488856
+    ],
+    "start": [
+     37.516631,
+     128.248921
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.652,
+    "ways": [
+     545488854
+    ],
+    "start": [
+     37.559686,
+     128.347766
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.562,
+    "ways": [
+     545488837
+    ],
+    "start": [
+     37.560478,
+     128.380028
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.887,
+    "ways": [
+     545488833
+    ],
+    "start": [
+     37.561979,
+     128.388424
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.088,
+    "ways": [
+     545488802
+    ],
+    "start": [
+     37.563293,
+     128.40237
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 8.714,
+    "ways": [
+     545488777
+    ],
+    "start": [
+     37.561588,
+     128.4391
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.551,
+    "ways": [
+     545488764
+    ],
+    "start": [
+     37.604806,
+     128.526364
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.166,
+    "ways": [
+     545488757
+    ],
+    "start": [
+     37.609139,
+     128.535054
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.189,
+    "ways": [
+     545488748
+    ],
+    "start": [
+     37.622668,
+     128.55624
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.617,
+    "ways": [
+     545488744
+    ],
+    "start": [
+     37.625085,
+     128.558488
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.276,
+    "ways": [
+     545414815
+    ],
+    "start": [
+     37.631353,
+     128.564288
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.22,
+    "ways": [
+     545414813
+    ],
+    "start": [
+     37.63588,
+     128.56859
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.515,
+    "ways": [
+     545414810
+    ],
+    "start": [
+     37.647115,
+     128.578897
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 21.66,
+    "ways": [
+     545483123
+    ],
+    "start": [
+     37.653453,
+     128.584854
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.483,
+    "ways": [
+     545483120
+    ],
+    "start": [
+     37.723641,
+     128.81533
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.115,
+    "ways": [
+     545483112
+    ],
+    "start": [
+     37.723148,
+     128.83842
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.651,
+    "ways": [
+     545483109
+    ],
+    "start": [
+     37.722679,
+     128.840003
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.011,
+    "ways": [
+     1227945814
+    ],
+    "start": [
+     37.720264,
+     128.898525
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.013,
+    "ways": [
+     1227945810
+    ],
+    "start": [
+     37.720318,
+     128.902451
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.183,
+    "ways": [
+     545483094
+    ],
+    "start": [
+     37.720225,
+     128.904896
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.87,
+    "ways": [
+     546487582
+    ],
+    "start": [
+     37.745093,
+     128.915241
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 36,
+  "line": "우이신설선",
+  "city": "서울",
+  "from": "북한산우이",
+  "to": "신설동",
+  "namu_type": "fully_underground",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/우이신설선",
+  "osm_from": [
+   "node/9459739627"
+  ],
+  "osm_to": [
+   "node/2028051082",
+   "node/7221602784",
+   "node/8043801405"
+  ],
+  "snap_m": 9,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 11.156,
+  "tunnel_km": 11.156,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "터널 100.0% (≥ 95%)",
+  "note": "",
+  "way_ids": [
+   1026020324,
+   1026020335
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 37,
+  "line": "신림선",
+  "city": "서울",
+  "from": "샛강",
+  "to": "관악산",
+  "namu_type": "fully_underground",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/신림선",
+  "osm_from": [
+   "node/8401534578",
+   "node/8401534582"
+  ],
+  "osm_to": [
+   "node/8401534566"
+  ],
+  "snap_m": 8,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 7.509,
+  "tunnel_km": 7.509,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "터널 100.0% (≥ 95%)",
+  "note": "",
+  "way_ids": [
+   957436187
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 38,
+  "line": "김포 골드라인",
+  "city": "경기/서울",
+  "from": "양촌",
+  "to": "양촌",
+  "namu_type": "at_grade",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/김포 골드라인",
+  "osm_station": "node/10814378022",
+  "snap_m": 3,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.369,
+  "tunnel_km": 0.113,
+  "bridge_km": 0.0,
+  "ground_km": 0.256,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.693,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 69% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   553243188,
+   615414334,
+   1162786250,
+   1162786252
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.066,
+    "ways": [
+     1162786250
+    ],
+    "start": [
+     37.642965,
+     126.615352
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.048,
+    "ways": [
+     553243188
+    ],
+    "start": [
+     37.642957,
+     126.615106
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 39,
+  "line": "인천 도시철도 1호선",
+  "city": "인천",
+  "from": "계양",
+  "to": "귤현",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/인천 도시철도 1호선",
+  "osm_from": [
+   "node/3152004117",
+   "node/3152004118"
+  ],
+  "osm_to": [
+   "node/3152004119"
+  ],
+  "snap_m": 44,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 0.747,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.074,
+  "ground_km": 0.673,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   226083059,
+   226083062,
+   226083063
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 40,
+  "line": "인천 도시철도 2호선",
+  "city": "인천",
+  "from": "검단오류",
+  "to": "왕길",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/인천 도시철도 2호선",
+  "osm_from": [
+   "node/9687706173"
+  ],
+  "osm_to": [
+   "node/9687706211"
+  ],
+  "snap_m": 35,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.321,
+  "tunnel_km": 0.0,
+  "bridge_km": 1.321,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   552479678
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 41,
+  "line": "인천 도시철도 2호선",
+  "city": "인천",
+  "from": "검암",
+  "to": "검바위",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/인천 도시철도 2호선",
+  "osm_from": [
+   "node/5919544721",
+   "node/9687738113"
+  ],
+  "osm_to": [
+   "node/9687738126"
+  ],
+  "snap_m": 28,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 0.808,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.808,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   1054178845
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 42,
+  "line": "인천 도시철도 2호선",
+  "city": "인천",
+  "from": "인천대공원",
+  "to": "운연",
+  "namu_type": "semi_underground",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/인천 도시철도 2호선",
+  "osm_from": [
+   "node/9687738344"
+  ],
+  "osm_to": [
+   "node/5426080900"
+  ],
+  "snap_m": 33,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 1.211,
+  "tunnel_km": 0.504,
+  "bridge_km": 0.402,
+  "ground_km": 0.304,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.583,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "구간 안 비터널 0.71km (0.2km 이상이면 일치). ‘인천대공원~운연 사이 잠시 지하구간’",
+  "note": "",
+  "way_ids": [
+   1054178850,
+   1054178853,
+   1054178854
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.504,
+    "ways": [
+     1054178853
+    ],
+    "start": [
+     37.447045,
+     126.756394
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 43,
+  "line": "의정부 경전철",
+  "city": "경기",
+  "from": "발곡",
+  "to": "탑석",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/의정부 경전철",
+  "osm_from": [
+   "node/1793029857"
+  ],
+  "osm_to": [
+   "node/1793029926",
+   "node/9950753035"
+  ],
+  "snap_m": 5,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 10.549,
+  "tunnel_km": 0.0,
+  "bridge_km": 10.549,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   1026054244,
+   1026054257,
+   1026054258,
+   1138018487,
+   1138018488,
+   1329512824
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 44,
+  "line": "용인 에버라인",
+  "city": "경기",
+  "from": "기흥",
+  "to": "전대·에버랜드",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/용인 에버라인",
+  "osm_from": [
+   "node/5909960761",
+   "node/9482998435"
+  ],
+  "osm_to": [
+   "node/5351374378"
+  ],
+  "snap_m": 24,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 17.952,
+  "tunnel_km": 0.0,
+  "bridge_km": 17.952,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   160464845,
+   554528013
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 45,
+  "line": "용인 에버라인",
+  "city": "경기",
+  "from": "초당",
+  "to": "삼가",
+  "namu_type": "at_grade",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/용인 에버라인",
+  "osm_from": [
+   "node/9461950038"
+  ],
+  "osm_to": [
+   "node/9461950040"
+  ],
+  "snap_m": 11,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 2.587,
+  "tunnel_km": 0.0,
+  "bridge_km": 2.587,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50% (단, OSM에는 평면 선로가 없고 교량뿐)",
+  "note": "",
+  "way_ids": [
+   554528010
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 46,
+  "line": "부산 도시철도 1호선",
+  "city": "부산",
+  "from": "동래",
+  "to": "구서",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산 도시철도 1호선",
+  "osm_from": [
+   "node/1708284818",
+   "node/289245376"
+  ],
+  "osm_to": [
+   "node/289245618"
+  ],
+  "snap_m": 39,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 4.964,
+  "tunnel_km": 0.0,
+  "bridge_km": 4.964,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   165280224,
+   165280771,
+   165281321
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 47,
+  "line": "부산 도시철도 1호선",
+  "city": "부산",
+  "from": "교대",
+  "to": "두실",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산 도시철도 1호선",
+  "osm_from": [
+   "node/5426070122",
+   "node/8724477916"
+  ],
+  "osm_to": [
+   "node/5425835737"
+  ],
+  "snap_m": 17,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 7.232,
+  "tunnel_km": 0.518,
+  "bridge_km": 6.714,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.928,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 93% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   156157106,
+   165279226,
+   165280224,
+   165280771,
+   165281321,
+   1249380598
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.226,
+    "ways": [
+     1249380598
+    ],
+    "start": [
+     35.195369,
+     129.079929
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.292,
+    "ways": [
+     156157106
+    ],
+    "start": [
+     35.254312,
+     129.091666
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 48,
+  "line": "부산 도시철도 1호선",
+  "city": "부산",
+  "from": "신평",
+  "to": "신평",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산 도시철도 1호선",
+  "osm_station": "node/5585871601",
+  "snap_m": 31,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.584,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.0,
+  "ground_km": 0.584,
+  "layer_neg_km": 0.292,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   110609850,
+   359996937
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 49,
+  "line": "부산 도시철도 1호선",
+  "city": "부산",
+  "from": "노포",
+  "to": "노포",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산 도시철도 1호선",
+  "osm_station": "node/355173757",
+  "snap_m": 12,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.319,
+  "tunnel_km": 0.319,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [],
+  "verdict": "ambiguous",
+  "basis": "반지하 구간을 OSM은 터널로 표시(터널 100%) (나무위키 '승강장 위가 덮여 반지하처럼 보임', 위키백과 노포역 '반지하역')",
+  "note": "",
+  "way_ids": [
+   973233226,
+   973233227
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.319,
+    "ways": [
+     973233226,
+     973233227
+    ],
+    "start": [
+     35.282654,
+     129.094654
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 50,
+  "line": "부산 도시철도 2호선",
+  "city": "부산/경남",
+  "from": "동원",
+  "to": "양산",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산 도시철도 2호선",
+  "osm_from": [
+   "node/355173810"
+  ],
+  "osm_to": [
+   "node/355173821"
+  ],
+  "snap_m": 5,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 9.842,
+  "tunnel_km": 0.69,
+  "bridge_km": 9.152,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.93,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 93% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   164633289,
+   164633297,
+   164775773,
+   1548519908
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.69,
+    "ways": [
+     164633289
+    ],
+    "start": [
+     35.258629,
+     129.012385
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 51,
+  "line": "부산 도시철도 3호선",
+  "city": "부산",
+  "from": "구포",
+  "to": "대저",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산 도시철도 3호선",
+  "osm_from": [
+   "node/1446033915",
+   "node/368637755"
+  ],
+  "osm_to": [
+   "node/1446033913",
+   "node/5197043947"
+  ],
+  "snap_m": 5,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 3.396,
+  "tunnel_km": 0.0,
+  "bridge_km": 3.396,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   450736297
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 52,
+  "line": "부산 도시철도 4호선",
+  "city": "부산",
+  "from": "반여농산물시장",
+  "to": "안평",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산 도시철도 4호선",
+  "osm_from": [
+   "node/8724485217"
+  ],
+  "osm_to": [
+   "node/5589034151"
+  ],
+  "snap_m": 12,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 5.355,
+  "tunnel_km": 0.0,
+  "bridge_km": 5.355,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   158670560,
+   603960441
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 53,
+  "line": "부산김해경전철",
+  "city": "부산/경남",
+  "from": "사상",
+  "to": "가야대",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산김해경전철",
+  "osm_from": [
+   "node/10566822382",
+   "node/355173789",
+   "node/6503510663",
+   "node/9540337698"
+  ],
+  "osm_to": [
+   "node/5208433891"
+  ],
+  "snap_m": 2,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 22.221,
+  "tunnel_km": 0.0,
+  "bridge_km": 22.162,
+  "ground_km": 0.059,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   131361235,
+   165484195,
+   165790437
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 54,
+  "line": "부산김해경전철",
+  "city": "부산",
+  "from": "서부산유통지구",
+  "to": "괘법르네시떼",
+  "namu_type": "bridge",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/부산김해경전철",
+  "osm_from": [
+   "node/5197043950",
+   "way/471713736"
+  ],
+  "osm_to": [
+   "node/5194520289"
+  ],
+  "snap_m": 12,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 2.266,
+  "tunnel_km": 0.0,
+  "bridge_km": 2.266,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   131361235
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 55,
+  "line": "동해선 광역전철(부산 구간)",
+  "city": "부산/울산",
+  "from": "부전",
+  "to": "태화강",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/동해선 광역전철",
+  "osm_from": [
+   "node/355173722",
+   "node/5425834492"
+  ],
+  "osm_to": [
+   "node/368636558"
+  ],
+  "snap_m": 65,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 63.355,
+  "tunnel_km": 14.238,
+  "bridge_km": 17.268,
+  "ground_km": 31.849,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.775,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 78% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   143756688,
+   143756689,
+   143756690,
+   143756691,
+   143756692,
+   143756693,
+   154256858,
+   154256868,
+   154256884,
+   154286450,
+   154286485,
+   154286489,
+   155231897,
+   183830068,
+   386006221,
+   386006222,
+   386006223,
+   386006229,
+   386006230,
+   386006235,
+   400584058,
+   400584060,
+   400584074,
+   400584076,
+   400584080,
+   400584081,
+   400584086,
+   400584090,
+   400584098,
+   400584101,
+   400584104,
+   400584105,
+   400584106,
+   400584107,
+   400788737,
+   400788742,
+   400788744,
+   400788745,
+   400788746,
+   400788784,
+   400788786,
+   401200034,
+   401200035,
+   401200038,
+   401200041,
+   452086438,
+   452086442,
+   452442219,
+   452442233,
+   452442234,
+   452442235,
+   452442236,
+   456016116,
+   456016121,
+   456016124,
+   456019452,
+   456019458,
+   484022862,
+   484025878,
+   484025886,
+   611273923,
+   631447821,
+   691557295,
+   692104469,
+   692104479,
+   692104483,
+   692104484,
+   692104499,
+   692104501,
+   692104502,
+   692104505,
+   692104508,
+   692104509,
+   692104512,
+   692104513,
+   816170122,
+   816170123,
+   816170127,
+   816170133,
+   816170135
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 3.609,
+    "ways": [
+     452086438
+    ],
+    "start": [
+     35.169423,
+     129.14062
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.181,
+    "ways": [
+     1411458388
+    ],
+    "start": [
+     35.181871,
+     129.176261
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.686,
+    "ways": [
+     452442234
+    ],
+    "start": [
+     35.180869,
+     129.179741
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.196,
+    "ways": [
+     816170122
+    ],
+    "start": [
+     35.29624,
+     129.237526
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.706,
+    "ways": [
+     692104484
+    ],
+    "start": [
+     35.319952,
+     129.256619
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.262,
+    "ways": [
+     692104502
+    ],
+    "start": [
+     35.332926,
+     129.282036
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.563,
+    "ways": [
+     692104512
+    ],
+    "start": [
+     35.337015,
+     129.288921
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.896,
+    "ways": [
+     816187665
+    ],
+    "start": [
+     35.36035,
+     129.286977
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.073,
+    "ways": [
+     816187670
+    ],
+    "start": [
+     35.373619,
+     129.284178
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.267,
+    "ways": [
+     816187673
+    ],
+    "start": [
+     35.398839,
+     129.285122
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 2.481,
+    "ways": [
+     955739090
+    ],
+    "start": [
+     35.427062,
+     129.278622
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 1.395,
+    "ways": [
+     987916165,
+     987916162
+    ],
+    "start": [
+     35.465772,
+     129.293572
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.281,
+    "ways": [
+     386006222
+    ],
+    "start": [
+     35.505056,
+     129.312994
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.267,
+    "ways": [
+     143756692
+    ],
+    "start": [
+     35.510359,
+     129.328064
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.276,
+    "ways": [
+     143756691
+    ],
+    "start": [
+     35.511123,
+     129.33286
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.1,
+    "ways": [
+     143756689
+    ],
+    "start": [
+     35.519458,
+     129.342765
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 56,
+  "line": "동해선 광역전철(부산 구간)",
+  "city": "부산",
+  "from": "신해운대",
+  "to": "신해운대",
+  "namu_type": "semi_underground",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/동해선 광역전철",
+  "osm_station": "node/5747415218",
+  "snap_m": 36,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.365,
+  "tunnel_km": 0.365,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [],
+  "verdict": "ambiguous",
+  "basis": "반지하 구간을 OSM은 터널로 표시(터널 100%)",
+  "note": "",
+  "way_ids": [
+   1411458388,
+   1411458389
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.365,
+    "ways": [
+     1411458388,
+     1411458389
+    ],
+    "start": [
+     35.181335,
+     129.17814
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 57,
+  "line": "대구 도시철도 1호선",
+  "city": "대구/경북",
+  "from": "대구한의대병원",
+  "to": "하양",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/대구 도시철도 1호선",
+  "osm_from": [
+   "node/8181571012"
+  ],
+  "osm_to": [
+   "node/11951243041",
+   "node/8221953269"
+  ],
+  "snap_m": 9,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 7.531,
+  "tunnel_km": 0.283,
+  "bridge_km": 0.128,
+  "ground_km": 7.12,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.962,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 96% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   878868404,
+   878868405,
+   878868406,
+   1344446676,
+   1344446677,
+   1345393039,
+   1345393040
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.217,
+    "ways": [
+     878868405
+    ],
+    "start": [
+     35.882262,
+     128.772903
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.066,
+    "ways": [
+     1345393040
+    ],
+    "start": [
+     35.885355,
+     128.777097
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 58,
+  "line": "대구 도시철도 2호선",
+  "city": "대구",
+  "from": "문양",
+  "to": "문양",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/대구 도시철도 2호선",
+  "osm_station": "node/13505872543",
+  "snap_m": 5,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.465,
+  "tunnel_km": 0.199,
+  "bridge_km": 0.0,
+  "ground_km": 0.265,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.571,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 57% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   885386542,
+   885386544,
+   1409238458,
+   1409238459,
+   1409238460,
+   1557905883
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "tunnel",
+    "km": 0.106,
+    "ways": [
+     885386542
+    ],
+    "start": [
+     35.863622,
+     128.436333
+    ]
+   },
+   {
+    "structure": "tunnel",
+    "km": 0.093,
+    "ways": [
+     1557905883,
+     1409238458
+    ],
+    "start": [
+     35.864366,
+     128.437077
+    ]
+   }
+  ]
+ },
+ {
+  "idx": 59,
+  "line": "대구 도시철도 3호선",
+  "city": "대구",
+  "from": "칠곡경대병원",
+  "to": "용지",
+  "namu_type": "elevated",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/대구 도시철도 3호선",
+  "osm_from": [
+   "node/3478856267"
+  ],
+  "osm_to": [
+   "node/8288809757"
+  ],
+  "snap_m": 14,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 23.101,
+  "tunnel_km": 0.0,
+  "bridge_km": 23.101,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   1320827388,
+   1320827389,
+   1416959848
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 60,
+  "line": "대전 도시철도 1호선",
+  "city": "대전",
+  "from": "판암",
+  "to": "반석",
+  "namu_type": "fully_underground",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/대전 도시철도 1호선",
+  "osm_from": [
+   "node/9271807358"
+  ],
+  "osm_to": [
+   "node/9271804083"
+  ],
+  "snap_m": 58,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 20.644,
+  "tunnel_km": 20.644,
+  "bridge_km": 0.0,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "터널 100.0% (≥ 95%)",
+  "note": "",
+  "way_ids": [
+   1004916827
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 61,
+  "line": "광주 도시철도 1호선",
+  "city": "광주",
+  "from": "녹동",
+  "to": "녹동",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/광주 도시철도 1호선",
+  "osm_station": "node/5190977743",
+  "snap_m": 5,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.123,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.0,
+  "ground_km": 0.123,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   137187223
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 62,
+  "line": "광주 도시철도 1호선",
+  "city": "광주",
+  "from": "평동",
+  "to": "평동",
+  "namu_type": "unknown",
+  "namu_length_km": null,
+  "source_url": "https://namu.wiki/w/광주 도시철도 1호선",
+  "osm_station": "node/5277694777",
+  "snap_m": 9,
+  "radius_m": 150,
+  "method": "역 반경 150m",
+  "osm_km": 0.415,
+  "tunnel_km": 0.0,
+  "bridge_km": 0.415,
+  "ground_km": 0.0,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 1.0,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "비터널 100% ≥ 50%",
+  "note": "",
+  "way_ids": [
+   133325320,
+   1002558100,
+   1002558112
+  ],
+  "contrary_pieces": []
+ },
+ {
+  "idx": 63,
+  "line": "(참고) 한국 철도 터널 순위",
+  "city": "전국",
+  "from": "수서",
+  "to": "평택지제",
+  "namu_type": "tunnel",
+  "namu_length_km": 50.3,
+  "source_url": "https://namu.wiki/w/율현터널",
+  "osm_from": [
+   "node/11697304775",
+   "node/2346858840",
+   "node/7637880030",
+   "node/7908597454"
+  ],
+  "osm_to": [
+   "node/3406450397",
+   "node/7632207769"
+  ],
+  "snap_m": 54,
+  "method": "두 역 사이 최단 선로 경로",
+  "osm_km": 53.214,
+  "tunnel_km": 51.921,
+  "bridge_km": 0.087,
+  "ground_km": 1.206,
+  "layer_neg_km": 0.0,
+  "offline_km": 0.0,
+  "nontunnel_share": 0.024,
+  "han_crossing": [],
+  "verdict": "match",
+  "basis": "터널 97.6%, 터널 51.9km vs 나무위키 50.3km",
+  "note": "",
+  "way_ids": [
+   425378229,
+   425793709,
+   425793712,
+   425793713,
+   555911692,
+   588474657,
+   810625038,
+   817199331,
+   817199332,
+   817199342,
+   968529921,
+   1262631296,
+   1268124408,
+   1268124410,
+   1268124412,
+   1268124413
+  ],
+  "contrary_pieces": [
+   {
+    "structure": "ground",
+    "km": 0.365,
+    "ways": [
+     425378229
+    ],
+    "start": [
+     37.029855,
+     127.068649
+    ]
+   },
+   {
+    "structure": "bridge",
+    "km": 0.048,
+    "ways": [
+     425793709
+    ],
+    "start": [
+     37.026588,
+     127.068992
+    ]
+   },
+   {
+    "structure": "ground",
+    "km": 0.133,
+    "ways": [
+     425793712
+    ],
+    "start": [
+     37.026158,
+     127.069038
+    ]
+   },
+   {
+    "structure": "bridge",
+    "km": 0.039,
+    "ways": [
+     425793713
+    ],
+    "start": [
+     37.024969,
+     127.069165
+    ]
+   },
+   {
+    "structure": "ground",
+    "km": 0.709,
+    "ways": [
+     817199342,
+     810625038
+    ],
+    "start": [
+     37.024623,
+     127.069199
+    ]
+   }
+  ]
+ }
+]
