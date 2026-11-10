@@ -1,0 +1,9941 @@
+{
+ "generated_by": "scripts/ped_check.py",
+ "note": "loose = tunnel/layer<0/level<0/location=underground 중 하나라도 있는 보행 way. strict = loose에서 layer<0만 근거인 way를 뺀 것. building_passage는 따로 셈.",
+ "cities": {
+  "seoul": {
+   "osm_base": "2026-11-10T07:43:42Z",
+   "ug_ways": 887,
+   "ug_km": 58.42,
+   "strict_ways": 690,
+   "strict_km": 31.24,
+   "building_passage": {
+    "ways": 135,
+    "km": 2.8
+   },
+   "km_by_pattern": {
+    "layer<0": 54.36,
+    "tunnel=yes": 27.12,
+    "indoor=yes": 4.37,
+    "level<0": 3.88,
+    "tunnel=``": 0.02
+   },
+   "km_by_pattern_combo": {
+    "layer<0": 27.19,
+    "tunnel=yes + layer<0": 22.62,
+    "layer<0 + indoor=yes": 2.34,
+    "tunnel=yes": 1.93,
+    "tunnel=yes + layer<0 + level<0 + indoor=yes": 0.85,
+    "level<0 + indoor=yes": 0.66,
+    "tunnel=yes + level<0": 0.62,
+    "tunnel=yes + layer<0 + level<0": 0.58,
+    "level<0": 0.57,
+    "layer<0 + level<0": 0.52,
+    "tunnel=yes + layer<0 + indoor=yes": 0.23,
+    "tunnel=yes + indoor=yes": 0.21,
+    "tunnel=yes + level<0 + indoor=yes": 0.07,
+    "tunnel=`` + layer<0": 0.02,
+    "layer<0 + level<0 + indoor=yes": 0.01
+   },
+   "km_by_highway": {
+    "footway": 40.33,
+    "pedestrian": 11.5,
+    "corridor": 2.73,
+    "steps": 1.95,
+    "path": 1.88,
+    "elevator": 0.02
+   },
+   "tunnel_values": {
+    "yes": 548,
+    "None": 338,
+    "``": 1
+   },
+   "level_values_top": {
+    "-1": 61,
+    "-1;0": 29,
+    "-2": 14,
+    "0;-1": 5,
+    "-3;-2": 5,
+    "-2;-1": 4,
+    "-1;-2": 4,
+    "1;-1": 4,
+    "0": 3,
+    "-2;-3": 2,
+    "0;-0.5": 1,
+    "-0.5;-1": 1,
+    "-0.5": 1,
+    "1": 1,
+    "1;-2": 1
+   },
+   "components_loose": {
+    "all": {
+     "n": 474,
+     "km": 58.42
+    },
+    "len_ge_100m": {
+     "n": 110,
+     "km": 46.95
+    },
+    "len_ge_500m": {
+     "n": 23,
+     "km": 30.1
+    },
+    "len_ge_1km": {
+     "n": 9,
+     "km": 20.12
+    },
+    "shares_entrance_node": {
+     "n": 32,
+     "km": 7.8
+    },
+    "entrance_shared_or_within_50m": {
+     "n": 71,
+     "km": 25.78
+    },
+    "shares_platform_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "touch_entrance_or_platform": {
+     "n": 71,
+     "km": 25.78
+    },
+    "links_2plus_stations_via_entrances": {
+     "n": 1,
+     "km": 3.82
+    },
+    "links_2plus_stations_entr_or_150m": {
+     "n": 4,
+     "km": 6.85
+    }
+   },
+   "components_strict": {
+    "all": {
+     "n": 345,
+     "km": 31.23
+    },
+    "len_ge_100m": {
+     "n": 62,
+     "km": 22.53
+    },
+    "len_ge_500m": {
+     "n": 13,
+     "km": 13.59
+    },
+    "len_ge_1km": {
+     "n": 3,
+     "km": 6.85
+    },
+    "shares_entrance_node": {
+     "n": 28,
+     "km": 7.4
+    },
+    "entrance_shared_or_within_50m": {
+     "n": 57,
+     "km": 12.87
+    },
+    "shares_platform_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "touch_entrance_or_platform": {
+     "n": 57,
+     "km": 12.87
+    },
+    "links_2plus_stations_via_entrances": {
+     "n": 1,
+     "km": 3.82
+    },
+    "links_2plus_stations_entr_or_150m": {
+     "n": 1,
+     "km": 3.82
+    }
+   },
+   "opening_hours": {
+    "ways": 0,
+    "km": 0.0,
+    "examples": []
+   },
+   "access_values": {
+    "customers": 1,
+    "permissive": 7,
+    "no": 1,
+    "yes": 6
+   },
+   "foot_values": {
+    "yes": 16,
+    "no": 1,
+    "designated": 2
+   },
+   "malls_and_named_arcades": [
+    {
+     "type": "node",
+     "id": 2364556158,
+     "name": "현대백화점 신촌역 지하통로",
+     "lat": 37.555699,
+     "lon": 126.935966,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 3390505498,
+     "name": "롯데아울렛",
+     "lat": 37.554622,
+     "lon": 126.970687,
+     "level": "3-4",
+     "layer": null,
+     "opening_hours": "11:00-21:00",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 3422723891,
+     "name": "누리꿈몰",
+     "lat": 37.579592,
+     "lon": 126.890251,
+     "level": "-1",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 3975205975,
+     "name": "잠실종합운동장 스포츠상가",
+     "lat": 37.515668,
+     "lon": 127.074493,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 4636409205,
+     "name": "",
+     "lat": 37.520952,
+     "lon": 127.104578,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 4663760243,
+     "name": "에피세리",
+     "lat": 37.535336,
+     "lon": 127.010004,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 4934082922,
+     "name": "영등포시장 지하상가",
+     "lat": 37.518969,
+     "lon": 126.905279,
+     "level": "-1",
+     "layer": "-1",
+     "opening_hours": null,
+     "shop": "clothes",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 5614711178,
+     "name": "강남터미널지하쇼핑몰 (고투몰)",
+     "lat": 37.505765,
+     "lon": 127.004619,
+     "level": "-1",
+     "layer": null,
+     "opening_hours": "Mo-Su 10:00-22:00",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 5909705286,
+     "name": "",
+     "lat": 37.558805,
+     "lon": 126.942956,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 5920996813,
+     "name": "종각지하쇼핑센터",
+     "lat": 37.570135,
+     "lon": 126.984733,
+     "level": null,
+     "layer": null,
+     "opening_hours": "Mo-Su 10:00-22:00",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6414248864,
+     "name": "",
+     "lat": 37.565863,
+     "lon": 126.987825,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6414254234,
+     "name": "",
+     "lat": 37.565965,
+     "lon": 126.987454,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6414254235,
+     "name": "",
+     "lat": 37.566017,
+     "lon": 126.987869,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6414254324,
+     "name": "",
+     "lat": 37.566047,
+     "lon": 126.987341,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6512571092,
+     "name": "소공지하상가",
+     "lat": 37.563221,
+     "lon": 126.980041,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6586943204,
+     "name": "EXIT",
+     "lat": 37.556859,
+     "lon": 126.92324,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6641803387,
+     "name": "1898광장",
+     "lat": 37.564199,
+     "lon": 126.986758,
+     "level": "-1",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6665972902,
+     "name": "명동지하상가",
+     "lat": 37.563647,
+     "lon": 126.98202,
+     "level": "-1",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 6673823065,
+     "name": "소공 지하쇼핑센터",
+     "lat": 37.563948,
+     "lon": 126.980593,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7297927658,
+     "name": "회현 지하상가 2번 출입구",
+     "lat": 37.561243,
+     "lon": 126.981817,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7297927659,
+     "name": "회현 지하상가1번 출입구",
+     "lat": 37.561528,
+     "lon": 126.981599,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7297927665,
+     "name": "회현 지하상가 12번 출입구",
+     "lat": 37.561138,
+     "lon": 126.981216,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7297927670,
+     "name": "회현 지하상가 11번 출입구",
+     "lat": 37.561003,
+     "lon": 126.981433,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7530818087,
+     "name": "아시아공원지하보도 (종합운동장역 연결)",
+     "lat": 37.512048,
+     "lon": 127.077904,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7530818088,
+     "name": "아시아공원지하보도 (종합운동장역 연결)",
+     "lat": 37.511957,
+     "lon": 127.077637,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7530818089,
+     "name": "아시아공원지하보도 (종합운동장역 연결)",
+     "lat": 37.512095,
+     "lon": 127.078765,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7530818090,
+     "name": "아시아공원지하보도 (종합운동장역 연결)",
+     "lat": 37.512162,
+     "lon": 127.07854,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7530818091,
+     "name": "아시아공원지하보도 (종합운동장역 연결)",
+     "lat": 37.511611,
+     "lon": 127.07881,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7530818092,
+     "name": "아시아공원지하보도 (종합운동장역 연결)",
+     "lat": 37.511471,
+     "lon": 127.07867,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7530818093,
+     "name": "아시아공원지하보도 (종합운동장역 연결)",
+     "lat": 37.511373,
+     "lon": 127.078231,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7901059585,
+     "name": "인현지하상가8번출입구",
+     "lat": 37.564174,
+     "lon": 126.995453,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "variety_store",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 7901085885,
+     "name": "인현지하상가1번출입구",
+     "lat": 37.564324,
+     "lon": 126.99543,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "variety_store",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 8212228274,
+     "name": "",
+     "lat": 37.565908,
+     "lon": 126.984386,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 8212228275,
+     "name": "",
+     "lat": 37.56587,
+     "lon": 126.984157,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 10063505306,
+     "name": "지존스토어",
+     "lat": 37.513577,
+     "lon": 127.104181,
+     "level": null,
+     "layer": null,
+     "opening_hours": "Mo-Su 10:30-22:00",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 10291960163,
+     "name": "",
+     "lat": 37.570027,
+     "lon": 126.999044,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 10291960164,
+     "name": "",
+     "lat": 37.570101,
+     "lon": 126.99878,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 10316028026,
+     "name": "",
+     "lat": 37.56059,
+     "lon": 126.979089,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 10598879947,
+     "name": "휴대폰할인매장",
+     "lat": 37.53429,
+     "lon": 126.847743,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 11012784166,
+     "name": "안녕인사동",
+     "lat": 37.574353,
+     "lon": 126.983629,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 11910362364,
+     "name": "헤스",
+     "lat": 37.535111,
+     "lon": 127.009575,
+     "level": null,
+     "layer": null,
+     "opening_hours": "24/7",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372982605,
+     "name": "주공601동 상가 노원지하보도 앞",
+     "lat": 37.652294,
+     "lon": 127.061348,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372982643,
+     "name": "가마산지하보도 옆",
+     "lat": 37.488647,
+     "lon": 126.88047,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372982704,
+     "name": "종로오가 지하쇼핑센터 14번출구",
+     "lat": 37.57114,
+     "lon": 127.000671,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372983235,
+     "name": "아시아지하보도 2번 출구",
+     "lat": 37.512169,
+     "lon": 127.078934,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372983362,
+     "name": "대방지하보도(대방동경남아너스빌아파트)",
+     "lat": 37.512135,
+     "lon": 126.925438,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372983685,
+     "name": "아시아지하보도 14번 출구",
+     "lat": 37.511463,
+     "lon": 127.078812,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372983740,
+     "name": "을지로지하쇼핑센터",
+     "lat": 37.565891,
+     "lon": 126.984451,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372983777,
+     "name": "르네상스호텔사거리 역삼지하보도 3번출구 앞 (더 오번 빌딩 명동칼국수 앞)",
+     "lat": 37.501663,
+     "lon": 127.042976,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372983870,
+     "name": "이태원지하보도",
+     "lat": 37.53841,
+     "lon": 126.986649,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372984018,
+     "name": "르네상스 호텔 사거리 역삼지하보도 7번출구 앞",
+     "lat": 37.503212,
+     "lon": 127.042732,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372984041,
+     "name": "논현지하보도",
+     "lat": 37.508369,
+     "lon": 127.022324,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372984414,
+     "name": "르네상스호텔사거리 역삼지하보도 2번출구",
+     "lat": 37.502358,
+     "lon": 127.04319,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12372984726,
+     "name": "오목교 동측 지하보도",
+     "lat": 37.523842,
+     "lon": 126.881561,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 12514265613,
+     "name": "공항동지하도입구",
+     "lat": 37.559321,
+     "lon": 126.807999,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 13200657190,
+     "name": "이마트 신촌역 지하통로",
+     "lat": 37.555061,
+     "lon": 126.936149,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 13438315405,
+     "name": "IFC 서울",
+     "lat": 37.52528,
+     "lon": 126.925761,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 13890054362,
+     "name": "주공601동 상가 노원지하보도 앞",
+     "lat": 37.652294,
+     "lon": 127.061348,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 13890054805,
+     "name": "가마산지하보도 옆",
+     "lat": 37.488647,
+     "lon": 126.88047,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 13890054875,
+     "name": "아시아지하보도 14번 출구",
+     "lat": 37.511463,
+     "lon": 127.078812,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 13890055324,
+     "name": "아시아지하보도 2번 출구",
+     "lat": 37.512169,
+     "lon": 127.078934,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 14025372563,
+     "name": "자유수입지하상가",
+     "lat": 37.560893,
+     "lon": 126.979784,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "supermarket",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 14205395788,
+     "name": "메가MGC커피 2796th 양재역지하상가점",
+     "lat": 37.483654,
+     "lon": 127.034933,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 14205403667,
+     "name": "메가MGC커피 3146th 신용산역지하상가점",
+     "lat": 37.529802,
+     "lon": 126.96839,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 26281660,
+     "name": "롯데월드",
+     "lat": 37.51091,
+     "lon": 127.098201,
+     "level": "5",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 60839164,
+     "name": "눈스퀘어",
+     "lat": 37.563456,
+     "lon": 126.982767,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 172470015,
+     "name": "롯데백화점",
+     "lat": 37.65494,
+     "lon": 127.061065,
+     "level": "12",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 243515059,
+     "name": "미도종합상가",
+     "lat": 37.494688,
+     "lon": 127.066443,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 268852001,
+     "name": "신라면세점",
+     "lat": 37.557213,
+     "lon": 127.00773,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 275688155,
+     "name": "",
+     "lat": 37.514177,
+     "lon": 126.860801,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 275688252,
+     "name": "",
+     "lat": 37.508366,
+     "lon": 126.860764,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 298768421,
+     "name": "홈플러스 중계점",
+     "lat": 37.639778,
+     "lon": 127.068662,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 305923846,
+     "name": "강남역지하쇼핑센터",
+     "lat": 37.497988,
+     "lon": 127.027729,
+     "level": null,
+     "layer": "-1",
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 306956698,
+     "name": "메세나폴리스",
+     "lat": 37.551122,
+     "lon": 126.913918,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 313260160,
+     "name": "마리오아울렛 2관",
+     "lat": 37.478697,
+     "lon": 126.886459,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 332562900,
+     "name": "경희플라자",
+     "lat": 37.594511,
+     "lon": 127.052351,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 348649722,
+     "name": "밀리오레",
+     "lat": 37.568047,
+     "lon": 127.008545,
+     "level": null,
+     "layer": null,
+     "opening_hours": "Tu-Su 10:30-04:30",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 357630219,
+     "name": "롯데월드몰",
+     "lat": 37.513704,
+     "lon": 127.104398,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 358283250,
+     "name": "헬로apm",
+     "lat": 37.567472,
+     "lon": 127.008035,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 358284628,
+     "name": "굿모닝시티",
+     "lat": 37.566605,
+     "lon": 127.007437,
+     "level": "15",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 358288326,
+     "name": "던던",
+     "lat": 37.565677,
+     "lon": 127.007156,
+     "level": null,
+     "layer": null,
+     "opening_hours": "Mo-Su,PH 10:30-21:00",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 382947007,
+     "name": "DDP 패션몰",
+     "lat": 37.567181,
+     "lon": 127.012131,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 384018492,
+     "name": "마리오아울렛 3관",
+     "lat": 37.478479,
+     "lon": 126.884923,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 400847801,
+     "name": "에이피엠 플레이스",
+     "lat": 37.565252,
+     "lon": 127.008344,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 400847802,
+     "name": "누죤",
+     "lat": 37.566945,
+     "lon": 127.012959,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 400847803,
+     "name": "",
+     "lat": 37.568427,
+     "lon": 127.011318,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 400847804,
+     "name": "벨포스트(BELPOST)",
+     "lat": 37.568082,
+     "lon": 127.011942,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 400847805,
+     "name": "광희패션몰",
+     "lat": 37.568713,
+     "lon": 127.01194,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 400847806,
+     "name": "",
+     "lat": 37.569127,
+     "lon": 127.010847,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 400847811,
+     "name": "청평화시장",
+     "lat": 37.569486,
+     "lon": 127.014831,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 400847812,
+     "name": "동평화시장",
+     "lat": 37.569464,
+     "lon": 127.013083,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 413354848,
+     "name": "반원상가",
+     "lat": 37.508751,
+     "lon": 127.003442,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 413372929,
+     "name": "뉴코아아울렛강남점(1관)",
+     "lat": 37.508401,
+     "lon": 127.007904,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 413372930,
+     "name": "뉴코아아울렛강남점(2관)",
+     "lat": 37.509234,
+     "lon": 127.007394,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 414371719,
+     "name": "파스텔상가",
+     "lat": 37.510416,
+     "lon": 127.010065,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 425611187,
+     "name": "국제전자센터",
+     "lat": 37.484844,
+     "lon": 127.017748,
+     "level": null,
+     "layer": null,
+     "opening_hours": "10:00-20:00",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 443692976,
+     "name": "뉴타운상가",
+     "lat": 37.508569,
+     "lon": 127.011913,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 443718139,
+     "name": "킴스클럽뉴코아아울렛강남점",
+     "lat": 37.510249,
+     "lon": 127.006862,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 468579571,
+     "name": "W몰",
+     "lat": 37.477316,
+     "lon": 126.887702,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 472095111,
+     "name": "헤스",
+     "lat": 37.535137,
+     "lon": 127.009563,
+     "level": null,
+     "layer": null,
+     "opening_hours": "reservation",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 474276571,
+     "name": "2001아울렛 중계점",
+     "lat": 37.641162,
+     "lon": 127.067883,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 492705276,
+     "name": "아이파크몰 에어쉽",
+     "lat": 37.529257,
+     "lon": 126.965423,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 492722395,
+     "name": "아이파크몰 패션파크",
+     "lat": 37.529658,
+     "lon": 126.965972,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 492723094,
+     "name": "아이파크몰 리빙파크",
+     "lat": 37.528844,
+     "lon": 126.964611,
+     "level": null,
+     "layer": "1",
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 492727625,
+     "name": "아이파크몰 디지털전문점",
+     "lat": 37.529241,
+     "lon": 126.964297,
+     "level": null,
+     "layer": "1",
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 492727626,
+     "name": "신라면세점 아이파크몰",
+     "lat": 37.529585,
+     "lon": 126.963684,
+     "level": null,
+     "layer": "1",
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 566887597,
+     "name": "E-mart",
+     "lat": 37.554693,
+     "lon": 127.155909,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 567074995,
+     "name": "신림현대종합상가",
+     "lat": 37.474577,
+     "lon": 126.933735,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 626423078,
+     "name": "신평화시장",
+     "lat": 37.569471,
+     "lon": 127.010863,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 754311132,
+     "name": "동대문상가 - C동",
+     "lat": 37.570098,
+     "lon": 127.013189,
+     "level": "4",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 754311133,
+     "name": "동대문상가 - D동",
+     "lat": 37.5701,
+     "lon": 127.014703,
+     "level": "4",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 759395655,
+     "name": "동대문지하쇼핑센터 1번출구",
+     "lat": 37.570108,
+     "lon": 127.009915,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 759395656,
+     "name": "동대문지하쇼핑센터 2번출구",
+     "lat": 37.570042,
+     "lon": 127.009389,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 769022381,
+     "name": "헤센스마트쇼핑몰",
+     "lat": 37.561322,
+     "lon": 126.998527,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 775687309,
+     "name": "은마종합상가",
+     "lat": 37.495374,
+     "lon": 127.063594,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 775687310,
+     "name": "은마종합상가",
+     "lat": 37.49602,
+     "lon": 127.064088,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 777927262,
+     "name": "상가",
+     "lat": 37.550349,
+     "lon": 126.946578,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 781662004,
+     "name": "",
+     "lat": 37.56114,
+     "lon": 126.981247,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 784514944,
+     "name": "MAXTYLE",
+     "lat": 37.568824,
+     "lon": 127.010453,
+     "level": null,
+     "layer": "1",
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1012525006,
+     "name": "",
+     "lat": 37.571928,
+     "lon": 126.997103,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1080863362,
+     "name": "개포자이 프레지던스 상가",
+     "lat": 37.487663,
+     "lon": 127.073858,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1124654272,
+     "name": "",
+     "lat": 37.569934,
+     "lon": 126.998766,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1125230933,
+     "name": "마전교지하쇼핑센터",
+     "lat": 37.570059,
+     "lon": 127.002018,
+     "level": null,
+     "layer": "-1",
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1125472127,
+     "name": "",
+     "lat": 37.569927,
+     "lon": 126.998587,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1125472128,
+     "name": "",
+     "lat": 37.569916,
+     "lon": 126.998419,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1125472129,
+     "name": "",
+     "lat": 37.569861,
+     "lon": 126.99831,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1125982017,
+     "name": "",
+     "lat": 37.569098,
+     "lon": 127.002094,
+     "level": null,
+     "layer": "-2",
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1258207418,
+     "name": "비트플렉스몰",
+     "lat": 37.561942,
+     "lon": 127.038356,
+     "level": null,
+     "layer": "1",
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1354860678,
+     "name": "고속터미널 지하상가",
+     "lat": 37.506059,
+     "lon": 127.004601,
+     "level": null,
+     "layer": "-1",
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1480619745,
+     "name": "Haus Nowhere Seoul",
+     "lat": 37.538102,
+     "lon": 127.058973,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1500119525,
+     "name": "세이브존 노원점",
+     "lat": 37.636756,
+     "lon": 127.068374,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "relation",
+     "id": 5317662,
+     "name": "그랜드플라자",
+     "lat": 37.554985,
+     "lon": 126.936013,
+     "level": "11",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "relation",
+     "id": 6908169,
+     "name": "롯데몰 은평점",
+     "lat": 37.63753,
+     "lon": 126.917995,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "relation",
+     "id": 9038706,
+     "name": "마리오아울렛",
+     "lat": 37.478157,
+     "lon": 126.887102,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "relation",
+     "id": 12588994,
+     "name": "신월여의지하도로",
+     "lat": 37.526907,
+     "lon": 126.879367,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "relation",
+     "id": 13196917,
+     "name": "서부간선지하도로",
+     "lat": 37.504425,
+     "lon": 126.881122,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "relation",
+     "id": 14280713,
+     "name": "쌈지길",
+     "lat": 37.574264,
+     "lon": 126.984901,
+     "level": "1;2;3;4",
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    }
+   ],
+   "indoor_areas_negative_level": 10,
+   "platform_ways": 236
+  },
+  "busan": {
+   "osm_base": "2026-11-10T07:44:42Z",
+   "ug_ways": 88,
+   "ug_km": 7.17,
+   "strict_ways": 54,
+   "strict_km": 2.64,
+   "building_passage": {
+    "ways": 17,
+    "km": 0.3
+   },
+   "km_by_pattern": {
+    "layer<0": 6.47,
+    "tunnel=yes": 2.57,
+    "level<0": 0.07,
+    "location=underground": 0.03
+   },
+   "km_by_pattern_combo": {
+    "layer<0": 4.52,
+    "tunnel=yes + layer<0": 1.95,
+    "tunnel=yes": 0.63,
+    "level<0": 0.04,
+    "level<0 + location=underground": 0.03
+   },
+   "km_by_highway": {
+    "path": 3.98,
+    "footway": 1.84,
+    "pedestrian": 1.12,
+    "steps": 0.18,
+    "corridor": 0.03,
+    "elevator": 0.01
+   },
+   "tunnel_values": {
+    "yes": 51,
+    "None": 37
+   },
+   "level_values_top": {
+    "-1": 3
+   },
+   "components_loose": {
+    "all": {
+     "n": 66,
+     "km": 7.17
+    },
+    "len_ge_100m": {
+     "n": 12,
+     "km": 5.4
+    },
+    "len_ge_500m": {
+     "n": 2,
+     "km": 3.06
+    },
+    "len_ge_1km": {
+     "n": 1,
+     "km": 2.07
+    },
+    "shares_entrance_node": {
+     "n": 1,
+     "km": 0.31
+    },
+    "entrance_shared_or_within_50m": {
+     "n": 9,
+     "km": 1.01
+    },
+    "shares_platform_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "touch_entrance_or_platform": {
+     "n": 9,
+     "km": 1.01
+    },
+    "links_2plus_stations_via_entrances": {
+     "n": 0,
+     "km": 0.0
+    },
+    "links_2plus_stations_entr_or_150m": {
+     "n": 0,
+     "km": 0.0
+    }
+   },
+   "components_strict": {
+    "all": {
+     "n": 39,
+     "km": 2.64
+    },
+    "len_ge_100m": {
+     "n": 5,
+     "km": 1.64
+    },
+    "len_ge_500m": {
+     "n": 1,
+     "km": 0.99
+    },
+    "len_ge_1km": {
+     "n": 0,
+     "km": 0.0
+    },
+    "shares_entrance_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "entrance_shared_or_within_50m": {
+     "n": 7,
+     "km": 0.69
+    },
+    "shares_platform_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "touch_entrance_or_platform": {
+     "n": 7,
+     "km": 0.69
+    },
+    "links_2plus_stations_via_entrances": {
+     "n": 0,
+     "km": 0.0
+    },
+    "links_2plus_stations_entr_or_150m": {
+     "n": 0,
+     "km": 0.0
+    }
+   },
+   "opening_hours": {
+    "ways": 0,
+    "km": 0.0,
+    "examples": []
+   },
+   "access_values": {},
+   "foot_values": {
+    "yes": 2
+   },
+   "malls_and_named_arcades": [
+    {
+     "type": "node",
+     "id": 5019329768,
+     "name": "덕천지하상가 주차장",
+     "lat": 35.212156,
+     "lon": 129.010378,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 13798209221,
+     "name": "광복지하쇼핑센터",
+     "lat": 35.098231,
+     "lon": 129.03542,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 165584565,
+     "name": "화명동 롯데마트",
+     "lat": 35.235082,
+     "lon": 129.013093,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 374567872,
+     "name": "남천해변시장",
+     "lat": 35.139256,
+     "lon": 129.109029,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 471350491,
+     "name": "쥬디스태화 신관",
+     "lat": 35.155096,
+     "lon": 129.060266,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 471350492,
+     "name": "쥬티스태화 본관",
+     "lat": 35.15476,
+     "lon": 129.059533,
+     "level": null,
+     "layer": null,
+     "opening_hours": "Mo-Su 10:30-22:30",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 471350494,
+     "name": "",
+     "lat": 35.154232,
+     "lon": 129.057289,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 614744186,
+     "name": "탑마트",
+     "lat": 35.232377,
+     "lon": 129.013887,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 615412012,
+     "name": "대림쌍용상가",
+     "lat": 35.22523,
+     "lon": 129.008036,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 617295870,
+     "name": "홈플러스 익스프레스 구남점",
+     "lat": 35.196294,
+     "lon": 128.994221,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 657865825,
+     "name": "스타필드시티명지",
+     "lat": 35.093199,
+     "lon": 128.918194,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 842313394,
+     "name": "",
+     "lat": 35.160426,
+     "lon": 129.168979,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1066891234,
+     "name": "롯데프리미엄아울렛 동부산점",
+     "lat": 35.192439,
+     "lon": 129.212737,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1067666026,
+     "name": "롯데몰 메종동부산",
+     "lat": 35.19284,
+     "lon": 129.215332,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1239088448,
+     "name": "W 스퀘어 상가",
+     "lat": 35.133475,
+     "lon": 129.11247,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "relation",
+     "id": 7943746,
+     "name": "하단 아트몰링",
+     "lat": 35.106689,
+     "lon": 128.966554,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    }
+   ],
+   "indoor_areas_negative_level": 20,
+   "platform_ways": 61
+  },
+  "daegu": {
+   "osm_base": "2026-11-10T07:46:48Z",
+   "ug_ways": 55,
+   "ug_km": 5.84,
+   "strict_ways": 36,
+   "strict_km": 2.2,
+   "building_passage": {
+    "ways": 0,
+    "km": 0.0
+   },
+   "km_by_pattern": {
+    "layer<0": 5.78,
+    "tunnel=yes": 2.2
+   },
+   "km_by_pattern_combo": {
+    "layer<0": 3.64,
+    "tunnel=yes + layer<0": 2.14,
+    "tunnel=yes": 0.06
+   },
+   "km_by_highway": {
+    "footway": 5.12,
+    "path": 0.37,
+    "steps": 0.18,
+    "pedestrian": 0.17
+   },
+   "tunnel_values": {
+    "yes": 36,
+    "None": 19
+   },
+   "level_values_top": {},
+   "components_loose": {
+    "all": {
+     "n": 48,
+     "km": 5.84
+    },
+    "len_ge_100m": {
+     "n": 10,
+     "km": 4.14
+    },
+    "len_ge_500m": {
+     "n": 3,
+     "km": 2.86
+    },
+    "len_ge_1km": {
+     "n": 1,
+     "km": 1.44
+    },
+    "shares_entrance_node": {
+     "n": 1,
+     "km": 0.06
+    },
+    "entrance_shared_or_within_50m": {
+     "n": 4,
+     "km": 2.27
+    },
+    "shares_platform_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "touch_entrance_or_platform": {
+     "n": 4,
+     "km": 2.27
+    },
+    "links_2plus_stations_via_entrances": {
+     "n": 1,
+     "km": 1.44
+    },
+    "links_2plus_stations_entr_or_150m": {
+     "n": 1,
+     "km": 1.44
+    }
+   },
+   "components_strict": {
+    "all": {
+     "n": 31,
+     "km": 2.2
+    },
+    "len_ge_100m": {
+     "n": 2,
+     "km": 0.88
+    },
+    "len_ge_500m": {
+     "n": 1,
+     "km": 0.72
+    },
+    "len_ge_1km": {
+     "n": 0,
+     "km": 0.0
+    },
+    "shares_entrance_node": {
+     "n": 1,
+     "km": 0.06
+    },
+    "entrance_shared_or_within_50m": {
+     "n": 3,
+     "km": 0.83
+    },
+    "shares_platform_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "touch_entrance_or_platform": {
+     "n": 3,
+     "km": 0.83
+    },
+    "links_2plus_stations_via_entrances": {
+     "n": 0,
+     "km": 0.0
+    },
+    "links_2plus_stations_entr_or_150m": {
+     "n": 0,
+     "km": 0.0
+    }
+   },
+   "opening_hours": {
+    "ways": 0,
+    "km": 0.0,
+    "examples": []
+   },
+   "access_values": {},
+   "foot_values": {
+    "yes": 1
+   },
+   "malls_and_named_arcades": [
+    {
+     "type": "node",
+     "id": 1105657414,
+     "name": "홈플러스",
+     "lat": 35.849362,
+     "lon": 128.528723,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 468767776,
+     "name": "월배 이마트",
+     "lat": 35.817241,
+     "lon": 128.523807,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 886369102,
+     "name": "대구역지하상가",
+     "lat": 35.875135,
+     "lon": 128.595199,
+     "level": null,
+     "layer": "-1",
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1442156238,
+     "name": "동아아울렛",
+     "lat": 35.933012,
+     "lon": 128.548955,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    }
+   ],
+   "indoor_areas_negative_level": 3,
+   "platform_ways": 21
+  },
+  "incheon": {
+   "osm_base": "2026-11-10T07:46:48Z",
+   "ug_ways": 214,
+   "ug_km": 10.3,
+   "strict_ways": 181,
+   "strict_km": 7.44,
+   "building_passage": {
+    "ways": 14,
+    "km": 0.39
+   },
+   "km_by_pattern": {
+    "layer<0": 8.89,
+    "tunnel=yes": 6.56,
+    "level<0": 0.63,
+    "indoor=yes": 0.32,
+    "tunnel=covered": 0.19,
+    "indoor=room": 0.02
+   },
+   "km_by_pattern_combo": {
+    "tunnel=yes + layer<0": 5.72,
+    "layer<0": 2.87,
+    "level<0": 0.6,
+    "tunnel=yes": 0.57,
+    "tunnel=yes + layer<0 + indoor=yes": 0.24,
+    "tunnel=covered": 0.19,
+    "layer<0 + indoor=yes": 0.06,
+    "tunnel=yes + indoor=yes": 0.03,
+    "level<0 + indoor=room": 0.02,
+    "layer<0 + level<0": 0.01
+   },
+   "km_by_highway": {
+    "footway": 6.47,
+    "pedestrian": 1.58,
+    "path": 1.17,
+    "steps": 0.73,
+    "corridor": 0.32,
+    "elevator": 0.02
+   },
+   "tunnel_values": {
+    "yes": 159,
+    "None": 53,
+    "covered": 2
+   },
+   "level_values_top": {
+    "-1-4": 10,
+    "-1": 7,
+    "1": 1,
+    "-1;0": 1
+   },
+   "components_loose": {
+    "all": {
+     "n": 108,
+     "km": 10.3
+    },
+    "len_ge_100m": {
+     "n": 19,
+     "km": 7.51
+    },
+    "len_ge_500m": {
+     "n": 5,
+     "km": 4.5
+    },
+    "len_ge_1km": {
+     "n": 1,
+     "km": 1.78
+    },
+    "shares_entrance_node": {
+     "n": 2,
+     "km": 0.8
+    },
+    "entrance_shared_or_within_50m": {
+     "n": 9,
+     "km": 3.7
+    },
+    "shares_platform_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "touch_entrance_or_platform": {
+     "n": 9,
+     "km": 3.7
+    },
+    "links_2plus_stations_via_entrances": {
+     "n": 1,
+     "km": 0.24
+    },
+    "links_2plus_stations_entr_or_150m": {
+     "n": 1,
+     "km": 0.24
+    }
+   },
+   "components_strict": {
+    "all": {
+     "n": 89,
+     "km": 7.43
+    },
+    "len_ge_100m": {
+     "n": 12,
+     "km": 5.09
+    },
+    "len_ge_500m": {
+     "n": 3,
+     "km": 2.98
+    },
+    "len_ge_1km": {
+     "n": 1,
+     "km": 1.78
+    },
+    "shares_entrance_node": {
+     "n": 2,
+     "km": 0.78
+    },
+    "entrance_shared_or_within_50m": {
+     "n": 9,
+     "km": 3.68
+    },
+    "shares_platform_node": {
+     "n": 0,
+     "km": 0.0
+    },
+    "touch_entrance_or_platform": {
+     "n": 9,
+     "km": 3.68
+    },
+    "links_2plus_stations_via_entrances": {
+     "n": 1,
+     "km": 0.24
+    },
+    "links_2plus_stations_entr_or_150m": {
+     "n": 1,
+     "km": 0.24
+    }
+   },
+   "opening_hours": {
+    "ways": 0,
+    "km": 0.0,
+    "examples": []
+   },
+   "access_values": {
+    "yes": 2
+   },
+   "foot_values": {
+    "yes": 2
+   },
+   "malls_and_named_arcades": [
+    {
+     "type": "node",
+     "id": 4636777071,
+     "name": "부평모두몰 19번 출구",
+     "lat": 37.492022,
+     "lon": 126.722971,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 4636777117,
+     "name": "부평모두몰 25번 출입구",
+     "lat": 37.492273,
+     "lon": 126.722927,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 4636778093,
+     "name": "부평모두몰 18번 출구",
+     "lat": 37.491782,
+     "lon": 126.722934,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "node",
+     "id": 13917060028,
+     "name": "오션포레베네스트상가",
+     "lat": 37.524442,
+     "lon": 126.508392,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 310417383,
+     "name": "봄동 101",
+     "lat": 37.398225,
+     "lon": 126.635643,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 310417384,
+     "name": "봄동 102",
+     "lat": 37.398002,
+     "lon": 126.635885,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 313414945,
+     "name": "스퀘어원",
+     "lat": 37.406097,
+     "lon": 126.683658,
+     "level": "4",
+     "layer": null,
+     "opening_hours": "10:30-22:00",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 313773972,
+     "name": "여름동 201",
+     "lat": 37.399481,
+     "lon": 126.637061,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 314997436,
+     "name": "여름동 202",
+     "lat": 37.399291,
+     "lon": 126.637277,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 314997437,
+     "name": "가을동 302",
+     "lat": 37.400652,
+     "lon": 126.638779,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 314997439,
+     "name": "가을동 301",
+     "lat": 37.400923,
+     "lon": 126.638627,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 314997441,
+     "name": "겨울동 402",
+     "lat": 37.40195,
+     "lon": 126.640195,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 314997443,
+     "name": "겨울동 401",
+     "lat": 37.402289,
+     "lon": 126.640089,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 424584631,
+     "name": "에어조이 쇼핑몰",
+     "lat": 37.43988,
+     "lon": 126.458367,
+     "level": null,
+     "layer": null,
+     "opening_hours": "closed",
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 470463803,
+     "name": "지하상가",
+     "lat": 37.401249,
+     "lon": 126.718652,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": null,
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 841263124,
+     "name": "파라다이스시티 플라자",
+     "lat": 37.437638,
+     "lon": 126.457658,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1264113253,
+     "name": "인스파이어 몰",
+     "lat": 37.466433,
+     "lon": 126.389371,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "way",
+     "id": 1338487926,
+     "name": "",
+     "lat": 37.465346,
+     "lon": 126.387799,
+     "level": null,
+     "layer": "1",
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    },
+    {
+     "type": "relation",
+     "id": 10147599,
+     "name": "현대프리미엄 아울렛 송도",
+     "lat": 37.381464,
+     "lon": 126.657974,
+     "level": null,
+     "layer": null,
+     "opening_hours": null,
+     "shop": "mall",
+     "indoor": null,
+     "highway": null
+    }
+   ],
+   "indoor_areas_negative_level": 11,
+   "platform_ways": 92
+  }
+ },
+ "top_components_loose": {
+  "seoul": [
+   {
+    "length_m": 3821.0,
+    "n_ways": 30,
+    "center": [
+     37.566306,
+     126.994692
+    ],
+    "nearest_station": "을지로3가",
+    "nearest_station_m": 191,
+    "names": [
+     "을지로지하상가"
+    ],
+    "highway": {
+     "pedestrian": 16,
+     "footway": 13,
+     "steps": 1
+    },
+    "shares_entrance_node": 10,
+    "entrances_within_50m": 37,
+    "stations_via_entrances": [
+     "동대문",
+     "시청",
+     "을지로3가",
+     "을지로4가",
+     "을지로입구"
+    ],
+    "stations_within_150m": [
+     "동대문역사문화공원",
+     "시청",
+     "을지로3가",
+     "을지로4가",
+     "을지로입구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     770894972,
+     770894973,
+     1126010870,
+     1126010864,
+     1273156140,
+     1015415191,
+     1128459181,
+     1126010868,
+     1126010869,
+     1128459176,
+     1128459180,
+     1126010863,
+     1015415190,
+     1128459178,
+     1290725926,
+     1128459177,
+     1015415192,
+     1126010871,
+     770894974,
+     1128459179,
+     1290725927,
+     1128459182,
+     1126010861,
+     980071517,
+     770894977,
+     770894975,
+     1126010866,
+     1126010865,
+     770894976,
+     1126010872
+    ],
+    "cid": "seoul-0"
+   },
+   {
+    "length_m": 3713.4,
+    "n_ways": 3,
+    "center": [
+     37.57331,
+     126.957178
+    ],
+    "nearest_station": "독립문",
+    "nearest_station_m": 150,
+    "names": [],
+    "highway": {
+     "pedestrian": 2,
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 5,
+    "stations_via_entrances": [
+     "독립문"
+    ],
+    "stations_within_150m": [
+     "독립문"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 3709.1,
+    "way_ids": [
+     1564874089,
+     777660086,
+     1565064660
+    ],
+    "cid": "seoul-1"
+   },
+   {
+    "length_m": 2856.8,
+    "n_ways": 5,
+    "center": [
+     37.568706,
+     126.994087
+    ],
+    "nearest_station": "종로3가",
+    "nearest_station_m": 248,
+    "names": [
+     "수표교 진출입 계단 10번"
+    ],
+    "highway": {
+     "footway": 3,
+     "steps": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "동대문"
+    ],
+    "stations_within_150m": [
+     "동대문"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 2801.4,
+    "way_ids": [
+     377289811,
+     156922849,
+     156922848,
+     302087658,
+     302087644
+    ],
+    "cid": "seoul-2"
+   },
+   {
+    "length_m": 2839.6,
+    "n_ways": 10,
+    "center": [
+     37.568702,
+     126.993393
+    ],
+    "nearest_station": "종로3가",
+    "nearest_station_m": 215,
+    "names": [
+     "삼일교 진출입 계단 7번",
+     "수표교 진출입 계단 9번",
+     "장통교 진출입 계단 5번"
+    ],
+    "highway": {
+     "footway": 6,
+     "steps": 4
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 5,
+    "stations_via_entrances": [
+     "동대문"
+    ],
+    "stations_within_150m": [
+     "동대문",
+     "종각",
+     "종로5가"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 2724.3,
+    "way_ids": [
+     156922847,
+     773004584,
+     773004585,
+     1283637453,
+     156922851,
+     302093056,
+     302087651,
+     302087643,
+     1283637452,
+     1283637451
+    ],
+    "cid": "seoul-3"
+   },
+   {
+    "length_m": 2002.3,
+    "n_ways": 30,
+    "center": [
+     37.570069,
+     126.999981
+    ],
+    "nearest_station": "종로5가",
+    "nearest_station_m": 207,
+    "names": [
+     "종로",
+     "창경궁로12길",
+     "동호로"
+    ],
+    "highway": {
+     "pedestrian": 7,
+     "footway": 23
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 5,
+    "stations_via_entrances": [
+     "종로5가"
+    ],
+    "stations_within_150m": [
+     "종로5가"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     203501049,
+     203501048,
+     1125780631,
+     203501045,
+     420393495,
+     1125472126,
+     1125780628,
+     1125630924,
+     1124655654,
+     1125780633,
+     599321448,
+     1126192714,
+     1125780626,
+     1125630902,
+     203501046,
+     1125472125,
+     1124654276,
+     1125780634,
+     1124655655,
+     1125780632,
+     1124655657,
+     1125780627,
+     1125780629,
+     1125781313,
+     1125780630,
+     1124655656,
+     1125781314,
+     1125780769,
+     1125761329,
+     1125780635
+    ],
+    "cid": "seoul-4"
+   },
+   {
+    "length_m": 1595.6,
+    "n_ways": 5,
+    "center": [
+     37.57409,
+     127.034394
+    ],
+    "nearest_station": "용두",
+    "nearest_station_m": 324,
+    "names": [],
+    "highway": {
+     "footway": 5
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 1,
+    "stations_via_entrances": [
+     "제기동"
+    ],
+    "stations_within_150m": [
+     "제기동"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 1595.6,
+    "way_ids": [
+     816487880,
+     448199090,
+     64986746,
+     1531355161,
+     1106859025
+    ],
+    "cid": "seoul-5"
+   },
+   {
+    "length_m": 1194.9,
+    "n_ways": 3,
+    "center": [
+     37.569797,
+     126.95174
+    ],
+    "nearest_station": "독립문",
+    "nearest_station_m": 754,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 621.7,
+    "way_ids": [
+     305268109,
+     1356782176,
+     1356782177
+    ],
+    "cid": "seoul-6"
+   },
+   {
+    "length_m": 1058.3,
+    "n_ways": 3,
+    "center": [
+     37.598496,
+     127.071298
+    ],
+    "nearest_station": "신이문",
+    "nearest_station_m": 497,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 1058.3,
+    "way_ids": [
+     925881932,
+     944456670,
+     944456669
+    ],
+    "cid": "seoul-7"
+   },
+   {
+    "length_m": 1033.8,
+    "n_ways": 32,
+    "center": [
+     37.562728,
+     126.937249
+    ],
+    "nearest_station": "신촌",
+    "nearest_station_m": 557,
+    "names": [
+     "백양누리 지하 1층 복도",
+     "백양누리 지하주차장 통로",
+     "백양누리 지하 2층 복도",
+     "계단"
+    ],
+    "highway": {
+     "corridor": 23,
+     "steps": 9
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 5.4,
+    "way_ids": [
+     1443397018,
+     1410778169,
+     1443397017,
+     1432749017,
+     1432483318,
+     1451926784,
+     1432487586,
+     1443397016,
+     1443397015,
+     1410778170,
+     1432749018,
+     1432483319,
+     1449591793,
+     1508788454,
+     1508787461,
+     1422604410,
+     1443400385,
+     1422604409,
+     1422604411,
+     1443395767,
+     1443390151,
+     1443390138,
+     1432487596,
+     1436386748,
+     1443395766,
+     1422604401,
+     1422604402,
+     1422604403,
+     1422604400,
+     1432487595,
+     1436636336,
+     1453266641
+    ],
+    "cid": "seoul-8"
+   },
+   {
+    "length_m": 893.2,
+    "n_ways": 13,
+    "center": [
+     37.565671,
+     126.977651
+    ],
+    "nearest_station": "시청",
+    "nearest_station_m": 52,
+    "names": [
+     "시티스타몰"
+    ],
+    "highway": {
+     "footway": 13
+    },
+    "shares_entrance_node": 11,
+    "entrances_within_50m": 11,
+    "stations_via_entrances": [
+     "시청"
+    ],
+    "stations_within_150m": [
+     "시청"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 150.2,
+    "way_ids": [
+     379237474,
+     447919205,
+     338906156,
+     338906157,
+     338906159,
+     379237476,
+     607927398,
+     447919203,
+     1230789310,
+     447919207,
+     447919382,
+     447919206,
+     379237471
+    ],
+    "cid": "seoul-9"
+   },
+   {
+    "length_m": 823.9,
+    "n_ways": 31,
+    "center": [
+     37.563717,
+     126.981428
+    ],
+    "nearest_station": "을지로입구",
+    "nearest_station_m": 269,
+    "names": [
+     "소공 지하쇼핑센터",
+     "명동지하상가",
+     "Myeongdong Underground Shopping Center"
+    ],
+    "highway": {
+     "steps": 15,
+     "footway": 16
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     709917060,
+     709917052,
+     709917051,
+     709917054,
+     709917050,
+     709917042,
+     709917047,
+     709917040,
+     709917066,
+     709917059,
+     709917062,
+     709917063,
+     709917037,
+     709917036,
+     709917039,
+     709917061,
+     709917055,
+     709917057,
+     709917043,
+     709917048,
+     709917045,
+     709917053,
+     709917049,
+     709917056,
+     709917044,
+     709917064,
+     709917038,
+     709917058,
+     709917041,
+     709917065,
+     709917046
+    ],
+    "cid": "seoul-10"
+   },
+   {
+    "length_m": 819.1,
+    "n_ways": 1,
+    "center": [
+     37.611888,
+     126.985285
+    ],
+    "nearest_station": "북한산보국문",
+    "nearest_station_m": 2016,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     629055195
+    ],
+    "cid": "seoul-11"
+   },
+   {
+    "length_m": 799.7,
+    "n_ways": 2,
+    "center": [
+     37.491347,
+     127.075498
+    ],
+    "nearest_station": "대모산입구",
+    "nearest_station_m": 243,
+    "names": [],
+    "highway": {
+     "footway": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "대모산입구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 799.7,
+    "way_ids": [
+     1120020484,
+     1120020482
+    ],
+    "cid": "seoul-12"
+   },
+   {
+    "length_m": 765.5,
+    "n_ways": 3,
+    "center": [
+     37.487208,
+     126.922891
+    ],
+    "nearest_station": "당곡",
+    "nearest_station_m": 514,
+    "names": [],
+    "highway": {
+     "pedestrian": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 747.7,
+    "way_ids": [
+     1554386210,
+     1554386213,
+     1554386214
+    ],
+    "cid": "seoul-13"
+   },
+   {
+    "length_m": 727.0,
+    "n_ways": 10,
+    "center": [
+     37.497943,
+     127.027654
+    ],
+    "nearest_station": "강남",
+    "nearest_station_m": 31,
+    "names": [],
+    "highway": {
+     "footway": 10
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 8,
+    "stations_via_entrances": [
+     "강남"
+    ],
+    "stations_within_150m": [
+     "강남"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 7.5,
+    "way_ids": [
+     305932240,
+     305932241,
+     305932242,
+     305932244,
+     305806956,
+     305923844,
+     305923845,
+     305806952,
+     305932246,
+     628232694
+    ],
+    "cid": "seoul-14"
+   },
+   {
+    "length_m": 724.2,
+    "n_ways": 8,
+    "center": [
+     37.582674,
+     127.081316
+    ],
+    "nearest_station": "사가정",
+    "nearest_station_m": 663,
+    "names": [],
+    "highway": {
+     "footway": 8
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 724.2,
+    "way_ids": [
+     1055786320,
+     1056215772,
+     1055786372,
+     1055786354,
+     1055786347,
+     1055786359,
+     1058106761,
+     1055786373
+    ],
+    "cid": "seoul-15"
+   },
+   {
+    "length_m": 718.0,
+    "n_ways": 11,
+    "center": [
+     37.529015,
+     126.967484
+    ],
+    "nearest_station": "신용산",
+    "nearest_station_m": 37,
+    "names": [],
+    "highway": {
+     "footway": 10,
+     "steps": 1
+    },
+    "shares_entrance_node": 4,
+    "entrances_within_50m": 6,
+    "stations_via_entrances": [
+     "신용산"
+    ],
+    "stations_within_150m": [
+     "신용산"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1162998300,
+     1166266472,
+     1162998297,
+     1162998305,
+     1162998306,
+     1162998298,
+     1162998299,
+     1166266473,
+     1162998302,
+     1162998307,
+     1162998304
+    ],
+    "cid": "seoul-16"
+   },
+   {
+    "length_m": 689.8,
+    "n_ways": 1,
+    "center": [
+     37.531393,
+     127.061935
+    ],
+    "nearest_station": "자양",
+    "nearest_station_m": 424,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 689.8,
+    "way_ids": [
+     1199236931
+    ],
+    "cid": "seoul-17"
+   },
+   {
+    "length_m": 621.0,
+    "n_ways": 36,
+    "center": [
+     37.470806,
+     127.126735
+    ],
+    "nearest_station": "복정",
+    "nearest_station_m": 12,
+    "names": [],
+    "highway": {
+     "steps": 13,
+     "footway": 23
+    },
+    "shares_entrance_node": 1,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "복정"
+    ],
+    "stations_within_150m": [
+     "복정"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1221695024,
+     1221678848,
+     1221695031,
+     1221695038,
+     1221695036,
+     1221678854,
+     1221678867,
+     1221678855,
+     1221695037,
+     1221695023,
+     1221695028,
+     1221695026,
+     1221678850,
+     1221678837,
+     1221695042,
+     1221695041,
+     1221695019,
+     1221678829,
+     1221695048,
+     1221695046,
+     1221678851,
+     1221678849,
+     1221678865,
+     1221678852,
+     1221678866,
+     1221678857,
+     1221678858,
+     1221695029,
+     1221695027,
+     1221695025,
+     1221695040,
+     1221695039,
+     1221695045,
+     1221695047,
+     1221695043,
+     1221695044
+    ],
+    "cid": "seoul-18"
+   },
+   {
+    "length_m": 618.5,
+    "n_ways": 2,
+    "center": [
+     37.523401,
+     126.924915
+    ],
+    "nearest_station": "여의도",
+    "nearest_station_m": 200,
+    "names": [
+     "국제금융로"
+    ],
+    "highway": {
+     "pedestrian": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 3,
+    "stations_via_entrances": [
+     "여의도"
+    ],
+    "stations_within_150m": [
+     "여의도"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     331203274,
+     914374379
+    ],
+    "cid": "seoul-19"
+   },
+   {
+    "length_m": 616.5,
+    "n_ways": 1,
+    "center": [
+     37.609488,
+     126.951456
+    ],
+    "nearest_station": "녹번",
+    "nearest_station_m": 1678,
+    "names": [
+     "구기터널 자전거/보행자통로"
+    ],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     629055213
+    ],
+    "cid": "seoul-20"
+   },
+   {
+    "length_m": 612.8,
+    "n_ways": 1,
+    "center": [
+     37.556498,
+     126.928632
+    ],
+    "nearest_station": "홍대입구",
+    "nearest_station_m": 224,
+    "names": [
+     "경의선 숲길"
+    ],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "홍대입구"
+    ],
+    "stations_within_150m": [
+     "홍대입구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 612.8,
+    "way_ids": [
+     471699326
+    ],
+    "cid": "seoul-21"
+   },
+   {
+    "length_m": 550.8,
+    "n_ways": 8,
+    "center": [
+     37.555474,
+     127.047377
+    ],
+    "nearest_station": "한양대",
+    "nearest_station_m": 329,
+    "names": [],
+    "highway": {
+     "path": 8
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1487575125,
+     1487575128,
+     1487575126,
+     1487575172,
+     1487575131,
+     1487575127,
+     1487575129,
+     1487575130
+    ],
+    "cid": "seoul-22"
+   },
+   {
+    "length_m": 487.8,
+    "n_ways": 15,
+    "center": [
+     37.555606,
+     126.936495
+    ],
+    "nearest_station": "신촌",
+    "nearest_station_m": 62,
+    "names": [
+     "신촌역 지하통로",
+     "현대백화점 지하 1층 통로 (빨잠 직통)",
+     "현대백화점 신촌역 지하통로"
+    ],
+    "highway": {
+     "corridor": 13,
+     "steps": 2
+    },
+    "shares_entrance_node": 2,
+    "entrances_within_50m": 7,
+    "stations_via_entrances": [
+     "신촌"
+    ],
+    "stations_within_150m": [
+     "신촌"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1434541117,
+     1434541122,
+     1434541114,
+     1434541115,
+     1436853627,
+     1436170978,
+     1436170977,
+     1434541116,
+     1436170976,
+     1436163441,
+     1436854909,
+     1436159557,
+     1436163450,
+     1436159560,
+     1436159555
+    ],
+    "cid": "seoul-23"
+   },
+   {
+    "length_m": 429.4,
+    "n_ways": 3,
+    "center": [
+     37.558434,
+     127.043924
+    ],
+    "nearest_station": "한양대",
+    "nearest_station_m": 302,
+    "names": [],
+    "highway": {
+     "pedestrian": 1,
+     "path": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 429.4,
+    "way_ids": [
+     187443875,
+     1487575156,
+     1487575272
+    ],
+    "cid": "seoul-24"
+   }
+  ],
+  "busan": [
+   {
+    "length_m": 2074.8,
+    "n_ways": 1,
+    "center": [
+     35.181175,
+     129.059616
+    ],
+    "nearest_station": "거제해맞이",
+    "nearest_station_m": 862,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 2074.8,
+    "way_ids": [
+     471674611
+    ],
+    "cid": "busan-0"
+   },
+   {
+    "length_m": 989.7,
+    "n_ways": 9,
+    "center": [
+     35.173205,
+     129.1748
+    ],
+    "nearest_station": "장산",
+    "nearest_station_m": 426,
+    "names": [
+     "좌동로"
+    ],
+    "highway": {
+     "pedestrian": 9
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1115495071,
+     1115495072,
+     1115495070,
+     499196457,
+     1115495073,
+     1115495058,
+     1115495075,
+     1115495076,
+     1115495078
+    ],
+    "cid": "busan-1"
+   },
+   {
+    "length_m": 429.1,
+    "n_ways": 1,
+    "center": [
+     35.202279,
+     129.055265
+    ],
+    "nearest_station": "사직",
+    "nearest_station_m": 963,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 429.1,
+    "way_ids": [
+     1225312388
+    ],
+    "cid": "busan-2"
+   },
+   {
+    "length_m": 340.3,
+    "n_ways": 1,
+    "center": [
+     35.202715,
+     129.05437
+    ],
+    "nearest_station": "사직",
+    "nearest_station_m": 1056,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 340.3,
+    "way_ids": [
+     1225312389
+    ],
+    "cid": "busan-3"
+   },
+   {
+    "length_m": 329.6,
+    "n_ways": 1,
+    "center": [
+     35.227754,
+     129.056695
+    ],
+    "nearest_station": "만덕",
+    "nearest_station_m": 2461,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 329.6,
+    "way_ids": [
+     1226397030
+    ],
+    "cid": "busan-4"
+   },
+   {
+    "length_m": 314.3,
+    "n_ways": 3,
+    "center": [
+     35.14128,
+     129.05933
+    ],
+    "nearest_station": "범일",
+    "nearest_station_m": 37,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 7,
+    "entrances_within_50m": 7,
+    "stations_via_entrances": [
+     "범일"
+    ],
+    "stations_within_150m": [
+     "범일"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 314.3,
+    "way_ids": [
+     1495765724,
+     1495765725,
+     1495765717
+    ],
+    "cid": "busan-5"
+   },
+   {
+    "length_m": 187.5,
+    "n_ways": 1,
+    "center": [
+     35.17987,
+     129.075406
+    ],
+    "nearest_station": "시청",
+    "nearest_station_m": 102,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "시청"
+    ],
+    "stations_within_150m": [
+     "시청"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     468977714
+    ],
+    "cid": "busan-6"
+   },
+   {
+    "length_m": 187.1,
+    "n_ways": 1,
+    "center": [
+     35.1531,
+     129.020244
+    ],
+    "nearest_station": "개금",
+    "nearest_station_m": 26,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "개금"
+    ],
+    "stations_within_150m": [
+     "개금"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1154189445
+    ],
+    "cid": "busan-7"
+   },
+   {
+    "length_m": 167.0,
+    "n_ways": 3,
+    "center": [
+     35.095183,
+     128.961456
+    ],
+    "nearest_station": "신평",
+    "nearest_station_m": 71,
+    "names": [],
+    "highway": {
+     "steps": 2,
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 6,
+    "stations_via_entrances": [
+     "신평"
+    ],
+    "stations_within_150m": [
+     "신평"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     165293609,
+     165293594,
+     165293604
+    ],
+    "cid": "busan-8"
+   },
+   {
+    "length_m": 141.2,
+    "n_ways": 1,
+    "center": [
+     35.283312,
+     129.068148
+    ],
+    "nearest_station": "노포",
+    "nearest_station_m": 2449,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 141.2,
+    "way_ids": [
+     1280410220
+    ],
+    "cid": "busan-9"
+   },
+   {
+    "length_m": 136.7,
+    "n_ways": 5,
+    "center": [
+     35.324513,
+     129.236197
+    ],
+    "nearest_station": "좌천",
+    "nearest_station_m": 1627,
+    "names": [],
+    "highway": {
+     "path": 3,
+     "steps": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 136.7,
+    "way_ids": [
+     1411366973,
+     1411366971,
+     1411366974,
+     1411366975,
+     1411366976
+    ],
+    "cid": "busan-10"
+   },
+   {
+    "length_m": 106.4,
+    "n_ways": 1,
+    "center": [
+     35.224826,
+     129.00535
+    ],
+    "nearest_station": "수정",
+    "nearest_station_m": 388,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     961763276
+    ],
+    "cid": "busan-11"
+   },
+   {
+    "length_m": 94.6,
+    "n_ways": 2,
+    "center": [
+     35.131587,
+     129.103478
+    ],
+    "nearest_station": "경성대·부경대",
+    "nearest_station_m": 714,
+    "names": [],
+    "highway": {
+     "footway": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 94.6,
+    "way_ids": [
+     1237876866,
+     1237876869
+    ],
+    "cid": "busan-12"
+   },
+   {
+    "length_m": 86.7,
+    "n_ways": 1,
+    "center": [
+     35.141739,
+     129.033929
+    ],
+    "nearest_station": "동의대",
+    "nearest_station_m": 1369,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 86.7,
+    "way_ids": [
+     1116729586
+    ],
+    "cid": "busan-13"
+   },
+   {
+    "length_m": 83.5,
+    "n_ways": 1,
+    "center": [
+     35.008811,
+     128.827144
+    ],
+    "nearest_station": "다대포해수욕장",
+    "nearest_station_m": 13382,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1219035694
+    ],
+    "cid": "busan-14"
+   },
+   {
+    "length_m": 80.5,
+    "n_ways": 1,
+    "center": [
+     35.170245,
+     129.123834
+    ],
+    "nearest_station": "민락",
+    "nearest_station_m": 371,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 80.5,
+    "way_ids": [
+     1477730654
+    ],
+    "cid": "busan-15"
+   },
+   {
+    "length_m": 79.9,
+    "n_ways": 1,
+    "center": [
+     35.132458,
+     129.103489
+    ],
+    "nearest_station": "경성대·부경대",
+    "nearest_station_m": 626,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 79.9,
+    "way_ids": [
+     1114992426
+    ],
+    "cid": "busan-16"
+   },
+   {
+    "length_m": 75.0,
+    "n_ways": 1,
+    "center": [
+     35.075417,
+     129.048009
+    ],
+    "nearest_station": "남포",
+    "nearest_station_m": 2771,
+    "names": [
+     "흰여울해안터널"
+    ],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1143185853
+    ],
+    "cid": "busan-17"
+   },
+   {
+    "length_m": 60.0,
+    "n_ways": 1,
+    "center": [
+     35.328807,
+     129.19005
+    ],
+    "nearest_station": "좌천",
+    "nearest_station_m": 5342,
+    "names": [],
+    "highway": {
+     "pedestrian": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1219930835
+    ],
+    "cid": "busan-18"
+   },
+   {
+    "length_m": 57.0,
+    "n_ways": 1,
+    "center": [
+     35.172086,
+     129.128426
+    ],
+    "nearest_station": "센텀시티",
+    "nearest_station_m": 464,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     569248646
+    ],
+    "cid": "busan-19"
+   },
+   {
+    "length_m": 54.7,
+    "n_ways": 1,
+    "center": [
+     35.205235,
+     129.031227
+    ],
+    "nearest_station": "만덕",
+    "nearest_station_m": 988,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     489519670
+    ],
+    "cid": "busan-20"
+   },
+   {
+    "length_m": 51.4,
+    "n_ways": 1,
+    "center": [
+     35.210965,
+     128.982852
+    ],
+    "nearest_station": "강서구청",
+    "nearest_station_m": 87,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 1,
+    "stations_via_entrances": [
+     "강서구청"
+    ],
+    "stations_within_150m": [
+     "강서구청"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1484771625
+    ],
+    "cid": "busan-21"
+   },
+   {
+    "length_m": 47.9,
+    "n_ways": 1,
+    "center": [
+     35.141561,
+     129.033954
+    ],
+    "nearest_station": "동의대",
+    "nearest_station_m": 1389,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 47.9,
+    "way_ids": [
+     1116729587
+    ],
+    "cid": "busan-22"
+   },
+   {
+    "length_m": 43.7,
+    "n_ways": 1,
+    "center": [
+     35.131613,
+     129.103069
+    ],
+    "nearest_station": "경성대·부경대",
+    "nearest_station_m": 698,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 43.7,
+    "way_ids": [
+     1114992425
+    ],
+    "cid": "busan-23"
+   },
+   {
+    "length_m": 42.0,
+    "n_ways": 1,
+    "center": [
+     35.155601,
+     129.064207
+    ],
+    "nearest_station": "전포",
+    "nearest_station_m": 326,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 42.0,
+    "way_ids": [
+     991534339
+    ],
+    "cid": "busan-24"
+   }
+  ],
+  "daegu": [
+   {
+    "length_m": 1444.9,
+    "n_ways": 3,
+    "center": [
+     35.83621,
+     128.623725
+    ],
+    "nearest_station": "황금",
+    "nearest_station_m": 321,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 2,
+    "stations_via_entrances": [
+     "수성못",
+     "황금"
+    ],
+    "stations_within_150m": [
+     "수성못",
+     "어린이세상",
+     "황금"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 1444.9,
+    "way_ids": [
+     1331532570,
+     1331532567,
+     1331532564
+    ],
+    "cid": "daegu-0"
+   },
+   {
+    "length_m": 722.6,
+    "n_ways": 3,
+    "center": [
+     35.835827,
+     128.557803
+    ],
+    "nearest_station": "서부정류장",
+    "nearest_station_m": 140,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 2,
+    "stations_via_entrances": [
+     "서부정류장"
+    ],
+    "stations_within_150m": [
+     "서부정류장"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     365450433,
+     365450432,
+     365450434
+    ],
+    "cid": "daegu-1"
+   },
+   {
+    "length_m": 695.5,
+    "n_ways": 1,
+    "center": [
+     35.834307,
+     128.723066
+    ],
+    "nearest_station": "정평",
+    "nearest_station_m": 476,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 695.5,
+    "way_ids": [
+     744835536
+    ],
+    "cid": "daegu-2"
+   },
+   {
+    "length_m": 237.7,
+    "n_ways": 1,
+    "center": [
+     35.890528,
+     128.607761
+    ],
+    "nearest_station": "칠성시장",
+    "nearest_station_m": 1623,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 237.7,
+    "way_ids": [
+     846912082
+    ],
+    "cid": "daegu-3"
+   },
+   {
+    "length_m": 227.4,
+    "n_ways": 1,
+    "center": [
+     35.889729,
+     128.60899
+    ],
+    "nearest_station": "칠성시장",
+    "nearest_station_m": 1556,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 227.4,
+    "way_ids": [
+     846904761
+    ],
+    "cid": "daegu-4"
+   },
+   {
+    "length_m": 219.6,
+    "n_ways": 1,
+    "center": [
+     35.886254,
+     128.723102
+    ],
+    "nearest_station": "안심",
+    "nearest_station_m": 1927,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 219.6,
+    "way_ids": [
+     960625414
+    ],
+    "cid": "daegu-5"
+   },
+   {
+    "length_m": 196.0,
+    "n_ways": 1,
+    "center": [
+     35.955371,
+     128.582031
+    ],
+    "nearest_station": "칠곡경대병원",
+    "nearest_station_m": 2022,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 196.0,
+    "way_ids": [
+     1044437639
+    ],
+    "cid": "daegu-6"
+   },
+   {
+    "length_m": 156.1,
+    "n_ways": 1,
+    "center": [
+     35.878669,
+     128.627027
+    ],
+    "nearest_station": "동대구",
+    "nearest_station_m": 129,
+    "names": [],
+    "highway": {
+     "steps": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "동대구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     822417472
+    ],
+    "cid": "daegu-7"
+   },
+   {
+    "length_m": 126.0,
+    "n_ways": 1,
+    "center": [
+     35.882818,
+     128.626381
+    ],
+    "nearest_station": "동대구",
+    "nearest_station_m": 440,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 126.0,
+    "way_ids": [
+     1218810133
+    ],
+    "cid": "daegu-8"
+   },
+   {
+    "length_m": 111.2,
+    "n_ways": 1,
+    "center": [
+     35.704547,
+     128.455695
+    ],
+    "nearest_station": "설화명곡",
+    "nearest_station_m": 10901,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 111.2,
+    "way_ids": [
+     1570019147
+    ],
+    "cid": "daegu-9"
+   },
+   {
+    "length_m": 85.8,
+    "n_ways": 1,
+    "center": [
+     35.863357,
+     128.526115
+    ],
+    "nearest_station": "용산",
+    "nearest_station_m": 1608,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1139123832
+    ],
+    "cid": "daegu-10"
+   },
+   {
+    "length_m": 76.9,
+    "n_ways": 1,
+    "center": [
+     35.876171,
+     128.594983
+    ],
+    "nearest_station": "대구",
+    "nearest_station_m": 98,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "대구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     888188108
+    ],
+    "cid": "daegu-11"
+   },
+   {
+    "length_m": 74.6,
+    "n_ways": 1,
+    "center": [
+     35.876211,
+     128.5947
+    ],
+    "nearest_station": "대구",
+    "nearest_station_m": 124,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "대구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     888188107
+    ],
+    "cid": "daegu-12"
+   },
+   {
+    "length_m": 72.0,
+    "n_ways": 1,
+    "center": [
+     35.859924,
+     128.599627
+    ],
+    "nearest_station": "경대병원",
+    "nearest_station_m": 469,
+    "names": [],
+    "highway": {
+     "pedestrian": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 72.0,
+    "way_ids": [
+     1194775007
+    ],
+    "cid": "daegu-13"
+   },
+   {
+    "length_m": 67.3,
+    "n_ways": 1,
+    "center": [
+     35.960012,
+     128.559669
+    ],
+    "nearest_station": "칠곡경대병원",
+    "nearest_station_m": 182,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "칠곡경대병원"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1046128179
+    ],
+    "cid": "daegu-14"
+   },
+   {
+    "length_m": 66.2,
+    "n_ways": 2,
+    "center": [
+     35.870775,
+     128.595654
+    ],
+    "nearest_station": "중앙로",
+    "nearest_station_m": 146,
+    "names": [
+     "동성로"
+    ],
+    "highway": {
+     "footway": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "중앙로"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     886369027,
+     886369026
+    ],
+    "cid": "daegu-15"
+   },
+   {
+    "length_m": 65.0,
+    "n_ways": 1,
+    "center": [
+     35.876367,
+     128.616537
+    ],
+    "nearest_station": "신천",
+    "nearest_station_m": 215,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1371382327
+    ],
+    "cid": "daegu-16"
+   },
+   {
+    "length_m": 62.7,
+    "n_ways": 3,
+    "center": [
+     35.85095,
+     128.590604
+    ],
+    "nearest_station": "교대",
+    "nearest_station_m": 61,
+    "names": [],
+    "highway": {
+     "pedestrian": 3
+    },
+    "shares_entrance_node": 1,
+    "entrances_within_50m": 8,
+    "stations_via_entrances": [
+     "교대"
+    ],
+    "stations_within_150m": [
+     "교대"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     92869147,
+     92869146,
+     92869140
+    ],
+    "cid": "daegu-17"
+   },
+   {
+    "length_m": 61.2,
+    "n_ways": 1,
+    "center": [
+     35.883615,
+     128.625536
+    ],
+    "nearest_station": "동대구",
+    "nearest_station_m": 552,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 61.2,
+    "way_ids": [
+     1218810116
+    ],
+    "cid": "daegu-18"
+   },
+   {
+    "length_m": 60.8,
+    "n_ways": 1,
+    "center": [
+     35.88675,
+     128.633569
+    ],
+    "nearest_station": "동구청",
+    "nearest_station_m": 288,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 60.8,
+    "way_ids": [
+     1395127308
+    ],
+    "cid": "daegu-19"
+   },
+   {
+    "length_m": 60.1,
+    "n_ways": 1,
+    "center": [
+     35.864482,
+     128.525953
+    ],
+    "nearest_station": "용산",
+    "nearest_station_m": 1734,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1139123833
+    ],
+    "cid": "daegu-20"
+   },
+   {
+    "length_m": 58.3,
+    "n_ways": 1,
+    "center": [
+     35.852518,
+     128.700225
+    ],
+    "nearest_station": "고산",
+    "nearest_station_m": 1230,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     436057823
+    ],
+    "cid": "daegu-21"
+   },
+   {
+    "length_m": 55.0,
+    "n_ways": 1,
+    "center": [
+     35.873771,
+     128.60486
+    ],
+    "nearest_station": "칠성시장",
+    "nearest_station_m": 259,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     888188127
+    ],
+    "cid": "daegu-22"
+   },
+   {
+    "length_m": 53.3,
+    "n_ways": 1,
+    "center": [
+     35.8376,
+     128.720497
+    ],
+    "nearest_station": "사월",
+    "nearest_station_m": 407,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     826041804
+    ],
+    "cid": "daegu-23"
+   },
+   {
+    "length_m": 50.0,
+    "n_ways": 1,
+    "center": [
+     35.87409,
+     128.649554
+    ],
+    "nearest_station": "동촌",
+    "nearest_station_m": 1328,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     822846459
+    ],
+    "cid": "daegu-24"
+   }
+  ],
+  "incheon": [
+   {
+    "length_m": 1781.5,
+    "n_ways": 48,
+    "center": [
+     37.473727,
+     126.630079
+    ],
+    "nearest_station": "동인천",
+    "nearest_station_m": 306,
+    "names": [
+     "신포지하도상가",
+     "중앙로지하도상가",
+     "동인천지하도상가",
+     "인현지하도상가"
+    ],
+    "highway": {
+     "pedestrian": 8,
+     "steps": 31,
+     "footway": 9
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 3,
+    "stations_via_entrances": [
+     "동인천"
+    ],
+    "stations_within_150m": [
+     "동인천"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1541083641,
+     1541083642,
+     1541083643,
+     1541083645,
+     1541083646,
+     1541083657,
+     1541083713,
+     1541083721,
+     1541083714,
+     1541083693,
+     1541083652,
+     1541083685,
+     1541083741,
+     1541083699,
+     1541083730,
+     1541083750,
+     1541083717,
+     1541083718,
+     1541083737,
+     1541083695,
+     1541083754,
+     1541083733,
+     1541083736,
+     1541083696,
+     1541083746,
+     1541083748,
+     1541083658,
+     1541083648,
+     1541083723,
+     1541083700,
+     1541083752,
+     1541083722,
+     1541083742,
+     1541083738,
+     1541083725,
+     1541083649,
+     1541083745,
+     1541083724,
+     1541083751,
+     1541083653,
+     1541083694,
+     1541083654,
+     1541083644,
+     1541083688,
+     1541083659,
+     1541083711,
+     1541083690,
+     1541083689
+    ],
+    "cid": "incheon-0"
+   },
+   {
+    "length_m": 989.7,
+    "n_ways": 10,
+    "center": [
+     37.374623,
+     126.633292
+    ],
+    "nearest_station": "지식정보단지",
+    "nearest_station_m": 1160,
+    "names": [],
+    "highway": {
+     "footway": 10
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 480.3,
+    "way_ids": [
+     1244533014,
+     1244533032,
+     1153695549,
+     1229111677,
+     1153695570,
+     1153695569,
+     1244533019,
+     1244533015,
+     1244533031,
+     1244533030
+    ],
+    "cid": "incheon-1"
+   },
+   {
+    "length_m": 675.9,
+    "n_ways": 10,
+    "center": [
+     37.381087,
+     126.65865
+    ],
+    "nearest_station": "테크노파크",
+    "nearest_station_m": 251,
+    "names": [],
+    "highway": {
+     "footway": 7,
+     "path": 3
+    },
+    "shares_entrance_node": 2,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "테크노파크"
+    ],
+    "stations_within_150m": [
+     "테크노파크"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1095771159,
+     1095771158,
+     1095783127,
+     1095783128,
+     1095771152,
+     1095771154,
+     1095771155,
+     1095771153,
+     1095783129,
+     1099670295
+    ],
+    "cid": "incheon-2"
+   },
+   {
+    "length_m": 525.8,
+    "n_ways": 3,
+    "center": [
+     37.466743,
+     126.643103
+    ],
+    "nearest_station": "도원",
+    "nearest_station_m": 240,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 3,
+    "stations_via_entrances": [
+     "도원"
+    ],
+    "stations_within_150m": [
+     "도원"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1363993568,
+     1363993569,
+     1363993570
+    ],
+    "cid": "incheon-3"
+   },
+   {
+    "length_m": 522.9,
+    "n_ways": 3,
+    "center": [
+     37.431177,
+     126.672215
+    ],
+    "nearest_station": "송도",
+    "nearest_station_m": 1551,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 511.9,
+    "way_ids": [
+     1546013724,
+     1546013725,
+     1546013726
+    ],
+    "cid": "incheon-4"
+   },
+   {
+    "length_m": 470.4,
+    "n_ways": 1,
+    "center": [
+     37.437441,
+     126.693557
+    ],
+    "nearest_station": "문학경기장",
+    "nearest_station_m": 456,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 470.4,
+    "way_ids": [
+     901967505
+    ],
+    "cid": "incheon-5"
+   },
+   {
+    "length_m": 389.8,
+    "n_ways": 12,
+    "center": [
+     37.476057,
+     126.644624
+    ],
+    "nearest_station": "도원",
+    "nearest_station_m": 828,
+    "names": [],
+    "highway": {
+     "pedestrian": 6,
+     "steps": 6
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     930008272,
+     930008271,
+     930008273,
+     930008282,
+     930008275,
+     930008281,
+     930008274,
+     930008276,
+     930008284,
+     930008283,
+     930008277,
+     930008278
+    ],
+    "cid": "incheon-6"
+   },
+   {
+    "length_m": 257.4,
+    "n_ways": 1,
+    "center": [
+     37.382357,
+     126.670957
+    ],
+    "nearest_station": "캠퍼스타운",
+    "nearest_station_m": 1029,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1096853811
+    ],
+    "cid": "incheon-7"
+   },
+   {
+    "length_m": 235.5,
+    "n_ways": 4,
+    "center": [
+     37.404796,
+     126.6806
+    ],
+    "nearest_station": "동춘",
+    "nearest_station_m": 29,
+    "names": [],
+    "highway": {
+     "corridor": 3,
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 6,
+    "stations_via_entrances": [
+     "1;동춘",
+     "동춘"
+    ],
+    "stations_within_150m": [
+     "동춘"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     894782240,
+     894782238,
+     894782239,
+     894782242
+    ],
+    "cid": "incheon-8"
+   },
+   {
+    "length_m": 213.5,
+    "n_ways": 5,
+    "center": [
+     37.390609,
+     126.643853
+    ],
+    "nearest_station": "인천대입구",
+    "nearest_station_m": 633,
+    "names": [],
+    "highway": {
+     "footway": 4,
+     "steps": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 213.5,
+    "way_ids": [
+     1035575188,
+     1035575190,
+     1035575191,
+     1035575192,
+     1035575193
+    ],
+    "cid": "incheon-9"
+   },
+   {
+    "length_m": 203.9,
+    "n_ways": 3,
+    "center": [
+     37.377114,
+     126.634865
+    ],
+    "nearest_station": "지식정보단지",
+    "nearest_station_m": 978,
+    "names": [],
+    "highway": {
+     "footway": 2,
+     "steps": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 203.9,
+    "way_ids": [
+     1311837051,
+     1153695498,
+     1363993567
+    ],
+    "cid": "incheon-10"
+   },
+   {
+    "length_m": 200.6,
+    "n_ways": 5,
+    "center": [
+     37.388049,
+     126.662007
+    ],
+    "nearest_station": "캠퍼스타운",
+    "nearest_station_m": 17,
+    "names": [],
+    "highway": {
+     "footway": 5
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "캠퍼스타운"
+    ],
+    "stations_within_150m": [
+     "캠퍼스타운"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1095783154,
+     1095783158,
+     1095783155,
+     1095783157,
+     1095783156
+    ],
+    "cid": "incheon-11"
+   },
+   {
+    "length_m": 177.6,
+    "n_ways": 1,
+    "center": [
+     37.463982,
+     126.753832
+    ],
+    "nearest_station": "인천대공원",
+    "nearest_station_m": 1718,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 177.6,
+    "way_ids": [
+     361724831
+    ],
+    "cid": "incheon-12"
+   },
+   {
+    "length_m": 167.5,
+    "n_ways": 1,
+    "center": [
+     37.409655,
+     126.660929
+    ],
+    "nearest_station": "동막",
+    "nearest_station_m": 1657,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     381145148
+    ],
+    "cid": "incheon-13"
+   },
+   {
+    "length_m": 158.8,
+    "n_ways": 1,
+    "center": [
+     37.471958,
+     126.636355
+    ],
+    "nearest_station": "동인천",
+    "nearest_station_m": 457,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1536398142
+    ],
+    "cid": "incheon-14"
+   },
+   {
+    "length_m": 158.2,
+    "n_ways": 1,
+    "center": [
+     37.529635,
+     126.712938
+    ],
+    "nearest_station": "작전",
+    "nearest_station_m": 849,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 158.2,
+    "way_ids": [
+     1060004521
+    ],
+    "cid": "incheon-15"
+   },
+   {
+    "length_m": 149.9,
+    "n_ways": 1,
+    "center": [
+     37.374603,
+     126.630729
+    ],
+    "nearest_station": "지식정보단지",
+    "nearest_station_m": 1380,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 149.9,
+    "way_ids": [
+     1153695538
+    ],
+    "cid": "incheon-16"
+   },
+   {
+    "length_m": 125.9,
+    "n_ways": 2,
+    "center": [
+     37.492785,
+     126.493821
+    ],
+    "nearest_station": "운서",
+    "nearest_station_m": 16,
+    "names": [],
+    "highway": {
+     "footway": 2
+    },
+    "shares_entrance_node": 2,
+    "entrances_within_50m": 2,
+    "stations_via_entrances": [
+     "운서"
+    ],
+    "stations_within_150m": [
+     "운서"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 22.6,
+    "way_ids": [
+     1107949641,
+     1107949640
+    ],
+    "cid": "incheon-17"
+   },
+   {
+    "length_m": 101.4,
+    "n_ways": 1,
+    "center": [
+     37.544449,
+     126.745396
+    ],
+    "nearest_station": "임학",
+    "nearest_station_m": 589,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     293633719
+    ],
+    "cid": "incheon-18"
+   },
+   {
+    "length_m": 99.2,
+    "n_ways": 1,
+    "center": [
+     37.381201,
+     126.672944
+    ],
+    "nearest_station": "캠퍼스타운",
+    "nearest_station_m": 1247,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1098140116
+    ],
+    "cid": "incheon-19"
+   },
+   {
+    "length_m": 77.0,
+    "n_ways": 1,
+    "center": [
+     37.52861,
+     126.517733
+    ],
+    "nearest_station": "영종",
+    "nearest_station_m": 1955,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 77.0,
+    "way_ids": [
+     1524331215
+    ],
+    "cid": "incheon-20"
+   },
+   {
+    "length_m": 76.1,
+    "n_ways": 1,
+    "center": [
+     37.481645,
+     126.486634
+    ],
+    "nearest_station": "운서",
+    "nearest_station_m": 1405,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     562777498
+    ],
+    "cid": "incheon-21"
+   },
+   {
+    "length_m": 70.6,
+    "n_ways": 1,
+    "center": [
+     37.411962,
+     126.687468
+    ],
+    "nearest_station": "원인재",
+    "nearest_station_m": 96,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 2,
+    "stations_via_entrances": [
+     "원인재"
+    ],
+    "stations_within_150m": [
+     "원인재"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     901048556
+    ],
+    "cid": "incheon-22"
+   },
+   {
+    "length_m": 64.8,
+    "n_ways": 3,
+    "center": [
+     37.372513,
+     126.631498
+    ],
+    "nearest_station": "지식정보단지",
+    "nearest_station_m": 1389,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1394978482,
+     1394978487,
+     1394978490
+    ],
+    "cid": "incheon-23"
+   },
+   {
+    "length_m": 57.1,
+    "n_ways": 1,
+    "center": [
+     37.529072,
+     126.713818
+    ],
+    "nearest_station": "작전",
+    "nearest_station_m": 781,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 57.1,
+    "way_ids": [
+     1060004503
+    ],
+    "cid": "incheon-24"
+   }
+  ]
+ },
+ "top_components_strict": {
+  "seoul": [
+   {
+    "length_m": 3821.0,
+    "n_ways": 30,
+    "center": [
+     37.566306,
+     126.994692
+    ],
+    "nearest_station": "을지로3가",
+    "nearest_station_m": 191,
+    "names": [
+     "을지로지하상가"
+    ],
+    "highway": {
+     "pedestrian": 16,
+     "footway": 13,
+     "steps": 1
+    },
+    "shares_entrance_node": 10,
+    "entrances_within_50m": 37,
+    "stations_via_entrances": [
+     "동대문",
+     "시청",
+     "을지로3가",
+     "을지로4가",
+     "을지로입구"
+    ],
+    "stations_within_150m": [
+     "동대문역사문화공원",
+     "시청",
+     "을지로3가",
+     "을지로4가",
+     "을지로입구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     770894972,
+     770894973,
+     1126010870,
+     1126010864,
+     1273156140,
+     1015415191,
+     1128459181,
+     1126010868,
+     1126010869,
+     1128459176,
+     1128459180,
+     1126010863,
+     1015415190,
+     1128459178,
+     1290725926,
+     1128459177,
+     1015415192,
+     1126010871,
+     770894974,
+     1128459179,
+     1290725927,
+     1128459182,
+     1126010861,
+     980071517,
+     770894977,
+     770894975,
+     1126010866,
+     1126010865,
+     770894976,
+     1126010872
+    ],
+    "cid": "seoul-s-0"
+   },
+   {
+    "length_m": 2002.3,
+    "n_ways": 30,
+    "center": [
+     37.570069,
+     126.999981
+    ],
+    "nearest_station": "종로5가",
+    "nearest_station_m": 207,
+    "names": [
+     "종로",
+     "창경궁로12길",
+     "동호로"
+    ],
+    "highway": {
+     "pedestrian": 7,
+     "footway": 23
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 5,
+    "stations_via_entrances": [
+     "종로5가"
+    ],
+    "stations_within_150m": [
+     "종로5가"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     203501049,
+     203501048,
+     1125780631,
+     203501045,
+     420393495,
+     1125472126,
+     1125780628,
+     1125630924,
+     1124655654,
+     1125780633,
+     599321448,
+     1126192714,
+     1125780626,
+     1125630902,
+     203501046,
+     1125472125,
+     1124654276,
+     1125780634,
+     1124655655,
+     1125780632,
+     1124655657,
+     1125780627,
+     1125780629,
+     1125781313,
+     1125780630,
+     1124655656,
+     1125781314,
+     1125780769,
+     1125761329,
+     1125780635
+    ],
+    "cid": "seoul-s-1"
+   },
+   {
+    "length_m": 1028.4,
+    "n_ways": 31,
+    "center": [
+     37.562756,
+     126.93725
+    ],
+    "nearest_station": "신촌",
+    "nearest_station_m": 559,
+    "names": [
+     "백양누리 지하 1층 복도",
+     "백양누리 지하주차장 통로",
+     "백양누리 지하 2층 복도",
+     "계단"
+    ],
+    "highway": {
+     "corridor": 23,
+     "steps": 8
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1443397018,
+     1410778169,
+     1443397017,
+     1432749017,
+     1432483318,
+     1451926784,
+     1432487586,
+     1443397016,
+     1443397015,
+     1410778170,
+     1432749018,
+     1432483319,
+     1449591793,
+     1508788454,
+     1508787461,
+     1422604410,
+     1443400385,
+     1422604409,
+     1422604411,
+     1443395767,
+     1443390151,
+     1443390138,
+     1432487596,
+     1436386748,
+     1443395766,
+     1422604401,
+     1422604402,
+     1422604403,
+     1422604400,
+     1436636336,
+     1453266641
+    ],
+    "cid": "seoul-s-2"
+   },
+   {
+    "length_m": 823.9,
+    "n_ways": 31,
+    "center": [
+     37.563717,
+     126.981428
+    ],
+    "nearest_station": "을지로입구",
+    "nearest_station_m": 269,
+    "names": [
+     "소공 지하쇼핑센터",
+     "명동지하상가",
+     "Myeongdong Underground Shopping Center"
+    ],
+    "highway": {
+     "steps": 15,
+     "footway": 16
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     709917060,
+     709917052,
+     709917051,
+     709917054,
+     709917050,
+     709917042,
+     709917047,
+     709917040,
+     709917066,
+     709917059,
+     709917062,
+     709917063,
+     709917037,
+     709917036,
+     709917039,
+     709917061,
+     709917055,
+     709917057,
+     709917043,
+     709917048,
+     709917045,
+     709917053,
+     709917049,
+     709917056,
+     709917044,
+     709917064,
+     709917038,
+     709917058,
+     709917041,
+     709917065,
+     709917046
+    ],
+    "cid": "seoul-s-3"
+   },
+   {
+    "length_m": 819.1,
+    "n_ways": 1,
+    "center": [
+     37.611888,
+     126.985285
+    ],
+    "nearest_station": "북한산보국문",
+    "nearest_station_m": 2016,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     629055195
+    ],
+    "cid": "seoul-s-4"
+   },
+   {
+    "length_m": 719.5,
+    "n_ways": 9,
+    "center": [
+     37.497943,
+     127.027618
+    ],
+    "nearest_station": "강남",
+    "nearest_station_m": 34,
+    "names": [],
+    "highway": {
+     "footway": 9
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 8,
+    "stations_via_entrances": [
+     "강남"
+    ],
+    "stations_within_150m": [
+     "강남"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     305932240,
+     305932241,
+     305932242,
+     305932244,
+     305806956,
+     305923844,
+     305923845,
+     305806952,
+     305932246
+    ],
+    "cid": "seoul-s-5"
+   },
+   {
+    "length_m": 718.0,
+    "n_ways": 11,
+    "center": [
+     37.529015,
+     126.967484
+    ],
+    "nearest_station": "신용산",
+    "nearest_station_m": 37,
+    "names": [],
+    "highway": {
+     "footway": 10,
+     "steps": 1
+    },
+    "shares_entrance_node": 4,
+    "entrances_within_50m": 6,
+    "stations_via_entrances": [
+     "신용산"
+    ],
+    "stations_within_150m": [
+     "신용산"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1162998300,
+     1166266472,
+     1162998297,
+     1162998305,
+     1162998306,
+     1162998298,
+     1162998299,
+     1166266473,
+     1162998302,
+     1162998307,
+     1162998304
+    ],
+    "cid": "seoul-s-6"
+   },
+   {
+    "length_m": 674.0,
+    "n_ways": 10,
+    "center": [
+     37.56612,
+     126.977785
+    ],
+    "nearest_station": "시청",
+    "nearest_station_m": 93,
+    "names": [
+     "시티스타몰"
+    ],
+    "highway": {
+     "footway": 10
+    },
+    "shares_entrance_node": 9,
+    "entrances_within_50m": 9,
+    "stations_via_entrances": [
+     "시청"
+    ],
+    "stations_within_150m": [
+     "시청"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     379237474,
+     447919205,
+     379237476,
+     607927398,
+     447919203,
+     1230789310,
+     447919207,
+     447919382,
+     447919206,
+     379237471
+    ],
+    "cid": "seoul-s-7"
+   },
+   {
+    "length_m": 621.0,
+    "n_ways": 36,
+    "center": [
+     37.470806,
+     127.126735
+    ],
+    "nearest_station": "복정",
+    "nearest_station_m": 12,
+    "names": [],
+    "highway": {
+     "steps": 13,
+     "footway": 23
+    },
+    "shares_entrance_node": 1,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "복정"
+    ],
+    "stations_within_150m": [
+     "복정"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1221695024,
+     1221678848,
+     1221695031,
+     1221695038,
+     1221695036,
+     1221678854,
+     1221678867,
+     1221678855,
+     1221695037,
+     1221695023,
+     1221695028,
+     1221695026,
+     1221678850,
+     1221678837,
+     1221695042,
+     1221695041,
+     1221695019,
+     1221678829,
+     1221695048,
+     1221695046,
+     1221678851,
+     1221678849,
+     1221678865,
+     1221678852,
+     1221678866,
+     1221678857,
+     1221678858,
+     1221695029,
+     1221695027,
+     1221695025,
+     1221695040,
+     1221695039,
+     1221695045,
+     1221695047,
+     1221695043,
+     1221695044
+    ],
+    "cid": "seoul-s-8"
+   },
+   {
+    "length_m": 618.5,
+    "n_ways": 2,
+    "center": [
+     37.523401,
+     126.924915
+    ],
+    "nearest_station": "여의도",
+    "nearest_station_m": 200,
+    "names": [
+     "국제금융로"
+    ],
+    "highway": {
+     "pedestrian": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 3,
+    "stations_via_entrances": [
+     "여의도"
+    ],
+    "stations_within_150m": [
+     "여의도"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     331203274,
+     914374379
+    ],
+    "cid": "seoul-s-9"
+   },
+   {
+    "length_m": 616.5,
+    "n_ways": 1,
+    "center": [
+     37.609488,
+     126.951456
+    ],
+    "nearest_station": "녹번",
+    "nearest_station_m": 1678,
+    "names": [
+     "구기터널 자전거/보행자통로"
+    ],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     629055213
+    ],
+    "cid": "seoul-s-10"
+   },
+   {
+    "length_m": 573.2,
+    "n_ways": 1,
+    "center": [
+     37.570284,
+     126.952101
+    ],
+    "nearest_station": "독립문",
+    "nearest_station_m": 694,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     305268109
+    ],
+    "cid": "seoul-s-11"
+   },
+   {
+    "length_m": 550.8,
+    "n_ways": 8,
+    "center": [
+     37.555474,
+     127.047377
+    ],
+    "nearest_station": "한양대",
+    "nearest_station_m": 329,
+    "names": [],
+    "highway": {
+     "path": 8
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1487575125,
+     1487575128,
+     1487575126,
+     1487575172,
+     1487575131,
+     1487575127,
+     1487575129,
+     1487575130
+    ],
+    "cid": "seoul-s-12"
+   },
+   {
+    "length_m": 487.8,
+    "n_ways": 15,
+    "center": [
+     37.555606,
+     126.936495
+    ],
+    "nearest_station": "신촌",
+    "nearest_station_m": 62,
+    "names": [
+     "신촌역 지하통로",
+     "현대백화점 지하 1층 통로 (빨잠 직통)",
+     "현대백화점 신촌역 지하통로"
+    ],
+    "highway": {
+     "corridor": 13,
+     "steps": 2
+    },
+    "shares_entrance_node": 2,
+    "entrances_within_50m": 7,
+    "stations_via_entrances": [
+     "신촌"
+    ],
+    "stations_within_150m": [
+     "신촌"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1434541117,
+     1434541122,
+     1434541114,
+     1434541115,
+     1436853627,
+     1436170978,
+     1436170977,
+     1434541116,
+     1436170976,
+     1436163441,
+     1436854909,
+     1436159557,
+     1436163450,
+     1436159560,
+     1436159555
+    ],
+    "cid": "seoul-s-13"
+   },
+   {
+    "length_m": 371.8,
+    "n_ways": 1,
+    "center": [
+     37.577125,
+     126.993412
+    ],
+    "nearest_station": "종로3가",
+    "nearest_station_m": 580,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     475740779
+    ],
+    "cid": "seoul-s-14"
+   },
+   {
+    "length_m": 342.4,
+    "n_ways": 3,
+    "center": [
+     37.550985,
+     127.01351
+    ],
+    "nearest_station": "금호",
+    "nearest_station_m": 397,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "금호"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1548266726,
+     1548266727,
+     1548266728
+    ],
+    "cid": "seoul-s-15"
+   },
+   {
+    "length_m": 335.1,
+    "n_ways": 1,
+    "center": [
+     37.550613,
+     127.014302
+    ],
+    "nearest_station": "금호",
+    "nearest_station_m": 326,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     381737991
+    ],
+    "cid": "seoul-s-16"
+   },
+   {
+    "length_m": 283.5,
+    "n_ways": 2,
+    "center": [
+     37.491762,
+     127.047708
+    ],
+    "nearest_station": "매봉",
+    "nearest_station_m": 526,
+    "names": [],
+    "highway": {
+     "footway": 1,
+     "steps": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1174182952,
+     1174182962
+    ],
+    "cid": "seoul-s-17"
+   },
+   {
+    "length_m": 276.9,
+    "n_ways": 7,
+    "center": [
+     37.5026,
+     127.042635
+    ],
+    "nearest_station": "역삼",
+    "nearest_station_m": 538,
+    "names": [
+     "역삼지하보도"
+    ],
+    "highway": {
+     "footway": 7
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     836899838,
+     836899837,
+     836899835,
+     836899834,
+     836899836,
+     836899840,
+     836899839
+    ],
+    "cid": "seoul-s-18"
+   },
+   {
+    "length_m": 268.8,
+    "n_ways": 5,
+    "center": [
+     37.570092,
+     127.002026
+    ],
+    "nearest_station": "종로5가",
+    "nearest_station_m": 100,
+    "names": [],
+    "highway": {
+     "footway": 4,
+     "pedestrian": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 3,
+    "stations_via_entrances": [
+     "종로5가"
+    ],
+    "stations_within_150m": [
+     "종로5가"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1125976008,
+     1125230935,
+     1125230934,
+     1125230940,
+     1125230939
+    ],
+    "cid": "seoul-s-19"
+   },
+   {
+    "length_m": 263.7,
+    "n_ways": 8,
+    "center": [
+     37.569027,
+     127.002078
+    ],
+    "nearest_station": "종로5가",
+    "nearest_station_m": 218,
+    "names": [],
+    "highway": {
+     "footway": 8
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1125982018,
+     1125982022,
+     1125982025,
+     1125982024,
+     1125982023,
+     1125982019,
+     1125982020,
+     1125982021
+    ],
+    "cid": "seoul-s-20"
+   },
+   {
+    "length_m": 255.0,
+    "n_ways": 1,
+    "center": [
+     37.503624,
+     127.102602
+    ],
+    "nearest_station": "석촌",
+    "nearest_station_m": 439,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1524793109
+    ],
+    "cid": "seoul-s-21"
+   },
+   {
+    "length_m": 230.4,
+    "n_ways": 4,
+    "center": [
+     37.550204,
+     126.912216
+    ],
+    "nearest_station": "합정",
+    "nearest_station_m": 158,
+    "names": [],
+    "highway": {
+     "footway": 2,
+     "steps": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 1,
+    "stations_via_entrances": [
+     "합정"
+    ],
+    "stations_within_150m": [
+     "합정"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     583429568,
+     583429570,
+     583429567,
+     583429569
+    ],
+    "cid": "seoul-s-22"
+   },
+   {
+    "length_m": 213.0,
+    "n_ways": 1,
+    "center": [
+     37.503395,
+     127.102465
+    ],
+    "nearest_station": "석촌",
+    "nearest_station_m": 461,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1524793104
+    ],
+    "cid": "seoul-s-23"
+   },
+   {
+    "length_m": 211.2,
+    "n_ways": 1,
+    "center": [
+     37.517018,
+     126.903624
+    ],
+    "nearest_station": "영등포",
+    "nearest_station_m": 345,
+    "names": [],
+    "highway": {
+     "corridor": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     344430249
+    ],
+    "cid": "seoul-s-24"
+   }
+  ],
+  "busan": [
+   {
+    "length_m": 989.7,
+    "n_ways": 9,
+    "center": [
+     35.173205,
+     129.1748
+    ],
+    "nearest_station": "장산",
+    "nearest_station_m": 426,
+    "names": [
+     "좌동로"
+    ],
+    "highway": {
+     "pedestrian": 9
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1115495071,
+     1115495072,
+     1115495070,
+     499196457,
+     1115495073,
+     1115495058,
+     1115495075,
+     1115495076,
+     1115495078
+    ],
+    "cid": "busan-s-0"
+   },
+   {
+    "length_m": 187.5,
+    "n_ways": 1,
+    "center": [
+     35.17987,
+     129.075406
+    ],
+    "nearest_station": "시청",
+    "nearest_station_m": 102,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "시청"
+    ],
+    "stations_within_150m": [
+     "시청"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     468977714
+    ],
+    "cid": "busan-s-1"
+   },
+   {
+    "length_m": 187.1,
+    "n_ways": 1,
+    "center": [
+     35.1531,
+     129.020244
+    ],
+    "nearest_station": "개금",
+    "nearest_station_m": 26,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "개금"
+    ],
+    "stations_within_150m": [
+     "개금"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1154189445
+    ],
+    "cid": "busan-s-2"
+   },
+   {
+    "length_m": 167.0,
+    "n_ways": 3,
+    "center": [
+     35.095183,
+     128.961456
+    ],
+    "nearest_station": "신평",
+    "nearest_station_m": 71,
+    "names": [],
+    "highway": {
+     "steps": 2,
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 6,
+    "stations_via_entrances": [
+     "신평"
+    ],
+    "stations_within_150m": [
+     "신평"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     165293609,
+     165293594,
+     165293604
+    ],
+    "cid": "busan-s-3"
+   },
+   {
+    "length_m": 106.4,
+    "n_ways": 1,
+    "center": [
+     35.224826,
+     129.00535
+    ],
+    "nearest_station": "수정",
+    "nearest_station_m": 388,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     961763276
+    ],
+    "cid": "busan-s-4"
+   },
+   {
+    "length_m": 83.5,
+    "n_ways": 1,
+    "center": [
+     35.008811,
+     128.827144
+    ],
+    "nearest_station": "다대포해수욕장",
+    "nearest_station_m": 13382,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1219035694
+    ],
+    "cid": "busan-s-5"
+   },
+   {
+    "length_m": 75.0,
+    "n_ways": 1,
+    "center": [
+     35.075417,
+     129.048009
+    ],
+    "nearest_station": "남포",
+    "nearest_station_m": 2771,
+    "names": [
+     "흰여울해안터널"
+    ],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1143185853
+    ],
+    "cid": "busan-s-6"
+   },
+   {
+    "length_m": 60.0,
+    "n_ways": 1,
+    "center": [
+     35.328807,
+     129.19005
+    ],
+    "nearest_station": "좌천",
+    "nearest_station_m": 5342,
+    "names": [],
+    "highway": {
+     "pedestrian": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1219930835
+    ],
+    "cid": "busan-s-7"
+   },
+   {
+    "length_m": 57.0,
+    "n_ways": 1,
+    "center": [
+     35.172086,
+     129.128426
+    ],
+    "nearest_station": "센텀시티",
+    "nearest_station_m": 464,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     569248646
+    ],
+    "cid": "busan-s-8"
+   },
+   {
+    "length_m": 54.7,
+    "n_ways": 1,
+    "center": [
+     35.205235,
+     129.031227
+    ],
+    "nearest_station": "만덕",
+    "nearest_station_m": 988,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     489519670
+    ],
+    "cid": "busan-s-9"
+   },
+   {
+    "length_m": 51.4,
+    "n_ways": 1,
+    "center": [
+     35.210965,
+     128.982852
+    ],
+    "nearest_station": "강서구청",
+    "nearest_station_m": 87,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 1,
+    "stations_via_entrances": [
+     "강서구청"
+    ],
+    "stations_within_150m": [
+     "강서구청"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1484771625
+    ],
+    "cid": "busan-s-10"
+   },
+   {
+    "length_m": 41.9,
+    "n_ways": 3,
+    "center": [
+     35.164742,
+     129.032545
+    ],
+    "nearest_station": "동의대",
+    "nearest_station_m": 1199,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1447458128,
+     1447458130,
+     1447458129
+    ],
+    "cid": "busan-s-11"
+   },
+   {
+    "length_m": 41.4,
+    "n_ways": 1,
+    "center": [
+     35.308188,
+     129.228191
+    ],
+    "nearest_station": "좌천",
+    "nearest_station_m": 1590,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1253218776
+    ],
+    "cid": "busan-s-12"
+   },
+   {
+    "length_m": 37.5,
+    "n_ways": 1,
+    "center": [
+     35.134247,
+     129.056641
+    ],
+    "nearest_station": "좌천",
+    "nearest_station_m": 209,
+    "names": [],
+    "highway": {
+     "pedestrian": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     714965476
+    ],
+    "cid": "busan-s-13"
+   },
+   {
+    "length_m": 37.5,
+    "n_ways": 1,
+    "center": [
+     35.061936,
+     128.831371
+    ],
+    "nearest_station": "신평",
+    "nearest_station_m": 12335,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1302197471
+    ],
+    "cid": "busan-s-14"
+   },
+   {
+    "length_m": 37.0,
+    "n_ways": 1,
+    "center": [
+     35.252564,
+     129.042986
+    ],
+    "nearest_station": "율리",
+    "nearest_station_m": 2818,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     579528288
+    ],
+    "cid": "busan-s-15"
+   },
+   {
+    "length_m": 34.2,
+    "n_ways": 1,
+    "center": [
+     35.267317,
+     129.078861
+    ],
+    "nearest_station": "남산",
+    "nearest_station_m": 1262,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     480845670
+    ],
+    "cid": "busan-s-16"
+   },
+   {
+    "length_m": 33.9,
+    "n_ways": 2,
+    "center": [
+     35.095845,
+     128.960394
+    ],
+    "nearest_station": "신평",
+    "nearest_station_m": 75,
+    "names": [],
+    "highway": {
+     "footway": 1,
+     "steps": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 1,
+    "stations_via_entrances": [
+     "신평"
+    ],
+    "stations_within_150m": [
+     "신평"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     165293615,
+     165293610
+    ],
+    "cid": "busan-s-17"
+   },
+   {
+    "length_m": 29.9,
+    "n_ways": 1,
+    "center": [
+     35.267205,
+     129.079818
+    ],
+    "nearest_station": "남산",
+    "nearest_station_m": 1174,
+    "names": [],
+    "highway": {
+     "corridor": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     480804415
+    ],
+    "cid": "busan-s-18"
+   },
+   {
+    "length_m": 29.7,
+    "n_ways": 1,
+    "center": [
+     35.155603,
+     129.042377
+    ],
+    "nearest_station": "가야",
+    "nearest_station_m": 45,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 3,
+    "stations_via_entrances": [
+     "가야"
+    ],
+    "stations_within_150m": [
+     "가야"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1163548962
+    ],
+    "cid": "busan-s-19"
+   },
+   {
+    "length_m": 28.5,
+    "n_ways": 2,
+    "center": [
+     35.094545,
+     128.96044
+    ],
+    "nearest_station": "신평",
+    "nearest_station_m": 78,
+    "names": [],
+    "highway": {
+     "footway": 1,
+     "steps": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 1,
+    "stations_via_entrances": [
+     "신평"
+    ],
+    "stations_within_150m": [
+     "신평"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     165293605,
+     165293599
+    ],
+    "cid": "busan-s-20"
+   },
+   {
+    "length_m": 25.5,
+    "n_ways": 1,
+    "center": [
+     35.174793,
+     129.129098
+    ],
+    "nearest_station": "센텀",
+    "nearest_station_m": 665,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     479225318
+    ],
+    "cid": "busan-s-21"
+   },
+   {
+    "length_m": 24.2,
+    "n_ways": 1,
+    "center": [
+     35.20735,
+     129.095152
+    ],
+    "nearest_station": "명장",
+    "nearest_station_m": 640,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1486766398
+    ],
+    "cid": "busan-s-22"
+   },
+   {
+    "length_m": 23.2,
+    "n_ways": 2,
+    "center": [
+     35.136513,
+     129.105522
+    ],
+    "nearest_station": "경성대·부경대",
+    "nearest_station_m": 469,
+    "names": [],
+    "highway": {
+     "footway": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     472293774,
+     472293773
+    ],
+    "cid": "busan-s-23"
+   },
+   {
+    "length_m": 21.2,
+    "n_ways": 1,
+    "center": [
+     35.142975,
+     129.100543
+    ],
+    "nearest_station": "경성대·부경대",
+    "nearest_station_m": 604,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     419904869
+    ],
+    "cid": "busan-s-24"
+   }
+  ],
+  "daegu": [
+   {
+    "length_m": 722.6,
+    "n_ways": 3,
+    "center": [
+     35.835827,
+     128.557803
+    ],
+    "nearest_station": "서부정류장",
+    "nearest_station_m": 140,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 2,
+    "stations_via_entrances": [
+     "서부정류장"
+    ],
+    "stations_within_150m": [
+     "서부정류장"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     365450433,
+     365450432,
+     365450434
+    ],
+    "cid": "daegu-s-0"
+   },
+   {
+    "length_m": 156.1,
+    "n_ways": 1,
+    "center": [
+     35.878669,
+     128.627027
+    ],
+    "nearest_station": "동대구",
+    "nearest_station_m": 129,
+    "names": [],
+    "highway": {
+     "steps": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "동대구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     822417472
+    ],
+    "cid": "daegu-s-1"
+   },
+   {
+    "length_m": 85.8,
+    "n_ways": 1,
+    "center": [
+     35.863357,
+     128.526115
+    ],
+    "nearest_station": "용산",
+    "nearest_station_m": 1608,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1139123832
+    ],
+    "cid": "daegu-s-2"
+   },
+   {
+    "length_m": 76.9,
+    "n_ways": 1,
+    "center": [
+     35.876171,
+     128.594983
+    ],
+    "nearest_station": "대구",
+    "nearest_station_m": 98,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "대구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     888188108
+    ],
+    "cid": "daegu-s-3"
+   },
+   {
+    "length_m": 74.6,
+    "n_ways": 1,
+    "center": [
+     35.876211,
+     128.5947
+    ],
+    "nearest_station": "대구",
+    "nearest_station_m": 124,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "대구"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     888188107
+    ],
+    "cid": "daegu-s-4"
+   },
+   {
+    "length_m": 67.3,
+    "n_ways": 1,
+    "center": [
+     35.960012,
+     128.559669
+    ],
+    "nearest_station": "칠곡경대병원",
+    "nearest_station_m": 182,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "칠곡경대병원"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1046128179
+    ],
+    "cid": "daegu-s-5"
+   },
+   {
+    "length_m": 66.2,
+    "n_ways": 2,
+    "center": [
+     35.870775,
+     128.595654
+    ],
+    "nearest_station": "중앙로",
+    "nearest_station_m": 146,
+    "names": [
+     "동성로"
+    ],
+    "highway": {
+     "footway": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [
+     "중앙로"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     886369027,
+     886369026
+    ],
+    "cid": "daegu-s-6"
+   },
+   {
+    "length_m": 65.0,
+    "n_ways": 1,
+    "center": [
+     35.876367,
+     128.616537
+    ],
+    "nearest_station": "신천",
+    "nearest_station_m": 215,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1371382327
+    ],
+    "cid": "daegu-s-7"
+   },
+   {
+    "length_m": 62.7,
+    "n_ways": 3,
+    "center": [
+     35.85095,
+     128.590604
+    ],
+    "nearest_station": "교대",
+    "nearest_station_m": 61,
+    "names": [],
+    "highway": {
+     "pedestrian": 3
+    },
+    "shares_entrance_node": 1,
+    "entrances_within_50m": 8,
+    "stations_via_entrances": [
+     "교대"
+    ],
+    "stations_within_150m": [
+     "교대"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     92869147,
+     92869146,
+     92869140
+    ],
+    "cid": "daegu-s-8"
+   },
+   {
+    "length_m": 60.1,
+    "n_ways": 1,
+    "center": [
+     35.864482,
+     128.525953
+    ],
+    "nearest_station": "용산",
+    "nearest_station_m": 1734,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1139123833
+    ],
+    "cid": "daegu-s-9"
+   },
+   {
+    "length_m": 58.3,
+    "n_ways": 1,
+    "center": [
+     35.852518,
+     128.700225
+    ],
+    "nearest_station": "고산",
+    "nearest_station_m": 1230,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     436057823
+    ],
+    "cid": "daegu-s-10"
+   },
+   {
+    "length_m": 55.0,
+    "n_ways": 1,
+    "center": [
+     35.873771,
+     128.60486
+    ],
+    "nearest_station": "칠성시장",
+    "nearest_station_m": 259,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     888188127
+    ],
+    "cid": "daegu-s-11"
+   },
+   {
+    "length_m": 53.3,
+    "n_ways": 1,
+    "center": [
+     35.8376,
+     128.720497
+    ],
+    "nearest_station": "사월",
+    "nearest_station_m": 407,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     826041804
+    ],
+    "cid": "daegu-s-12"
+   },
+   {
+    "length_m": 50.0,
+    "n_ways": 1,
+    "center": [
+     35.87409,
+     128.649554
+    ],
+    "nearest_station": "동촌",
+    "nearest_station_m": 1328,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     822846459
+    ],
+    "cid": "daegu-s-13"
+   },
+   {
+    "length_m": 49.9,
+    "n_ways": 1,
+    "center": [
+     35.773124,
+     128.435281
+    ],
+    "nearest_station": "설화명곡",
+    "nearest_station_m": 5644,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1225552083
+    ],
+    "cid": "daegu-s-14"
+   },
+   {
+    "length_m": 48.2,
+    "n_ways": 1,
+    "center": [
+     35.862809,
+     128.5267
+    ],
+    "nearest_station": "용산",
+    "nearest_station_m": 1540,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1139123839
+    ],
+    "cid": "daegu-s-15"
+   },
+   {
+    "length_m": 46.4,
+    "n_ways": 1,
+    "center": [
+     35.934018,
+     128.548612
+    ],
+    "nearest_station": "칠곡운암",
+    "nearest_station_m": 603,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1445913381
+    ],
+    "cid": "daegu-s-16"
+   },
+   {
+    "length_m": 45.2,
+    "n_ways": 1,
+    "center": [
+     35.932762,
+     128.634149
+    ],
+    "nearest_station": "아양교",
+    "nearest_station_m": 5092,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1092636979
+    ],
+    "cid": "daegu-s-17"
+   },
+   {
+    "length_m": 44.8,
+    "n_ways": 1,
+    "center": [
+     35.933175,
+     128.471857
+    ],
+    "nearest_station": "신동",
+    "nearest_station_m": 2789,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1257719510
+    ],
+    "cid": "daegu-s-18"
+   },
+   {
+    "length_m": 42.5,
+    "n_ways": 1,
+    "center": [
+     35.939708,
+     128.53571
+    ],
+    "nearest_station": "동천",
+    "nearest_station_m": 1899,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1389695922
+    ],
+    "cid": "daegu-s-19"
+   },
+   {
+    "length_m": 41.8,
+    "n_ways": 1,
+    "center": [
+     35.857091,
+     128.590659
+    ],
+    "nearest_station": "명덕",
+    "nearest_station_m": 17,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 6,
+    "stations_via_entrances": [
+     "명덕"
+    ],
+    "stations_within_150m": [
+     "명덕"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     553720559
+    ],
+    "cid": "daegu-s-20"
+   },
+   {
+    "length_m": 40.4,
+    "n_ways": 1,
+    "center": [
+     35.921137,
+     128.633503
+    ],
+    "nearest_station": "아양교",
+    "nearest_station_m": 3816,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     469052022
+    ],
+    "cid": "daegu-s-21"
+   },
+   {
+    "length_m": 38.0,
+    "n_ways": 1,
+    "center": [
+     35.924038,
+     128.633378
+    ],
+    "nearest_station": "아양교",
+    "nearest_station_m": 4137,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     469052020
+    ],
+    "cid": "daegu-s-22"
+   },
+   {
+    "length_m": 34.2,
+    "n_ways": 1,
+    "center": [
+     35.960707,
+     128.559991
+    ],
+    "nearest_station": "칠곡경대병원",
+    "nearest_station_m": 258,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1244255341
+    ],
+    "cid": "daegu-s-23"
+   },
+   {
+    "length_m": 29.3,
+    "n_ways": 1,
+    "center": [
+     35.9906,
+     128.704443
+    ],
+    "nearest_station": "해안",
+    "nearest_station_m": 12587,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1030384975
+    ],
+    "cid": "daegu-s-24"
+   }
+  ],
+  "incheon": [
+   {
+    "length_m": 1781.5,
+    "n_ways": 48,
+    "center": [
+     37.473727,
+     126.630079
+    ],
+    "nearest_station": "동인천",
+    "nearest_station_m": 306,
+    "names": [
+     "신포지하도상가",
+     "중앙로지하도상가",
+     "동인천지하도상가",
+     "인현지하도상가"
+    ],
+    "highway": {
+     "pedestrian": 8,
+     "steps": 31,
+     "footway": 9
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 3,
+    "stations_via_entrances": [
+     "동인천"
+    ],
+    "stations_within_150m": [
+     "동인천"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1541083641,
+     1541083642,
+     1541083643,
+     1541083645,
+     1541083646,
+     1541083657,
+     1541083713,
+     1541083721,
+     1541083714,
+     1541083693,
+     1541083652,
+     1541083685,
+     1541083741,
+     1541083699,
+     1541083730,
+     1541083750,
+     1541083717,
+     1541083718,
+     1541083737,
+     1541083695,
+     1541083754,
+     1541083733,
+     1541083736,
+     1541083696,
+     1541083746,
+     1541083748,
+     1541083658,
+     1541083648,
+     1541083723,
+     1541083700,
+     1541083752,
+     1541083722,
+     1541083742,
+     1541083738,
+     1541083725,
+     1541083649,
+     1541083745,
+     1541083724,
+     1541083751,
+     1541083653,
+     1541083694,
+     1541083654,
+     1541083644,
+     1541083688,
+     1541083659,
+     1541083711,
+     1541083690,
+     1541083689
+    ],
+    "cid": "incheon-s-0"
+   },
+   {
+    "length_m": 675.9,
+    "n_ways": 10,
+    "center": [
+     37.381087,
+     126.65865
+    ],
+    "nearest_station": "테크노파크",
+    "nearest_station_m": 251,
+    "names": [],
+    "highway": {
+     "footway": 7,
+     "path": 3
+    },
+    "shares_entrance_node": 2,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "테크노파크"
+    ],
+    "stations_within_150m": [
+     "테크노파크"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1095771159,
+     1095771158,
+     1095783127,
+     1095783128,
+     1095771152,
+     1095771154,
+     1095771155,
+     1095771153,
+     1095783129,
+     1099670295
+    ],
+    "cid": "incheon-s-1"
+   },
+   {
+    "length_m": 525.8,
+    "n_ways": 3,
+    "center": [
+     37.466743,
+     126.643103
+    ],
+    "nearest_station": "도원",
+    "nearest_station_m": 240,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 3,
+    "stations_via_entrances": [
+     "도원"
+    ],
+    "stations_within_150m": [
+     "도원"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1363993568,
+     1363993569,
+     1363993570
+    ],
+    "cid": "incheon-s-2"
+   },
+   {
+    "length_m": 487.7,
+    "n_ways": 4,
+    "center": [
+     37.374774,
+     126.633095
+    ],
+    "nearest_station": "지식정보단지",
+    "nearest_station_m": 1172,
+    "names": [],
+    "highway": {
+     "footway": 4
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1244533014,
+     1244533032,
+     1244533019,
+     1244533015
+    ],
+    "cid": "incheon-s-3"
+   },
+   {
+    "length_m": 389.8,
+    "n_ways": 12,
+    "center": [
+     37.476057,
+     126.644624
+    ],
+    "nearest_station": "도원",
+    "nearest_station_m": 828,
+    "names": [],
+    "highway": {
+     "pedestrian": 6,
+     "steps": 6
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     930008272,
+     930008271,
+     930008273,
+     930008282,
+     930008275,
+     930008281,
+     930008274,
+     930008276,
+     930008284,
+     930008283,
+     930008277,
+     930008278
+    ],
+    "cid": "incheon-s-4"
+   },
+   {
+    "length_m": 257.4,
+    "n_ways": 1,
+    "center": [
+     37.382357,
+     126.670957
+    ],
+    "nearest_station": "캠퍼스타운",
+    "nearest_station_m": 1029,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1096853811
+    ],
+    "cid": "incheon-s-5"
+   },
+   {
+    "length_m": 235.5,
+    "n_ways": 4,
+    "center": [
+     37.404796,
+     126.6806
+    ],
+    "nearest_station": "동춘",
+    "nearest_station_m": 29,
+    "names": [],
+    "highway": {
+     "corridor": 3,
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 6,
+    "stations_via_entrances": [
+     "1;동춘",
+     "동춘"
+    ],
+    "stations_within_150m": [
+     "동춘"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     894782240,
+     894782238,
+     894782239,
+     894782242
+    ],
+    "cid": "incheon-s-6"
+   },
+   {
+    "length_m": 200.6,
+    "n_ways": 5,
+    "center": [
+     37.388049,
+     126.662007
+    ],
+    "nearest_station": "캠퍼스타운",
+    "nearest_station_m": 17,
+    "names": [],
+    "highway": {
+     "footway": 5
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "캠퍼스타운"
+    ],
+    "stations_within_150m": [
+     "캠퍼스타운"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1095783154,
+     1095783158,
+     1095783155,
+     1095783157,
+     1095783156
+    ],
+    "cid": "incheon-s-7"
+   },
+   {
+    "length_m": 167.5,
+    "n_ways": 1,
+    "center": [
+     37.409655,
+     126.660929
+    ],
+    "nearest_station": "동막",
+    "nearest_station_m": 1657,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     381145148
+    ],
+    "cid": "incheon-s-8"
+   },
+   {
+    "length_m": 158.8,
+    "n_ways": 1,
+    "center": [
+     37.471958,
+     126.636355
+    ],
+    "nearest_station": "동인천",
+    "nearest_station_m": 457,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1536398142
+    ],
+    "cid": "incheon-s-9"
+   },
+   {
+    "length_m": 103.3,
+    "n_ways": 1,
+    "center": [
+     37.492633,
+     126.494122
+    ],
+    "nearest_station": "운서",
+    "nearest_station_m": 42,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 1,
+    "entrances_within_50m": 2,
+    "stations_via_entrances": [
+     "운서"
+    ],
+    "stations_within_150m": [
+     "운서"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1107949641
+    ],
+    "cid": "incheon-s-10"
+   },
+   {
+    "length_m": 101.4,
+    "n_ways": 1,
+    "center": [
+     37.544449,
+     126.745396
+    ],
+    "nearest_station": "임학",
+    "nearest_station_m": 589,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     293633719
+    ],
+    "cid": "incheon-s-11"
+   },
+   {
+    "length_m": 99.2,
+    "n_ways": 1,
+    "center": [
+     37.381201,
+     126.672944
+    ],
+    "nearest_station": "캠퍼스타운",
+    "nearest_station_m": 1247,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1098140116
+    ],
+    "cid": "incheon-s-12"
+   },
+   {
+    "length_m": 76.1,
+    "n_ways": 1,
+    "center": [
+     37.481645,
+     126.486634
+    ],
+    "nearest_station": "운서",
+    "nearest_station_m": 1405,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     562777498
+    ],
+    "cid": "incheon-s-13"
+   },
+   {
+    "length_m": 70.6,
+    "n_ways": 1,
+    "center": [
+     37.411962,
+     126.687468
+    ],
+    "nearest_station": "원인재",
+    "nearest_station_m": 96,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 2,
+    "stations_via_entrances": [
+     "원인재"
+    ],
+    "stations_within_150m": [
+     "원인재"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     901048556
+    ],
+    "cid": "incheon-s-14"
+   },
+   {
+    "length_m": 64.8,
+    "n_ways": 3,
+    "center": [
+     37.372513,
+     126.631498
+    ],
+    "nearest_station": "지식정보단지",
+    "nearest_station_m": 1389,
+    "names": [],
+    "highway": {
+     "footway": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1394978482,
+     1394978487,
+     1394978490
+    ],
+    "cid": "incheon-s-15"
+   },
+   {
+    "length_m": 57.0,
+    "n_ways": 2,
+    "center": [
+     37.465772,
+     126.387917
+    ],
+    "nearest_station": "인천공항2터미널",
+    "nearest_station_m": 4036,
+    "names": [],
+    "highway": {
+     "corridor": 2
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1338487937,
+     1338487936
+    ],
+    "cid": "incheon-s-16"
+   },
+   {
+    "length_m": 55.6,
+    "n_ways": 1,
+    "center": [
+     37.571892,
+     126.759507
+    ],
+    "nearest_station": "귤현",
+    "nearest_station_m": 1608,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     299208205
+    ],
+    "cid": "incheon-s-17"
+   },
+   {
+    "length_m": 52.6,
+    "n_ways": 1,
+    "center": [
+     37.463155,
+     126.752288
+    ],
+    "nearest_station": "인천대공원",
+    "nearest_station_m": 1625,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     389258830
+    ],
+    "cid": "incheon-s-18"
+   },
+   {
+    "length_m": 51.9,
+    "n_ways": 1,
+    "center": [
+     37.493516,
+     126.480501
+    ],
+    "nearest_station": "운서",
+    "nearest_station_m": 1176,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     234801682
+    ],
+    "cid": "incheon-s-19"
+   },
+   {
+    "length_m": 50.6,
+    "n_ways": 1,
+    "center": [
+     37.482021,
+     126.494493
+    ],
+    "nearest_station": "운서",
+    "nearest_station_m": 1214,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     562777500
+    ],
+    "cid": "incheon-s-20"
+   },
+   {
+    "length_m": 50.3,
+    "n_ways": 1,
+    "center": [
+     37.379,
+     126.662311
+    ],
+    "nearest_station": "테크노파크",
+    "nearest_station_m": 649,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1095771156
+    ],
+    "cid": "incheon-s-21"
+   },
+   {
+    "length_m": 49.6,
+    "n_ways": 1,
+    "center": [
+     37.467805,
+     126.702643
+    ],
+    "nearest_station": "동암",
+    "nearest_station_m": 361,
+    "names": [],
+    "highway": {
+     "footway": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     1545008054
+    ],
+    "cid": "incheon-s-22"
+   },
+   {
+    "length_m": 45.4,
+    "n_ways": 3,
+    "center": [
+     37.427074,
+     126.698958
+    ],
+    "nearest_station": "선학",
+    "nearest_station_m": 19,
+    "names": [],
+    "highway": {
+     "corridor": 3
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 4,
+    "stations_via_entrances": [
+     "선학"
+    ],
+    "stations_within_150m": [
+     "선학"
+    ],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     894783135,
+     894783134,
+     894783131
+    ],
+    "cid": "incheon-s-23"
+   },
+   {
+    "length_m": 45.3,
+    "n_ways": 1,
+    "center": [
+     37.400371,
+     126.741227
+    ],
+    "nearest_station": "소래포구",
+    "nearest_station_m": 683,
+    "names": [],
+    "highway": {
+     "path": 1
+    },
+    "shares_entrance_node": 0,
+    "entrances_within_50m": 0,
+    "stations_via_entrances": [],
+    "stations_within_150m": [],
+    "shares_platform_node": false,
+    "with_opening_hours": 0,
+    "layer_only_m": 0,
+    "way_ids": [
+     707225767
+    ],
+    "cid": "incheon-s-24"
+   }
+  ]
+ },
+ "spot_checks": [
+  {
+   "id": "euljiro",
+   "name": "을지로 지하상가(시청~동대문역사문화공원 지하보도 2.8km)",
+   "expect": [
+    "시청",
+    "을지로입구",
+    "을지로3가",
+    "을지로4가",
+    "동대문역사문화공원"
+   ],
+   "station_nodes_found": {
+    "시청": 2,
+    "을지로입구": 1,
+    "을지로3가": 1,
+    "을지로4가": 1,
+    "동대문역사문화공원": 3
+   },
+   "components": [
+    {
+     "cid": "seoul-0",
+     "length_m": 3821.0,
+     "touches": [
+      "동대문역사문화공원",
+      "시청",
+      "을지로3가",
+      "을지로4가",
+      "을지로입구"
+     ],
+     "via_entrances": [
+      "동대문",
+      "시청",
+      "을지로3가",
+      "을지로4가",
+      "을지로입구"
+     ],
+     "names": [
+      "을지로지하상가"
+     ],
+     "layer_only_m": 0,
+     "way_ids": [
+      770894972,
+      770894973,
+      1126010870,
+      1126010864,
+      1273156140,
+      1015415191,
+      1128459181,
+      1126010868
+     ]
+    },
+    {
+     "cid": "seoul-9",
+     "length_m": 893.2,
+     "touches": [
+      "시청"
+     ],
+     "via_entrances": [
+      "시청"
+     ],
+     "names": [
+      "시티스타몰"
+     ],
+     "layer_only_m": 150.2,
+     "way_ids": [
+      379237474,
+      447919205,
+      338906156,
+      338906157,
+      338906159,
+      379237476,
+      607927398,
+      447919203
+     ]
+    },
+    {
+     "cid": "seoul-37",
+     "length_m": 257.5,
+     "touches": [
+      "동대문역사문화공원"
+     ],
+     "via_entrances": [],
+     "names": [],
+     "layer_only_m": 134.4,
+     "way_ids": [
+      1385817987,
+      768497971,
+      768497980
+     ]
+    },
+    {
+     "cid": "seoul-71",
+     "length_m": 158.4,
+     "touches": [
+      "동대문역사문화공원"
+     ],
+     "via_entrances": [
+      "동대문"
+     ],
+     "names": [],
+     "layer_only_m": 158.4,
+     "way_ids": [
+      791977195
+     ]
+    },
+    {
+     "cid": "seoul-118",
+     "length_m": 89.2,
+     "touches": [
+      "시청"
+     ],
+     "via_entrances": [
+      "시청"
+     ],
+     "names": [],
+     "layer_only_m": 89.2,
+     "way_ids": [
+      338906150
+     ]
+    },
+    {
+     "cid": "seoul-268",
+     "length_m": 29.9,
+     "touches": [
+      "동대문역사문화공원"
+     ],
+     "via_entrances": [
+      "동대문"
+     ],
+     "names": [],
+     "layer_only_m": 29.9,
+     "way_ids": [
+      914677902
+     ]
+    }
+   ],
+   "nearby_untouched_components": [
+    {
+     "cid": "seoul-2",
+     "length_m": 2856.8,
+     "dist_to_station_m": 207,
+     "names": [
+      "수표교 진출입 계단 10번"
+     ],
+     "entrances_within_50m": 4,
+     "way_ids": [
+      377289811,
+      156922849,
+      156922848,
+      302087658,
+      302087644
+     ]
+    },
+    {
+     "cid": "seoul-3",
+     "length_m": 2839.6,
+     "dist_to_station_m": 225,
+     "names": [
+      "삼일교 진출입 계단 7번",
+      "수표교 진출입 계단 9번",
+      "장통교 진출입 계단 5번"
+     ],
+     "entrances_within_50m": 5,
+     "way_ids": [
+      156922847,
+      773004584,
+      773004585,
+      1283637453,
+      156922851,
+      302093056,
+      302087651,
+      302087643
+     ]
+    },
+    {
+     "cid": "seoul-4",
+     "length_m": 2002.3,
+     "dist_to_station_m": 273,
+     "names": [
+      "종로",
+      "창경궁로12길",
+      "동호로"
+     ],
+     "entrances_within_50m": 5,
+     "way_ids": [
+      203501049,
+      203501048,
+      1125780631,
+      203501045,
+      420393495,
+      1125472126,
+      1125780628,
+      1125630924
+     ]
+    },
+    {
+     "cid": "seoul-10",
+     "length_m": 823.9,
+     "dist_to_station_m": 194,
+     "names": [
+      "소공 지하쇼핑센터",
+      "명동지하상가",
+      "Myeongdong Underground Shopping Center"
+     ],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      709917060,
+      709917052,
+      709917051,
+      709917054,
+      709917050,
+      709917042,
+      709917047,
+      709917040
+     ]
+    },
+    {
+     "cid": "seoul-83",
+     "length_m": 140.6,
+     "dist_to_station_m": 174,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      1348554471
+     ]
+    },
+    {
+     "cid": "seoul-89",
+     "length_m": 132.7,
+     "dist_to_station_m": 217,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      1317968503,
+      1316450292,
+      1348554468,
+      1317968504,
+      1348554470
+     ]
+    }
+   ],
+   "expect_touched": [
+    "동대문역사문화공원",
+    "시청",
+    "을지로3가",
+    "을지로4가",
+    "을지로입구"
+   ],
+   "max_expected_in_one_component": [
+    "동대문역사문화공원",
+    "시청",
+    "을지로3가",
+    "을지로4가",
+    "을지로입구"
+   ],
+   "ug_km_touching": 5.26
+  },
+  {
+   "id": "jonggak",
+   "name": "종각 지하쇼핑센터(종각역 9~12번 출구)",
+   "expect": [
+    "종각"
+   ],
+   "station_nodes_found": {
+    "종각": 1
+   },
+   "components": [
+    {
+     "cid": "seoul-3",
+     "length_m": 2839.6,
+     "touches": [
+      "종각"
+     ],
+     "via_entrances": [
+      "동대문"
+     ],
+     "names": [
+      "삼일교 진출입 계단 7번",
+      "수표교 진출입 계단 9번",
+      "장통교 진출입 계단 5번"
+     ],
+     "layer_only_m": 2724.3,
+     "way_ids": [
+      156922847,
+      773004584,
+      773004585,
+      1283637453,
+      156922851,
+      302093056,
+      302087651,
+      302087643
+     ]
+    },
+    {
+     "cid": "seoul-266",
+     "length_m": 30.1,
+     "touches": [
+      "종각"
+     ],
+     "via_entrances": [
+      "종각"
+     ],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      360147783,
+      360147784,
+      360147782
+     ]
+    },
+    {
+     "cid": "seoul-367",
+     "length_m": 12.4,
+     "touches": [
+      "종각"
+     ],
+     "via_entrances": [
+      "종각"
+     ],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      360129329
+     ]
+    },
+    {
+     "cid": "seoul-400",
+     "length_m": 10.0,
+     "touches": [
+      "종각"
+     ],
+     "via_entrances": [
+      "종각"
+     ],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      360129325
+     ]
+    },
+    {
+     "cid": "seoul-402",
+     "length_m": 9.8,
+     "touches": [
+      "종각"
+     ],
+     "via_entrances": [
+      "종각"
+     ],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      360129321
+     ]
+    },
+    {
+     "cid": "seoul-417",
+     "length_m": 7.8,
+     "touches": [
+      "종각"
+     ],
+     "via_entrances": [],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      360147780
+     ]
+    }
+   ],
+   "nearby_untouched_components": [
+    {
+     "cid": "seoul-2",
+     "length_m": 2856.8,
+     "dist_to_station_m": 155,
+     "names": [
+      "수표교 진출입 계단 10번"
+     ],
+     "entrances_within_50m": 4,
+     "way_ids": [
+      377289811,
+      156922849,
+      156922848,
+      302087658,
+      302087644
+     ]
+    }
+   ],
+   "expect_touched": [
+    "종각"
+   ],
+   "max_expected_in_one_component": [
+    "종각"
+   ],
+   "ug_km_touching": 2.92
+  },
+  {
+   "id": "jongno4",
+   "name": "종로4가·종오 지하상가(종로3가~종로5가 일대)",
+   "expect": [
+    "종로3가",
+    "종로5가"
+   ],
+   "station_nodes_found": {
+    "종로3가": 3,
+    "종로5가": 1
+   },
+   "components": [
+    {
+     "cid": "seoul-3",
+     "length_m": 2839.6,
+     "touches": [
+      "종로5가"
+     ],
+     "via_entrances": [
+      "동대문"
+     ],
+     "names": [
+      "삼일교 진출입 계단 7번",
+      "수표교 진출입 계단 9번",
+      "장통교 진출입 계단 5번"
+     ],
+     "layer_only_m": 2724.3,
+     "way_ids": [
+      156922847,
+      773004584,
+      773004585,
+      1283637453,
+      156922851,
+      302093056,
+      302087651,
+      302087643
+     ]
+    },
+    {
+     "cid": "seoul-4",
+     "length_m": 2002.3,
+     "touches": [
+      "종로5가"
+     ],
+     "via_entrances": [
+      "종로5가"
+     ],
+     "names": [
+      "종로",
+      "창경궁로12길",
+      "동호로"
+     ],
+     "layer_only_m": 0,
+     "way_ids": [
+      203501049,
+      203501048,
+      1125780631,
+      203501045,
+      420393495,
+      1125472126,
+      1125780628,
+      1125630924
+     ]
+    },
+    {
+     "cid": "seoul-35",
+     "length_m": 268.8,
+     "touches": [
+      "종로5가"
+     ],
+     "via_entrances": [
+      "종로5가"
+     ],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      1125976008,
+      1125230935,
+      1125230934,
+      1125230940,
+      1125230939
+     ]
+    },
+    {
+     "cid": "seoul-84",
+     "length_m": 140.4,
+     "touches": [
+      "종로3가"
+     ],
+     "via_entrances": [
+      "종로3가"
+     ],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      379076090,
+      379076092,
+      379994129,
+      379994133,
+      379994139,
+      379994128,
+      379994143,
+      379994126
+     ]
+    },
+    {
+     "cid": "seoul-100",
+     "length_m": 113.3,
+     "touches": [
+      "종로3가"
+     ],
+     "via_entrances": [
+      "종로3가"
+     ],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      1416688033,
+      1416688031,
+      1416688032,
+      379994131,
+      379994140,
+      379994138,
+      379994135
+     ]
+    },
+    {
+     "cid": "seoul-214",
+     "length_m": 44.4,
+     "touches": [
+      "종로3가"
+     ],
+     "via_entrances": [],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      1454124954
+     ]
+    }
+   ],
+   "nearby_untouched_components": [
+    {
+     "cid": "seoul-2",
+     "length_m": 2856.8,
+     "dist_to_station_m": 164,
+     "names": [
+      "수표교 진출입 계단 10번"
+     ],
+     "entrances_within_50m": 4,
+     "way_ids": [
+      377289811,
+      156922849,
+      156922848,
+      302087658,
+      302087644
+     ]
+    },
+    {
+     "cid": "seoul-36",
+     "length_m": 263.7,
+     "dist_to_station_m": 179,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      1125982018,
+      1125982022,
+      1125982025,
+      1125982024,
+      1125982023,
+      1125982019,
+      1125982020,
+      1125982021
+     ]
+    },
+    {
+     "cid": "seoul-83",
+     "length_m": 140.6,
+     "dist_to_station_m": 349,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      1348554471
+     ]
+    },
+    {
+     "cid": "seoul-89",
+     "length_m": 132.7,
+     "dist_to_station_m": 383,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      1317968503,
+      1316450292,
+      1348554468,
+      1317968504,
+      1348554470
+     ]
+    },
+    {
+     "cid": "seoul-119",
+     "length_m": 89.0,
+     "dist_to_station_m": 243,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      767312313
+     ]
+    },
+    {
+     "cid": "seoul-206",
+     "length_m": 47.2,
+     "dist_to_station_m": 322,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      1317968505
+     ]
+    }
+   ],
+   "expect_touched": [
+    "종로3가",
+    "종로5가"
+   ],
+   "max_expected_in_one_component": [
+    "종로5가"
+   ],
+   "ug_km_touching": 5.44
+  },
+  {
+   "id": "myeongdong",
+   "name": "명동 지하쇼핑센터(을지로입구역 7번 출구)·명동역 지하상가",
+   "expect": [
+    "을지로입구",
+    "명동"
+   ],
+   "station_nodes_found": {
+    "을지로입구": 1,
+    "명동": 1
+   },
+   "components": [
+    {
+     "cid": "seoul-0",
+     "length_m": 3821.0,
+     "touches": [
+      "을지로입구"
+     ],
+     "via_entrances": [
+      "동대문",
+      "시청",
+      "을지로3가",
+      "을지로4가",
+      "을지로입구"
+     ],
+     "names": [
+      "을지로지하상가"
+     ],
+     "layer_only_m": 0,
+     "way_ids": [
+      770894972,
+      770894973,
+      1126010870,
+      1126010864,
+      1273156140,
+      1015415191,
+      1128459181,
+      1126010868
+     ]
+    }
+   ],
+   "nearby_untouched_components": [
+    {
+     "cid": "seoul-2",
+     "length_m": 2856.8,
+     "dist_to_station_m": 317,
+     "names": [
+      "수표교 진출입 계단 10번"
+     ],
+     "entrances_within_50m": 4,
+     "way_ids": [
+      377289811,
+      156922849,
+      156922848,
+      302087658,
+      302087644
+     ]
+    },
+    {
+     "cid": "seoul-3",
+     "length_m": 2839.6,
+     "dist_to_station_m": 332,
+     "names": [
+      "삼일교 진출입 계단 7번",
+      "수표교 진출입 계단 9번",
+      "장통교 진출입 계단 5번"
+     ],
+     "entrances_within_50m": 5,
+     "way_ids": [
+      156922847,
+      773004584,
+      773004585,
+      1283637453,
+      156922851,
+      302093056,
+      302087651,
+      302087643
+     ]
+    },
+    {
+     "cid": "seoul-9",
+     "length_m": 893.2,
+     "dist_to_station_m": 287,
+     "names": [
+      "시티스타몰"
+     ],
+     "entrances_within_50m": 11,
+     "way_ids": [
+      379237474,
+      447919205,
+      338906156,
+      338906157,
+      338906159,
+      379237476,
+      607927398,
+      447919203
+     ]
+    },
+    {
+     "cid": "seoul-10",
+     "length_m": 823.9,
+     "dist_to_station_m": 194,
+     "names": [
+      "소공 지하쇼핑센터",
+      "명동지하상가",
+      "Myeongdong Underground Shopping Center"
+     ],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      709917060,
+      709917052,
+      709917051,
+      709917054,
+      709917050,
+      709917042,
+      709917047,
+      709917040
+     ]
+    },
+    {
+     "cid": "seoul-118",
+     "length_m": 89.2,
+     "dist_to_station_m": 361,
+     "names": [],
+     "entrances_within_50m": 1,
+     "way_ids": [
+      338906150
+     ]
+    },
+    {
+     "cid": "seoul-159",
+     "length_m": 61.1,
+     "dist_to_station_m": 345,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      1193247322
+     ]
+    }
+   ],
+   "expect_touched": [
+    "을지로입구"
+   ],
+   "max_expected_in_one_component": [
+    "을지로입구"
+   ],
+   "ug_km_touching": 3.82
+  },
+  {
+   "id": "gangnam",
+   "name": "강남역 지하쇼핑센터",
+   "expect": [
+    "강남"
+   ],
+   "station_nodes_found": {
+    "강남": 2,
+    "신논현": 2
+   },
+   "components": [
+    {
+     "cid": "seoul-14",
+     "length_m": 727.0,
+     "touches": [
+      "강남"
+     ],
+     "via_entrances": [
+      "강남"
+     ],
+     "names": [],
+     "layer_only_m": 7.5,
+     "way_ids": [
+      305932240,
+      305932241,
+      305932242,
+      305932244,
+      305806956,
+      305923844,
+      305923845,
+      305806952
+     ]
+    },
+    {
+     "cid": "seoul-292",
+     "length_m": 24.2,
+     "touches": [
+      "신논현"
+     ],
+     "via_entrances": [
+      "신논현"
+     ],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      1188271428,
+      1188271429
+     ]
+    }
+   ],
+   "nearby_untouched_components": [],
+   "expect_touched": [
+    "강남"
+   ],
+   "max_expected_in_one_component": [
+    "강남"
+   ],
+   "ug_km_touching": 0.75
+  },
+  {
+   "id": "terminal",
+   "name": "고속터미널 지하쇼핑센터(고투몰)",
+   "expect": [
+    "고속터미널"
+   ],
+   "station_nodes_found": {
+    "고속터미널": 1
+   },
+   "components": [],
+   "nearby_untouched_components": [],
+   "expect_touched": [],
+   "max_expected_in_one_component": [],
+   "ug_km_touching": 0.0
+  },
+  {
+   "id": "yeongdeungpo",
+   "name": "영등포역·영등포로터리·영등포시장 지하상가",
+   "expect": [
+    "영등포",
+    "영등포시장"
+   ],
+   "station_nodes_found": {
+    "영등포": 1,
+    "영등포시장": 1
+   },
+   "components": [],
+   "nearby_untouched_components": [
+    {
+     "cid": "seoul-51",
+     "length_m": 211.2,
+     "dist_to_station_m": 293,
+     "names": [],
+     "entrances_within_50m": 0,
+     "way_ids": [
+      344430249
+     ]
+    }
+   ],
+   "expect_touched": [],
+   "max_expected_in_one_component": [],
+   "ug_km_touching": 0.0
+  },
+  {
+   "id": "coex",
+   "name": "삼성역~코엑스몰~봉은사역",
+   "expect": [
+    "삼성",
+    "봉은사"
+   ],
+   "station_nodes_found": {
+    "삼성": 1,
+    "봉은사": 1
+   },
+   "components": [
+    {
+     "cid": "seoul-213",
+     "length_m": 44.9,
+     "touches": [
+      "봉은사"
+     ],
+     "via_entrances": [],
+     "names": [],
+     "layer_only_m": 0,
+     "way_ids": [
+      338296584,
+      338296582
+     ]
+    }
+   ],
+   "nearby_untouched_components": [],
+   "expect_touched": [
+    "봉은사"
+   ],
+   "max_expected_in_one_component": [
+    "봉은사"
+   ],
+   "ug_km_touching": 0.04
+  },
+  {
+   "id": "seomyeon",
+   "name": "서면 지하상가(서면몰·부전몰·중앙몰)",
+   "expect": [
+    "서면",
+    "부전"
+   ],
+   "station_nodes_found": {
+    "서면": 1,
+    "부전": 2
+   },
+   "components": [],
+   "nearby_untouched_components": [],
+   "expect_touched": [],
+   "max_expected_in_one_component": [],
+   "ug_km_touching": 0.0
+  },
+  {
+   "id": "nampo",
+   "name": "남포·광복 지하상가(자갈치~남포~중앙)",
+   "expect": [
+    "자갈치",
+    "남포",
+    "중앙"
+   ],
+   "station_nodes_found": {
+    "자갈치": 1,
+    "남포": 1,
+    "중앙": 1
+   },
+   "components": [],
+   "nearby_untouched_components": [],
+   "expect_touched": [],
+   "max_expected_in_one_component": [],
+   "ug_km_touching": 0.0
+  },
+  {
+   "id": "busan_station",
+   "name": "부산역 지하상가·1호선~KTX 연결통로",
+   "expect": [
+    "부산"
+   ],
+   "station_nodes_found": {
+    "부산": 2
+   },
+   "components": [],
+   "nearby_untouched_components": [],
+   "expect_touched": [],
+   "max_expected_in_one_component": [],
+   "ug_km_touching": 0.0
+  }
+ ]
+}
