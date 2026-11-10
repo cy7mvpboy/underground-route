@@ -30,7 +30,7 @@ jobs:
       - name: Build site
         run: |
           mkdir -p _site
-          cp -r web/data _site/data
+          cp -r web/. _site/
           { echo '<!doctype html>'; echo '<html lang="ko">'; cat web/index.html; echo '</html>'; } > _site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
