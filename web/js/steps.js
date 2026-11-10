@@ -282,7 +282,8 @@
 
   /* ---------- 화면용 안내 목록 ----------
      plan = { from, to, route(router.findRoute 결과) } 에 desc(describe 결과), items(안내 목록), view(요약)를 붙인다.
-     items: walk(지상으로 바로 걷기) | enter(출구로 들어가기) | step(ride/transfer/warning) | exit(출구로 나가기) | arrive(역 도착) */
+     items: walk(지상으로 바로 걷기) | enter(출구로 들어가기) | step(ride/transfer/warning) | exit(출구로 나가기) | arrive(역 도착)
+            | approach(선로 위 지금 위치 -> 첫 노드, 여기서 나가기) | egress(나갈 곳: 출구·터널 출입구·수직구·차량기지) */
   function exitList(G, si, lat, lon, chosen) {
     const EN = G.g.entrances, N = G.g.nodes, hav = UG.graph.haversine;
     return G.stationEntrances[si].map(function (i) {
@@ -303,8 +304,17 @@
         items.push({ kind: 'enter', conn: c, stName: g.stations[c.si].name, label: p.from.label, m: c.len, min: c.len / mpm,
           latlngs: [[p.from.lat, p.from.lon], [c.lat, c.lon]] });
       }
+      if (r.startPart) {   // 선로 위 지금 위치에서 첫 노드까지(여기서 나가기)
+        const sp = r.startPart, v0 = r.path.length ? r.path[0].u : -1, si0 = v0 >= 0 ? stationOfNode(G, v0) : -1;
+        items.push({ kind: 'approach', part: sp, m: sp.m, min: sp.m / mpm, latlngs: sp.pts, label: p.from.label || p.from.text || '',
+          toward: r.path.length ? (si0 >= 0 ? g.stations[si0].name : '') : (r.egress ? r.egress.title : '') });
+      }
       p.desc.steps.forEach(function (s) { items.push({ kind: 'step', step: s }); });
-      if (r.endConn) {
+      if (r.egress) {      // 나갈 곳(출구·터널 출입구·수직구·차량기지). 수직구는 간선 일부, 차량기지는 기지 안 지상 길
+        const part = r.endPart || r.endWalk, m = part ? part.m : 0;
+        items.push({ kind: 'egress', cand: r.egress, m: m, min: m / mpm, latlngs: part ? part.pts : [[r.egress.lat, r.egress.lon]],
+          surface: !!r.endWalk, label: r.egress.title });
+      } else if (r.endConn) {
         const c = r.endConn;
         items.push({ kind: 'exit', conn: c, stName: g.stations[c.si].name, label: p.to.label, m: c.len, min: c.len / mpm,
           latlngs: [[c.lat, c.lon], [p.to.lat, p.to.lon]], others: exitList(G, c.si, p.to.lat, p.to.lon, c.ent) });

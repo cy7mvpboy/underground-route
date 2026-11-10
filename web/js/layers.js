@@ -342,6 +342,12 @@
         paint();
         marks.clearLayers();
         (view.exits || []).forEach(function (x) { tag([x.lat, x.lon], x.ref, x.title).addTo(marks); });
+        (view.junctions || []).forEach(function (j) {   // 갈림길: 작은 마름모
+          L.marker([j.lat, j.lon], {
+            icon: L.divIcon({ className: '', html: '<span class="jn-dot" aria-hidden="true"></span>', iconSize: [0, 0] }),
+            keyboard: false, interactive: false, title: '갈림길'
+          }).addTo(marks);
+        });
         (view.warnings || []).forEach(function (w) {
           L.marker([w.lat, w.lon], {
             icon: L.divIcon({ className: '', html: '<span class="warn-pin"><span>!</span></span>', iconSize: [0, 0] }),
@@ -435,9 +441,51 @@
         }).addTo(xferGroup);
       });
     }
+    /* 갈림길 그림(지도): 들어오는 선 + 갈래마다 처음 약 150m. 고른 갈래는 경로 색 굵게, 다른 갈래는 흐리게.
+       갈래 끝에 이름표('오른쪽 갈래 · 둔촌동 방면'), 가운데에 마름모. fork = {center, incoming, branches: [{pts, chosen, label}]} */
+    let fork = null, forkRenderer = null;
+    const forkGroup = L.layerGroup().addTo(map);
+    function paintFork() {
+      forkGroup.clearLayers();
+      if (!fork || !pal) return;
+      if (!map.getPane('fork')) map.createPane('fork').style.zIndex = 463;   // 경로(455)·환승 그림(462) 위
+      forkRenderer = forkRenderer || L.svg({ pane: 'fork', padding: 0.5 });
+      const opt = { renderer: forkRenderer, interactive: false, lineCap: 'round', lineJoin: 'round' };
+      const alts = fork.branches.filter(function (b) { return !b.chosen; }), go = fork.branches.filter(function (b) { return b.chosen; });
+      const lines = [fork.incoming].concat(fork.branches.map(function (b) { return b.pts; }));
+      L.polyline(lines, Object.assign({ color: pal.casing, weight: 14, opacity: 1 }, opt)).addTo(forkGroup);
+      alts.forEach(function (b) { L.polyline(b.pts, Object.assign({ color: pal.muted, weight: 6, opacity: 0.8, dashArray: '2 9' }, opt)).addTo(forkGroup); });
+      L.polyline([fork.incoming].concat(go.map(function (b) { return b.pts; })), Object.assign({ color: pal.route, weight: 8, opacity: 1 }, opt)).addTo(forkGroup);
+      const c = map.project(L.latLng(fork.center[0], fork.center[1]), 17);
+      fork.branches.forEach(function (b) {
+        const tip = b.pts[b.pts.length - 1], left = map.project(L.latLng(tip[0], tip[1]), 17).x < c.x;
+        L.marker(tip, {
+          icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<span class="fork-tag' + (b.chosen ? ' is-go' : '') + (left ? ' at-l' : ' at-r') + '">' + esc(b.label) + '</span>' }),
+          keyboard: false, interactive: false, zIndexOffset: b.chosen ? 1900 : 1800
+        }).addTo(forkGroup);
+      });
+      L.marker(fork.center, {
+        icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<span class="jn-dot is-cur" aria-hidden="true"></span>' }),
+        keyboard: false, interactive: false, zIndexOffset: 1850, title: '갈림길'
+      }).addTo(forkGroup);
+    }
+    /* 여기서 나가기 후보: 목록 번호와 같은 번호 핀. list = [{lat, lon, k, title}] */
+    const candGroup = L.layerGroup().addTo(map);
+    let cands = null;
+    function paintCands() {
+      candGroup.clearLayers();
+      (cands || []).forEach(function (c, i) {
+        L.marker([c.lat, c.lon], {
+          icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<span class="eh-pin eh-pin-' + c.k + '"><b>' + (i + 1) + '</b></span>' }),
+          keyboard: false, interactive: false, zIndexOffset: 2100 - i, title: (i + 1) + '. ' + c.title
+        }).addTo(candGroup);
+      });
+    }
     return {
-      setPalette: function (p) { pal = p; paintSeg(); paintXfer(); },
+      setPalette: function (p) { pal = p; paintSeg(); paintXfer(); paintFork(); },
       setSegment: function (lines) { seg = lines; paintSeg(); },
+      setFork: function (f) { fork = f || null; paintFork(); },
+      setCandidates: function (list) { cands = list && list.length ? list : null; paintCands(); },
       // x = transfer.js 의 info 결과(없으면 지운다)
       setTransfer: function (x) { if ((x || null) === xfer) return; xfer = x || null; paintXfer(); },
       // 추정 위치(GPS 없음): 속이 빈 점선 고리와 이름표('추정 위치', '확인한 곳'). latlng 이 없으면 지운다.
@@ -455,7 +503,45 @@
           keyboard: false, interactive: false, zIndexOffset: 1500, title: '다음 확인 지점: ' + label
         }).addTo(map);
       },
-      clear: function () { seg = null; group.clearLayers(); xfer = null; xferGroup.clearLayers(); this.setEstimate(null); this.setNext(null); }
+      clear: function () {
+        seg = null; group.clearLayers(); xfer = null; xferGroup.clearLayers(); fork = null; forkGroup.clearLayers(); cands = null; candGroup.clearLayers();
+        this.setEstimate(null); this.setNext(null);
+      }
+    };
+  }
+
+  /* ---------- 출구 후보 (egress.json: 터널 출입구·수직구·비상 출구·차량기지) ----------
+     레이어 펼침의 '출구 후보'로 켜고 끈다. 터널 출입구·수직구는 줌 13 이상, 차량기지는 줌 12 이상, 화면 안의 것만 만든다.
+     opts = { minZoom, depotZoom, icon(k) -> svg, popupHtml(item) } */
+  function EgressLayer(map, opts) {
+    const group = L.layerGroup().addTo(map), cache = new Map();
+    let items = null, on = true;
+    function marker(i) {
+      if (cache.has(i)) return cache.get(i);
+      const it = items[i];
+      const m = L.marker([it.lat, it.lon], {
+        icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<span class="eg-tag eg-' + esc(it.k) + '">' + opts.icon(it.k) + '</span>' }),
+        keyboard: false, title: it.name, bubblingMouseEvents: false
+      });
+      m.bindPopup(function () { return opts.popupHtml(it); }, { maxWidth: 260 });
+      cache.set(i, m);
+      return m;
+    }
+    function sync() {
+      if (!items || !on) { group.clearLayers(); return; }
+      const z = map.getZoom(), b = map.getBounds().pad(0.2), want = new Set();
+      items.forEach(function (it, i) {
+        if (z < (it.k === 'depot' ? opts.depotZoom : opts.minZoom) || !isFinite(it.lat)) return;
+        if (b.contains([it.lat, it.lon])) want.add(i);
+      });
+      group.eachLayer(function (m) { if (!want.has(m._egIndex)) group.removeLayer(m); });
+      want.forEach(function (i) { const m = marker(i); m._egIndex = i; if (!group.hasLayer(m)) group.addLayer(m); });
+    }
+    map.on('moveend zoomend', sync);
+    return {
+      setData: function (d) { items = d && Array.isArray(d.items) ? d.items : null; cache.clear(); group.clearLayers(); sync(); },
+      setVisible: function (v) { on = !!v; sync(); },
+      sync: sync
     };
   }
 
@@ -532,6 +618,6 @@
     STRUCTS: STRUCTS, esc: esc, readPalette: readPalette, watchTheme: watchTheme, createMap: createMap, addBaseTiles: addBaseTiles,
     buildTrackGroups: buildTrackGroups, buildStations: buildStations, computeBounds: computeBounds,
     NetworkLayer: NetworkLayer, StationLayer: StationLayer, ExitLayer: ExitLayer, BasemapLayer: BasemapLayer,
-    RouteLayer: RouteLayer, ReachLayer: ReachLayer, GuideLayer: GuideLayer, MeLayer: MeLayer
+    RouteLayer: RouteLayer, ReachLayer: ReachLayer, GuideLayer: GuideLayer, MeLayer: MeLayer, EgressLayer: EgressLayer
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

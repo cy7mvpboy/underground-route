@@ -166,8 +166,7 @@
             (r.sub ? '<span class="ac-sub">' + esc(r.sub) + '</span>' : '') + '</span>' +
             '<span class="ac-badges">' + shown + '</span>' +
             (opts.onSave ? '<button type="button" class="ac-save" data-save="' + i + '" tabindex="-1" aria-label="' + esc(r.title) + ' 저장" title="저장">☆</button>' : '') + '</li>';
-        }).join('') +
-          (items.some(function (r) { return r.online; }) ? '<li class="ac-attr" role="presentation">검색: Photon (© OpenStreetMap)</li>' : '');
+        }).join('');   // 온라인 검색 출처(Photon)는 '정보' 탭에
       }
       const was = list.hidden;
       list.hidden = false;

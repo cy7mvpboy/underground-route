@@ -9,7 +9,7 @@
 <style>
 /* =====================================================================
    디자인 토큰 (설명: docs/design.md)
-   어두운 화면이 기본이다(지하·밤·배터리). 밝은 화면은 기기 설정이나 분석 탭의 '화면'에서 고른다.
+   어두운 화면이 기본이다(지하·밤·배터리). 밝은 화면은 기기 설정이나 정보 탭의 '화면'에서 고른다.
    색은 뜻이 있다: 청록 = 지하·안전, 호박색 = 교량, 주황빨강 = 지상 노출, 노랑 = 비상 주 행동.
    ===================================================================== */
 :root {
@@ -166,7 +166,7 @@ button { cursor: pointer; }
 .has-dest .pill-text { color: var(--text); font-weight: 500; }
 .pill-ic { width: 22px; height: 22px; flex: none; color: var(--muted); }
 
-/* ---------- 오른쪽 둥근 단추(내 위치·레이어·분석) ---------- */
+/* ---------- 오른쪽 둥근 단추(내 위치·레이어·정보) ---------- */
 .fab-col { position: absolute; z-index: 15; right: var(--gutter-r); bottom: calc(var(--ui-bottom) + 12px); display: flex; flex-direction: column; gap: 10px; }
 .fab { display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 .fab svg { width: 22px; height: 22px; }
@@ -229,7 +229,7 @@ button { cursor: pointer; }
 .sheet-grip span { width: 40px; height: 5px; border-radius: 3px; background: var(--line-strong); }
 .sheet-close { grid-column: 3; color: var(--muted); }
 .sheet-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 16px calc(20px + var(--safe-bottom)); }
-.sheet[data-state="peek"] .sheet-body { overflow: hidden; }
+.sheet-body { touch-action: pan-y; }
 .view { display: grid; gap: 14px; }
 .sv-head { display: grid; gap: 12px; }
 .sv-title { margin: 0; font-size: var(--fs-xl); font-weight: 700; }
@@ -248,13 +248,17 @@ button { cursor: pointer; }
 .xb-ok { background: var(--safe-soft); color: var(--safe-text); box-shadow: inset 0 0 0 1.5px var(--safe); }
 .xb-mid { background: var(--bridge-soft); color: var(--bridge-text); box-shadow: inset 0 0 0 1.5px var(--bridge); }
 .xb-bad { background: var(--expo-soft); color: var(--expo-text); box-shadow: inset 0 0 0 1.5px var(--expo); }
-.rc-nums { display: flex; gap: 18px; margin: 0; }
+.rc-nums { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; }
 .rc-nums div { display: grid; gap: 0; }
 .rc-nums dt { font-size: var(--fs-xs); color: var(--muted); }
 .rc-nums dd { margin: 0; line-height: 1.15; white-space: nowrap; }
 .rc-nums b { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
 .rc-nums small { font-size: var(--fs-sm); color: var(--muted); margin: 0 3px 0 1px; }
 .rc-lines { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
+.rc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.cnt { display: inline-flex; align-items: center; height: 26px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 13px; background: var(--surface-2); color: var(--text); font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
+.cnt-warn { border-color: var(--bridge); color: var(--bridge-text); background: var(--bridge-soft); }
+.step-dir .cnt { margin-left: 8px; height: 22px; }
 .rc-sep { color: var(--muted); font-weight: 700; }
 .speed { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 4px; border-top: 1px solid var(--line); font-size: var(--fs-sm); color: var(--muted); }
 .speed select { min-height: var(--tap); padding: 0 10px; border: 1px solid var(--line-strong); border-radius: var(--r-s); background: var(--surface-2); font-size: 16px; }
@@ -279,8 +283,10 @@ button { cursor: pointer; }
 .step-track { font-weight: 500; color: var(--muted); }
 .step-dir { font-size: var(--fs-sm); }
 .step-meta { font-size: var(--fs-sm); color: var(--muted); }
-.step-more { margin: -4px 0 10px 44px; }
+.step-more { margin: -8px 0 6px 44px; }
 .step-more:empty { display: none; }
+.pass-d summary { display: inline-flex; align-items: center; min-height: 36px; font-size: var(--fs-xs); color: var(--muted); cursor: pointer; }
+.pass-d[open] summary { color: var(--text); }
 .pass { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 0; margin: 0; padding: 0; list-style: none; font-size: var(--fs-xs); color: var(--muted); }
 .pass li { display: inline-flex; align-items: center; white-space: nowrap; }
 .pass li + li::before { content: ""; width: 10px; height: 2px; margin: 0 5px; border-radius: 1px; background: var(--line-strong); }
@@ -397,42 +403,16 @@ button { cursor: pointer; }
 .exit-chip .num { font-size: var(--fs-xs); color: var(--muted); }
 .exit-grid.has-areas { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }   /* 출구 주변 이름이 있으면 넓게 */
 
-/* 분석·정보 */
-.safety-card { display: grid; gap: 6px; padding: 12px 14px; border-radius: var(--r-s); background: var(--bridge-soft); box-shadow: inset 0 0 0 1px var(--bridge); }
-.safety-card h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs-md); color: var(--bridge-text); }
-.safety-card p { margin: 0; font-size: var(--fs-sm); }
+/* 정보 탭 */
 .about { margin: 0; font-size: var(--fs-sm); color: var(--muted); }
 .about b { color: var(--text); }
-.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r-s); overflow: hidden; }
+.safety-line { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border-radius: var(--r-s); background: var(--bridge-soft); color: var(--bridge-text); box-shadow: inset 0 0 0 1px var(--bridge); font-size: var(--fs-sm); font-weight: 700; }
+.safety-line .ic { width: 20px; height: 20px; }
+.seg { display: inline-flex; justify-self: start; border: 1px solid var(--line-strong); border-radius: var(--r-s); overflow: hidden; }
 .seg button { min-height: var(--tap); min-width: 72px; padding: 0 14px; border: 0; border-right: 1px solid var(--line-strong); background: var(--surface); font-size: var(--fs-sm); }
 .seg button:last-child { border-right: 0; }
 .seg button[aria-pressed="true"] { background: var(--text); color: var(--surface); font-weight: 700; }
-.peek-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; font-size: var(--fs-sm); color: var(--muted); }
-.peek-stats b { color: var(--text); font-size: var(--fs-lg); }
-.sbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--surface-2); }
-.sbar span { display: block; height: 100%; }
-.seg-tunnel { background: var(--safe); }
-.seg-bridge { background: var(--bridge); }
-.seg-ground { background: var(--expo); }
-.t { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
-.t th { padding: 4px 6px; border-bottom: 1px solid var(--line-strong); font-size: var(--fs-xs); font-weight: 500; color: var(--muted); text-align: left; white-space: nowrap; }
-.t td { padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
-.t th:first-child, .t td:first-child { padding-left: 0; }
-.t th:last-child, .t td:last-child { padding-right: 0; }
-.t .r { text-align: right; }
-.t tfoot td { border-bottom: 0; color: var(--muted); }
-.t .key { display: inline-flex; align-items: center; gap: 8px; }
-.share { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
-.mini { flex: none; width: 44px; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
-.mini span { display: block; height: 100%; background: var(--safe); }
-.rg-btn { min-height: 32px; padding: 0; border: 0; background: none; text-align: left; text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; white-space: nowrap; }
-.pill { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px 0 6px; border: 1px solid currentColor; border-radius: 999px; font-size: var(--fs-xs); line-height: 1.6; white-space: nowrap; }
-.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor; }
-.pill-good { color: var(--safe-text); }
-.pill-good::before { background: currentColor; }
-.pill-caveat { color: var(--bridge-text); }
-.pill-caveat::before { background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
-.pill-unchecked { color: var(--muted); border-style: dashed; }
+.credits { margin: 0; padding: 0 0 0 18px; display: grid; gap: 6px; font-size: var(--fs-xs); color: var(--muted); line-height: 1.5; }
 
 /* ---------- 검색 화면 ---------- */
 .ssheet { position: fixed; z-index: 70; inset: 0; display: flex; flex-direction: column; background: var(--bg); padding: var(--safe-top) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
@@ -563,6 +543,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
 .g-track { color: var(--muted); font-weight: 500; }
 .g-title { font-size: clamp(1.5rem, 6.4vw, 2rem); line-height: 1.2; font-weight: 700; letter-spacing: -.02em; outline: none; }
 .g-dist { display: flex; align-items: baseline; gap: 2px 10px; flex-wrap: wrap; line-height: 1.1; }
+.g-num { white-space: nowrap; }
 .g-dist b { font-size: clamp(2.25rem, 10vw, 2.75rem); font-weight: 700; letter-spacing: -.02em; }
 .g-dist small { font-size: var(--fs-lg); font-weight: 700; margin-left: 2px; }
 .g-dist-t { font-size: var(--fs-lg); color: var(--muted); }
@@ -583,14 +564,79 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
 .g-cps li.done .g-mark { background: var(--muted); }
 .g-cps li.now { color: var(--text); font-weight: 700; text-decoration: none; }
 .g-cps li.now .g-mark { width: 20px; height: 20px; margin-left: 1px; border: 5px solid var(--sos); background: var(--casing); }
-.g-bar { flex: none; display: grid; grid-template-columns: 3fr 2fr; grid-template-areas: "list end" "arrive block"; gap: 8px 10px; padding: 10px var(--gutter-r) calc(12px + var(--safe-bottom)) var(--gutter-l); background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 18px rgb(0 0 0 / .2); }
-.g-list-btn { grid-area: list; justify-self: start; min-height: var(--tap); padding: 0 14px; border: 1px solid var(--line-strong); border-radius: var(--r-s); background: var(--surface-2); font-size: var(--fs-sm); font-weight: 700; }
-.g-end { grid-area: end; justify-self: end; min-height: var(--tap); padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--r-s); background: var(--surface-2); font-size: var(--fs-sm); font-weight: 700; }
+.g-bar { flex: none; display: grid; grid-template-columns: 3fr 2fr; grid-template-areas: "tools tools" "arrive block"; gap: 8px 10px; padding: 10px var(--gutter-r) calc(12px + var(--safe-bottom)) var(--gutter-l); background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 18px rgb(0 0 0 / .2); }
+/* 단추 줄: 단계 목록 · 여기서 나가기 · 안내 종료 (작은 보조 단추 셋, 폰 너비에서 한 줄) */
+.g-tools { grid-area: tools; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; }
+.g-list-btn, .g-end, .g-exit-btn { flex: none; min-height: var(--tap); padding: 0 12px; border: 1px solid var(--line-strong); border-radius: var(--r-s); background: var(--surface-2); font-size: var(--fs-sm); font-weight: 700; white-space: nowrap; }
+.g-exit-btn { display: inline-flex; align-items: center; gap: 5px; padding: 0 11px 0 9px; }
+.g-exit-btn svg { width: 18px; height: 18px; flex: none; }
+.g-exit-btn[aria-expanded="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+.g-exit-btn:disabled { opacity: .35; cursor: default; }
 .g-btn { display: grid; place-content: center; gap: 2px; min-height: 72px; padding: 6px 10px; border: 0; border-radius: var(--r-l); font-size: 1.5rem; font-weight: 700; line-height: 1.15; text-align: center; }
 .g-btn small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); font-weight: 500; }
 .g-arrive { grid-area: arrive; background: var(--safe); color: var(--on-safe); }
 .g-block { grid-area: block; background: var(--expo); color: var(--on-expo); }
 .g-btn:disabled { opacity: .35; cursor: default; }
+
+
+/* ---------- 갈림길 (junctions.js): Y자 그림, 단계 목록 줄, 길 안내 카드, 지도 표시 ---------- */
+.fork { display: block; flex: none; width: 28px; height: 28px; overflow: visible; }
+.fork line { stroke-linecap: round; fill: none; }
+.fork .fk-in, .fork .fk-go { stroke: var(--route-safe); stroke-width: 12; }
+.fork .fk-alt { stroke: var(--muted); stroke-width: 10; opacity: .5; }
+.fork .fk-head { fill: var(--route-safe); }
+.fork .fk-c { fill: var(--surface); stroke: var(--text); stroke-width: 4; }
+.fork-big { width: 84px; height: 92px; }
+.fork-big .fk-in, .fork-big .fk-go { stroke-width: 9; }
+.fork-big .fk-alt { stroke-width: 7; }
+.fork-big .fk-c { stroke-width: 3; }
+.jn-rows { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.jn-row { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 10px; width: 100%; min-height: var(--tap); padding: 6px 8px 6px 4px; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface-2); color: var(--text); font-size: var(--fs-sm); line-height: 1.4; text-align: left; }
+.jn-row:hover { background: var(--surface-3); }
+.g-fork { display: flex; align-items: center; gap: 12px; }
+.fork-txt { display: grid; gap: 4px; min-width: 0; }
+.fork-txt p { margin: 0; }
+.fork-go { margin: 0; font-size: var(--fs-lg); font-weight: 700; }
+.fork-alt { font-size: var(--fs-sm); color: var(--muted); }
+.g-dist-k { font-size: var(--fs-lg); font-weight: 700; color: var(--text); }
+.g-card.is-fork .g-title { color: var(--text); }
+.g-hint { padding: 6px 10px; border-left: 4px solid var(--safe); border-radius: 0 var(--r-s) var(--r-s) 0; background: var(--safe-soft); font-size: var(--fs-sm); }
+.g-hint b { color: var(--safe-text); }
+.jn-dot { position: absolute; width: 13px; height: 13px; transform: translate(-50%, -50%) rotate(45deg); border-radius: 2px; background: var(--surface); border: 2.5px solid var(--text); box-shadow: 0 0 0 2px var(--casing); }
+.jn-dot.is-cur { width: 18px; height: 18px; border: 4px solid var(--sos); background: var(--casing); }
+.jn-key { display: inline-block; width: 10px; height: 10px; transform: rotate(45deg); border-radius: 2px; border: 2px solid var(--text); background: var(--surface); }
+.fork-tag { position: absolute; top: 0; padding: 3px 8px; border: 1.5px dashed var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }
+.fork-tag.is-go { border: 2px solid var(--route-safe); color: var(--text); font-size: 13px; }
+.fork-tag.at-r { left: 8px; transform: translateY(-50%); }
+.fork-tag.at-l { right: 8px; transform: translateY(-50%); }
+
+/* ---------- 여기서 나가기: 후보 목록(길 안내 칸·역 시트), 지도 번호 핀, 출구 후보 표시 ---------- */
+@media (max-width: 759px) { .guide.exits-open .g-card { display: none; } }
+.g-exits { position: relative; flex: none; max-height: 52vh; overflow-y: auto; overscroll-behavior: contain; margin: 0 var(--gutter-r) 8px var(--gutter-l); padding: 12px 12px 14px; display: grid; gap: 10px; }
+.eh-close { position: absolute; top: 4px; right: 4px; color: var(--muted); }
+.eh-head { display: grid; gap: 2px; padding-right: 40px; }
+.eh-title { margin: 0; font-size: var(--fs-lg); font-weight: 700; outline: none; }
+.eh-basis { margin: 0; font-size: var(--fs-xs); color: var(--muted); }
+.eh-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.eh-btn { gap: 8px; padding: 8px 10px 8px 8px; }
+.eh-no { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--text); color: var(--surface); font-size: 12px; font-weight: 700; }
+.eh-ic { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-s); background: var(--surface-3); color: var(--text); }
+.eh-ic svg { width: 20px; height: 20px; }
+.eh-ic.eh-exit { background: var(--safe-soft); color: var(--safe-text); }
+.eh-kind { font-weight: 700; color: var(--text); }
+.eh-btn .row-title { overflow-wrap: anywhere; }
+.tag-eg { background: var(--surface-3); color: var(--text); }
+.eh-pin { position: absolute; display: grid; place-items: center; width: 26px; height: 26px; transform: translate(-50%, -50%); border-radius: 50%; background: var(--text); color: var(--surface); border: 2.5px solid var(--casing); box-shadow: var(--shadow); font-size: 13px; }
+.eh-pin-exit { background: var(--route-safe); color: var(--on-safe); }
+.eg-tag { position: absolute; display: grid; place-items: center; width: 22px; height: 22px; transform: translate(-50%, -50%); border-radius: 6px; background: var(--surface); color: var(--text); border: 1.5px solid var(--text); box-shadow: 0 0 0 1.5px var(--casing); cursor: pointer; }
+.eg-tag svg { width: 15px; height: 15px; }
+.eg-tag.eg-depot { border-style: dashed; color: var(--muted); }
+.sw-eg { display: inline-block; flex: none; width: 13px; height: 13px; border-radius: 4px; border: 1.5px solid var(--text); background: var(--surface); }
+.st-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; }
+.st-exit { min-height: var(--tap); padding: 0 12px; }
+.st-exit[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+.st-exit[aria-pressed="true"] .ic { color: var(--surface); }
+.st-panel .eh-head { padding-right: 0; }
 
 /* ---------- 넓은 화면: 왼쪽 패널 ---------- */
 @media (min-width: 760px) {
@@ -598,7 +644,6 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
   .sheet { left: 16px; right: auto; top: 82px; bottom: auto; width: 400px; height: auto !important; max-height: calc(100% - 98px); border: 1px solid var(--line); border-radius: var(--r-l); padding: 0; }
   .sheet-top { height: 44px; }
   .sheet-grip { visibility: hidden; }
-  .sheet[data-state="peek"] .sheet-body { overflow-y: auto; }
   .sos-bar { left: 16px; right: auto; width: 400px; bottom: 16px; }
   .fab-col { bottom: 24px; right: 16px; }
   .lyr-pop { right: 76px; bottom: 24px; }
@@ -610,6 +655,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
   .g-col > .g-gap { display: none; }
   .guide .g-drawer, .guide .g-drawer[hidden] { display: block !important; flex: 1 1 auto; max-height: none; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
   .g-list-btn { visibility: hidden; }
+  .g-exits { margin: 0; max-height: 50%; border: 0; border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--line); }
   .g-bar { box-shadow: none; }
   .g-recenter { position: fixed; right: 16px; bottom: 24px; margin: 0; }
 }
@@ -749,8 +795,8 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
     <button type="button" class="fab" id="btn-layers" aria-label="레이어와 범례" title="레이어와 범례" aria-expanded="false" aria-controls="lyr-pop">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
     </button>
-    <button type="button" class="fab" id="btn-info" aria-label="분석과 정보" title="분석과 정보">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+    <button type="button" class="fab" id="btn-info" aria-label="정보" title="정보">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".7" fill="currentColor"/></svg>
     </button>
   </div>
 
@@ -762,6 +808,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
       <span class="chip"><input type="checkbox" class="chip-input" id="lyr-bridge" data-layer="bridge" checked><label class="chip-label" for="lyr-bridge"><span class="sw sw-bridge"></span>교량</label></span>
       <span class="chip"><input type="checkbox" class="chip-input" id="lyr-ground" data-layer="ground" checked><label class="chip-label" for="lyr-ground"><span class="sw sw-ground"></span>지상</label></span>
       <span class="chip"><input type="checkbox" class="chip-input" id="lyr-service" data-layer="service" checked><label class="chip-label" for="lyr-service"><span class="sw sw-service"></span>측선</label></span>
+      <span class="chip"><input type="checkbox" class="chip-input" id="lyr-egress" data-layer="egress" checked><label class="chip-label" for="lyr-egress"><span class="sw-eg" aria-hidden="true"></span>출구 후보</label></span>
     </fieldset>
     <button type="button" class="lyr-only" id="only-under" aria-pressed="false">지하만 보기</button>
     <button type="button" class="lyr-only" id="unblock-all" hidden>막은 구간 모두 풀기</button>
@@ -772,7 +819,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
       <span class="key"><span class="dot dot-gr"></span>지상역</span>
     </p>
     <p class="legend" id="station-hint">역은 더 확대하면 보입니다</p>
-    <p class="legend">출구 번호는 크게 확대하면(줌 15 이상) 보입니다.</p>
+    <p class="legend"><span class="key"><span class="jn-key" aria-hidden="true"></span>갈림길</span></p>
   </div>
 
   <!-- 아래: 비상 단추 -->
@@ -795,41 +842,25 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
       <div class="view" id="view-station" hidden></div>
       <div class="view" id="view-msg" hidden></div>
       <div class="view" id="view-info" hidden>
-        <div class="sv-head"><h2 class="sv-title">분석과 정보</h2></div>
-        <section class="safety-card" aria-labelledby="safety-h">
-          <h3 id="safety-h"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>안전 안내</h3>
-          <p><b>평시에는 철도 터널에 들어가면 안 됩니다.</b> <span data-app-name>지하로</span>는 전쟁 등으로 지상 이동이 위험할 때를 가정합니다. 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 보고, 실시간 피해 정보는 없습니다.</p>
-        </section>
-        <p class="about"><b data-app-name>지하로</b> · 지상 노출을 줄여 지하로 가는 비상 길찾기</p>
-        <h3 class="sub-h">전국 철도망</h3>
-        <div class="peek-stats">
-          <span>본선 <b class="num" id="peek-total">–</b> km</span>
-          <span>지하 <b class="num" id="peek-tunnel">–</b>%</span>
-        </div>
-        <span class="sbar" id="peek-bar" role="img" aria-label="구조별 비율을 계산하는 중"></span>
-        <table class="t t-nation">
-          <caption class="sr-only">전국 본선 구조별 길이</caption>
-          <thead><tr><th scope="col">구조</th><th scope="col" class="r">km</th><th scope="col" class="r">비율</th></tr></thead>
-          <tbody id="nation-rows"></tbody>
-          <tfoot id="nation-foot"></tfoot>
-        </table>
-        <p class="note">km는 선로 길이의 합입니다. 복선은 두 번 셉니다.</p>
-        <p class="note" id="station-count"></p>
-        <h3 class="sub-h">지역별 본선</h3>
-        <table class="t t-region">
-          <caption class="sr-only">지역별 본선 길이와 지하 비율</caption>
-          <thead><tr><th scope="col">지역</th><th scope="col" class="r">km</th><th scope="col" class="r">지하 비율</th><th scope="col">신뢰도</th></tr></thead>
-          <tbody id="region-rows"></tbody>
-        </table>
-        <p class="note">지역 이름을 누르면 그 지역으로 이동합니다. 신뢰도 좋음: 다른 자료와 대조해 맞음, 주의: 일부만 대조, 미검증: 대조하지 못함.</p>
+        <div class="sv-head"><h2 class="sv-title">정보</h2></div>
+        <p class="about"><b data-app-name>지하로</b> · 지상이 위험할 때 멈춘 철도 터널로 걸어 지상 노출을 줄이는 비상 길찾기</p>
+        <p class="safety-line"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>평시에는 철도 터널에 들어가면 안 됩니다.</p>
         <h3 class="sub-h" id="theme-h">화면</h3>
         <div class="seg" role="group" aria-labelledby="theme-h">
           <button type="button" data-theme-set="auto" aria-pressed="true">자동</button>
           <button type="button" data-theme-set="dark" aria-pressed="false">어둡게</button>
           <button type="button" data-theme-set="light" aria-pressed="false">밝게</button>
         </div>
-        <p class="note" id="src-note">데이터: © OpenStreetMap 기여자 (ODbL)</p>
-      </div>
+        <h3 class="sub-h" id="credits-h">데이터 출처</h3>
+        <ul class="credits" aria-labelledby="credits-h">
+          <li>철도망·역·출구·터널 출입구·수직구·차량기지·간이 지도: © OpenStreetMap 기여자 (ODbL)</li>
+          <li>환승 거리(2025-03-31)·역 깊이(2024-11-04): 서울교통공사, 서울 열린데이터광장, 공공누리 제1유형</li>
+          <li>출구 주변 이름(2026-09-02): 서울교통공사 역별 역세권 현황, 공공데이터포털</li>
+          <li>빠른 환승(2025-09-23): 국토교통부 철도역 빠른 환승 정보, 공공데이터포털</li>
+          <li>도보 경로: FOSSGIS OSRM (routing.openstreetmap.de), © OpenStreetMap</li>
+          <li>온라인 장소 검색: Photon (komoot), © OpenStreetMap</li>
+          <li>지도 프로그램: Leaflet · 글꼴: IBM Plex Sans KR (OFL)</li>
+        </ul>
     </div>
   </section>
 
@@ -883,9 +914,8 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
       <h2 id="notice-title"><svg class="notice-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>안전 안내</h2>
       <div class="notice-body" id="notice-body">
         <p class="big">평시에는 철도 터널에 들어가면 안 됩니다.</p>
-        <p><b data-app-name>지하로</b>는 전쟁 등으로 지상 이동이 위험할 때, 지상에 덜 나가는 길을 찾는 비상용입니다. 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 가정하며, 실시간 피해 정보는 없습니다.</p>
       </div>
-      <button type="button" class="btn-primary" id="notice-ok">확인했습니다</button>
+      <button type="button" class="btn-primary" id="notice-ok">확인</button>
     </div>
   </div>
 
@@ -900,21 +930,28 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
         <p class="g-line" id="guide-line"></p>
         <h2 class="g-title" id="guide-title" tabindex="-1"></h2>
         <p class="g-dist" id="guide-dist"></p>
+        <div class="g-fork" id="guide-fork" hidden></div>
         <p class="g-next" id="guide-next"></p>
         <div class="g-xfer" id="guide-xfer" hidden></div>
+        <p class="g-hint" id="guide-hint" hidden></p>
         <p class="g-sub" id="guide-walked" hidden></p>
         <div class="g-note" id="guide-note" aria-live="polite" hidden></div>
       </div>
       <div class="g-gap"></div>
       <button type="button" class="g-recenter" id="guide-recenter" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>현재 위치로</button>
+      <div class="card g-exits" id="guide-exits" role="region" aria-labelledby="eh-title" hidden></div>
       <div class="card g-drawer" id="guide-drawer" hidden>
         <h3 class="sr-only">확인할 곳</h3>
         <ol class="g-cps" id="guide-cps"></ol>
       </div>
       <div class="g-bar" id="guide-bar">
-        <button type="button" class="g-list-btn" id="guide-list" aria-expanded="false" aria-controls="guide-drawer">단계 목록</button>
-        <button type="button" class="g-end" id="guide-end">안내 종료</button>
+        <div class="g-tools">
+          <button type="button" class="g-list-btn" id="guide-list" aria-expanded="false" aria-controls="guide-drawer">단계 목록</button>
+          <button type="button" class="g-exit-btn" id="guide-exit" aria-expanded="false" aria-controls="guide-exits">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4H6v16h7"/><path d="M11 12h9M17 8.5l3.5 3.5-3.5 3.5"/></svg>여기서 나가기</button>
+          <button type="button" class="g-end" id="guide-end">안내 종료</button>
+        </div>
         <button type="button" class="g-btn g-arrive" id="guide-arrive">도착</button>
         <button type="button" class="g-btn g-block" id="guide-block">앞이 막힘</button>
       </div>
@@ -932,7 +969,9 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <!-- 데이터·탐색 (DOM 없음, Node 검증 시험에서도 쓴다) -->
 <script src="js/graph.js"></script>
+<script src="js/junctions.js"></script>
 <script src="js/router.js"></script>
+<script src="js/exithere.js"></script>
 <script src="js/steps.js"></script>
 <script src="js/transfer.js"></script>
 <script src="js/nearest.js"></script>

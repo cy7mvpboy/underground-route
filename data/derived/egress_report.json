@@ -1,0 +1,2020 @@
+{
+ "depot_osm_missing": [
+  3,
+  4
+ ],
+ "depot_elements_fetched": 773,
+ "depot_landuse_railway": 653,
+ "depot_candidates": 149,
+ "depot_candidate_tags": {
+  "railway=yard": 67,
+  "landuse=railway": 52,
+  "railway=traverser": 11,
+  "building=yes": 6,
+  "(이름만)": 4,
+  "railway=wash+building=yes": 4,
+  "landuse=railway+railway=yard": 3,
+  "railway=wash": 1,
+  "railway=workshop+building=yes": 1
+ },
+ "yard_clusters_added": 70,
+ "depot_groups": 113,
+ "depot_dropped": [
+  {
+   "osm": "way/732793995",
+   "name": "鳥栖貨物ターミナル",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/975213279",
+   "name": "한국철도공사 포항차량사업소",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/1574332537",
+   "name": null,
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/818045227",
+   "name": "대전조차장차량사업소",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/942208876",
+   "name": null,
+   "why": "역과 이어지지 않은 선로"
+  },
+  {
+   "osm": "way/1574332528",
+   "name": null,
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/942465975",
+   "name": null,
+   "why": "역과 이어지지 않은 선로"
+  },
+  {
+   "osm": "way/1574332536",
+   "name": null,
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/818045232",
+   "name": "대전차량사업소",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/1346577545",
+   "name": "진주역차량정비고",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/1052391403",
+   "name": "한국철도공사 부산차량사업소",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/1574332527",
+   "name": null,
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/1371036571",
+   "name": "차량정비소",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/631049627",
+   "name": null,
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/907074673",
+   "name": "日本製鉄専用鉄道　第二操車場",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "way/907074672",
+   "name": "第一操車場",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "node/9403499284",
+   "name": "博多総合車両所",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "node/12390322579",
+   "name": "北九州貨物ターミナル駅",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "node/13483260120",
+   "name": "동면차량사업소",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "relation/8840841",
+   "name": "오송정비기지선",
+   "why": "그래프 선로 없음"
+  },
+  {
+   "osm": "relation/16493355",
+   "name": "서울차량사업소",
+   "why": "그래프 선로 없음"
+  }
+ ],
+ "depot_gates_mapped": 18,
+ "depot_roads_fetched": 10123,
+ "depot_gate_candidates_fetched": 680,
+ "portal_nodes": 3440,
+ "portal_clusters": 1944,
+ "portal_unreachable_dropped": [
+  {
+   "node": 10383,
+   "lat": 37.91636,
+   "lon": 126.69794,
+   "track": "선로"
+  },
+  {
+   "node": 10655,
+   "lat": 37.82229,
+   "lon": 127.68708,
+   "track": "김유정 레일바이크"
+  },
+  {
+   "node": 10656,
+   "lat": 37.82182,
+   "lon": 127.68536,
+   "track": "김유정 레일바이크"
+  },
+  {
+   "node": 10660,
+   "lat": 37.82718,
+   "lon": 127.67697,
+   "track": "김유정 레일바이크"
+  },
+  {
+   "node": 10661,
+   "lat": 37.82648,
+   "lon": 127.67426,
+   "track": "김유정 레일바이크"
+  },
+  {
+   "node": 26845,
+   "lat": 35.2666,
+   "lon": 127.32616,
+   "track": "섬진강 기차마을 관광철도"
+  },
+  {
+   "node": 28866,
+   "lat": 35.83757,
+   "lon": 129.28361,
+   "track": "선로"
+  },
+  {
+   "node": 1686,
+   "lat": 37.45843,
+   "lon": 126.61404,
+   "track": "석탄부두선"
+  },
+  {
+   "node": 9936,
+   "lat": 37.45508,
+   "lon": 126.61024,
+   "track": "석탄부두선"
+  }
+ ],
+ "portal_osm_matched": 1944,
+ "portal_dropped_depot_duplicate": 41,
+ "portal_dropped_examples": [
+  {
+   "portal": "선로 방화 부근 터널 출입구",
+   "depot": "방화차량사업소",
+   "node": 270
+  },
+  {
+   "portal": "9호선 개화 부근 터널 출입구",
+   "depot": "김포차량사업소",
+   "node": 574
+  },
+  {
+   "portal": "시흥기지선 월곶 부근 터널 출입구",
+   "depot": "시흥기지",
+   "node": 678
+  },
+  {
+   "portal": "선로 양천구청 부근 터널 출입구",
+   "depot": "신정차량사업소",
+   "node": 852
+  },
+  {
+   "portal": "선로 양천구청 부근 터널 출입구",
+   "depot": "신정차량사업소",
+   "node": 858
+  },
+  {
+   "portal": "선로 양천구청 부근 터널 출입구",
+   "depot": "신정차량사업소",
+   "node": 862
+  },
+  {
+   "portal": "평내기지선 평내호평 부근 터널 출입구",
+   "depot": "평내기지선 측선(OSM 기지 이름 없음, 평내호평 부근)",
+   "node": 882
+  },
+  {
+   "portal": "선로 양천구청 부근 터널 출입구",
+   "depot": "신정차량사업소",
+   "node": 897
+  },
+  {
+   "portal": "선로 상일동 부근 터널 출입구",
+   "depot": "상일동 부근 측선·기지(OSM 이름 없음)",
+   "node": 913
+  },
+  {
+   "portal": "선로 모란 부근 터널 출입구",
+   "depot": "야탑 부근 측선·기지(OSM 이름 없음)",
+   "node": 3712
+  }
+ ],
+ "missing_raw": [
+  "near_A2.json",
+  "named_0.json",
+  "named_1.json",
+  "named_2.json",
+  "named_3.json",
+  "named_4.json",
+  "corridor_srt_gtxa.json"
+ ],
+ "shaft_features_fetched": 276,
+ "shaft_tag_patterns_all": {
+  "emergency=yes": 107,
+  "emergency=fire_hydrant": 37,
+  "highway=steps+level<0": 23,
+  "highway=steps+layer<0": 14,
+  "highway=steps+tunnel+layer<0": 13,
+  "highway=steps+tunnel+level<0+layer<0": 12,
+  "emergency=defibrillator": 11,
+  "emergency=no": 8,
+  "highway=steps+tunnel+level<0": 7,
+  "highway=steps+tunnel": 7,
+  "man_made=chimney": 6,
+  "railway=stop": 6,
+  "exit=only": 6,
+  "building=yes": 6,
+  "man_made=tower(tower:type=bell_tower)": 4,
+  "emergency=fire_extinguisher": 4,
+  "man_made=tower(tower:type=-)": 3,
+  "highway=steps+level<0+layer<0": 3,
+  "entrance=exit": 2,
+  "man_made=ventilation_shaft": 2,
+  "man_made=tower(tower:type=observation)": 2,
+  "emergency=water_tank": 2,
+  "emergency=fire_service_inlet": 1,
+  "man_made=tower(tower:type=radar)": 1,
+  "railway=subway_entrance": 1,
+  "man_made=reservoir_covered": 1,
+  "building=hospital": 1,
+  "man_made=tower(tower:type=clock)": 1
+ },
+ "shaft_tag_patterns_within_80m": {
+  "emergency=yes": 73,
+  "emergency=fire_hydrant": 37,
+  "highway=steps+level<0": 22,
+  "highway=steps+layer<0": 14,
+  "highway=steps+tunnel+layer<0": 13,
+  "highway=steps+tunnel+level<0+layer<0": 12,
+  "emergency=defibrillator": 11,
+  "emergency=no": 7,
+  "highway=steps+tunnel+level<0": 7,
+  "highway=steps+tunnel": 7,
+  "man_made=chimney": 6,
+  "railway=stop": 6,
+  "exit=only": 6,
+  "man_made=tower(tower:type=bell_tower)": 4,
+  "emergency=fire_extinguisher": 4,
+  "building=yes": 4,
+  "highway=steps+level<0+layer<0": 3,
+  "entrance=exit": 2,
+  "man_made=ventilation_shaft": 2,
+  "man_made=tower(tower:type=-)": 2,
+  "emergency=fire_service_inlet": 1,
+  "man_made=tower(tower:type=radar)": 1,
+  "railway=subway_entrance": 1,
+  "man_made=tower(tower:type=observation)": 1,
+  "emergency=water_tank": 1,
+  "man_made=tower(tower:type=clock)": 1
+ },
+ "shaft_kind_by_distance": {
+  "shaft|<=80m": 2
+ },
+ "shaft_candidates_80_500m": [],
+ "corridor_srt_gtxa": {
+  "elements": 0,
+  "patterns": {},
+  "named_or_tower": []
+ },
+ "counts": {
+  "portal": 1903,
+  "shaft": 1,
+  "depot": 161
+ },
+ "counts_by_sido": {
+  "강원특별자치도": {
+   "portal": 331,
+   "depot": 9
+  },
+  "경기도": {
+   "portal": 210,
+   "depot": 26
+  },
+  "경상남도": {
+   "portal": 132,
+   "depot": 11
+  },
+  "경상북도": {
+   "portal": 413,
+   "depot": 12
+  },
+  "대구광역시": {
+   "portal": 36,
+   "depot": 9
+  },
+  "대전광역시": {
+   "portal": 27,
+   "depot": 5
+  },
+  "부산광역시": {
+   "portal": 37,
+   "depot": 12
+  },
+  "서울특별시": {
+   "portal": 45,
+   "shaft": 1,
+   "depot": 18
+  },
+  "세종특별자치시": {
+   "portal": 37,
+   "depot": 2
+  },
+  "울산광역시": {
+   "portal": 69,
+   "depot": 6
+  },
+  "인천광역시": {
+   "portal": 26,
+   "depot": 7
+  },
+  "전남광주통합특별시": {
+   "portal": 226,
+   "depot": 19
+  },
+  "전북특별자치도": {
+   "portal": 68,
+   "depot": 7
+  },
+  "충청남도": {
+   "portal": 81,
+   "depot": 5
+  },
+  "충청북도": {
+   "portal": 165,
+   "depot": 13
+  }
+ },
+ "depot_approach": {
+  "surface": 142,
+  "tunnel": 19
+ },
+ "depot_with_gate": 18,
+ "size_bytes": 661264,
+ "size_gzip_bytes": 94977,
+ "problems": [],
+ "depots": [
+  {
+   "name": "강릉기지선 측선(OSM 기지 이름 없음, 강릉 부근)",
+   "osm": "graph-yard/27",
+   "node": 13651,
+   "nodes": 82,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 15.5km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경강선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 22m (근사)"
+  },
+  {
+   "name": "동해 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/29",
+   "node": 12661,
+   "nodes": 6,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.9km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 북평선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 61m (근사)"
+  },
+  {
+   "name": "묵호 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/31",
+   "node": 12734,
+   "nodes": 9,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.5km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 51m (근사)"
+  },
+  {
+   "name": "묵호항 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/30",
+   "node": 12692,
+   "nodes": 12,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 묵호항선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(향로봉길) 위 지점, 선로에서 15m (근사)"
+  },
+  {
+   "name": "석항 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/25",
+   "node": 11994,
+   "nodes": 7,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.4km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 태백선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(영월로) 위 지점, 선로에서 28m (근사)"
+  },
+  {
+   "name": "쌍룡 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/36",
+   "node": 13259,
+   "nodes": 11,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.6km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 태백선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 5m (근사)"
+  },
+  {
+   "name": "쌍룡 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/24",
+   "node": 13229,
+   "nodes": 26,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.8km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 태백선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(쌍용로) 위 지점, 선로에서 16m (근사)"
+  },
+  {
+   "name": "입석리 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/35",
+   "node": 13184,
+   "nodes": 31,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 5.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 29m (근사)"
+  },
+  {
+   "name": "추암 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/28",
+   "node": 13730,
+   "nodes": 15,
+   "approach": "surface",
+   "gate": null,
+   "sido": "강원특별자치도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.9km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 삼척선 · 기지 측선 중 터널 39m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(공단1로) 위 지점, 선로에서 29m (근사)"
+  },
+  {
+   "name": "고속철도 광명기지",
+   "osm": "way/167719281",
+   "node": 2480,
+   "nodes": 35,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안, 기지 밖 진입 선로 중 터널 905m) · 이어지는 본선: 1호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=unclassified)에 가장 가까운 경계 지점, 도로까지 0m (근사)"
+  },
+  {
+   "name": "고양기지",
+   "osm": "way/375641588",
+   "node": 8814,
+   "nodes": 128,
+   "approach": "surface",
+   "gate": "node/10956675298",
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경의중앙선 · 나가는 곳: 출입문(OSM node/10956675298, barrier=gate), 도로까지 9m"
+  },
+  {
+   "name": "광교 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/12",
+   "node": 8323,
+   "nodes": 40,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 4.5km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 신분당선 · 기지 측선 중 터널 25m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(대학로) 위 지점, 선로에서 61m (근사)"
+  },
+  {
+   "name": "국수 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/11",
+   "node": 2344,
+   "nodes": 39,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 8.6km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경의중앙선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(국수길) 위 지점, 선로에서 5m (근사)"
+  },
+  {
+   "name": "김포한강차량기지",
+   "osm": "way/615414336",
+   "node": 9678,
+   "nodes": 42,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 김포골드라인 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 1m (근사)"
+  },
+  {
+   "name": "문산차량사업소",
+   "osm": "way/410724968",
+   "node": 10342,
+   "nodes": 100,
+   "approach": "surface",
+   "gate": "node/5677647721",
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경의중앙선 · 나가는 곳: 출입문(OSM node/5677647721, barrier=lift_gate), 도로까지 88m"
+  },
+  {
+   "name": "병점차량사업소",
+   "osm": "way/471465356",
+   "node": 4374,
+   "nodes": 103,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 1호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(10용사로)에 가장 가까운 경계 지점, 도로까지 5m (근사)"
+  },
+  {
+   "name": "부곡차량사업소",
+   "osm": "way/1078963534",
+   "node": 2904,
+   "nodes": 56,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 남부화물기지선 · 나가는 곳: 출입문 표시 없음: 공공 도로(왕송못동로)에 가장 가까운 경계 지점, 도로까지 5m (근사)"
+  },
+  {
+   "name": "부발차량사업소",
+   "osm": "way/584253628",
+   "node": 5678,
+   "nodes": 50,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 부발기지선·중부내륙선 · 나가는 곳: 출입문 표시 없음: 공공 도로(부발역로)에 가장 가까운 경계 지점, 도로까지 33m (근사)"
+  },
+  {
+   "name": "분당기지선 측선(OSM 기지 이름 없음, 죽전 부근)",
+   "osm": "graph-yard/17",
+   "node": 4148,
+   "nodes": 142,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 21.8km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 수인분당선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 0m (근사)"
+  },
+  {
+   "name": "송산차량사업소",
+   "osm": "way/934978490",
+   "node": 9920,
+   "nodes": 32,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 서해선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=unclassified)에 가장 가까운 경계 지점, 도로까지 0m (근사)"
+  },
+  {
+   "name": "시흥기지",
+   "osm": "way/553272466",
+   "node": 677,
+   "nodes": 91,
+   "approach": "surface",
+   "gate": "node/5754386164",
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 수인분당선 · 나가는 곳: 출입문(OSM node/5754386164, barrier=gate), 도로까지 43m"
+  },
+  {
+   "name": "안산차량분소",
+   "osm": "way/1165587573",
+   "node": 5832,
+   "nodes": 22,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 4호선·수인분당선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=secondary_link)에 가장 가까운 경계 지점, 도로까지 1m (근사)"
+  },
+  {
+   "name": "안중 부근 차량기지(OSM 이름 없음)",
+   "osm": "way/887788873",
+   "node": 16869,
+   "nodes": 18,
+   "approach": "surface",
+   "gate": "node/8321462499",
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 평택선 · 나가는 곳: 출입문(OSM node/8321462499, barrier=gate), 도로까지 13m"
+  },
+  {
+   "name": "야탑 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/15",
+   "node": 3723,
+   "nodes": 88,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 11.8km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 8호선 · 기지 측선 중 터널 2312m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(여수대로) 위 지점, 선로에서 4m (근사)"
+  },
+  {
+   "name": "오봉",
+   "osm": "way/837553800",
+   "node": 4448,
+   "nodes": 66,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 남부화물기지선 · 기지 측선 중 터널 286m · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=tertiary_link)에 가장 가까운 경계 지점, 도로까지 2m (근사)"
+  },
+  {
+   "name": "용문기지선 측선(OSM 기지 이름 없음, 용문 부근)",
+   "osm": "graph-yard/22",
+   "node": 5956,
+   "nodes": 100,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 18.9km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경의중앙선 · 기지 측선 중 터널 180m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(장대1길) 위 지점, 선로에서 8m (근사)"
+  },
+  {
+   "name": "용인경전철차량사업소",
+   "osm": "way/486791139",
+   "node": 4776,
+   "nodes": 14,
+   "approach": "surface",
+   "gate": "node/4793466080",
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 용인경전철 · 나가는 곳: 출입문(OSM node/4793466080, barrier=lift_gate), 도로까지 75m"
+  },
+  {
+   "name": "운정차량사업소",
+   "osm": "way/1062559156",
+   "node": 11294,
+   "nodes": 59,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: GTX-A · 기지 측선 중 터널 4637m · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=unclassified)에 가장 가까운 경계 지점, 도로까지 25m (근사)"
+  },
+  {
+   "name": "의왕 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/18",
+   "node": 4789,
+   "nodes": 40,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 남부화물기지선 · 기지 측선 중 터널 490m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(철도박물관로) 위 지점, 선로에서 12m (근사)"
+  },
+  {
+   "name": "장암 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/16",
+   "node": 10937,
+   "nodes": 107,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 17.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 7호선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=primary_link) 위 지점, 선로에서 28m (근사)"
+  },
+  {
+   "name": "지축차량사업소",
+   "osm": "way/469687429",
+   "node": 7368,
+   "nodes": 112,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 3호선 · 기지 측선 중 터널 56m · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=unclassified)에 가장 가까운 경계 지점, 도로까지 2m (근사)"
+  },
+  {
+   "name": "진접기지선 측선(OSM 기지 이름 없음, 진접 부근)",
+   "osm": "graph-yard/23",
+   "node": 11354,
+   "nodes": 142,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 34.4km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 4호선 · 기지 측선 중 터널 10877m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 298m (근사)"
+  },
+  {
+   "name": "천왕차량사업소",
+   "osm": "way/612312278",
+   "node": 4283,
+   "nodes": 89,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "경기도",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 7호선 · 기지 측선 중 터널 351m · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=tertiary_link)에 가장 가까운 경계 지점, 도로까지 3m (근사)"
+  },
+  {
+   "name": "평내기지선 측선(OSM 기지 이름 없음, 평내호평 부근)",
+   "osm": "graph-yard/6",
+   "node": 882,
+   "nodes": 114,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 20.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경춘선 · 기지 측선 중 터널 697m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 44m (근사)"
+  },
+  {
+   "name": "향남 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/21",
+   "node": 8674,
+   "nodes": 21,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경기도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경부고속선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(서봉로) 위 지점, 선로에서 59m (근사)"
+  },
+  {
+   "name": "마산 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/55",
+   "node": 27819,
+   "nodes": 28,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 5.0km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(금강로) 위 지점, 선로에서 5m (근사)"
+  },
+  {
+   "name": "부산-김해 경전철 신명차량기지",
+   "osm": "way/360098154",
+   "node": 22904,
+   "nodes": 39,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 부산김해경전철 · 나가는 곳: 출입문 표시 없음: 공공 도로(생림대로90번길)에 가장 가까운 경계 지점, 도로까지 4m (근사)"
+  },
+  {
+   "name": "사천",
+   "osm": "node/8041793373",
+   "node": 27853,
+   "nodes": 8,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 사천선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 110m (근사)"
+  },
+  {
+   "name": "양산화물",
+   "osm": "node/8540653663",
+   "node": 27241,
+   "nodes": 12,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 양산화물선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 18m (근사)"
+  },
+  {
+   "name": "진주 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/57",
+   "node": 25292,
+   "nodes": 17,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 4.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경전선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 6m (근사)"
+  },
+  {
+   "name": "진주 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/56",
+   "node": 25298,
+   "nodes": 10,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.4km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경전선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 41m (근사)"
+  },
+  {
+   "name": "창원 부근 차량기지(OSM 이름 없음)",
+   "osm": "way/942208870",
+   "node": 28330,
+   "nodes": 11,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 진해선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=primary)에 가장 가까운 경계 지점, 도로까지 176m (근사)"
+  },
+  {
+   "name": "창원 부근 차량기지(OSM 이름 없음)",
+   "osm": "way/942208871",
+   "node": 28324,
+   "nodes": 2,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 진해선 · 나가는 곳: 출입문 표시 없음: 공공 도로(남면로)에 가장 가까운 경계 지점, 도로까지 94m (근사)"
+  },
+  {
+   "name": "창원 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/59",
+   "node": 26569,
+   "nodes": 63,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 5.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 진해선 · 기지 측선 중 터널 21m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(남면로) 위 지점, 선로에서 0m (근사)"
+  },
+  {
+   "name": "한림정 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/51",
+   "node": 24892,
+   "nodes": 18,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.4km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경전선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 13m (근사)"
+  },
+  {
+   "name": "호포차량사업소",
+   "osm": "way/165571867",
+   "node": 21097,
+   "nodes": 156,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상남도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 부산 2호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(양산대로)에 가장 가까운 경계 지점, 도로까지 4m (근사)"
+  },
+  {
+   "name": "고속철도 약목보수기지",
+   "osm": "way/1148437965",
+   "node": 15929,
+   "nodes": 46,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경부고속선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 0m (근사)"
+  },
+  {
+   "name": "괴동",
+   "osm": "way/643760637",
+   "node": 28904,
+   "nodes": 23,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 포항제철소선 · 나가는 곳: 출입문 표시 없음: 공공 도로(대송로)에 가장 가까운 경계 지점, 도로까지 9m (근사)"
+  },
+  {
+   "name": "김천 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/40",
+   "node": 15783,
+   "nodes": 30,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.8km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경북선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=tertiary) 위 지점, 선로에서 22m (근사)"
+  },
+  {
+   "name": "북삼 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/43",
+   "node": 16591,
+   "nodes": 19,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.0km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 대경선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 43m (근사)"
+  },
+  {
+   "name": "석포 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/26",
+   "node": 12353,
+   "nodes": 21,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.7km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 영동선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(승부길) 위 지점, 선로에서 23m (근사)"
+  },
+  {
+   "name": "신동화물",
+   "osm": "way/306649262",
+   "node": 26017,
+   "nodes": 10,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 신동화물선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 43m (근사)"
+  },
+  {
+   "name": "영일만항",
+   "osm": "node/8310880353",
+   "node": 20153,
+   "nodes": 6,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 영일만항선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(영일만항로) 위 지점, 선로에서 84m (근사) · 측선 표시가 없어 기지 안 본선 노드를 씀"
+  },
+  {
+   "name": "영주 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/42",
+   "node": 16341,
+   "nodes": 31,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 4.6km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 중앙선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 12m (근사)"
+  },
+  {
+   "name": "영주 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/41",
+   "node": 16330,
+   "nodes": 59,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 15.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 영동선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(대동로193번길) 위 지점, 선로에서 6m (근사)"
+  },
+  {
+   "name": "영천 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/60",
+   "node": 26902,
+   "nodes": 11,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.9km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 중앙선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=tertiary) 위 지점, 선로에서 54m (근사)"
+  },
+  {
+   "name": "포항 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/44",
+   "node": 17568,
+   "nodes": 18,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 동해선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(영일만대로) 위 지점, 선로에서 113m (근사)"
+  },
+  {
+   "name": "포항 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/45",
+   "node": 17572,
+   "nodes": 8,
+   "approach": "surface",
+   "gate": null,
+   "sido": "경상북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 동해선·영일만항선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(영일만대로) 위 지점, 선로에서 69m (근사)"
+  },
+  {
+   "name": "가천",
+   "osm": "way/885724468",
+   "node": 23915,
+   "nodes": 54,
+   "approach": "surface",
+   "gate": "node/4095017742",
+   "sido": "대구광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 대구선 · 나가는 곳: 출입문(OSM node/4095017742, barrier=gate), 도로까지 163m"
+  },
+  {
+   "name": "고모보수기지",
+   "osm": "way/885724467",
+   "node": 22333,
+   "nodes": 73,
+   "approach": "surface",
+   "gate": "node/3150061786",
+   "sido": "대구광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 대구선 · 나가는 곳: 출입문(OSM node/3150061786, barrier=gate), 도로까지 13m"
+  },
+  {
+   "name": "대곡 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/50",
+   "node": 20350,
+   "nodes": 28,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "대구광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.7km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 대구 1호선 · 기지 측선 중 터널 103m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(월배로) 위 지점, 선로에서 6m (근사)"
+  },
+  {
+   "name": "동대구 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/54",
+   "node": 26384,
+   "nodes": 33,
+   "approach": "surface",
+   "gate": null,
+   "sido": "대구광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 5.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 대경선 · 기지 측선 중 터널 1815m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(동대구역광장) 위 지점, 선로에서 1m (근사)"
+  },
+  {
+   "name": "동대구 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/53",
+   "node": 23780,
+   "nodes": 77,
+   "approach": "surface",
+   "gate": null,
+   "sido": "대구광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 7.6km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 대구선 · 기지 측선 중 터널 1360m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(신암남로) 위 지점, 선로에서 6m (근사)"
+  },
+  {
+   "name": "문양 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/52",
+   "node": 22019,
+   "nodes": 107,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "대구광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 15.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 기지 측선 중 터널 518m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=tertiary) 위 지점, 선로에서 3m (근사)"
+  },
+  {
+   "name": "범물주박기지사업소",
+   "osm": "way/888186233",
+   "node": 27035,
+   "nodes": 7,
+   "approach": "surface",
+   "gate": null,
+   "sido": "대구광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 대구 3호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(범안로65길)에 가장 가까운 경계 지점, 도로까지 3m (근사)"
+  },
+  {
+   "name": "안심기지사업소",
+   "osm": "way/320807620",
+   "node": 20355,
+   "nodes": 92,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "대구광역시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 대구 1호선 · 기지 측선 중 터널 782m · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 121m (근사)"
+  },
+  {
+   "name": "칠곡차량사업소",
+   "osm": "way/474157569",
+   "node": 27681,
+   "nodes": 34,
+   "approach": "surface",
+   "gate": null,
+   "sido": "대구광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 대구 3호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 0m (근사)"
+  },
+  {
+   "name": "대전조차장",
+   "osm": "way/818045220",
+   "node": 15255,
+   "nodes": 186,
+   "approach": "surface",
+   "gate": null,
+   "sido": "대전광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 호남선 · 나가는 곳: 출입문 표시 없음: 공공 도로(아리랑로)에 가장 가까운 경계 지점, 도로까지 5m (근사)"
+  },
+  {
+   "name": "대전철도차량정비단",
+   "osm": "way/932860228",
+   "node": 17818,
+   "nodes": 192,
+   "approach": "surface",
+   "gate": null,
+   "sido": "대전광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경부선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 2m (근사)"
+  },
+  {
+   "name": "외삼차량사업소",
+   "osm": "way/706332630",
+   "node": 19475,
+   "nodes": 59,
+   "approach": "tunnel",
+   "gate": "node/496944756",
+   "sido": "대전광역시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 기지 측선 중 터널 68m · 나가는 곳: 출입문(OSM node/496944756, barrier=gate), 도로까지 0m"
+  },
+  {
+   "name": "판암차량사업소",
+   "osm": "way/485690511",
+   "node": 19558,
+   "nodes": 65,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "대전광역시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 대전 1호선 · 기지 측선 중 터널 2628m · 나가는 곳: 출입문 표시 없음: 공공 도로(옥천로)에 가장 가까운 경계 지점, 도로까지 8m (근사)"
+  },
+  {
+   "name": "흑석리",
+   "osm": "way/1136963746",
+   "node": 19861,
+   "nodes": 24,
+   "approach": "surface",
+   "gate": null,
+   "sido": "대전광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 호남선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 1m (근사)"
+  },
+  {
+   "name": "가야차량사업소",
+   "osm": "way/165217443",
+   "node": 21443,
+   "nodes": 271,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 가야선 · 나가는 곳: 출입문 표시 없음: 공공 도로(개금온정로26번길)에 가장 가까운 경계 지점, 도로까지 0m (근사)"
+  },
+  {
+   "name": "남철송장",
+   "osm": "node/3698193872",
+   "node": 23008,
+   "nodes": 6,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 신항남선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(가덕해안로) 위 지점, 선로에서 309m (근사) · 측선 표시가 없어 기지 안 본선 노드를 씀"
+  },
+  {
+   "name": "노포차량사업소",
+   "osm": "way/305670808",
+   "node": 22224,
+   "nodes": 72,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 부산 1호선 · 기지 측선 중 터널 426m · 나가는 곳: 출입문 표시 없음: 공공 도로(중앙대로)에 가장 가까운 경계 지점, 도로까지 6m (근사)"
+  },
+  {
+   "name": "대저차량기지",
+   "osm": "way/131382153",
+   "node": 22940,
+   "nodes": 70,
+   "approach": "surface",
+   "gate": "node/3141262789",
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 부산 3호선 · 나가는 곳: 출입문(OSM node/3141262789, barrier=gate), 도로까지 49m"
+  },
+  {
+   "name": "부산신항",
+   "osm": "way/1545348231",
+   "node": 27294,
+   "nodes": 117,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 부산신항선 · 나가는 곳: 출입문 표시 없음: 공공 도로(가락대로)에 가장 가까운 경계 지점, 도로까지 7m (근사)"
+  },
+  {
+   "name": "부산진",
+   "osm": "way/1077023006",
+   "node": 23189,
+   "nodes": 23,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 우암선 · 나가는 곳: 출입문 표시 없음: 공공 도로(33)에 가장 가까운 경계 지점, 도로까지 1m (근사)"
+  },
+  {
+   "name": "부산철도차량정비단",
+   "osm": "way/165374838",
+   "node": 21533,
+   "nodes": 120,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 가야선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 1m (근사)"
+  },
+  {
+   "name": "북철송장",
+   "osm": "node/13376351310",
+   "node": 23029,
+   "nodes": 7,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 신항북선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(신항로) 위 지점, 선로에서 20m (근사)"
+  },
+  {
+   "name": "신평차량사업소",
+   "osm": "way/1324722357",
+   "node": 22880,
+   "nodes": 54,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 부산 1호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(신산로)에 가장 가까운 경계 지점, 도로까지 9m (근사)"
+  },
+  {
+   "name": "안평차량기지",
+   "osm": "way/942133756",
+   "node": 26583,
+   "nodes": 50,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 부산 4호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(반송로)에 가장 가까운 경계 지점, 도로까지 15m (근사)"
+  },
+  {
+   "name": "우암",
+   "osm": "node/8559987827",
+   "node": 23098,
+   "nodes": 10,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 우암선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(우암로) 위 지점, 선로에서 76m (근사)"
+  },
+  {
+   "name": "초량 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/49",
+   "node": 21819,
+   "nodes": 167,
+   "approach": "surface",
+   "gate": null,
+   "sido": "부산광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 35.5km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경부고속선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(중앙대로260번길) 위 지점, 선로에서 0m (근사)"
+  },
+  {
+   "name": "검수고 8번선 측선(OSM 기지 이름 없음, 용답 부근)",
+   "osm": "graph-yard/19",
+   "node": 4968,
+   "nodes": 140,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 23.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 2호선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(용답길) 위 지점, 선로에서 6m (근사)"
+  },
+  {
+   "name": "광운대 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/2",
+   "node": 6677,
+   "nodes": 42,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 4.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 1호선·경춘선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(광운로) 위 지점, 선로에서 21m (근사)"
+  },
+  {
+   "name": "구로차량사업소",
+   "osm": "way/311747059",
+   "node": 1285,
+   "nodes": 118,
+   "approach": "surface",
+   "gate": "node/5990247770",
+   "sido": "서울특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 구로기지선 · 나가는 곳: 출입문(OSM node/5990247770, barrier=lift_gate), 도로까지 9m"
+  },
+  {
+   "name": "김포차량사업소",
+   "osm": "way/230934047",
+   "node": 3475,
+   "nodes": 145,
+   "approach": "surface",
+   "gate": "node/4200433310",
+   "sido": "서울특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 9호선 · 기지 측선 중 터널 330m · 나가는 곳: 출입문(OSM node/4200433310, entrance=yes), 도로까지 5m"
+  },
+  {
+   "name": "방화차량사업소",
+   "osm": "way/618121289",
+   "node": 97,
+   "nodes": 93,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안, 기지 밖 진입 선로 중 터널 670m) · 이어지는 본선: 5호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 2m (근사)"
+  },
+  {
+   "name": "보라매차량사업소",
+   "osm": "way/1301952632",
+   "node": 9203,
+   "nodes": 14,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안, 기지 밖 진입 선로 중 터널 206m) · 이어지는 본선: 신림선 · 기지 측선 중 터널 804m · 기지 선로 대부분이 터널(지하 기지, 804m/804m) · 나가는 곳: 출입문 표시 없음: 공공 도로(여의대방로20다길)에 가장 가까운 경계 지점, 도로까지 8m (근사)"
+  },
+  {
+   "name": "상봉 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/13",
+   "node": 2764,
+   "nodes": 26,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 7.4km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(상봉중앙로) 위 지점, 선로에서 7m (근사)"
+  },
+  {
+   "name": "상일동 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/7",
+   "node": 7138,
+   "nodes": 134,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 22.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 5호선 · 기지 측선 중 터널 1717m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(상일로) 위 지점, 선로에서 24m (근사)"
+  },
+  {
+   "name": "서빙고 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/14",
+   "node": 3095,
+   "nodes": 12,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.4km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경의중앙선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=primary_link) 위 지점, 선로에서 16m (근사)"
+  },
+  {
+   "name": "서울차량사업소",
+   "osm": "node/14024827329",
+   "node": 6792,
+   "nodes": 124,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경의중앙선 · 기지 측선 중 터널 572m · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(성암로) 위 지점, 선로에서 82m (근사)"
+  },
+  {
+   "name": "석계 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/1",
+   "node": 3590,
+   "nodes": 85,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 16.7km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경춘선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(화랑로) 위 지점, 선로에서 8m (근사)"
+  },
+  {
+   "name": "수색차량사업소",
+   "osm": "way/1068779325",
+   "node": 9234,
+   "nodes": 98,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 공항철도 · 나가는 곳: 출입문 표시 없음: 공공 도로(가양대로)에 가장 가까운 경계 지점, 도로까지 1m (근사)"
+  },
+  {
+   "name": "수서 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/20",
+   "node": 5476,
+   "nodes": 111,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 20.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 3호선 · 기지 측선 중 터널 3542m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(광평로) 위 지점, 선로에서 4m (근사)"
+  },
+  {
+   "name": "신내 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/8",
+   "node": 962,
+   "nodes": 94,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 14.9km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 6호선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(신내역로) 위 지점, 선로에서 17m (근사)"
+  },
+  {
+   "name": "신정차량사업소",
+   "osm": "way/612318436",
+   "node": 859,
+   "nodes": 169,
+   "approach": "tunnel",
+   "gate": "node/5796287259",
+   "sido": "서울특별시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안, 기지 밖 진입 선로 중 터널 35m) · 이어지는 본선: 2호선 · 기지 측선 중 터널 10074m · 나가는 곳: 출입문(OSM node/5796287259, barrier=gate), 도로까지 24m"
+  },
+  {
+   "name": "오류동 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/3",
+   "node": 1204,
+   "nodes": 10,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.4km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경기화학선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(서해안로) 위 지점, 선로에서 36m (근사)"
+  },
+  {
+   "name": "오류동 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/10",
+   "node": 1130,
+   "nodes": 28,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 4.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 1호선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=secondary_link) 위 지점, 선로에서 1m (근사)"
+  },
+  {
+   "name": "청량리 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/0",
+   "node": 3027,
+   "nodes": 52,
+   "approach": "surface",
+   "gate": null,
+   "sido": "서울특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 6.8km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 중앙선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(청량리역고가도로교) 위 지점, 선로에서 0m (근사)"
+  },
+  {
+   "name": "매포",
+   "osm": "way/934981307",
+   "node": 17978,
+   "nodes": 31,
+   "approach": "surface",
+   "gate": null,
+   "sido": "세종특별자치시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경부선 · 나가는 곳: 출입문 표시 없음: 공공 도로(시목부강로)에 가장 가까운 경계 지점, 도로까지 0m (근사)"
+  },
+  {
+   "name": "부강화물",
+   "osm": "node/8664432525",
+   "node": 15078,
+   "nodes": 10,
+   "approach": "surface",
+   "gate": null,
+   "sido": "세종특별자치시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경부선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 66m (근사)"
+  },
+  {
+   "name": "망양 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/61",
+   "node": 20845,
+   "nodes": 22,
+   "approach": "surface",
+   "gate": null,
+   "sido": "울산광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 온산선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(당월로) 위 지점, 선로에서 25m (근사)"
+  },
+  {
+   "name": "온산",
+   "osm": "node/368638146",
+   "node": 28759,
+   "nodes": 15,
+   "approach": "surface",
+   "gate": null,
+   "sido": "울산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 온산선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(당월로) 위 지점, 선로에서 59m (근사)"
+  },
+  {
+   "name": "용암",
+   "osm": "way/816750849",
+   "node": 28577,
+   "nodes": 10,
+   "approach": "surface",
+   "gate": null,
+   "sido": "울산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 울산신항선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=trunk_link)에 가장 가까운 경계 지점, 도로까지 12m (근사)"
+  },
+  {
+   "name": "울산신항",
+   "osm": "way/816750851",
+   "node": 28545,
+   "nodes": 9,
+   "approach": "surface",
+   "gate": null,
+   "sido": "울산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 울산신항선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=tertiary_link)에 가장 가까운 경계 지점, 도로까지 10m (근사)"
+  },
+  {
+   "name": "울산차량사업소",
+   "osm": "way/989297140",
+   "node": 28660,
+   "nodes": 74,
+   "approach": "surface",
+   "gate": null,
+   "sido": "울산광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 울산기지선 · 나가는 곳: 출입문 표시 없음: 공공 도로(신항로)에 가장 가까운 경계 지점, 도로까지 1m (근사)"
+  },
+  {
+   "name": "태화강 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/58",
+   "node": 27672,
+   "nodes": 58,
+   "approach": "surface",
+   "gate": null,
+   "sido": "울산광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 4.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 울산항선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(부두로) 위 지점, 선로에서 9m (근사)"
+  },
+  {
+   "name": "귤현기지사업소",
+   "osm": "way/224161517",
+   "node": 446,
+   "nodes": 99,
+   "approach": "tunnel",
+   "gate": "node/2361411764",
+   "sido": "인천광역시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안) · 이어지는 본선: 인천 1호선 · 기지 측선 중 터널 941m · 나가는 곳: 출입문(OSM node/2361411764, entrance=main), 도로까지 6m"
+  },
+  {
+   "name": "부평 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/9",
+   "node": 981,
+   "nodes": 21,
+   "approach": "surface",
+   "gate": null,
+   "sido": "인천광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 3.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 1호선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(부평역 북광장) 위 지점, 선로에서 7m (근사)"
+  },
+  {
+   "name": "오류주박기지",
+   "osm": "way/1053332244",
+   "node": 3789,
+   "nodes": 20,
+   "approach": "surface",
+   "gate": null,
+   "sido": "인천광역시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 인천 2호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(검단로)에 가장 가까운 경계 지점, 도로까지 37m (근사)"
+  },
+  {
+   "name": "용유기지",
+   "osm": "way/1540325895",
+   "node": 4708,
+   "nodes": 22,
+   "approach": "surface",
+   "gate": null,
+   "sido": "인천광역시",
+   "note": "본선과 지상으로 이어짐 · 기지 측선 중 터널 215m · 나가는 곳: 출입문 표시 없음: 공공 도로(공항서로)에 가장 가까운 경계 지점, 도로까지 32m (근사)"
+  },
+  {
+   "name": "용유차량사업소",
+   "osm": "way/226245403",
+   "node": 4094,
+   "nodes": 100,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "인천광역시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안, 기지 밖 진입 선로 중 터널 1320m) · 이어지는 본선: 공항철도 · 나가는 곳: 출입문 표시 없음: 공공 도로(용유로)에 가장 가까운 경계 지점, 도로까지 31m (근사)"
+  },
+  {
+   "name": "운연차량사업소",
+   "osm": "way/553214671",
+   "node": 5238,
+   "nodes": 64,
+   "approach": "tunnel",
+   "gate": null,
+   "sido": "인천광역시",
+   "note": "본선과 터널로 이어짐(본선과 만나는 곳이 터널 안, 기지 밖 진입 선로 중 터널 122m) · 이어지는 본선: 인천 2호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(매소홀로)에 가장 가까운 경계 지점, 도로까지 15m (근사)"
+  },
+  {
+   "name": "인천 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/5",
+   "node": 769,
+   "nodes": 29,
+   "approach": "surface",
+   "gate": null,
+   "sido": "인천광역시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 4.0km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 1호선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 24m (근사)"
+  },
+  {
+   "name": "광양 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/65",
+   "node": 30070,
+   "nodes": 13,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.2km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 경전선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=tertiary) 위 지점, 선로에서 13m (근사)"
+  },
+  {
+   "name": "광양 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/66",
+   "node": 30096,
+   "nodes": 8,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.5km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 광양제철선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(신덕로) 위 지점, 선로에서 1m (근사)"
+  },
+  {
+   "name": "광주교통공사 용산차량기지",
+   "osm": "way/543823057",
+   "node": 26268,
+   "nodes": 66,
+   "approach": "surface",
+   "gate": "node/5257065012",
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 광주 1호선 · 나가는 곳: 출입문(OSM node/5257065012, entrance=yes), 도로까지 42m"
+  },
+  {
+   "name": "광주차량사업소",
+   "osm": "way/1077018842",
+   "node": 25739,
+   "nodes": 42,
+   "approach": "surface",
+   "gate": "node/13194748678",
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 광주선 · 나가는 곳: 출입문(OSM node/13194748678, entrance=staircase), 도로까지 16m"
+  },
+  {
+   "name": "대불",
+   "osm": "node/9393933897",
+   "node": 29824,
+   "nodes": 8,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 대불선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(대불로) 위 지점, 선로에서 69m (근사)"
+  },
+  {
+   "name": "목포 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/62",
+   "node": 29481,
+   "nodes": 16,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.5km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 호남선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(삼학로) 위 지점, 선로에서 30m (근사)"
+  },
+  {
+   "name": "목포차량사업소",
+   "osm": "way/1077019075",
+   "node": 29436,
+   "nodes": 23,
+   "approach": "surface",
+   "gate": "node/1479973005",
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 호남선 · 나가는 곳: 출입문(OSM node/1479973005, barrier=gate), 도로까지 0m"
+  },
+  {
+   "name": "순천 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/64",
+   "node": 29910,
+   "nodes": 50,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 9.9km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 전라선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(덕암안길) 위 지점, 선로에서 9m (근사)"
+  },
+  {
+   "name": "신광양항",
+   "osm": "node/12783760487",
+   "node": 30146,
+   "nodes": 15,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 신광양항선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(항만대로) 위 지점, 선로에서 48m (근사)"
+  },
+  {
+   "name": "여수엑스포 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/68",
+   "node": 30579,
+   "nodes": 34,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 6.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 전라선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(망양로) 위 지점, 선로에서 85m (근사)"
+  },
+  {
+   "name": "여천 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/69",
+   "node": 30261,
+   "nodes": 28,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 4.8km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 여천선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(남해촌길) 위 지점, 선로에서 124m (근사)"
+  },
+  {
+   "name": "옥동차량사업소",
+   "osm": "way/548035027",
+   "node": 28668,
+   "nodes": 23,
+   "approach": "surface",
+   "gate": "node/6052616267",
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 광주 1호선 · 나가는 곳: 출입문(OSM node/6052616267, barrier=gate), 도로까지 11m"
+  },
+  {
+   "name": "일로 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/67",
+   "node": 30137,
+   "nodes": 10,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.6km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 호남선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 1m (근사)"
+  },
+  {
+   "name": "장성화물",
+   "osm": "way/1147310691",
+   "node": 26457,
+   "nodes": 4,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 장성화물선 · 나가는 곳: 출입문 표시 없음: 공공 도로(물류로)에 가장 가까운 경계 지점, 도로까지 413m (근사)"
+  },
+  {
+   "name": "적량",
+   "osm": "node/368638170",
+   "node": 29294,
+   "nodes": 2,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 여천선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(여수산단로) 위 지점, 선로에서 109m (근사)"
+  },
+  {
+   "name": "진상 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/63",
+   "node": 29806,
+   "nodes": 8,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 광양제철선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 12m (근사)"
+  },
+  {
+   "name": "태금",
+   "osm": "way/398498745",
+   "node": 29342,
+   "nodes": 105,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 광양제철선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 8m (근사)"
+  },
+  {
+   "name": "호남철도차량정비단",
+   "osm": "way/536935607",
+   "node": 26612,
+   "nodes": 84,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 호남선 · 나가는 곳: 출입문 표시 없음: 공공 도로(고봉로)에 가장 가까운 경계 지점, 도로까지 0m (근사)"
+  },
+  {
+   "name": "흥국사",
+   "osm": "node/368638164",
+   "node": 29290,
+   "nodes": 2,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전남광주통합특별시",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 여천선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(여수산단로) 위 지점, 선로에서 38m (근사) · 측선 표시가 없어 기지 안 본선 노드를 씀"
+  },
+  {
+   "name": "관촌",
+   "osm": "node/13471550917",
+   "node": 26767,
+   "nodes": 4,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전북특별자치도",
+   "note": "본선과 지상으로 이어짐 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(highway=unclassified) 위 지점, 선로에서 21m (근사)"
+  },
+  {
+   "name": "군산항",
+   "osm": "node/8120132303",
+   "node": 28140,
+   "nodes": 2,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전북특별자치도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 군산항선 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(서해로) 위 지점, 선로에서 32m (근사)"
+  },
+  {
+   "name": "노령",
+   "osm": "way/334667004",
+   "node": 22718,
+   "nodes": 6,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전북특별자치도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 호남선 · 나가는 곳: 출입문 표시 없음: 공공 도로(입암로)에 가장 가까운 경계 지점, 도로까지 0m (근사)"
+  },
+  {
+   "name": "동산",
+   "osm": "way/857489828",
+   "node": 26739,
+   "nodes": 33,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전북특별자치도",
+   "note": "본선과 지상으로 이어짐 · 나가는 곳: 출입문 표시 없음: 공공 도로(신흥마을길)에 가장 가까운 경계 지점, 도로까지 4m (근사)"
+  },
+  {
+   "name": "북전주",
+   "osm": "node/14338074151",
+   "node": 26756,
+   "nodes": 13,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전북특별자치도",
+   "note": "본선과 지상으로 이어짐 · 나가는 곳: 기지 경계 없음: 기지 점에서 가장 가까운 공공 도로(신복로) 위 지점, 선로에서 66m (근사)"
+  },
+  {
+   "name": "익산차량사업소",
+   "osm": "way/1184671878",
+   "node": 26639,
+   "nodes": 40,
+   "approach": "surface",
+   "gate": "node/12912088668",
+   "sido": "전북특별자치도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 장항선 · 나가는 곳: 출입문(OSM node/12912088668, entrance=yes), 도로까지 2m"
+  },
+  {
+   "name": "황등",
+   "osm": "way/857476008",
+   "node": 17303,
+   "nodes": 28,
+   "approach": "surface",
+   "gate": null,
+   "sido": "전북특별자치도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 호남선 · 나가는 곳: 출입문 표시 없음: 공공 도로(황등3길)에 가장 가까운 경계 지점, 도로까지 4m (근사)"
+  },
+  {
+   "name": "삽교 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/47",
+   "node": 17629,
+   "nodes": 10,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청남도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 장항선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=tertiary) 위 지점, 선로에서 27m (근사)"
+  },
+  {
+   "name": "신례원 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/46",
+   "node": 18926,
+   "nodes": 11,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청남도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.3km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 장항선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 25m (근사)"
+  },
+  {
+   "name": "천안기관차승무사업소",
+   "osm": "way/1060934737",
+   "node": 18076,
+   "nodes": 12,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청남도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 1호선 · 나가는 곳: 출입문 표시 없음: 공공 도로(천안천4길)에 가장 가까운 경계 지점, 도로까지 8m (근사)"
+  },
+  {
+   "name": "천안보수기지",
+   "osm": "way/1008020858",
+   "node": 18472,
+   "nodes": 6,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청남도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경부고속선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 10m (근사)"
+  },
+  {
+   "name": "홍성 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/48",
+   "node": 19751,
+   "nodes": 18,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청남도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 2.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 장항선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 47m (근사)"
+  },
+  {
+   "name": "고명",
+   "osm": "way/983562424",
+   "node": 12939,
+   "nodes": 18,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 중앙선 · 나가는 곳: 출입문 표시 없음: 공공 도로(고명로)에 가장 가까운 경계 지점, 도로까지 14m (근사)"
+  },
+  {
+   "name": "대전철도차량정비단 동력차정비센터",
+   "osm": "way/1078144053",
+   "node": 12798,
+   "nodes": 7,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 태백선 · 나가는 곳: 출입문 표시 없음: 공공 도로(내토로12길)에 가장 가까운 경계 지점, 도로까지 4m (근사)"
+  },
+  {
+   "name": "도담",
+   "osm": "way/983562426",
+   "node": 13033,
+   "nodes": 62,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 중앙선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 8m (근사)"
+  },
+  {
+   "name": "삼곡",
+   "osm": "way/983562425",
+   "node": 12980,
+   "nodes": 22,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 중앙선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 5m (근사)"
+  },
+  {
+   "name": "영동보수기지",
+   "osm": "way/437418683",
+   "node": 18253,
+   "nodes": 69,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 경부고속선 · 나가는 곳: 출입문 표시 없음: 공공 도로(용당로)에 가장 가까운 경계 지점, 도로까지 7m (근사)"
+  },
+  {
+   "name": "오송 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/37",
+   "node": 15345,
+   "nodes": 21,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 6.8km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 오송역진입선로 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(오송생명14로) 위 지점, 선로에서 34m (근사)"
+  },
+  {
+   "name": "오송 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/38",
+   "node": 15372,
+   "nodes": 20,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 7.1km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 오송정비기지선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(연제길) 위 지점, 선로에서 38m (근사)"
+  },
+  {
+   "name": "오송 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/39",
+   "node": 15422,
+   "nodes": 27,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 8.7km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 오송정비기지선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(연제길) 위 지점, 선로에서 48m (근사)"
+  },
+  {
+   "name": "입석리 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/34",
+   "node": 12548,
+   "nodes": 23,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 8.5km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 태백선 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 20m (근사)"
+  },
+  {
+   "name": "입석리 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/33",
+   "node": 13160,
+   "nodes": 20,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 6.0km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(선돌로) 위 지점, 선로에서 15m (근사)"
+  },
+  {
+   "name": "제천 부근 측선·기지(OSM 이름 없음)",
+   "osm": "graph-yard/32",
+   "node": 12984,
+   "nodes": 61,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "OSM 기지 면 밖의 측선 묶음(측선 16.0km): 차량기지·조차장·큰 역 구내일 수 있음 · 본선과 지상으로 이어짐 · 이어지는 본선: 중앙선 · 기지 측선 중 터널 364m · 나가는 곳: 기지 경계 없음: 측선에서 가장 가까운 공공 도로(highway=residential) 위 지점, 선로에서 12m (근사)"
+  },
+  {
+   "name": "제천조차장",
+   "osm": "way/429435274",
+   "node": 12894,
+   "nodes": 131,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 중앙선 · 나가는 곳: 출입문 표시 없음: 공공 도로(북부로13길)에 가장 가까운 경계 지점, 도로까지 5m (근사)"
+  },
+  {
+   "name": "제천차랑사업소",
+   "osm": "way/1078144050",
+   "node": 12922,
+   "nodes": 27,
+   "approach": "surface",
+   "gate": null,
+   "sido": "충청북도",
+   "note": "본선과 지상으로 이어짐 · 이어지는 본선: 태백선 · 나가는 곳: 출입문 표시 없음: 공공 도로(highway=residential)에 가장 가까운 경계 지점, 도로까지 11m (근사)"
+  }
+ ],
+ "shafts_and_exits": [
+  {
+   "k": "shaft",
+   "name": "8호선 강동구청–몽촌토성 환기구·수직구",
+   "osm": "node/14293331599",
+   "edge": 11450,
+   "t": 0.9975,
+   "sido": "서울특별시",
+   "note": "OSM man_made=ventilation_shaft · 터널 선로까지 22m · 이름 없음(가까운 역으로 지은 이름) · 지상 출입·계단 유무는 OSM에 없음(확인 안 됨) · 30m 안의 OSM 점 2개를 합침(node/14293331600)"
+  }
+ ]
+}

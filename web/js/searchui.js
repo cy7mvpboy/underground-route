@@ -59,7 +59,7 @@
       html += fam
         ? '<button type="button" class="qa qa-strong" data-quick="' + esc(fam.id) + '">' + svg(I.family) +
           '<span class="qa-t"><b>가족 약속 장소까지 지하로</b><small>' + esc(fam.title) + '</small></span>' + svg('<path d="M9 6l6 6-6 6"/>') + '</button>'
-        : '<p class="qa-empty">' + svg(I.family) + '<span><b>가족 약속 장소</b>를 저장해 두면 여기서 한 번에 지하로 갑니다. 검색 결과의 ☆ 또는 지도를 길게 눌러 저장하세요.</span></p>';
+        : '<p class="qa-empty">' + svg(I.family) + '<span><b>가족 약속 장소</b> 저장: 검색 결과 ☆ · 지도 길게 누르기</span></p>';
       html += '</section>';
       html += '<section class="ss-sec" aria-labelledby="ss-saved-h"><h3 class="sub-h" id="ss-saved-h">저장한 장소</h3>';
       if (places.length) {
@@ -71,7 +71,7 @@
             svg('<path d="M6 6l12 12M18 6L6 18"/>') + '</button></li>';
         }).join('') + '</ul>';
       } else {
-        html += '<p class="muted ss-tip">아직 없습니다. <b>집</b>과 <b>가족 약속 장소</b>를 저장해 두세요.</p>';
+        html += '<p class="muted ss-tip">없음</p>';
       }
       html += '</section>';
       if (recent.length) {
@@ -81,7 +81,6 @@
               '<span class="qa-t"><b>' + esc(p.title) + '</b>' + (p.sub ? '<small>' + esc(p.sub) + '</small>' : '') + '</span></button></li>';
           }).join('') + '</ul></section>';
       }
-      html += '<p class="note ss-note">역 이름, 동네, 병원·학교·관공서, 아파트 이름으로 찾습니다. 인터넷이 되면 온라인 장소 검색도 함께 씁니다.</p>';
       opts.home.innerHTML = html;
     }
 

@@ -1,5 +1,6 @@
 /* station.js — 역 시트 (도착한 뒤, 또는 지도에서 역을 눌렀을 때)
    세 가지 할 일: ① 여기서 지하로 갈 수 있는 곳(reach.js) ② 지하로 계속 이동 ③ 이 역 정보
+   + '여기서 나가기' 단추(이 역 출구·가까운 터널 출입구 등, exithere.js): 누르면 아래 칸이 후보 목록이 된다(탭은 아무것도 고르지 않은 상태)
    - stationFacts(G, si): 노선(승강장별 지하 여부·깊이), 환승(통로 거리·출처·지하 여부), 출구(번호, 역 중심에서 직선 거리)
    - 나머지는 HTML 만 만든다. 누르는 동작은 data-act 로 표시하고 app.js 가 처리한다. */
 (function (root) {
@@ -7,7 +8,6 @@
   const UG = root.UG = root.UG || {};
   const GR = UG.graph || (typeof require === 'function' ? require('./graph.js') : null);
 
-  const CONF_LABEL = { good: '좋음', caveat: '주의', unchecked: '미검증' };
   const TABS = [
     { id: 'reach', label: '여기서 지하로<br>갈 수 있는 곳', sr: '여기서 지하로 갈 수 있는 곳',
       icon: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8" stroke-dasharray="2.6 2.6"/>' },
@@ -80,17 +80,22 @@
       '<div class="st-title"><h2 class="st-name" id="st-name" tabindex="-1">' + esc(PN.yeok(f.name)) + '</h2>' +
       '<button type="button" class="icon-btn st-save" data-act="save-station" aria-pressed="' + !!view.isSaved + '" aria-label="' + (view.isSaved ? '저장한 장소' : '이 역 저장') + '" title="' + (view.isSaved ? '저장한 장소' : '이 역 저장') + '">' +
       svg('<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/>') + '</button></div>' +
-      '<p class="st-chips">' + (f.lines.length ? f.lines.map(function (n) { return LN.chip(n); }).join('') : '<span class="muted">노선 이름 없음</span>') + '</p>' +
-      '<p class="st-status"><span class="st-dot st-dot-' + f.status + '" aria-hidden="true"></span>' + status +
+      (f.lines.length ? '<p class="st-chips">' + f.lines.map(function (n) { return LN.chip(n); }).join('') + '</p>' : '') +
+      '<div class="st-row"><p class="st-status"><span class="st-dot st-dot-' + f.status + '" aria-hidden="true"></span>' + status +
       (f.region ? ' · ' + esc(PN.shortRegion(f.region)) : '') + '</p>' +
+      // 여기서 나가기: 이 역 출구와 가까운 터널 출입구·수직구·차량기지(누르면 아래 칸이 후보 목록이 된다)
+      '<button type="button" class="btn-secondary st-exit" id="st-exit" data-act="exit-here" aria-pressed="' + (view.tab === 'exit') + '" aria-controls="st-panel">' +
+      PN.ehSvg('exit').replace('<svg ', '<svg class="ic" ') + '여기서 나가기</button></div>' +
       '<div class="st-tabs" role="tablist" aria-label="이 역에서 할 일">' + TABS.map(function (t) {
         const on = t.id === view.tab;
-        return '<button type="button" class="st-tab" role="tab" id="st-tab-' + t.id + '" data-tab="' + t.id + '" aria-selected="' + on + '" aria-controls="st-panel"' + (on ? '' : ' tabindex="-1"') + '>' +
+        return '<button type="button" class="st-tab" role="tab" id="st-tab-' + t.id + '" data-tab="' + t.id + '" aria-selected="' + on + '" aria-controls="st-panel"' + (on || (view.tab === 'exit' && t.id === TABS[0].id) ? '' : ' tabindex="-1"') + '>' +
           svg(t.icon) + '<span aria-hidden="true">' + t.label + '</span><span class="sr-only">' + t.sr + '</span></button>';
       }).join('') + '</div></div>';
   }
 
+  // view.tab: 'reach' | 'go' | 'info' | 'exit'(여기서 나가기 후보 목록, view.exitHtml 은 app.js 가 panel.exitHereHtml 로 만든다)
   function sheetHtml(view) {
+    if (view.tab === 'exit') return head(view) + '<div class="st-panel" id="st-panel" role="region" aria-labelledby="st-exit">' + (view.exitHtml || '') + '</div>';
     return head(view) + '<div class="st-panel" id="st-panel" role="tabpanel" aria-labelledby="st-tab-' + view.tab + '">' +
       (view.tab === 'reach' ? reachHtml(view) : view.tab === 'go' ? goHtml(view) : infoHtml(view)) + '</div>';
   }
@@ -99,8 +104,7 @@
   function reachHtml(view) {
     const f = view.f, r = view.reach, PN = UG.panel, LN = UG.lines, S = view.stations;
     if (!r || !r.sources.length) {
-      return '<p class="msg">이 역에는 지하 승강장이 없어 지하로만 갈 수 있는 곳을 셀 수 없습니다. ' +
-        '<b>가장 가까운 지하로 대피</b>를 누르면 가까운 지하역으로 안내합니다.</p>';
+      return '<p class="msg">지하 승강장 없는 역</p>';
     }
     const total = r.counts[r.counts.length - 1];
     const hourly = r.counts[1];
@@ -118,9 +122,8 @@
           '<span class="row-meta num">' + PN.fmtDist(x.m) + '<small>' + PN.fmtTime(x.m / (r.speed * 1000 / 60)) + '</small></span></button></li>';
       }).join('') + '</ol>';
     } else {
-      html += '<p class="msg">지하로 이어진 다른 역이 4시간 안에 없습니다. 이 역의 지하 구간이 짧거나 막혀 있습니다.</p>';
+      html += '<p class="msg">4시간 안에 지하로 닿는 역 없음</p>';
     }
-    html += '<p class="note">시속 ' + r.speed.toFixed(1) + 'km 기준. 지하 선로·지하 승강장·지하 환승 통로만 따라가고, 교량·지상 구간과 막은 구간은 넣지 않았습니다. 지도에 걷는 시간대별로 칠했습니다. 역을 누르면 그 역까지 길을 찾습니다.</p>';
     return html;
   }
 
@@ -131,11 +134,10 @@
     const home = places.find(function (p) { return p.name === SV.HOME; });
     let html = '<div class="qa-list">';
     html += fam ? qa('go-saved', fam.id, '가족 약속 장소까지 지하로', fam.title, 'family')
-      : '<p class="qa-empty">' + svg(ICONS.family) + '<span><b>가족 약속 장소</b>를 저장해 두면 여기서 한 번에 지하로 갑니다. 검색 결과의 ☆ 또는 지도를 길게 눌러 저장하세요.</span></p>';
+      : '<p class="qa-empty">' + svg(ICONS.family) + '<span><b>가족 약속 장소</b> 저장: 검색 결과 ☆ · 지도 길게 누르기</span></p>';
     if (home) html += qa('go-saved', home.id, '집까지 지하로', home.title, 'home');
     places.forEach(function (p) { if (p !== fam && p !== home) html += qa('go-saved', p.id, PN.esc(p.name) + '까지 지하로', p.title, 'pin'); });
-    html += '</div><button type="button" class="btn-secondary btn-wide" data-act="go-search">' + svg('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>') + '목적지 검색</button>' +
-      '<p class="note">출발은 이 역의 지하 승강장입니다. 지상으로 나가지 않고 이어서 찾습니다.</p>';
+    html += '</div><button type="button" class="btn-secondary btn-wide" data-act="go-search">' + svg('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>') + '목적지 검색</button>';
     return html;
   }
   const ICONS = {
@@ -153,13 +155,12 @@
   function depthText(d) {
     const under = /^B\d/.test(d.floor);
     if (!under) return esc(d.floor);
-    return esc(d.floor) + (isFinite(d.platform_m) ? ' · 승강장 ' + (+d.platform_m).toFixed(1) + 'm' : '') +
-      (isFinite(d.track_m) ? ' · 선로 ' + (+d.track_m).toFixed(1) + 'm' : '');
+    return esc(d.floor) + (isFinite(d.platform_m) ? ' · ' + (+d.platform_m).toFixed(1) + 'm' : '');
   }
 
   // ③ 이 역 정보
   function infoHtml(view) {
-    const f = view.f, PN = UG.panel, LN = UG.lines, ST = UG.steps;
+    const f = view.f, PN = UG.panel, LN = UG.lines;
     const depthOf = function (names) {
       if (!f.depth) return null;
       return f.depth.find(function (d) { return names.indexOf(d.line) >= 0; }) || null;
@@ -168,27 +169,24 @@
       '<button type="button" class="btn-secondary" data-act="route-from">' + svg('<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>') + '여기서 출발</button></div>';
     html += '<h3 class="sub-h">승강장</h3><ul class="facts">' + f.hubs.map(function (h) {
       const d = depthOf(h.lines);
-      return '<li><span class="row-chips">' + (h.lines.length ? LN.chips(h.lines) : '<span class="lc lc-none">노선 이름 없음</span>') + '</span>' +
+      return '<li><span class="row-chips">' + LN.chips(h.lines) + '</span>' +
         '<span class="fact-v"><span class="tag ' + (h.ug ? 'tag-ug">지하' : 'tag-gr">지상') + '</span>' +
         (d ? '<span class="num">' + depthText(d) + '</span>' : '') +
         '</span></li>';
     }).join('') + '</ul>';
-    html += '<h3 class="sub-h">환승</h3>' + (f.transfers.length ? '<ul class="facts">' + f.transfers.map(function (t) {
-      return '<li><span class="row-chips">' + LN.chips(t.a) + '<span class="arrow" aria-label="와">↔</span>' + LN.chips(t.b) + '</span>' +
-        '<span class="fact-v"><span class="num">' + PN.fmtDist(t.m) + '</span> · ' + (ST.SOURCE_KO[t.source] || '추정') + ' · ' +
-        (t.ug ? '지하 통로' : '<span class="bad">지상</span>') + '</span></li>';
-    }).join('') + '</ul>' : '<p class="muted">이 역에서 갈아탈 노선이 없습니다.</p>');
+    if (f.transfers.length) {
+      html += '<h3 class="sub-h">환승</h3><ul class="facts">' + f.transfers.map(function (t) {
+        return '<li><span class="row-chips">' + LN.chips(t.a) + '<span class="arrow" aria-label="와">↔</span>' + LN.chips(t.b) + '</span>' +
+          '<span class="fact-v"><span class="num">' + PN.fmtDist(t.m) + '</span>' + (t.ug ? '' : ' · <span class="bad">지상 통로</span>') + '</span></li>';
+      }).join('') + '</ul>';
+    }
     // 출구 주변 이름(서울교통공사 역세권 현황, extra.json 이 있을 때만)
     const areas = f.exits.map(function (x) { return UG.transfer ? UG.transfer.exitAreas(f.si, x.ref) : []; });
     const hasAreas = areas.some(function (a) { return a.length; });
-    html += '<h3 class="sub-h">출구 <span class="muted">' + f.exits.length + '곳</span></h3>' + (f.exits.length ? '<ul class="exit-grid' + (hasAreas ? ' has-areas' : '') + '">' + f.exits.map(function (x, i) {
+    if (f.exits.length) html += '<h3 class="sub-h">출구 <span class="muted">' + f.exits.length + '곳</span></h3><ul class="exit-grid' + (hasAreas ? ' has-areas' : '') + '">' + f.exits.map(function (x, i) {
       return '<li><button type="button" class="exit-chip" data-act="exit" data-exit="' + x.ent + '"><b>' + esc(x.ref ? x.ref + '번' : '번호 없음') + '</b><span class="num">' + PN.fmtDist(x.dist) + '</span>' +
-        (areas[i].length ? '<small class="exit-area">' + esc(areas[i].slice(0, 3).join(', ')) + '</small>' : '') + '</button></li>';
-    }).join('') + '</ul>' : '<p class="muted">출구 자료가 없습니다.</p>');
-    html += '<p class="note">출구 거리는 역 중심에서 잰 직선 거리입니다. ' +
-      (hasAreas ? '출구 주변: ' + UG.transfer.EXITS_CREDIT + '. ' : '') +
-      (f.depth ? '깊이(지면에서 승강장·레일면까지): 서울교통공사 역사심도정보(2024-11-04), 공공누리 제1유형. ' : '') +
-      '데이터 신뢰도 ' + (CONF_LABEL[f.conf] || CONF_LABEL.unchecked) + ' · © OpenStreetMap 기여자</p>';
+        (areas[i].length ? '<small class="exit-area">' + esc(areas[i].slice(0, 2).join(', ')) + '</small>' : '') + '</button></li>';
+    }).join('') + '</ul>';
     return html;
   }
 

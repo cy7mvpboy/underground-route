@@ -3,6 +3,8 @@
    - 출발·도착은 역(그 역의 승강장 허브 전부) 또는 지도 위의 점.
      점은 가까운 출입구(1.5km 안 3곳)에 '가상 지상 간선'(직선 거리 × 1.3)으로 잇고, 이 거리는 지상 노출로 센다.
    - 막힌 간선(간선 번호 Set)은 없는 것으로 본다.
+   - '여기서 나가기'(exithere.js): 출발은 선로 위의 점(edgept), 도착은 나갈 곳(egress: 출구·터널 출입구·수직구·차량기지)일 수 있다.
+     이때 간선의 일부(startPart·endPart)를 경로 앞뒤에 붙인다.
    - DOM·Leaflet 을 쓰지 않는다(Node 검증 시험에서도 돈다). */
 (function (root) {
   'use strict';
@@ -144,11 +146,35 @@
   //   역:  {kind: 'station', si, hubs?}   -> 허브들(비용 0). hubs 를 주면 그 허브만(예: 지하 허브)
   //   노드: {kind: 'node', node}           -> 그래프 노드 하나(길 안내 중 '마지막으로 확인한 역'에서 다시 찾을 때)
   //   점:  {kind: 'point', lat, lon, conn} -> 연결 후보(비용 = 걷는 거리 × 지상 가중치)
+  //   선로 위 점: {kind: 'edgept', e, t, only?} -> 간선 e 의 양 끝(비용 = 그 끝까지 걷는 거리 × 가중치).
+  //               t = 간선 a 쪽에서 잰 위치(0~1). only 를 주면 그 끝 노드 쪽으로만 간다('여기서 나가기', 앞이 막혀 되돌아갈 때)
+  //   나갈 곳: {kind: 'egress', cand}     -> exithere.js 의 후보 하나. cand.target 이 {node, m} 이면 그 노드
+  //               (m = 노드에서 지상 출구까지 더 걷는 지상 거리, 차량기지), {e, t} 이면 선로 위 그 점(수직구)
+  function edgeEnds(G, e, t, only) {
+    const E = G.g.edges, len = E.len[e], w = G.weight[e];
+    return [{ node: E.a[e], cost: t * len * w }, { node: E.b[e], cost: (1 - t) * len * w }]
+      .filter(function (x) { return only == null || x.node === only; });
+  }
   function endpointNodes(G, ep) {
     if (ep.kind === 'station') return (ep.hubs || G.g.stations[ep.si].hubs).map(function (v) { return { node: v, cost: 0 }; });
     if (ep.kind === 'node') return [{ node: ep.node, cost: 0 }];
+    if (ep.kind === 'edgept') return edgeEnds(G, ep.e, ep.t, ep.only);
     const exposed = G.g.weights.exposed;
+    if (ep.kind === 'egress') {
+      const tg = ep.cand.target;
+      return tg.e != null ? edgeEnds(G, tg.e, tg.t) : [{ node: tg.node, cost: (tg.m || 0) * exposed }];
+    }
     return ep.conn.map(function (c) { return { node: c.node, cost: c.len * exposed }; });
+  }
+
+  // 간선 e 의 일부(t0 -> t1, 둘 다 a 쪽에서 잰 0~1): 걷는 방향 그대로의 선 모양과 길이
+  function edgePart(G, e, t0, t1) {
+    const E = G.g.edges, pts = GR.edgeShape(G.g, e), cum = GR.cumulative(pts), L = cum[cum.length - 1];
+    const lo = Math.min(t0, t1), hi = Math.max(t0, t1);
+    let part = GR.sliceAlong(pts, cum, lo * L, hi * L);
+    if (t0 > t1) part = part.reverse();
+    const m = (hi - lo) * E.len[e];
+    return { e: e, t0: t0, t1: t1, m: m, pts: part, exposed: G.weight[e] !== G.g.weights.under ? m : 0 };
   }
 
   function pickConn(ep, node) {
@@ -161,38 +187,76 @@
   /* ---------- 경로 찾기 ----------
      돌려주는 값(없으면 null):
        { path: [{e,u,v}], startSi, endSi, startConn, endConn, walk(바로 걷기), walk_m,
-         path_m, path_exposed_m(실제 간선만), total_m, exposed_m(가상 지상 간선 포함, 반올림 전 값) } */
+         startPart(선로 위 점에서 첫 노드까지 간선 일부), endPart(마지막 노드에서 수직구까지 간선 일부),
+         endWalk(차량기지: 마지막 노드에서 지상 출구까지 {m, pts}), egress(나갈 곳 후보),
+         path_m, path_exposed_m(실제 간선만), total_m, exposed_m(가상 지상 간선·간선 일부 포함, 반올림 전 값) } */
   function findRoute(G, from, to, opts) {
     opts = opts || {};
-    const g = G.g;
+    const g = G.g, E = g.edges;
     const src = endpointNodes(G, from), dst = endpointNodes(G, to);
     if (!src.length || !dst.length) return null;
-    let direct = Infinity, walk = 0;
+    let direct = Infinity, walk = 0, same = false;
     if (from.kind === 'point' && to.kind === 'point') {
       walk = GR.haversine(from.lat, from.lon, to.lat, to.lon) * DETOUR;
       direct = walk * g.weights.exposed;
     }
+    // 선로 위 점 -> 같은 간선 위의 수직구: 노드를 거치지 않고 간선을 따라 바로 간다(긴 터널 한가운데)
+    const tg = to.kind === 'egress' ? to.cand.target : null;
+    if (from.kind === 'edgept' && tg && tg.e === from.e) {
+      const ahead = tg.t >= from.t ? E.b[from.e] : E.a[from.e];
+      if (from.only == null || from.only === ahead) { direct = Math.abs(tg.t - from.t) * E.len[from.e] * G.weight[from.e]; same = true; }
+    }
     const res = dijkstra(G, src, dst, opts.blocked || null, direct, !!opts.surface);
     if (!res) return null;
+    if (res.end < 0 && same) return finish(G, from, to, [], null, edgePart(G, from.e, from.t, tg.t), null, null);
     if (res.end < 0) {   // 지하로 가는 것보다 지상으로 바로 걷는 쪽이 노출이 적다
       return { path: [], walk: true, walk_m: walk, startSi: -1, endSi: -1, startConn: null, endConn: null,
         path_m: 0, path_exposed_m: 0, total_m: walk, exposed_m: walk };
     }
     const path = pathEdges(res);
     const first = path.length ? path[0].u : res.end;
-    const startConn = pickConn(from, first), endConn = pickConn(to, res.end);
+    // 선로 위 점에서 출발: 첫 노드 쪽으로 간선 일부를 걷는다
+    const startPart = from.kind === 'edgept' ? edgePart(G, from.e, from.t, first === E.a[from.e] ? 0 : 1) : null;
+    let endPart = null, endWalk = null;
+    if (tg && tg.e != null) endPart = edgePart(G, tg.e, res.end === E.a[tg.e] ? 0 : 1, tg.t);
+    else if (tg && tg.m > 0) endWalk = { m: tg.m, pts: [GR.nodeLatLng(g, res.end), [to.cand.lat, to.cand.lon]] };
+    return finish(G, from, to, path, res.end, startPart, endPart, endWalk);
+  }
+
+  // 노드 v 에서 직선으로 가장 가까운 역 번호
+  function nearestSi(G, v) {
+    const g = G.g, la = g.nodes.lat[v] / 1e5, lo = g.nodes.lon[v] / 1e5;
+    let best = -1, bd = Infinity;
+    g.stations.forEach(function (s, si) { const d = GR.haversine(la, lo, s.lat / 1e5, s.lon / 1e5); if (d < bd) { bd = d; best = si; } });
+    return best;
+  }
+
+  // 경로 결과 모으기(거리·노출·출발/도착 역)
+  function finish(G, from, to, path, end, startPart, endPart, endWalk) {
+    const g = G.g;
+    const first = path.length ? path[0].u : end;
+    const startConn = pickConn(from, first), endConn = pickConn(to, end);
     let pm = 0, pe = 0;
     path.forEach(function (p) {
       pm += g.edges.len[p.e];
       if (G.weight[p.e] !== g.weights.under) pe += g.edges.len[p.e];
     });
-    const extra = (startConn ? startConn.len : 0) + (endConn ? endConn.len : 0);
+    const extra = (startConn ? startConn.len : 0) + (endConn ? endConn.len : 0) + (endWalk ? endWalk.m : 0);
+    const parts = [startPart, endPart].filter(Boolean);
+    const partM = parts.reduce(function (s, x) { return s + x.m; }, 0), partX = parts.reduce(function (s, x) { return s + x.exposed; }, 0);
+    const siOf = function (ep, conn) {
+      // 선로 위 점: 안내 문장의 '출발역'이 필요하므로 정해 주지 않았으면 가장 가까운 역
+      if (ep.kind === 'edgept') return ep.si != null && ep.si >= 0 ? ep.si : nearestSi(G, g.edges.a[ep.e]);
+      if (ep.kind === 'station' || ep.kind === 'node') return ep.si != null ? ep.si : -1;
+      if (ep.kind === 'egress') return ep.cand.si != null ? ep.cand.si : -1;
+      return conn.si;
+    };
     return {
       path: path, walk: false, walk_m: 0,
-      startSi: from.kind === 'station' ? from.si : from.kind === 'node' ? from.si : startConn.si,
-      endSi: to.kind === 'station' ? to.si : to.kind === 'node' ? to.si : endConn.si,
-      startConn: startConn, endConn: endConn,
-      path_m: pm, path_exposed_m: pe, total_m: pm + extra, exposed_m: pe + extra
+      startSi: siOf(from, startConn), endSi: siOf(to, endConn),
+      startConn: startConn, endConn: endConn, startPart: startPart, endPart: endPart, endWalk: endWalk,
+      egress: to.kind === 'egress' ? to.cand : null,
+      path_m: pm, path_exposed_m: pe, total_m: pm + extra + partM, exposed_m: pe + extra + partX
     };
   }
 
@@ -205,7 +269,7 @@
 
   UG.router = {
     DETOUR: DETOUR, NEAR_M: NEAR_M, Heap: Heap, dijkstra: dijkstra, pathEdges: pathEdges,
-    connectPoint: connectPoint, findRoute: findRoute, hanEdges: hanEdges
+    connectPoint: connectPoint, findRoute: findRoute, hanEdges: hanEdges, edgePart: edgePart
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = UG.router;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
