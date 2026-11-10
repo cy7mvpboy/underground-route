@@ -73,8 +73,8 @@ const pre = html.match(/<link rel="preload" href="([^"]+)" as="fetch"( crossorig
 check(!!pre && !!pre[2] && appJs.indexOf("dataUrl: '" + pre[1] + "'") >= 0, 'graph.json 미리 받기: crossorigin 이 있고 app.js 가 같은 주소를 받음');
 check(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^"]*" media="print">/.test(html) && /fontCss\.media = 'all'/.test(appJs),
   '글꼴 CSS: media="print" 로 받아 두고 app.js 가 graph.json 을 받은 뒤 켬');
-const order = ['graph', 'passage', 'app'].map((f) => html.indexOf('src="js/' + f + '.js"'));
-check(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), 'passage.js 는 graph.js 다음, app.js 앞에서 불러옴');
+const order = ['graph', 'passage', 'app', 'demo'].map((f) => html.indexOf('src="js/' + f + '.js"'));
+check(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), 'passage.js 는 graph.js 다음, app.js 앞에서 불러오고, demo.js(시연)는 app.js 다음');
 
 process.exitCode = ok ? 0 : 1;
 console.log(ok ? '\n모두 통과' : '\n실패 있음');

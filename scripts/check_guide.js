@@ -71,5 +71,23 @@ const p4 = plan(p3.from, p3.to);
 check(c3[0].kind === 'enter' && b3.from === null && p4 && p4.route.startConn.ent !== p3.route.startConn.ent,
   `들어갈 출구 ${p3.route.startConn.ref}번이 막힘 → 다른 출구 ${p4 && p4.route.startConn.ref}번으로 다시 찾음`);
 
+/* ---------- 4) 회귀: 한강 하저터널(여의나루–마포)을 막아도 이웃 터널(여의도–여의나루)은 막지 않는다 ----------
+   예전 blockSpan 은 선 모양의 꼭짓점만 세어, 점이 둘뿐인 곧은 이웃 구간이 같이 쓰는 끝점 하나로 '나란한 선로'가 됐다.
+   그러면 여의나루역이 고립되어 지상으로 1.1km 걸어 여의도로 가는 경로가 나왔다(2026-11-11 고침). */
+blocked.clear();
+const p5 = plan(st('여의도'), st('광화문'));
+const c5 = UG.guide.buildCheckpoints(G, p5);
+const k5 = c5.findIndex((c) => c.label === '여의나루역');
+const b5 = UG.guide.planBlock(G, { plan: p5, cps: c5, cur: k5 }, 800);
+const before = new Set(p5.route.path.slice(0, c5[k5].pos + 1).map((x) => x.e));   // 여의도 → 여의나루(지나온 구간)
+const han5 = new Set(g.presets.han_crossings.filter((x) => x.s === 'tunnel' && x.lines.includes('5호선')).map((x) => x.e));
+check(k5 >= 0 && [...b5.edges].every((e) => han5.has(e)) && b5.edges.size === 2,
+  `여의나루–마포 막힘: 막은 간선 ${[...b5.edges].join(', ')} = 그 하저터널 상·하행 2개뿐(이웃 여의도–여의나루 터널은 안 막음)`);
+check([...b5.edges].every((e) => !before.has(e)), '지나온 여의도–여의나루 구간은 막지 않음');
+b5.edges.forEach((e) => blocked.add(e));
+const p6 = plan(b5.from, p5.to);
+check(!!p6 && p6.view.exposed_m === 0 && p6.route.path.every((x) => !blocked.has(x.e)),
+  `여의나루에서 다시 찾음: ${p6 ? (p6.view.total_m / 1000).toFixed(1) + 'km, 지상 ' + Math.round(p6.view.exposed_m) + 'm' : '실패'} (다른 하저터널, 지상으로 나가지 않음)`);
+
 process.exitCode = ok ? 0 : 1;
 console.log(ok ? '모두 통과' : '실패 있음');

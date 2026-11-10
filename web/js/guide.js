@@ -132,7 +132,20 @@
 
   /* ---------- 막기 ----------
      경로 위치 from+1 .. to 의 간선 중 선로를 막는다(선로가 없으면 그 구간 간선 전부: 환승 통로·출입구).
-     같은 터널·교량의 나란한 선로(반대 방향)도 막는다: 막은 선 모양에서 40m 안에 점의 절반 이상이 있는 선로. */
+     같은 터널·교량의 나란한 선로(반대 방향)도 막는다: 막은 선 모양에서 40m 안에 길이의 절반 이상이 있는 선로.
+     두 선 모두 약 20m 간격으로 점을 채워 센다. 선 모양의 꼭짓점만 세면, 점이 둘뿐인 곧은 이웃 구간(예: 여의도–여의나루)이
+     막은 구간과 같이 쓰는 끝점 하나만으로 '절반'이 되어 함께 막혔다(2026-11-11 고침). */
+  function densify(sh) {
+    const out = [];
+    for (let j = 0; j < sh.length; j++) {
+      out.push(sh[j]);
+      if (j + 1 < sh.length) {
+        const d = GR.haversine(sh[j][0], sh[j][1], sh[j + 1][0], sh[j + 1][1]), n = Math.floor(d / 20);
+        for (let q = 1; q < n; q++) out.push([sh[j][0] + (sh[j + 1][0] - sh[j][0]) * q / n, sh[j][1] + (sh[j + 1][1] - sh[j][1]) * q / n]);
+      }
+    }
+    return out;
+  }
   function blockSpan(G, path, from, to) {
     const E = G.g.edges, track = G.codes.track;
     const span = [];
@@ -141,16 +154,7 @@
     if (!out.length) return new Set(span);
     // 막은 선로의 점들(대략 20m 간격으로 채운다)
     const pts = [];
-    out.forEach(function (e) {
-      const sh = GR.edgeShape(G.g, e);
-      for (let j = 0; j < sh.length; j++) {
-        pts.push(sh[j]);
-        if (j + 1 < sh.length) {
-          const d = GR.haversine(sh[j][0], sh[j][1], sh[j + 1][0], sh[j + 1][1]), n = Math.floor(d / 20);
-          for (let q = 1; q < n; q++) pts.push([sh[j][0] + (sh[j + 1][0] - sh[j][0]) * q / n, sh[j][1] + (sh[j + 1][1] - sh[j][1]) * q / n]);
-        }
-      }
-    });
+    out.forEach(function (e) { densify(GR.edgeShape(G.g, e)).forEach(function (p) { pts.push(p); }); });
     let s = 90, w = 180, n = -90, ea = -180;
     pts.forEach(function (p) { s = Math.min(s, p[0]); n = Math.max(n, p[0]); w = Math.min(w, p[1]); ea = Math.max(ea, p[1]); });
     const pad = 0.0006;   // 약 60m
@@ -166,7 +170,7 @@
       const la = N.lat[E.a[e]] / 1e5, lo = N.lon[E.a[e]] / 1e5, lb = N.lat[E.b[e]] / 1e5, lob = N.lon[E.b[e]] / 1e5;
       const inA = la >= s && la <= n && lo >= w && lo <= ea, inB = lb >= s && lb <= n && lob >= w && lob <= ea;
       if (!inA && !inB) continue;
-      const sh = GR.edgeShape(G.g, e);
+      const sh = densify(GR.edgeShape(G.g, e));
       let hit = 0;
       sh.forEach(function (p) { if (near(p[0], p[1])) hit++; });
       if (hit * 2 >= sh.length) set.add(e);
