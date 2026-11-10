@@ -1,0 +1,47 @@
+{
+ "railway=station|halt 개수": 1361,
+ "public_transport=station만 있는 객체": 152,
+ "station 태그별": {
+  "subway": 650,
+  "train": 461,
+  "light_rail": 139,
+  "(station 태그 없음)": 54,
+  "monorail": 37,
+  "train;subway": 12,
+  "subway;train": 7,
+  "tram": 1
+ },
+ "태그 채움 비율%": {
+  "name": 98.9,
+  "name:en": 98.0,
+  "location": 0.0,
+  "level": 0.8,
+  "layer": 1.2,
+  "network": 46.0,
+  "operator": 97.7,
+  "ref": 38.1,
+  "railway:ref": 28.7,
+  "wikidata": 84.9
+ },
+ "지하역 표시(location=underground 또는 level<0) 개수": 7,
+ "개수 조회": {
+  "railway=construction": 475,
+  "railway=proposed": 39,
+  "railway=abandoned": 1042,
+  "railway=disused": 529,
+  "railway=razed": 12,
+  "railway=tram": 16,
+  "railway=subway_entrance": 4497,
+  "railway=train_station_entrance": 65,
+  "public_transport=stop_area": 2962,
+  "public_transport=stop_area_group": 6,
+  "route relation(subway|train|light_rail|monorail|tram|railway)": 353,
+  "route_master relation": 1
+ },
+ "본선 길이 중 way name 태그가 있는 비율%": {
+  "rail": 98.3,
+  "subway": 99.0,
+  "light_rail": 98.9,
+  "monorail": 81.2
+ }
+}

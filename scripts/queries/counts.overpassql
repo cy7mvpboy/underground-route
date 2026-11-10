@@ -1,0 +1,14 @@
+[out:json][timeout:300];
+area["ISO3166-1"="KR"][admin_level=2]->.kr;
+way(area.kr)[railway=construction]; out count;
+way(area.kr)[railway=proposed]; out count;
+way(area.kr)[railway=abandoned]; out count;
+way(area.kr)[railway=disused]; out count;
+way(area.kr)[railway=razed]; out count;
+way(area.kr)[railway=tram]; out count;
+node(area.kr)[railway=subway_entrance]; out count;
+node(area.kr)[railway=train_station_entrance]; out count;
+rel(area.kr)[public_transport=stop_area]; out count;
+rel(area.kr)[public_transport=stop_area_group]; out count;
+rel(area.kr)[type=route][route~"^(subway|train|light_rail|monorail|tram|railway)$"]; out count;
+rel(area.kr)[type=route_master][route_master~"^(subway|train|light_rail|monorail|tram|railway)$"]; out count;
