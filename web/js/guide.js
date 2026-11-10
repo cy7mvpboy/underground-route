@@ -3,7 +3,8 @@
    - 역 사이에서는 마지막 확인 뒤 지난 시간 × 걷는 속도로 걸은 거리를 추정한다.
    - '앞이 막힘': 마지막 확인 지점과 다음 체크포인트 사이 선로(같은 터널의 반대 방향 선로 포함)를 막고,
      마지막 확인 지점에서 다시 찾는다. 되돌아가는 거리(추정)를 알려 준다.
-   - 앞부분(buildCheckpoints, blockSpan, progress)은 DOM 을 쓰지 않아 Node 에서도 시험한다. 화면은 GuideView. */
+   - 앞부분(buildCheckpoints, blockSpan, progress, routeTrack)은 DOM 을 쓰지 않아 Node 에서도 시험한다.
+   - 화면은 GuideView: 지도를 가리지 않는 안내(위 카드·아래 버튼). 지도 위 표시는 app.js 가 onRender 로 그린다. */
 (function (root) {
   'use strict';
   const UG = root.UG = root.UG || {};
@@ -56,7 +57,7 @@
         if (i > 0 && !(prev && prev.pos === i - 1)) {
           push({ label: exitName(s.from_station, s.from_ref) + '로 나감', kind: 'station', item: k, pos: i - 1, at: cum, node: path[i - 1].v, si: G.nodeStation[path[i - 1].u] });
         }
-        cum += E.len[path[i].e];
+        cum += s._m != null ? s._m : E.len[path[i].e];   // 실제 길을 받았으면 그 거리(walk.js)
         lastSi = s._to_si;
         push({ label: exitName(s.to_station, s.to_ref) + ' (걸어서)', kind: 'station', item: k, pos: i, at: cum, node: path[i].v, si: s._to_si });
       } else if (it.kind === 'step' && it.step.type === 'transfer') {
@@ -176,87 +177,168 @@
     };
   }
 
-  /* ---------- 화면 ---------- */
-  // opts: { root(섹션), panel(PN), steps(ST), onArrive, onBlock, onEnd, getSpeed(), reduceMotion }
+  /* ---------- 경로 위 거리 -> 지도 위치 ----------
+     체크포인트의 at(출발부터 m)과 같은 순서·같은 거리로 경로 선을 이어 붙인다.
+     조각마다 안내 거리(len)와 선 모양(pts)이 있고, 조각 안에서는 선 길이에 비례해 위치를 찾는다. */
+  function routeTrack(G, plan) {
+    const path = plan.route.path, E = G.g.edges, pieces = [];
+    let at = 0;
+    const add = function (pts, len) {
+      if (pts && pts.length >= 2 && len > 0) pieces.push({ from: at, len: len, pts: pts, cum: GR.cumulative(pts) });
+      at += len > 0 ? len : 0;
+    };
+    plan.items.forEach(function (it) {
+      if (it.kind === 'walk' || it.kind === 'enter' || it.kind === 'exit') { add(it.latlngs, it.m); return; }
+      if (it.kind !== 'step' || it.step.type === 'warning') return;
+      const s = it.step;
+      s._idx.forEach(function (i) {
+        if (s.type === 'surface' && s._pts) add(s._pts, s._m);
+        else add(GR.edgeShape(G.g, path[i].e, path[i].u), E.len[path[i].e]);
+      });
+    });
+    return { pieces: pieces, total: at };
+  }
+
+  function pieceAt(track, m) {
+    const ps = track.pieces;
+    if (!ps.length) return null;
+    for (let i = 0; i < ps.length; i++) if (m < ps[i].from + ps[i].len) return ps[i];
+    return ps[ps.length - 1];
+  }
+  // 출발부터 m 지점의 [lat, lon]
+  function pointAt(track, m) {
+    const p = pieceAt(track, m);
+    if (!p) return null;
+    const f = Math.max(0, Math.min(1, (m - p.from) / p.len));
+    return GR.pointAlong(p.pts, p.cum, f * p.cum[p.cum.length - 1]);
+  }
+  // m0 ~ m1 구간의 선(조각별 배열)
+  function sliceTrack(track, m0, m1) {
+    const out = [];
+    track.pieces.forEach(function (p) {
+      const a = Math.max(m0, p.from), b = Math.min(m1, p.from + p.len);
+      if (b <= a) return;
+      const L = p.cum[p.cum.length - 1];
+      out.push(GR.sliceAlong(p.pts, p.cum, (a - p.from) / p.len * L, (b - p.from) / p.len * L));
+    });
+    return out;
+  }
+
+  /* ---------- 화면: 지도가 보이는 길 안내 ----------
+     위: 지금 할 일 카드(큰 글씨), 가운데: 지도(app.js 가 onRender 로 그린다), 아래: 도착·앞이 막힘·종료.
+     체크포인트 전체 목록은 접히는 서랍(넓은 화면에서는 왼쪽에 늘 보임).
+     opts: { root, panel(PN), steps(ST), lines(UG.lines), getSpeed(), onArrive, onBlock, onEnd,
+             onRender({st, p, stepChanged}), onFinish(st) -> true 면 화면을 닫음, onRecenter, reduceMotion } */
   function GuideView(opts) {
-    const PN = opts.panel, ST = opts.steps;
+    const PN = opts.panel, ST = opts.steps, LN = opts.lines;
     const $ = function (id) { return document.getElementById(id); };
     const el = {
-      root: opts.root, count: $('guide-count'), warn: $('guide-warn'), line: $('guide-line'), title: $('guide-title'),
-      next: $('guide-next'), dist: $('guide-dist'), stepLeft: $('guide-step-left'), walked: $('guide-walked'),
-      note: $('guide-note'), cps: $('guide-cps'), arrive: $('guide-arrive'), block: $('guide-block'), end: $('guide-end')
+      root: opts.root, count: $('guide-count'), pos: $('guide-pos'), warn: $('guide-warn'), line: $('guide-line'), title: $('guide-title'),
+      dist: $('guide-dist'), next: $('guide-next'), walked: $('guide-walked'), note: $('guide-note'),
+      cps: $('guide-cps'), drawer: $('guide-drawer'), list: $('guide-list'),
+      arrive: $('guide-arrive'), block: $('guide-block'), end: $('guide-end'), recenter: $('guide-recenter')
     };
-    let st = null, timer = 0, lastFocus = null;
+    let st = null, timer = 0, lastFocus = null, lastItem = -2;
 
     el.arrive.addEventListener('click', function () { if (st) opts.onArrive(); });
     el.block.addEventListener('click', function () { if (st) opts.onBlock(); });
     el.end.addEventListener('click', function () { opts.onEnd(); });
-    el.root.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') opts.onEnd(); });
+    el.recenter.addEventListener('click', function () { if (opts.onRecenter) opts.onRecenter(); });
+    el.list.addEventListener('click', function () { setDrawer(el.drawer.hidden); });
+    el.root.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Escape') return;
+      if (!el.drawer.hidden && el.list.offsetParent) { setDrawer(false); el.list.focus(); } else opts.onEnd();
+    });
+
+    function setDrawer(open) {
+      el.drawer.hidden = !open;
+      el.list.setAttribute('aria-expanded', String(open));
+      el.list.textContent = open ? '목록 닫기' : '단계 목록';
+      el.root.classList.toggle('drawer-open', open);
+      if (open) { const now = el.cps.querySelector('.now'); if (now) now.scrollIntoView({ block: 'nearest' }); }
+    }
 
     function minutes(m) { return PN.fmtTime(m / (opts.getSpeed() * 1000 / 60)); }
+    function big(m) {   // '1.2km' -> 큰 숫자 + 작은 단위
+      const t = PN.fmtDist(m), u = t.endsWith('km') ? 'km' : 'm';
+      return '<b class="num">' + t.slice(0, -u.length) + '</b><small>' + u + '</small>';
+    }
 
-    function render() {
-      if (!st) return;
-      const p = progress(st.cps, st.cur, st.plan.view.total_m);
-      const item = p.next ? st.plan.items[p.next.item] : null;
-      const nSteps = st.cps.length;
-      el.count.textContent = (p.finished ? '도착' : '체크포인트 ' + (st.cur + 2) + '/' + nSteps) +
-        ' · 남은 거리 ' + PN.fmtDist(p.left_m + (st.cur < 0 ? st.backtrack : 0)) + ' · 약 ' + minutes(p.left_m);
-      // 현재 단계
+    // 지금 할 일(카드 윗부분): 노선 줄, 제목, 경고
+    function describeItem(item, p) {
       let line = '', title = '', warn = '';
-      if (p.finished) {
-        title = '도착했습니다';
-      } else if (item.kind === 'enter') {
-        line = '지상 걷기'; title = PN.ro(p.next.label) + ' 들어가기';
-      } else if (item.kind === 'exit') {
-        line = '지상 걷기'; title = p.next.kind === 'end' ? '목적지까지 걷기' : p.next.label;
-      } else if (item.kind === 'walk') {
-        line = '지상 걷기'; title = '목적지까지 걷기';
-      } else if (item.kind === 'arrive') {
-        line = ''; title = p.next.label;
-      } else if (item.step.type === 'surface') {
+      if (p.finished) title = '도착했습니다';
+      else if (item.kind === 'enter') { line = '지상 걷기'; title = PN.ro(p.next.label) + ' 들어가기'; }
+      else if (item.kind === 'exit') { line = '지상 걷기'; title = p.next.kind === 'end' ? '목적지까지 걷기' : p.next.label; }
+      else if (item.kind === 'walk') { line = '지상 걷기'; title = '목적지까지 걷기'; }
+      else if (item.kind === 'arrive') { title = p.next.label; }
+      else if (item.step.type === 'surface') {
         const s = item.step;
         line = '지상 걷기'; title = PN.ro(PN.exitName(s.to_station, s.to_ref)) + ' 걷기';
         warn = '지하로 이어진 길이 없어 지상으로 ' + PN.fmtDist(s.distance_m) + ' 걷습니다.';
       } else if (item.step.type === 'transfer') {
         const s = item.step;
-        line = '환승 · ' + PN.yeok(s.station); title = s.from_line + ' → ' + s.to_line + (s.underground ? ' (지하 통로)' : ' (지상)');
+        line = LN.chip(s.from_line) + ' <span aria-hidden="true">→</span> ' + LN.chip(s.to_line);
+        title = PN.yeok(s.station) + '에서 갈아타기';
         if (!s.underground) warn = '환승 통로가 지상입니다.';
       } else {
         const s = item.step;
-        line = s.line ? '<span class="lb">' + PN.esc(s.line) + '</span> ' + PN.esc(s.label === s.line ? '' : s.label.replace(s.line + ' · ', '')) : PN.esc(s.label);
+        const rest = s.line ? (s.label === s.line ? '' : s.label.replace(s.line + ' · ', '')) : s.label;
+        line = (s.line ? LN.chip(s.line) : '') + (rest ? ' <span class="g-track">' + PN.esc(rest) + '</span>' : '');
         const head = s.terminal_direction || s.direction;
         title = head ? PN.ro(head) + ' 걷기' : '선로를 따라 걷기';
         if (s.exposure_m) warn = '이 단계에 지상 노출 ' + PN.fmtDist(s.exposure_m) + '이 있습니다.';
       }
-      // 이 단계 앞에 지상 노출 경고가 있으면 함께 보여 준다
-      if (item && item.kind === 'step') {
+      if (item && item.kind === 'step') {   // 이 단계 앞의 지상 노출 경고
         const w = st.plan.items.find(function (x) { return x.kind === 'step' && x.step.type === 'warning' && x.step.in_step === item.step.no; });
         if (w) warn = '지상 노출 ' + PN.fmtDist(w.step.exposure_m) + ' — ' + w.step.at + (w.step.after_m ? ' 지나 ' + ST.fmtKm(w.step.after_m) : '') + '에서 ' +
           (w.step.portal ? '터널을 나옵니다' : '지상 구간이 시작됩니다') + '.';
       }
-      if (item && (item.kind === 'enter' || item.kind === 'exit' || item.kind === 'walk')) warn = warn || '이 구간은 지상입니다. 몸을 낮추고 빠르게 이동하세요.';
-      el.line.innerHTML = line;
-      el.line.hidden = !line;
-      el.title.textContent = title;
-      el.warn.textContent = warn ? '※ ' + warn : '';
-      el.warn.hidden = !warn;
+      if (item && (item.kind === 'enter' || item.kind === 'exit' || item.kind === 'walk')) warn = warn || '지상 구간입니다. 몸을 낮추고 빠르게 이동하세요.';
+      return { line: line, title: title, warn: warn };
+    }
+
+    function render() {
+      if (!st) return;
+      const p = progress(st.cps, st.cur, st.plan.view.total_m);
+      const item = p.next ? st.plan.items[p.next.item] : null;
+      // 단계 번호: 체크포인트가 속한 안내 항목 순서
+      const order = [];
+      st.cps.forEach(function (c) { if (order.indexOf(c.item) < 0) order.push(c.item); });
+      const stepNo = p.next ? order.indexOf(p.next.item) + 1 : order.length;
+      el.count.textContent = (p.finished ? '도착' : '단계 ' + stepNo + '/' + order.length) +
+        ' · 남은 ' + PN.fmtDist(p.left_m + (st.cur < 0 ? st.backtrack : 0)) + ' · ' + minutes(p.left_m);
+      const d = describeItem(item, p);
+      el.line.innerHTML = d.line;
+      el.line.hidden = !d.line;
+      el.title.textContent = d.title;
+      el.warn.textContent = d.warn ? '※ ' + d.warn : '';
+      el.warn.hidden = !d.warn;
       if (p.finished) {
-        el.next.textContent = '';
         el.dist.innerHTML = '';
-        el.stepLeft.textContent = st.plan.view.exposed_m > 0 ? '지상 노출이 있었던 경로입니다. 주변을 살피세요.' : '';
+        el.next.textContent = st.plan.view.exposed_m > 0 ? '지상 노출이 있었던 경로입니다. 주변을 살피세요.' : '';
       } else {
-        el.next.innerHTML = '다음 확인 지점 <b>' + PN.esc(p.next.label) + '</b>';
-        el.dist.innerHTML = '<b class="num">' + PN.fmtDist(p.toNext_m) + '</b> · 약 ' + minutes(p.toNext_m);
-        el.stepLeft.textContent = p.stepLeft_m > p.toNext_m + 1 ? '이 단계 남은 거리 ' + PN.fmtDist(p.stepLeft_m) + ' · 약 ' + minutes(p.stepLeft_m) : '';
+        el.dist.innerHTML = big(p.stepLeft_m) + '<span class="g-dist-t">약 ' + minutes(p.stepLeft_m) + '</span>';
+        el.next.innerHTML = '다음 확인 <b>' + PN.esc(p.next.label) + '</b>' +
+          (p.stepLeft_m > p.toNext_m + 1 ? ' <span class="num">' + PN.fmtDist(p.toNext_m) + '</span>' : '');
       }
-      el.stepLeft.hidden = !el.stepLeft.textContent;
+      el.dist.hidden = !el.dist.innerHTML;
+      el.next.hidden = !el.next.innerHTML;
       el.note.innerHTML = st.note || '';
       el.note.hidden = !st.note;
       renderWalked(p);
-      // 체크포인트 목록
-      const startLabel = st.startLabel;
-      el.cps.innerHTML = '<li class="done"><span class="g-mark" aria-hidden="true"></span><span>' + PN.esc(startLabel) + '</span><span class="num">0</span></li>' +
+      renderList();
+      el.arrive.disabled = p.finished;
+      el.block.disabled = p.finished;
+      el.arrive.innerHTML = p.finished ? '도착 완료' : '도착<small>' + PN.esc(p.next.label) + '</small>';
+      const changed = (p.next ? p.next.item : -1) !== lastItem || st.cur !== st._lastCur;
+      lastItem = p.next ? p.next.item : -1;
+      st._lastCur = st.cur;
+      if (opts.onRender) opts.onRender({ st: st, p: p, stepChanged: changed });
+    }
+
+    function renderList() {
+      el.cps.innerHTML = '<li class="done"><span class="g-mark" aria-hidden="true"></span><span>' + PN.esc(st.startLabel) + '</span><span class="num">0</span></li>' +
         st.cps.map(function (c, i) {
           const cls = i <= st.cur ? 'done' : i === st.cur + 1 ? 'now' : '';
           const state = i <= st.cur ? '지남' : i === st.cur + 1 ? '다음' : '';
@@ -264,11 +346,7 @@
             '<span>' + PN.esc(c.label) + (state ? '<span class="sr-only"> (' + state + ')</span>' : '') + '</span>' +
             '<span class="num">' + ST.fixed1(c.at / 1000) + '</span></li>';
         }).join('');
-      const now = el.cps.querySelector('.now');
-      if (now) now.scrollIntoView({ block: 'nearest', behavior: opts.reduceMotion ? 'auto' : 'smooth' });
-      el.arrive.disabled = p.finished;
-      el.block.disabled = p.finished;
-      el.arrive.innerHTML = p.finished ? '도착 완료' : '도착<small>' + PN.esc(p.next.label) + '</small>';
+      if (!el.drawer.hidden) { const now = el.cps.querySelector('.now'); if (now) now.scrollIntoView({ block: 'nearest', behavior: opts.reduceMotion ? 'auto' : 'smooth' }); }
     }
 
     // 마지막 확인 뒤 걸은 거리(추정) = 지난 시간 × 걷는 속도
@@ -277,41 +355,56 @@
       if (!st || p.finished) { el.walked.hidden = true; return; }
       const min = (Date.now() - st.since) / 60000;
       const from = st.cur >= 0 ? st.cps[st.cur].label : st.startLabel;
-      const m = Math.min(walkedM(), p.toNext_m);
       el.walked.hidden = min < 1;
-      el.walked.textContent = from + ' 확인 뒤 ' + Math.floor(min) + '분 · 약 ' + PN.fmtDist(m) + ' 걸음(추정)';
+      el.walked.textContent = from + ' 확인 뒤 ' + Math.floor(min) + '분 · 약 ' + PN.fmtDist(Math.min(walkedM(), p.toNext_m)) + ' 걸음(추정)';
+    }
+    function tick() {
+      if (!st) return;
+      const p = progress(st.cps, st.cur, st.plan.view.total_m);
+      renderWalked(p);
+      if (opts.onRender) opts.onRender({ st: st, p: p, stepChanged: false });
     }
 
     return {
       open: function (plan, cps, startLabel, note, backtrack) {
         const wasOpen = !el.root.hidden;
         st = { plan: plan, cps: cps, cur: -1, since: Date.now(), startLabel: startLabel, note: note || '', backtrack: backtrack || 0 };
+        lastItem = -2;
         if (!wasOpen) lastFocus = document.activeElement;
         el.root.hidden = false;
         document.documentElement.classList.add('guide-open');
+        setDrawer(false);
         render();
         clearInterval(timer);
-        timer = setInterval(function () { if (st) renderWalked(progress(st.cps, st.cur, st.plan.view.total_m)); }, 15000);
+        timer = setInterval(tick, 5000);
         el.title.focus();
       },
+      // 실제 도보 길을 받아 거리가 바뀌었을 때: 확인한 곳은 그대로 두고 다시 그린다
+      refresh: function (plan, cps) { if (!st || st.plan !== plan) return; st.cps = cps; render(); },
       close: function () {
         st = null;
         clearInterval(timer);
         el.root.hidden = true;
         document.documentElement.classList.remove('guide-open');
-        if (lastFocus && lastFocus.focus) lastFocus.focus();
+        if (lastFocus && lastFocus.focus && document.contains(lastFocus)) lastFocus.focus();
       },
       arrive: function () {
         if (!st || st.cur + 1 >= st.cps.length) return;
         st.cur++; st.since = Date.now(); st.note = ''; st.backtrack = 0;
+        if (st.cur + 1 >= st.cps.length && opts.onFinish && opts.onFinish(st)) return;   // 마지막 확인: 역 시트로 넘긴다
         render();
       },
+      setPosMode: function (text) { el.pos.textContent = text; el.pos.hidden = !text; },
+      setFollow: function (on) { el.recenter.hidden = on; },
       state: function () { return st; },
       walkedM: walkedM,
       isOpen: function () { return !el.root.hidden; }
     };
   }
 
-  UG.guide = { buildCheckpoints: buildCheckpoints, progress: progress, blockSpan: blockSpan, planBlock: planBlock, GuideView: GuideView };
+  UG.guide = {
+    buildCheckpoints: buildCheckpoints, progress: progress, blockSpan: blockSpan, planBlock: planBlock,
+    routeTrack: routeTrack, pointAt: pointAt, sliceTrack: sliceTrack, GuideView: GuideView
+  };
   if (typeof module !== 'undefined' && module.exports) module.exports = UG.guide;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

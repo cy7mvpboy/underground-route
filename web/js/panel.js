@@ -1,7 +1,7 @@
-/* panel.js — 패널 화면 조각 (길 안내 결과, 분석 통계)
-   - 길 안내: 요약(총 거리·걷는 시간·지상 노출) -> 걷는 속도 -> 단계 목록 -> 출처·가정.
-   - 단계 목록은 app.js 가 만든 items 를 그린다:
-       {kind:'enter'|'exit'|'arrive'|'walk', …} 와 {kind:'step', step: steps.js 의 ride/transfer/warning}
+/* panel.js — 시트 안의 화면 조각 (경로 결과 카드, 단계 목록, 분석 통계, 지도 팝업)
+   - 경로 결과: 지상 노출 배지(크게) -> 총 거리·걷는 시간 -> 지나는 노선 칩 -> 안내 시작 -> 단계 목록 -> 출처·가정.
+   - 단계 목록은 steps.js 의 planItems 가 만든 items 를 그린다:
+       {kind:'enter'|'exit'|'arrive'|'walk', …} 와 {kind:'step', step: ride/transfer/warning/surface}
    - 각 단계 버튼에는 data-item(목록 위치)을 달아, 누르면 app.js 가 지도를 그 단계로 옮긴다. */
 (function (root) {
   'use strict';
@@ -18,6 +18,7 @@
     '경상북도': '경북', '경상남도': '경남'
   };
   const SEOUL_SRC = '서울교통공사 환승역 환승거리(2025-03-31), 서울 열린데이터광장, 공공누리 제1유형';
+  const EXPO_AMBER_M = 500;   // 지상 노출 배지: 0m 청록, 500m 미만 호박색, 그 이상 주황빨강
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -37,15 +38,30 @@
     const jong = (c - 0xac00) % 28;
     return word + (jong === 0 || jong === 8 ? '로' : '으로');
   }
+  function chip(n) { return UG.lines ? UG.lines.chip(n) : '<span class="lc lc-none">' + esc(n) + '</span>'; }
+
+  // 큰 숫자 + 작은 단위: '12.3km' -> <b>12.3</b><small>km</small>, '3시간 5분' -> <b>3</b><small>시간</small> <b>5</b><small>분</small>
+  function bigDist(m) {
+    const t = fmtDist(m), u = t.endsWith('km') ? 'km' : 'm';
+    return '<b>' + t.slice(0, -u.length) + '</b><small>' + u + '</small>';
+  }
+  function bigTime(min) {
+    return fmtTime(min).replace(/(\d+)(시간|분)/g, '<b>$1</b><small>$2</small>').replace('1분 미만', '<b>1</b><small>분 미만</small>');
+  }
+  function expoClass(m) { const e = Math.round(m); return e === 0 ? 'ok' : e < EXPO_AMBER_M ? 'mid' : 'bad'; }
+  function expoBadge(m, big) {
+    return '<p class="xbadge xb-' + expoClass(m) + (big ? ' xb-big' : '') + '"><span class="xb-k">지상 노출</span><span class="xb-v num">' + bigDist(m) + '</span></p>';
+  }
 
   // '가장 가까운 지하로' 후보 목록. nb = { label, isCenter, options: [{name, ref, kind, len}], chosen }
   function nearestHtml(nb, mpm) {
     return '<section class="near" aria-labelledby="near-title">' +
-      '<h2 id="near-title">가장 가까운 지하역 <span class="near-base">' + (nb.isCenter ? '지도 중심 기준' : esc(nb.label) + ' 기준') + '</span></h2>' +
+      '<h3 class="sub-h" id="near-title">가까운 지하역 <span class="muted">' + (nb.isCenter ? '지도 중심 기준' : esc(nb.label) + ' 기준') + '</span></h3>' +
       '<ol class="near-list">' + nb.options.map(function (o, i) {
-        return '<li><button type="button" class="near-btn" data-near="' + i + '" aria-pressed="' + (i === nb.chosen) + '">' +
-          '<span class="near-name">' + esc(o.kind === 'entrance' ? exitName(o.name, o.ref) : yeok(o.name) + ' (출구 자료 없음)') + '</span>' +
-          '<span class="near-meta"><span class="bad">지상 ' + fmtDist(o.len) + '</span> · 약 ' + fmtTime(o.len / mpm) + '</span></button></li>';
+        return '<li><button type="button" class="row-btn near-btn" data-near="' + i + '" aria-pressed="' + (i === nb.chosen) + '">' +
+          '<span class="row-main"><span class="row-title">' + esc(o.kind === 'entrance' ? exitName(o.name, o.ref) : yeok(o.name) + ' (출구 자료 없음)') + '</span>' +
+          '<span class="row-sub"><span class="t-expo">지상 ' + fmtDist(o.len) + '</span> · 약 ' + fmtTime(o.len / mpm) + '</span></span>' +
+          (i === nb.chosen ? '<span class="row-meta">안내 중</span>' : '') + '</button></li>';
       }).join('') + '</ol>' +
       (nb.isCenter ? '<p class="note">내 위치를 쓸 수 없어 지도 가운데에서 찾았습니다. 지도를 옮긴 뒤 다시 누르면 그곳에서 찾습니다.</p>' : '') +
       '</section>';
@@ -55,69 +71,71 @@
     return n ? '<p class="msg blocked">막은 구간 ' + n + '곳을 빼고 찾았습니다. <button type="button" class="link-btn" data-action="unblock">모두 풀기</button></p>' : '';
   }
 
-  /* ---------- 길 안내 ---------- */
+  /* ---------- 경로 결과 ---------- */
   // 처음 한 번 뼈대를 만든다(속도 선택 칸은 다시 그리지 않아 포커스가 유지된다).
   function mountRoute(el, speed) {
     el.innerHTML =
       '<div id="route-top"></div>' +
-      '<div class="speed" id="speed-row" hidden><label for="speed">걷는 속도(시간 계산에 씀)</label>' +
+      '<div class="speed" id="speed-row" hidden><label for="speed">걷는 속도</label>' +
       '<select id="speed">' + [3.0, 3.5, 4.0].map(function (v) {
         return '<option value="' + v + '"' + (v === speed ? ' selected' : '') + '>시속 ' + v.toFixed(1) + 'km</option>';
       }).join('') + '</select></div>' +
       '<ol class="steps" id="route-steps" aria-label="단계별 안내"></ol>' +
-      '<div id="route-notes" class="tabpanel-notes"></div>';
+      '<div id="route-notes"></div>';
     return {
       top: el.querySelector('#route-top'), speedRow: el.querySelector('#speed-row'), speed: el.querySelector('#speed'),
       steps: el.querySelector('#route-steps'), notes: el.querySelector('#route-notes')
     };
   }
 
-  // 경로가 없을 때: 고르는 방법 안내 + 고른 끝점 설명 + (있으면) 오류
-  function renderIdle(R, info) {
-    R.speedRow.hidden = true;
-    R.steps.innerHTML = '';
-    let html = '';
-    if (info.message) html += '<p class="msg' + (info.error ? ' is-error' : '') + '">' + esc(info.message) + '</p>';
-    if (info.fromText || info.toText) {
-      html += '<div class="hint">' +
-        (info.fromText ? '<p class="ep-note"><span class="k">출발</span> ' + esc(info.fromText) + '</p>' : '') +
-        (info.toText ? '<p class="ep-note"><span class="k">도착</span> ' + esc(info.toText) + '</p>' : '') + '</div>';
-    }
-    html += '<div class="hint"><p><b>출발</b>과 <b>도착</b>을 고르면 지상 노출이 가장 적은 길을 찾습니다.</p>' +
-      '<p>역·장소 이름을 입력하거나, 지도를 눌러 지점을 고르거나, 내 위치를 누르세요.</p>' +
-      '<p>급할 때는 <b>가장 가까운 지하로</b>를 누르면 가까운 지하역 출구로 안내합니다.</p>' +
-      '<p>지하로만 갈 수 없으면 지상으로 나가야 하는 곳과 거리를 빨간색으로 알려 줍니다.</p></div>';
-    R.top.innerHTML = blockedHtml(info.blocked) + html;
-    R.notes.innerHTML = '<p class="note src">데이터: © OpenStreetMap 기여자 (ODbL). 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 가정합니다.</p>';
+  // 지나는 노선(순서대로)
+  function routeLines(items) {
+    const out = [];
+    items.forEach(function (it) {
+      if (it.kind !== 'step') return;
+      const s = it.step;
+      const n = s.type === 'ride' && s._tracks_m > 0 ? s.line : s.type === 'surface' ? '지상 걷기' : null;
+      if (n && out[out.length - 1] !== n) out.push(n);
+    });
+    return out;
   }
 
-  // view: { total_m, exposed_m, minutes, items, hasTransfer, seoulSource, usesPoint, speed, nearest?, blocked }
+  // view: { total_m, exposed_m, minutes, items, hasTransfer, seoulSource, usesPoint, speed, nearest?, blocked, fromText, toText, street, endSi }
   function renderRoute(R, view) {
-    const exp = Math.round(view.exposed_m);
+    const lines = routeLines(view.items);
+    let headLine;
+    if (view.nearest) {
+      const o = view.nearest.options[view.nearest.chosen];
+      headLine = '<p class="rc-kicker">가장 가까운 지하</p><p class="rc-od"><b>' + esc(o.kind === 'entrance' ? exitName(o.name, o.ref) : yeok(o.name)) + '</b></p>';
+    } else {
+      headLine = '<p class="rc-od"><span>' + esc(view.fromText || '출발') + '</span><span class="rc-arrow" aria-label="에서">→</span><b>' + esc(view.toText || '도착') + '</b></p>';
+    }
     R.top.innerHTML =
+      '<div class="sv-head rc-head">' + headLine +
+      '<div class="rc-main">' + expoBadge(view.exposed_m, true) +
+      '<dl class="rc-nums"><div><dt>거리</dt><dd class="num">' + bigDist(view.total_m) + '</dd></div>' +
+      '<div><dt>걷는 시간</dt><dd class="num">' + bigTime(view.minutes) + '</dd></div></dl></div>' +
+      (lines.length ? '<p class="rc-lines" aria-label="지나는 노선">' + lines.map(function (n, i) {
+        return (i ? '<span class="rc-sep" aria-hidden="true">›</span>' : '') + (n === '지상 걷기' ? '<span class="lc lc-walk">지상 걷기</span>' : chip(n));
+      }).join('') + '</p>' : '') +
+      '<button type="button" class="btn-primary" data-action="guide">' +
+      '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3.5l15 8.5-15 8.5 3.5-8.5z"/></svg>안내 시작</button></div>' +
       (view.nearest ? nearestHtml(view.nearest, view.speed * 1000 / 60) : '') +
       blockedHtml(view.blocked) +
-      '<dl class="sum">' +
-      '<div><dt>총 거리</dt><dd class="num">' + fmtDist(view.total_m) + '</dd></div>' +
-      '<div><dt>걷는 시간</dt><dd>' + fmtTime(view.minutes) + '</dd></div>' +
-      '<div><dt>지상 노출</dt><dd class="num ' + (exp > 0 ? 'bad' : 'good') + '">' + fmtDist(exp) + '</dd></div>' +
-      '</dl>' +
-      '<button type="button" class="btn-primary" data-action="guide">안내 시작</button>';
+      (view.endSi >= 0 ? '<button type="button" class="btn-secondary btn-wide" data-action="station" data-si="' + view.endSi + '">' +
+        '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="3.2"/></svg>' +
+        esc(yeok(view.endStation)) + '에서 지하로 갈 수 있는 곳</button>' : '');
     R.speedRow.hidden = false;
     R.steps.innerHTML = view.items.map(itemHtml).join('');
     let notes = '';
-    if (view.usesPoint) notes += '<p class="note">지도에서 고른 지점과 출구 사이는 직선 거리 × 1.3으로 계산하고 모두 지상 노출로 셉니다.</p>';
+    if (view.usesPoint) notes += '<p class="note">출발·도착 지점과 출구 사이는 지상 노출로 셉니다.' + (view.street ? ' 실제 걷는 길로 쟀습니다.' : ' 걷는 길을 받지 못해 직선 거리 × 1.3으로 쟀습니다.') + '</p>';
     if (view.hasTransfer) {
       notes += '<p class="note">환승 통로는 양쪽 승강장이 모두 지하면 지하로 이어진다고 가정합니다. 환승 거리 출처: ' +
         (view.seoulSource ? SEOUL_SRC + '. 그 밖의 역은 ' : '') + '추정(직선 거리 × 1.3 + 50m).</p>';
     }
-    notes += '<p class="note src">데이터: © OpenStreetMap 기여자 (ODbL). 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 가정합니다. 실시간 피해 정보는 없습니다.</p>';
+    notes += '<p class="note">데이터: © OpenStreetMap 기여자 (ODbL)' + (view.street ? ' · ' + esc(UG.walk ? UG.walk.ATTRIBUTION : '') : '') +
+      '. 열차가 멈추고 전기가 끊겨 선로를 걸을 수 있다고 가정합니다. 실시간 피해 정보는 없습니다.</p>';
     R.notes.innerHTML = notes;
-  }
-
-  function peekText(view) {
-    const exp = Math.round(view.exposed_m);
-    return fmtDist(view.total_m) + ' · ' + fmtTime(view.minutes) + ' · 지상 <span class="' + (exp > 0 ? 'bad' : '') + '">' + fmtDist(exp) + '</span>';
   }
 
   function stepBtn(i, no, noCls, title, dir, meta) {
@@ -137,26 +155,29 @@
       }).join('') + '</ul></details>';
   }
 
+  const WALK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.8" fill="currentColor" stroke="none"/><path d="M10 21l2.5-6 2.5 2.5V21M12.5 15L11 9.5l-3 2v3M11 9.5l3.5 1.5 2 2.5"/></svg>';
+  function expo(m) { return '<span class="t-expo">지상 ' + fmtDist(m) + '</span>'; }
+
   function itemHtml(it, i) {
     const n = '<span class="sr-only">' + (i + 1) + '. </span>';
     if (it.kind === 'walk') {
-      return '<li class="step">' + stepBtn(i, '걷', 's', n + '지상으로 바로 걷기',
-        '지하로 돌아가는 길보다 지상 노출이 짧습니다.',
-        '<span class="bad">지상 ' + fmtDist(it.m) + '</span> · 약 ' + fmtTime(it.min)) + '</li>';
+      return '<li class="step">' + stepBtn(i, WALK_ICON, 's', n + '지상으로 바로 걷기', '지하로 돌아가는 길보다 지상 노출이 짧습니다.',
+        expo(it.m) + ' · 약 ' + fmtTime(it.min)) + '</li>';
     }
     if (it.kind === 'enter') {
-      const title = it.conn.kind === 'entrance' ? exitName(it.stName, it.conn.ref) + '로 들어가기' : yeok(it.stName) + '으로 들어가기 (출구 자료 없음)';
-      return '<li class="step">' + stepBtn(i, '출', 's', n + esc(title), it.label ? esc(it.label) + '에서' : '',
-        '<span class="bad">지상 ' + fmtDist(it.m) + '</span> · 약 ' + fmtTime(it.min)) + '</li>';
+      const title = it.conn.kind === 'entrance' ? ro(exitName(it.stName, it.conn.ref)) + ' 들어가기' : ro(yeok(it.stName)) + ' 들어가기 (출구 자료 없음)';
+      return '<li class="step">' + stepBtn(i, WALK_ICON, 's', n + esc(title), it.label ? esc(it.label) + '에서 걷기' : '',
+        expo(it.m) + ' · 약 ' + fmtTime(it.min)) + '</li>';
     }
     if (it.kind === 'exit') {
-      const title = it.conn.kind === 'entrance' ? exitName(it.stName, it.conn.ref) + '로 나가기' : yeok(it.stName) + '에서 나가기 (출구 자료 없음)';
-      return '<li class="step">' + stepBtn(i, '도', 'e', n + esc(title), it.label ? esc(it.label) + '까지' : '',
-        '<span class="bad">지상 ' + fmtDist(it.m) + '</span> · 약 ' + fmtTime(it.min)) +
+      const title = it.conn.kind === 'entrance' ? ro(exitName(it.stName, it.conn.ref)) + ' 나가기' : yeok(it.stName) + '에서 나가기 (출구 자료 없음)';
+      return '<li class="step">' + stepBtn(i, WALK_ICON, 's', n + esc(title), it.label ? esc(it.label) + '까지 걷기' : '',
+        expo(it.m) + ' · 약 ' + fmtTime(it.min)) +
         exitsHtml(it.others, '출구가 막혔으면: 다른 출구') + '</li>';
     }
     if (it.kind === 'arrive') {
-      return '<li class="step">' + stepBtn(i, '도', 'e', n + esc(yeok(it.stName)) + ' 도착', '', it.others.length ? '출구 거리는 역 중심에서 잰 직선 거리입니다.' : '이 역은 출구 자료가 없습니다.') +
+      return '<li class="step">' + stepBtn(i, '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 21V4h10l-2 3.5 2 3.5H8v10z"/></svg>', 'e', n + esc(yeok(it.stName)) + ' 도착', '',
+        it.others.length ? '출구 거리는 역 중심에서 잰 직선 거리입니다.' : '이 역은 출구 자료가 없습니다.') +
         exitsHtml(it.others, '출구') + '</li>';
     }
     const s = it.step;
@@ -164,38 +185,39 @@
       const where = s.at + (s.after_m ? ' 지나 ' + ST.fmtKm(s.after_m) : '');
       const kinds = Object.keys(s.structures).map(function (k) { return ST.STRUCT_KO[k] + ' ' + fmtDist(s.structures[k]); }).join(' · ');
       const until = s.ends_underground ? '다시 지하로 들어갈 때까지' : '도착할 때까지';
-      return '<li class="step"><button type="button" class="warn" data-item="' + i + '">' + n + '※ <b>지상 노출 ' + fmtDist(s.exposure_m) + '</b> — ' +
-        esc(where) + '에서 ' + (s.portal ? '터널을 나와 ' : '') + until + ' (' + esc(kinds) + ')</button></li>';
+      return '<li class="step"><button type="button" class="warn" data-item="' + i + '">' + n +
+        '<span class="warn-ic" aria-hidden="true">!</span><span><b>지상 노출 ' + fmtDist(s.exposure_m) + '</b> ' +
+        esc(where) + '에서 ' + (s.portal ? '터널을 나와 ' : '') + until + ' (' + esc(kinds) + ')<span class="warn-go">지도에서 보기</span></span></button></li>';
     }
     if (s.type === 'surface') {
       return '<li class="step">' + stepBtn(i, s.no, 's', n + '지상으로 걸어 ' + esc(exitName(s.to_station, s.to_ref)) + '까지',
         esc(exitName(s.from_station, s.from_ref)) + '로 나가서 걷기 (지하로 이어진 길이 없음)',
-        '<span class="bad">지상 ' + fmtDist(s.distance_m) + '</span> · 약 ' + fmtTime(s.est_minutes)) + '</li>';
+        expo(s.distance_m) + ' · 약 ' + fmtTime(s.est_minutes)) + '</li>';
     }
     if (s.type === 'transfer') {
       const src = ST.SOURCE_KO[s.source] || '';
-      return '<li class="step">' + stepBtn(i, s.no, 't', n + '환승 · ' + esc(s.station),
-        esc(s.from_line + ' → ' + s.to_line),
+      return '<li class="step">' + stepBtn(i, s.no, 't', n + '<span class="step-chips">' + chip(s.from_line) + '<span aria-hidden="true">→</span>' + chip(s.to_line) + '</span>' +
+        esc(yeok(s.station)) + ' 환승', '',
         '<span class="num">' + s.distance_m + 'm</span> · 약 ' + fmtTime(s.est_minutes) + (src ? ' · ' + esc(src) : '') + ' · ' +
-        (s.underground ? '지하 통로' : '<span class="bad">지상</span>')) + '</li>';
+        (s.underground ? '지하 통로' : '<span class="t-expo">지상</span>')) + '</li>';
     }
     // ride
     if (!s._tracks_m) {
       return '<li class="step">' + stepBtn(i, s.no, '', n + esc(yeok(s.from_station)) + ' 안에서 이동', '',
         '<span class="num">' + fmtDist(s.distance_m) + '</span> · 약 ' + fmtTime(s.est_minutes) +
-        (s.exposure_m ? ' · <span class="bad">지상 노출 ' + fmtDist(s.exposure_m) + '</span>' : '')) + '</li>';
+        (s.exposure_m ? ' · ' + expo(s.exposure_m) : '')) + '</li>';
     }
     let title = esc(s.label);
     if (s.line) {
       const rest = s.label === s.line ? '' : s.label.indexOf(s.line + ' · ') === 0 ? s.label.slice(s.line.length + 3) : s.label;
-      title = '<span class="lb">' + esc(s.line) + '</span>' + esc(rest);
+      title = chip(s.line) + (rest ? '<span class="step-track">' + esc(rest) + '</span>' : '');
     }
     const nxt = s.direction.replace(' 방면', '');
     let head = s.direction;
     if (s.terminal_direction) head = s.terminal_direction + (s.terminal_direction === s.direction ? '' : ' (다음 역 ' + nxt + ')');
     const dir = head ? esc(s.from_station) + ' → ' + esc(head) : esc(s.from_station) + ' 이후 선로를 따라 다음 단계까지';
     const meta = (head ? esc(s.to_station) + '까지 ' : '') + '<span class="num">' + fmtDist(s.distance_m) + '</span> · 약 ' + fmtTime(s.est_minutes) +
-      (s.exposure_m ? ' · <span class="bad">지상 노출 ' + fmtDist(s.exposure_m) + '</span>' : '');
+      (s.exposure_m ? ' · ' + expo(s.exposure_m) : '');
     let pass = '';
     if (s.passing.length || head) {
       const all = s.passing.map(function (p) { return '<li>' + esc(p.station) + '<span class="num">' + ST.fixed1(p.at_m / 1000) + '</span></li>'; });
@@ -211,6 +233,13 @@
     }
     return '<li class="step">' + stepBtn(i, s.no, '', n + title, dir, meta) +
       '<div class="step-more">' + pass + parts + '</div></li>';
+  }
+
+  // 경로를 찾지 못했을 때 등: 알림 한 줄 + 고르는 방법
+  function messageHtml(message, error) {
+    return '<div class="sv-head"><p class="msg' + (error ? ' is-error' : '') + '">' + esc(message) + '</p></div>' +
+      '<div class="hint"><p>위 검색 막대에서 목적지를 찾거나, 지도를 눌러 지점을 고르세요.</p>' +
+      '<p>급할 때는 <b>가장 가까운 지하로 대피</b>를 누르세요.</p></div>';
   }
 
   /* ---------- 분석: 통계 (본선 선로 km, 구조별·지역별) ---------- */
@@ -279,42 +308,28 @@
       (extra.length ? ' · ' + extra.join(' · ') : '');
   }
 
-  /* ---------- 팝업 ---------- */
-  function pickRow(attrs) {
+  /* ---------- 지도 팝업 (출구, 고른 지점) ---------- */
+  function pickRow(attrs, save) {
     return '<div class="pick-row"><button type="button" class="pick-btn" data-pick="from" ' + attrs + '>여기서 출발</button>' +
-      '<button type="button" class="pick-btn" data-pick="to" ' + attrs + '>여기로 도착</button></div>';
-  }
-
-  function stationPopupHtml(st, T) {
-    const status = st.status === 'all' ? '지하역' : st.status === 'part' ? '일부 노선만 지하' : '지상역';
-    const dot = st.status === 'none' ? 'dot-gr' : 'dot-ug';
-    const lines = st.hubs.map(function (h) {
-      const names = h.lines.length ? h.lines.map(esc).join(', ') : '노선 이름 없음';
-      return '<li><span class="tag ' + (h.ug ? 'tag-ug">지하' : 'tag-gr">지상') + '</span><span>' + names + '</span></li>';
-    }).join('');
-    const reg = T.regions[st.region];
-    const meta = reg ? esc(reg.name) + ' · 데이터 신뢰도 ' + (CONF_LABEL[reg.conf] || CONF_LABEL.unchecked) : '';
-    return '<div class="pop"><p class="pop-name">' + esc(st.name) + '</p>' +
-      '<p class="pop-status"><span class="dot ' + dot + '"></span>' + status + '</p>' +
-      '<ul class="pop-lines">' + lines + '</ul>' +
-      (meta ? '<p class="pop-meta">' + meta + '</p>' : '') + pickRow('data-station="' + st.index + '"') + '</div>';
+      '<button type="button" class="pick-btn pick-to" data-pick="to" ' + attrs + '>여기로 가기</button></div>' +
+      (save ? '<button type="button" class="pick-btn pick-save" data-pick="save" ' + attrs + '>☆ 이 장소 저장</button>' : '');
   }
 
   function exitPopupHtml(stName, ref, ent) {
     return '<div class="pop"><p class="pop-name">' + esc(exitName(stName, ref)) + '</p>' +
-      '<p class="pop-meta">이 출구를 출발점이나 도착점으로 고를 수 있습니다.</p>' + pickRow('data-exit="' + ent + '"') + '</div>';
+      '<p class="pop-meta">이 출구를 출발점이나 도착점으로 고를 수 있습니다.</p>' + pickRow('data-exit="' + ent + '"', false) + '</div>';
   }
 
   function pointPopupHtml(lat, lon, nearText) {
     return '<div class="pop"><p class="pop-name">고른 지점</p>' +
       '<p class="pop-meta">' + esc(nearText) + '</p>' +
-      pickRow('data-lat="' + lat.toFixed(6) + '" data-lon="' + lon.toFixed(6) + '"') + '</div>';
+      pickRow('data-lat="' + lat.toFixed(6) + '" data-lon="' + lon.toFixed(6) + '"', true) + '</div>';
   }
 
   UG.panel = {
     esc: esc, yeok: yeok, ro: ro, fmtDist: fmtDist, fmtTime: fmtTime, exitName: exitName, shortRegion: shortRegion,
-    mountRoute: mountRoute, renderIdle: renderIdle, renderRoute: renderRoute, peekText: peekText,
-    computeStats: computeStats, renderStats: renderStats,
-    stationPopupHtml: stationPopupHtml, exitPopupHtml: exitPopupHtml, pointPopupHtml: pointPopupHtml
+    bigDist: bigDist, bigTime: bigTime, expoClass: expoClass, expoBadge: expoBadge,
+    mountRoute: mountRoute, renderRoute: renderRoute, messageHtml: messageHtml, routeLines: routeLines,
+    computeStats: computeStats, renderStats: renderStats, exitPopupHtml: exitPopupHtml, pointPopupHtml: pointPopupHtml
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

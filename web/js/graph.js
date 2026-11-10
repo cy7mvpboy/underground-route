@@ -101,6 +101,31 @@
     return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
   }
 
+  /* ---------- 선 위의 거리 (길 안내 위치 추정·도달 범위 자르기에 씀) ----------
+     cum[i] = 첫 점부터 i 번째 점까지 잰 거리(m). */
+  function cumulative(pts) {
+    const cum = new Float64Array(pts.length);
+    for (let i = 1; i < pts.length; i++) cum[i] = cum[i - 1] + haversine(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
+    return cum;
+  }
+  // 선을 따라 d(m) 지점의 좌표
+  function pointAlong(pts, cum, d) {
+    if (d <= 0) return pts[0].slice();
+    const n = pts.length;
+    if (d >= cum[n - 1]) return pts[n - 1].slice();
+    let i = 1;
+    while (i < n - 1 && cum[i] < d) i++;
+    const seg = cum[i] - cum[i - 1], t = seg > 0 ? (d - cum[i - 1]) / seg : 0;
+    return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * t, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * t];
+  }
+  // 선의 d0 ~ d1(m) 부분
+  function sliceAlong(pts, cum, d0, d1) {
+    const n = pts.length, out = [pointAlong(pts, cum, d0)];
+    for (let i = 1; i < n - 1; i++) if (cum[i] > d0 && cum[i] < d1) out.push(pts[i].slice());
+    out.push(pointAlong(pts, cum, d1));
+    return out;
+  }
+
   /* ---------- 지상 걷기 간선 (surface) ----------
      지하로 갈 길이 없을 때(앞이 막힘, 끊긴 노선)만 쓰는 대비책: 1.5km 안의 다른 역끼리
      가장 가까운 출입구(출입구 자료가 없으면 허브) 사이를 직선 × 1.3 길이의 지상 간선으로 잇는다.
@@ -260,6 +285,7 @@
     LoadError: LoadError, fetchJson: fetchJson, loadGraph: loadGraph, validateGraph: validateGraph,
     decodePolyline: decodePolyline, nodeLatLng: nodeLatLng, edgeShape: edgeShape,
     normalizeName: normalizeName, haversine: haversine, indexGraph: indexGraph,
+    cumulative: cumulative, pointAlong: pointAlong, sliceAlong: sliceAlong,
     findStation: findStation, searchStations: searchStations, stationLines: stationLines
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = UG.graph;

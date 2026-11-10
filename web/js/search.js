@@ -129,13 +129,16 @@
   }
 
   /* ---------- 자동 완성 콤보박스 ----------
-     opts: { getCtx() -> ctx, isSet(), onPick(result), onClear() } */
+     opts: { getCtx() -> ctx, isSet(), onPick(result), onClear(), onSave(result)?, onToggle(open)? }
+     onSave 가 있으면 결과마다 ☆(저장) 버튼을 붙인다. onToggle 은 목록을 열고 닫을 때 알린다. */
   function attach(input, list, opts) {
     let items = [], offline = [], active = -1, seq = 0, timer = 0, onlineTimer = 0, ctrl = null;
     const esc = UG.panel ? UG.panel.esc : function (s) { return String(s); };
 
     function close() {
+      const was = !list.hidden;
       list.hidden = true;
+      if (was && opts.onToggle) opts.onToggle(false);
       input.setAttribute('aria-expanded', 'false');
       input.removeAttribute('aria-activedescendant');
       active = -1;
@@ -155,16 +158,20 @@
       } else {
         list.innerHTML = items.map(function (r, i) {
           const badges = r.badges || [];
-          const shown = badges.slice(0, 3).map(function (b) { return '<span class="lb">' + esc(b) + '</span>'; }).join('') +
-            (badges.length > 3 ? '<span class="lb">+' + (badges.length - 3) + '</span>' : '');
+          const chip = UG.lines ? UG.lines.chip : function (b) { return '<span class="lc lc-none">' + esc(b) + '</span>'; };
+          const shown = badges.slice(0, 3).map(function (b) { return chip(b); }).join('') +
+            (badges.length > 3 ? '<span class="lc lc-none">+' + (badges.length - 3) + '</span>' : '');
           return '<li class="ac-opt' + (r.online ? ' is-online' : '') + '" role="option" id="' + list.id + '-' + i + '" data-i="' + i + '" aria-selected="false">' +
             '<span class="ac-main"><span class="ac-title">' + esc(r.title) + '</span>' +
             (r.sub ? '<span class="ac-sub">' + esc(r.sub) + '</span>' : '') + '</span>' +
-            '<span class="ac-badges">' + shown + '</span></li>';
+            '<span class="ac-badges">' + shown + '</span>' +
+            (opts.onSave ? '<button type="button" class="ac-save" data-save="' + i + '" tabindex="-1" aria-label="' + esc(r.title) + ' 저장" title="저장">☆</button>' : '') + '</li>';
         }).join('') +
           (items.some(function (r) { return r.online; }) ? '<li class="ac-attr" role="presentation">검색: Photon (© OpenStreetMap)</li>' : '');
       }
+      const was = list.hidden;
       list.hidden = false;
+      if (was && opts.onToggle) opts.onToggle(true);
       input.setAttribute('aria-expanded', 'true');
       setActive(items.length ? (keep && active >= 0 && active < items.length ? active : 0) : -1);
     }
@@ -214,15 +221,17 @@
         if (!list.hidden) { ev.preventDefault(); close(); }
       }
     });
-    input.addEventListener('blur', function () { setTimeout(close, 150); });
+    input.addEventListener('blur', function () { if (!opts.keepOpen) setTimeout(close, 150); });
     input.addEventListener('change', function () { if (!input.value.trim() && opts.onClear) opts.onClear(); });
     // 누르는 동안 입력칸 포커스를 잃지 않게 mousedown 을 막고, click 으로 고른다
     list.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
     list.addEventListener('click', function (ev) {
+      const sv = ev.target.closest('[data-save]');
+      if (sv) { ev.stopPropagation(); if (items[+sv.dataset.save]) opts.onSave(items[+sv.dataset.save]); return; }
       const li = ev.target.closest('.ac-opt');
       if (li) pick(+li.dataset.i);
     });
-    return { close: close, refresh: update };
+    return { close: close, refresh: update, isOpen: function () { return !list.hidden; } };
   }
 
   UG.search = {
