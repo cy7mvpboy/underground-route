@@ -25,8 +25,11 @@ function fakeRoute(a, b, bend) {
   return { code: 'Ok', routes: [{ distance: cum[cum.length - 1], duration: 1, geometry: W.encode(pts) }] };
 }
 const bendFor = {};   // 열쇠별로 꺾는 정도를 바꿔 순위가 바뀌는 상황을 만든다
+const times = [];     // 요청을 보낸 시각(간격 시험용)
+W.config({ gapMs: 0 });   // 요청 간격은 8)에서만 시험한다
 W.setFetch(function (url, init) {
   calls++;
+  times.push(Date.now());
   if (mode === 'fail') return Promise.reject(new TypeError('Failed to fetch'));
   if (mode === 'hang') {
     return new Promise((res, rej) => { if (init && init.signal) init.signal.addEventListener('abort', () => rej(Object.assign(new Error('aborted'), { name: 'AbortError' }))); });
@@ -119,6 +122,13 @@ const st = (n) => ({ kind: 'station', si: GR.findStation(G, n), text: n });
   W.reset(); mode = 'hang'; W.config({ timeoutMs: 50 });
   const t1 = await W.leg([37.50, 127.00], [37.51, 127.01]);
   check(t1 === null && !W.stats().off, '시간 초과면 그 구간만 포기');
+
+  /* 8) 간격: 동시에 물어도 cfg.gapMs 간격으로 보낸다(FOSSGIS 초당 1회 이하, 시험은 60ms) */
+  W.reset(); mode = 'ok'; W.config({ timeoutMs: 4000, gapMs: 60 });
+  times.length = 0;
+  const g3 = await Promise.all([[37.40, 127.00], [37.42, 127.00], [37.44, 127.00]].map((a) => W.leg(a, [a[0] + 0.01, a[1] + 0.01])));
+  const gaps = times.slice(1).map((t, i) => t - times[i]);
+  check(g3.every((r) => !!r) && times.length === 3 && gaps.every((x) => x >= 50), `동시에 3개 물어도 ${gaps.join(', ')}ms 간격으로 보냄`);
 
   process.exitCode = ok ? 0 : 1;
   console.log(ok ? '모두 통과' : '실패 있음');

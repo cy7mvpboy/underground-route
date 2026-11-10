@@ -4,6 +4,7 @@
    - 화면은 먼저 직선(× 1.3)으로 그리고, 실제 길을 받으면 선 모양과 거리·시간·노출을 바꾼다(화면을 막지 않는다).
    - 받기: 경로 하나에 최대 5번, 4초 안에 안 오면 포기. 실패하면(오프라인, claude.ai 미리보기의 외부 요청 차단)
      직선을 그대로 쓰고 2분 동안 다시 묻지 않는다.
+   - 간격: FOSSGIS 이용 정책(초당 1회 이하)에 맞춰 요청을 줄 세워 1초 간격으로 보낸다.
    - 저장: 두 점 좌표를 소수 4자리(약 10m)로 반올림한 열쇠로 메모리와 localStorage 에 둔다.
    - fetch 를 바꿔 끼울 수 있어(setFetch) Node 에서 시험한다: node scripts\check_walk.js */
 (function (root) {
@@ -16,17 +17,28 @@
   const MAX_LEGS = 5;              // 경로 하나에 묻는 횟수
   const STORE_KEY = 'ugmap.walk.v1', STORE_MAX = 300;
   const OFF_MS = 120000;           // 실패한 뒤 쉬는 시간
-  const cfg = { timeoutMs: 4000 };
+  const cfg = { timeoutMs: 4000, gapMs: 1000 };   // gapMs: 요청 사이 최소 간격
 
   let fetchFn = typeof fetch === 'function' ? fetch.bind(root) : null;
   let offUntil = 0, calls = 0;
+  let lastAt = 0, gate = Promise.resolve();   // 요청 줄: 앞 요청을 보낸 시각부터 cfg.gapMs 뒤에 다음 요청
+
+  // 다음 요청을 보내도 되는 때에 풀리는 Promise
+  function slot() {
+    const s = gate.then(function () {
+      const wait = lastAt + cfg.gapMs - Date.now();
+      return wait > 0 ? new Promise(function (r) { setTimeout(r, wait); }) : null;
+    }).then(function () { lastAt = Date.now(); });
+    gate = s;
+    return s;
+  }
   const mem = new Map();           // 열쇠 -> {m, pts}
   const pending = new Map();       // 열쇠 -> Promise (같은 구간을 동시에 두 번 묻지 않는다)
 
   function setFetch(fn) { fetchFn = fn; offUntil = 0; }
   function config(o) { Object.assign(cfg, o || {}); }
   function stats() { return { calls: calls, cached: mem.size, off: Date.now() < offUntil }; }
-  function reset() { mem.clear(); pending.clear(); offUntil = 0; calls = 0; }
+  function reset() { mem.clear(); pending.clear(); offUntil = 0; calls = 0; lastAt = 0; }
   if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('online', function () { offUntil = 0; });
 
   function key(a, b) { return [a[0], a[1], b[0], b[1]].map(function (v) { return (+v).toFixed(4); }).join(','); }
@@ -67,25 +79,28 @@
     if (straight < 15) return Promise.resolve(null);   // 너무 가까우면 직선으로 충분
     const url = URL + (+a[1]).toFixed(6) + ',' + (+a[0]).toFixed(6) + ';' + (+b[1]).toFixed(6) + ',' + (+b[0]).toFixed(6) +
       '?overview=full&geometries=polyline';
-    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    let timedOut = false;
-    const timer = setTimeout(function () { timedOut = true; if (ctrl) ctrl.abort(); }, cfg.timeoutMs);
-    calls++;
-    const p = Promise.resolve().then(function () { return fetchFn(url, ctrl ? { signal: ctrl.signal } : undefined); })
-      .then(function (res) {
-        if (!res || !res.ok) throw new Error('HTTP ' + (res && res.status));
-        return res.json();
-      })
-      .then(function (data) {
-        const r = parse(data, a, b, straight);
-        if (r) { mem.set(k, r); saveStore(); }
-        return r;
-      })
-      .catch(function () {
-        if (!timedOut) offUntil = Date.now() + OFF_MS;   // 막힌 곳(미리보기·오프라인)에서는 한동안 묻지 않는다
-        return null;
-      })
-      .then(function (r) { clearTimeout(timer); pending.delete(k); return r; });
+    const p = slot().then(function () {
+      if (Date.now() < offUntil) return null;   // 줄 서 있는 사이 막힌 것이 확인되면 묻지 않는다
+      const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      let timedOut = false;
+      const timer = setTimeout(function () { timedOut = true; if (ctrl) ctrl.abort(); }, cfg.timeoutMs);   // 보낸 때부터 잰다
+      calls++;
+      return Promise.resolve().then(function () { return fetchFn(url, ctrl ? { signal: ctrl.signal } : undefined); })
+        .then(function (res) {
+          if (!res || !res.ok) throw new Error('HTTP ' + (res && res.status));
+          return res.json();
+        })
+        .then(function (data) {
+          const r = parse(data, a, b, straight);
+          if (r) { mem.set(k, r); saveStore(); }
+          return r;
+        })
+        .catch(function () {
+          if (!timedOut) offUntil = Date.now() + OFF_MS;   // 막힌 곳(미리보기·오프라인)에서는 한동안 묻지 않는다
+          return null;
+        })
+        .then(function (r) { clearTimeout(timer); return r; });
+    }).then(function (r) { pending.delete(k); return r; });
     pending.set(k, p);
     return p;
   }
