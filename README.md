@@ -7,6 +7,7 @@ COM's 해커톤 2026 · 주제: 전쟁 · 혼자 참가
 - 서비스: https://cy7mvpboy.github.io/underground-route/
 - 시연 모드: https://cy7mvpboy.github.io/underground-route/#demo
 - GitHub: https://github.com/cy7mvpboy/underground-route
+- 발표 자료: https://cy7mvpboy.github.io/underground-route/slides/ (PDF: `docs/발표.pdf`), 계획서: `docs/계획서.pdf`
 
 | 대안 카드 | 환승 통로 | 갈림길 안내 |
 |---|---|---|
@@ -134,8 +135,10 @@ python -I scripts\merge_ways.py data\raw\region_nodes.json,data\raw\region_nodes
 ## 폴더 구조
 
 ```
-web/                 배포되는 웹 앱 (index.html, js/, data/)
+web/                 배포되는 웹 앱 (index.html, js/, data/, sw.js, manifest.webmanifest, icons/)
   data/              graph, extra, passage, basemap, places, egress (.json)
+  slides/            발표 슬라이드 (build_slides.py가 만든 한 파일)
+slides/              발표 슬라이드 원본
 scripts/             데이터 만들기(build_*.py), 검사(check_*.js, check_extra.py), 기준 탐색기(route.py)
   queries/           Overpass 쿼리(.overpassql)
 data/
