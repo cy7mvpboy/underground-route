@@ -137,6 +137,9 @@ button { cursor: pointer; }
 .btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: var(--r-s); background: var(--surface-2); color: var(--text); font-size: var(--fs-sm); font-weight: 700; text-align: center; }
 .btn-secondary:hover { background: var(--surface-3); }
 .btn-secondary .ic { width: 20px; height: 20px; color: var(--safe-text); }
+/* 정보 탭의 시연 단추: 칸 너비에 맞추고, 좁으면 '시나리오 4개'를 아랫줄로 */
+.btn-demo { display: flex; flex-wrap: wrap; column-gap: 6px; row-gap: 0; width: 100%; max-width: 100%; padding: 8px 14px; line-height: 1.3; }
+.btn-demo small { font-size: var(--fs-xs); font-weight: 500; color: var(--muted); }
 .btn-wide { width: 100%; }
 .link-btn { min-height: var(--tap); padding: 0 6px; border: 0; background: none; color: var(--text); font-size: var(--fs-sm); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
 
@@ -233,7 +236,7 @@ button { cursor: pointer; }
 .sheet-close { grid-column: 3; color: var(--muted); }
 .sheet-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 16px calc(20px + var(--safe-bottom)); }
 .sheet-body { touch-action: pan-y; }
-.view { display: grid; gap: 14px; }
+.view { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }   /* 내용이 넓어도 시트 너비를 넘지 않게(글자를 크게 키운 폰) */
 .sv-head { display: grid; gap: 12px; }
 .sv-title { margin: 0; font-size: var(--fs-xl); font-weight: 700; }
 
@@ -259,6 +262,12 @@ button { cursor: pointer; }
 .rc-nums small { font-size: var(--fs-sm); color: var(--muted); margin: 0 3px 0 1px; }
 .rc-lines { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
 .rc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+/* 대안 경로 한 줄(지하 우선 경로보다 꽤 짧은 길): 누르면 그 길로 바꾸고, 바꾼 뒤에는 '지하 우선 경로로' */
+.alt-line { display: flex; align-items: center; gap: 6px; width: 100%; min-height: var(--tap); margin: 0; padding: 8px 10px; border: 1px dashed var(--bridge); border-radius: var(--r-s); background: var(--bridge-soft); color: var(--text); font-size: .8125rem; font-weight: 700; line-height: 1.35; text-align: left; }
+.alt-line .ic { flex: none; width: 18px; height: 18px; color: var(--bridge-text); }
+.alt-line.is-using { border-style: solid; border-color: var(--safe); background: var(--safe-soft); }
+.alt-line.is-using .ic { color: var(--safe-text); }
+.alt-line:hover { filter: brightness(1.08); }
 .cnt { display: inline-flex; align-items: center; height: 26px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 13px; background: var(--surface-2); color: var(--text); font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
 .cnt-warn { border-color: var(--bridge); color: var(--bridge-text); background: var(--bridge-soft); }
 .step-dir .cnt { margin-left: 8px; height: 22px; }
@@ -411,11 +420,11 @@ button { cursor: pointer; }
 .about b { color: var(--text); }
 .safety-line { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border-radius: var(--r-s); background: var(--bridge-soft); color: var(--bridge-text); box-shadow: inset 0 0 0 1px var(--bridge); font-size: var(--fs-sm); font-weight: 700; }
 .safety-line .ic { width: 20px; height: 20px; }
-.seg { display: inline-flex; justify-self: start; border: 1px solid var(--line-strong); border-radius: var(--r-s); overflow: hidden; }
-.seg button { min-height: var(--tap); min-width: 72px; padding: 0 14px; border: 0; border-right: 1px solid var(--line-strong); background: var(--surface); font-size: var(--fs-sm); }
+.seg { display: inline-flex; flex-wrap: wrap; justify-self: start; max-width: 100%; border: 1px solid var(--line-strong); border-radius: var(--r-s); overflow: hidden; }
+.seg button { flex: 1 0 auto; min-height: var(--tap); min-width: 72px; padding: 0 clamp(8px, 3.5vw, 14px); border: 0; border-right: 1px solid var(--line-strong); background: var(--surface); font-size: var(--fs-sm); }
 .seg button:last-child { border-right: 0; }
 .seg button[aria-pressed="true"] { background: var(--text); color: var(--surface); font-weight: 700; }
-.credits { margin: 0; padding: 0 0 0 18px; display: grid; gap: 6px; font-size: var(--fs-xs); color: var(--muted); line-height: 1.5; }
+.credits { margin: 0; padding: 0 0 0 18px; display: grid; gap: 6px; font-size: var(--fs-xs); color: var(--muted); line-height: 1.5; overflow-wrap: anywhere; }
 
 /* ---------- 검색 화면 ---------- */
 .ssheet { position: fixed; z-index: 70; inset: 0; display: flex; flex-direction: column; background: var(--bg); padding: var(--safe-top) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
@@ -854,7 +863,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
           <button type="button" data-theme-set="light" aria-pressed="false">밝게</button>
         </div>
         <h3 class="sub-h" id="demo-h">시연</h3>
-        <button type="button" class="btn-secondary" id="demo-open" aria-describedby="demo-h">발표용 재생 시작 (시나리오 4개)</button>
+        <button type="button" class="btn-secondary btn-demo" id="demo-open" aria-describedby="demo-h"><span>발표용 재생 시작</span> <small>시나리오 4개</small></button>
         <h3 class="sub-h" id="credits-h">데이터 출처</h3>
         <ul class="credits" aria-labelledby="credits-h">
           <li>철도망·역·출구·터널 출입구·수직구·차량기지·간이 지도: © OpenStreetMap 기여자 (ODbL)</li>
@@ -941,6 +950,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
         <p class="g-hint" id="guide-hint" hidden></p>
         <p class="g-sub" id="guide-walked" hidden></p>
         <div class="g-note" id="guide-note" aria-live="polite" hidden></div>
+        <div class="g-alt-slot" id="guide-alt-slot" hidden></div>
       </div>
       <div class="g-gap"></div>
       <button type="button" class="g-recenter" id="guide-recenter" hidden>
@@ -981,6 +991,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
 <script src="js/transfer.js"></script>
 <script src="js/passage.js"></script>
 <script src="js/nearest.js"></script>
+<script src="js/pdr.js"></script>
 <script src="js/guide.js"></script>
 <script src="js/places.js"></script>
 <script src="js/reach.js"></script>

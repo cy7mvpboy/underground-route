@@ -48,7 +48,7 @@
         push({ label: '도착 지점', kind: 'end', item: k, pos: path.length, at: cum, node: -1, si: -1 });
       } else if (it.kind === 'enter') {
         cum += it.m;
-        push({ label: it.conn.kind === 'entrance' ? exitName(it.stName, it.conn.ref) : yeok(it.stName), kind: 'enter',
+        push({ label: UG.steps.connLabel(it.conn, it.stName, true), kind: 'enter',
           item: k, pos: -1, at: cum, node: it.conn.node, si: it.conn.si });
       } else if (it.kind === 'approach') {
         // 선로 위 지금 위치 -> 첫 노드. 그 노드가 역이면 확인할 곳으로 두고, 아니면 다음에 닿는 역부터 센다
@@ -103,7 +103,7 @@
         push({ label: '환승 완료 · ' + it.step.to_line, kind: 'transfer', item: k, pos: i, at: cum, node: path[i].v, si: si });
       } else if (it.kind === 'exit') {
         const last = cps[cps.length - 1];
-        const label = it.conn.kind === 'entrance' ? exitName(it.stName, it.conn.ref) + '로 나감' : yeok(it.stName) + '에서 나감';
+        const label = it.conn.kind === 'hub' ? yeok(it.stName) + '에서 나감' : UG.steps.connLabel(it.conn, it.stName, false) + '로 나감';
         if (path.length && !(last && last.pos === path.length - 1)) {
           push({ label: label, kind: 'exit', item: k, pos: path.length - 1, at: cum, node: path[path.length - 1].v, si: it.conn.si });
         } else if (last) { last.label = label; last.kind = 'exit'; last.item = k; }
@@ -363,7 +363,10 @@
      체크포인트 전체 목록은 접히는 서랍(넓은 화면에서는 왼쪽에 늘 보임).
      opts: { root, panel(PN), steps(ST), lines(UG.lines), getSpeed(), onArrive, onBlock, onEnd,
              onRender({st, p, stepChanged}), onFinish(st) -> true 면 화면을 닫음, onRecenter, reduceMotion,
-             routePos() -> GPS 로 잰 경로 위 거리(m, 없으면 null), onExitHere(), onExitPick(후보 번호), onExitClose() }
+             routePos() -> GPS 로 잰 경로 위 거리(m, 없으면 null), onExitHere(), onExitPick(후보 번호), onExitClose(), onAlt(),
+             pdr(pdr.js 걸음 추적기, 없어도 됨) }
+     - 걸은 거리(walkedM): 걸음 추적기를 쓸 수 있으면 센 걸음 × 보폭, 아니면 걸은 시간 × 속도. GPS 가 있으면 GPS 가 먼저(hereAt).
+     - 대안 경로 한 줄(setAlt): 앞이 막혀 다시 찾은 길보다 꽤 짧은 길이 있으면 첫 확인 지점 전까지 카드에 보인다. 누르면 onAlt.
      - 갈림길 체크포인트: 카드가 갈림길 모양이 된다(큰 Y자, '갈림길 · ○○m 앞', 갈 갈래, 큰 '통과' 단추).
      - 긴 터널(역 사이 1.5km 넘음)에서 앞쪽 경로 위에 수직구·비상 출구가 있으면 '○○m 앞 비상 출구' 한 줄.
      - '여기서 나가기': 아래 단추 줄의 단추. 후보 목록 칸(guide-exits)은 app.js 가 채운다(showExits). */
@@ -374,7 +377,7 @@
       root: opts.root, card: $('guide-card'), count: $('guide-count'), pos: $('guide-pos'), warn: $('guide-warn'), line: $('guide-line'), title: $('guide-title'),
       dist: $('guide-dist'), next: $('guide-next'), xfer: $('guide-xfer'), fork: $('guide-fork'), hint: $('guide-hint'), walked: $('guide-walked'), note: $('guide-note'),
       cps: $('guide-cps'), drawer: $('guide-drawer'), list: $('guide-list'), exits: $('guide-exits'), exitBtn: $('guide-exit'),
-      arrive: $('guide-arrive'), block: $('guide-block'), end: $('guide-end'), recenter: $('guide-recenter')
+      arrive: $('guide-arrive'), block: $('guide-block'), end: $('guide-end'), recenter: $('guide-recenter'), alt: $('guide-alt-slot')
     };
     let st = null, timer = 0, lastFocus = null, lastItem = -2;
 
@@ -382,6 +385,7 @@
     el.block.addEventListener('click', function () { if (st) opts.onBlock(); });
     el.end.addEventListener('click', function () { opts.onEnd(); });
     el.recenter.addEventListener('click', function () { if (opts.onRecenter) opts.onRecenter(); });
+    if (el.alt) el.alt.addEventListener('click', function (ev) { if (st && ev.target.closest('[data-action="alt"]') && opts.onAlt) opts.onAlt(); });
     el.list.addEventListener('click', function () { setExits(false); setDrawer(el.drawer.hidden); });
     el.exitBtn.addEventListener('click', function () {
       if (!st) return;
@@ -508,6 +512,11 @@
       el.next.textContent = secondary === 'sub' ? d.sub : '';
       el.next.hidden = secondary !== 'sub';
       st._secondary = secondary;
+      if (el.alt) {   // 대안 경로 한 줄: 다시 찾은 경로의 첫 확인 지점 전까지만(지나면 출발점이 달라진다)
+        const showAlt = !!st.alt && st.cur < 0 && !p.finished;
+        if (showAlt && el.alt._html !== st.alt) { el.alt.innerHTML = st.alt; el.alt._html = st.alt; }
+        el.alt.hidden = !showAlt;
+      }
       renderAhead(p);
       renderList();
       el.arrive.disabled = p.finished;
@@ -535,8 +544,12 @@
       if (!el.drawer.hidden) { const now = el.cps.querySelector('.now'); if (now) now.scrollIntoView({ block: 'nearest', behavior: opts.reduceMotion ? 'auto' : 'smooth' }); }
     }
 
-    // 마지막 확인 뒤 걸은 거리(추정) = 지난 시간 × 걷는 속도
-    function walkedM() { return st ? (Date.now() - st.since) / 1000 * opts.getSpeed() / 3.6 : 0; }
+    // 마지막 확인 뒤 걸은 거리(추정) = 걸음 추적기(pdr.js)를 쓸 수 있으면 센 걸음 × 보폭, 아니면 지난 시간 × 걷는 속도
+    function walkedM() {
+      if (!st) return 0;
+      if (opts.pdr && opts.pdr.usable()) return opts.pdr.distanceSinceCheckpoint();
+      return (Date.now() - st.since) / 1000 * opts.getSpeed() / 3.6;
+    }
     // 지금 위치(경로 위 m): GPS 로 잰 값(app.js 가 경로에 붙인 것)이 있으면 그것, 없으면 마지막 확인 지점 + 걸은 시간 × 속도
     function hereAt(p) {
       const doneAt = st.cur >= 0 ? st.cps[st.cur].at : 0, nextAt = p.next ? p.next.at : doneAt;
@@ -581,6 +594,7 @@
         const wasOpen = !el.root.hidden;
         st = { plan: plan, cps: cps, cur: -1, since: Date.now(), startLabel: startLabel, note: note || '', backtrack: backtrack || 0 };
         lastItem = -2;
+        if (opts.pdr) opts.pdr.resetSegment();   // 새 경로·다시 찾은 경로는 걸음을 0부터 센다
         if (!wasOpen) lastFocus = document.activeElement;
         el.root.hidden = false;
         document.documentElement.classList.add('guide-open');
@@ -603,6 +617,12 @@
       },
       arrive: function () {
         if (!st || st.cur + 1 >= st.cps.length) return;
+        if (opts.pdr && opts.pdr.status !== 'idle') {
+          // 걸음 추적기에 확인한 구간 거리를 알린다. 보폭은 사용자가 이어서 두 번 확인한 체크포인트 사이의 선로 구간으로만 고친다
+          // (첫 확인·출입구·환승 통로·지상 걷기는 거리가 어림이라 쓰지 않는다)
+          const prev = st.cur >= 0 ? st.cps[st.cur] : null, cp = st.cps[st.cur + 1], it = st.plan.items[cp.item];
+          opts.pdr.onCheckpoint(cp.at - (prev ? prev.at : 0), { calibrate: !!prev && it.kind === 'step' && it.step.type === 'ride' });
+        }
         st.cur++; st.since = Date.now(); st.note = ''; st.backtrack = 0;
         if (st.cur + 1 >= st.cps.length && opts.onFinish && opts.onFinish(st)) return;   // 마지막 확인: 역 시트로 넘긴다
         render();
@@ -610,6 +630,7 @@
       // 위치 표시 글과 색: tone = 'gps'(파란 점) | 'est'(추정, 점선 고리) | 'off'(경로에서 벗어남)
       setPosMode: function (text, tone) { el.pos.textContent = text; el.pos.hidden = !text; el.pos.dataset.tone = tone || ''; },
       setFollow: function (on) { el.recenter.hidden = on; },
+      setAlt: function (html) { if (st) { st.alt = html || ''; render(); } },
       state: function () { return st; },
       walkedM: walkedM,
       ping: tick,   // 새 GPS 위치가 오면 지도 표시만 바로 다시 그린다

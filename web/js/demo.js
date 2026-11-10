@@ -1,13 +1,14 @@
 /* demo.js — 발표 시연(재생) 모드
    여는 법: 정보 탭의 '발표용 재생 시작' · 주소 끝 #demo (1번부터) · #demo2 ~ #demo4 (그 시나리오부터) · UG.demo.open(번호).
    시나리오 (장면마다 자막 한 줄):
-     1. 공습 → 가장 가까운 지하로: 서울 시청 앞 → 가까운 출구 → 지하 승강장 → 여기서 지하로 갈 수 있는 곳(30분→4시간)
-     2. 이동 + 막힘: 여의도 → 광화문 길 안내, 한강 아래 5호선 터널에서 '앞이 막힘' → 다른 하저터널로 다시 찾기 → 도착
-     3. 지방 도시: 부산 서면 → 부산역, 전 구간 지하(지상 노출 0m)
+     1. 공습 → 가장 가까운 지하로: 서울 시청 앞 → 가까운 출구 → 지하 승강장 → 여기서 지하로 4시간 안에 갈 수 있는 곳(한 번에, 시간대별 색)
+     2. 이동 + 막힘: 여의도 → 광화문 길 안내, 한강 아래 5호선 터널에서 '앞이 막힘' → 다른 길로 다시 찾기 → 도착
+     3. 지방 도시: 부산역 → 해운대 18.5km, 전 구간 지하(지상 노출 0m), 연산·수영에서 환승 2번(빨리 감기)
      4. 장거리 피난의 한계: 서울역 → 부산역, 지상 노출 구간을 빨갛게 칠하며 빠르게 따라가기
    조작: 아래 칸(시나리오 · 재생/멈춤 · 다음 장면 · 처음부터 · 속도 · 끝내기), 키보드 Space · → · 1~4 · Esc.
    동작 원리
-     - 앱의 공개 객체(UG.app, UG.guide, UG.reach, UG.layers, UG.panel)만 쓴다. 앱 파일은 고치지 않는다.
+     - 앱의 공개 객체(UG.app, UG.guide, UG.reach, UG.layers, UG.panel)만 쓴다.
+       지도 따라가기는 앱 길 안내와 같은 함수(UG.app.keepCentered: 지금 위치를 보이는 곳 가운데 20% 안에)를 쓴다.
      - 길 안내의 추정 위치 = 마지막 확인 지점 + (지금 - since) × 걷는 속도. 시연은 since 를 당겨 놓아
        빨리 걸은 것처럼 만들고, 다음 확인 지점에 닿으면 큰 단추('도착'·'환승 완료'·'통과')를 실제로 누른다.
      - GPS 와 인터넷을 쓰지 않는다: 시연 동안 위치 기능을 숨기고, 지상 도보 길 찾기(walk.js)를 꺼서 직선을 쓴다.
@@ -24,13 +25,12 @@
   const CONF = {
     raid: { lat: 37.5663, lon: 126.9779, label: '시청 앞' },                                    // 1. 서울 시청 앞 길
     move: { from: '여의도@서울', to: '광화문@서울', blockAfter: '여의나루@서울', blockFrac: 0.45 }, // 2. 여의나루 지나 터널 45% 지점에서 막힘
-    busan: { from: '서면@부산', to: '부산역@부산' },                                             // 3
+    busan: { from: '부산역@부산', to: '해운대@부산', label: '부산역 → 해운대', zoom: 14, xferHold: 1600 },  // 3. 지도는 줌 14로 따라감, 환승에서 잠깐 멈춤
     far: { from: '서울역@서울', to: '부산역@부산', flySec: 24 },                                 // 4. ×60 일 때 24초 동안 따라가기
-    boost: { raid: 0.5, move: 2, ff: 40, busan: 6 },                                            // 장면별 배속(고른 속도 × 이 값)
+    boost: { raid: 0.5, move: 2, ff: 40, busan: 16 },                                           // 장면별 배속(고른 속도 × 이 값). 부산은 ×60 이면 걷기 약 20초
     speedKmh: 3.5                                                                               // 시연 중 걷는 속도(앱 기본값)
   };
   const SPEEDS = [30, 60, 120];
-  const BAND_TEXT = ['30분', '1시간', '2시간', '4시간'];
 
   // 경로가 지나는 첫 한강 하저터널(presets.han_crossings 의 터널): { e, line, a, b(지나는 순서의 역 이름) } 또는 null
   function hanCrossing(G, path) {
@@ -70,7 +70,7 @@
   function S() { return UG.app.state(); }
   function reduce() { return matchMedia('(prefers-reduced-motion: reduce)').matches; }
   function isWide() { return matchMedia('(min-width: 760px)').matches; }
-  function km(m) { return m >= 10000 ? Math.round(m / 1000) + 'km' : PN().fmtDist(m); }   // 큰 거리는 반올림한 km
+  function km(m) { return m >= 100000 ? Math.round(m / 1000) + 'km' : PN().fmtDist(m); }   // 100km 넘으면 반올림한 km
   function walkMps() { return (S().speed || CONF.speedKmh) / 3.6; }
   function stationIndex(q) { return UG.graph.findStation(S().G, q); }
   function stName(si) { return S().g.stations[si].name; }
@@ -216,19 +216,8 @@
     map.fitBounds(L.latLngBounds(pts), Object.assign(viewPad(), { maxZoom: maxZoom || 17, animate: !reduce() }));
   }
 
-  // 점이 가리는 칸 밑이나 화면 밖으로 가면 지도를 옮긴다(걷는 동안 추정 위치를 따라감)
-  let panning = false;
-  function follow(ll) {
-    const map = S().map;
-    if (!ll || !map || panning || map._animatingZoom) return;
-    const p = viewPad(), W = window.innerWidth, H = window.innerHeight, m = 40;
-    const l = p.paddingTopLeft[0] + m, t = p.paddingTopLeft[1] + m, r = W - p.paddingBottomRight[0] - m, b = H - p.paddingBottomRight[1] - m;
-    const pt = map.latLngToContainerPoint(ll);
-    if (r <= l || b <= t || (pt.x >= l && pt.x <= r && pt.y >= t && pt.y <= b)) return;
-    panning = true;
-    map.once('moveend', function () { panning = false; });
-    map.panBy([pt.x - (l + r) / 2, pt.y - (t + b) / 2], { animate: !reduce(), duration: 0.7 });
-  }
+  // 걷는 동안 추정 위치를 따라감: 앱 길 안내와 같은 규칙(보이는 곳 가운데 20% 칸을 벗어나면 가운데로 부드럽게)
+  function follow(ll) { if (ll) UG.app.keepCentered(ll, viewPad()); }
 
   function planPoints(p) {
     const pts = [[p.from.lat, p.from.lon], [p.to.lat, p.to.lon]];
@@ -237,8 +226,19 @@
   }
 
   // 폰에서 결과·역 시트를 요약 높이로(지도가 보이게). 지도가 주인공인 장면(도달 범위 넓히기·장거리 따라가기)은 시트를 내린다.
-  function phonePeek() { const s = S(); if (!isWide() && s.sheet.state() !== 'hidden') s.sheet.set('peek'); }
-  function phoneMapOnly() { const s = S(); if (!isWide()) s.sheet.set('hidden'); }
+  // 시트 높이가 바뀌면 시연 칸도 따라 움직인다: 칸 자리가 멈춘 뒤에 지도를 맞춘다(settle)
+  async function phonePeek() { const s = S(); if (isWide()) return; if (s.sheet.state() !== 'hidden' && s.sheet.state() !== 'peek') s.sheet.set('peek'); await settle(); }
+  async function phoneMapOnly() { const s = S(); if (isWide()) return; if (s.sheet.state() !== 'hidden') s.sheet.set('hidden'); await settle(); }
+  // 시연 칸 자리가 0.15초 동안 그대로일 때까지 기다린다(0.25~1초, 시연 시계)
+  function settle() {
+    let last = null, still = 0, t = 0;
+    return task(function (dt) {
+      const top = ui ? Math.round(ui.root.getBoundingClientRect().top) : 0;
+      still = top === last ? still + dt : 0;
+      last = top; t += dt;
+      return (t >= 250 && still >= 150) || t >= 1000;
+    });
+  }
 
   // 단추를 눌러 보인 뒤(잠깐 노란 테두리) 실제로 누른다
   async function press(id, ms) {
@@ -288,21 +288,37 @@
   }
 
   /* 다음 확인 지점까지 걷고 큰 단추를 누르기를 되풀이한다. 마지막 '도착'을 누르면 앱이 역 시트를 연다.
-     opt = { boost, camera: 'leg'(구간마다 지도 맞추기) | 'none', fast(단추 누름을 짧게), until(next, gs) -> true 면 그 앞에서 멈춤 } */
+     지도는 걷는 동안 늘 지금 위치를 가운데 가까이 따라간다(follow). 구간을 시작할 때는
+     opt = { boost, camera: 'leg'(구간마다: 지금 위치를 가운데에 두고 다음 확인 지점까지 보이게) | 'follow'(처음 한 번 줌 opt.zoom) | 'none',
+             fast(단추 누름을 짧게), xferHold(환승 완료를 누르기 전 기다림 ms), onLeg(next, gs)(구간마다, 자막 바꾸기),
+             until(next, gs) -> true 면 그 앞에서 멈춤 } */
   async function walkGuide(opt) {
+    let first = true;
     for (;;) {
       const g = guideView(), gs = g && g.state();
       if (!gs) return;
       const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m);
       if (p.finished || (opt.until && opt.until(p.next, gs))) return;
       S().guideFollow = false;                                 // 지도는 시연이 맞춘다(시연 칸에 가리지 않게)
-      if (opt.camera === 'leg') await fitView(legPoints(gs, p), 17);
+      if (opt.onLeg) opt.onLeg(p.next, gs);
+      const pos = S().guidePos;
+      if (opt.camera === 'leg') await fitView(pos ? UG.app.aroundCenter(legPoints(gs, p), pos) : legPoints(gs, p), 17);
+      else if (opt.camera === 'follow' && first && pos) await fitView([pos], opt.zoom || 14);
+      first = false;
       await walk(p.toNext_m, opt.boost, setWalked);
       setWalked(p.toNext_m, true);
-      const cur = gs.cur;
-      await press('guide-arrive', opt.fast ? 0 : 450);
+      const cur = gs.cur, item = gs.plan.items[p.next.item];
+      const xfer = item && item.kind === 'step' && item.step.type === 'transfer';
+      await press('guide-arrive', xfer && opt.xferHold ? opt.xferHold : opt.fast ? 0 : 450);
       if (guideView() && g.state() === gs && gs.cur === cur) return;   // 눌러도 넘어가지 않으면 멈춘다(무한 반복 방지)
     }
+  }
+  // 따라가기 자막: 타는 구간 '부산 1호선 · 부산역 → 연산역', 환승 '연산역 환승 · 부산 1호선 → 부산 3호선'
+  function legCaption(next, gs) {
+    const it = gs.plan.items[next.item], st = it && it.kind === 'step' ? it.step : null;
+    if (!st) return;
+    if (st.type === 'transfer') caption(PN().yeok(st.station) + ' 환승 · ' + st.from_line + ' → ' + st.to_line);
+    else if (st.type === 'ride') caption(st.line + ' · ' + PN().yeok(st.from_station) + ' → ' + PN().yeok(st.to_station));
   }
 
   /* ---------- 시연 표시(공습 고리, 막힘 표시, 장거리 따라가기 선) ---------- */
@@ -318,26 +334,23 @@
     return L.marker(ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: html }), keyboard: false, interactive: false, zIndexOffset: z || 1900 }).addTo(markLayer());
   }
 
-  // 지금 보이는 역 시트의 '여기서 지하로 갈 수 있는 곳'을 시간대별로 넓혀 간다(30분 → 1시간 → 2시간 → 4시간)
-  async function growReach() {
+  // 지금 보이는 역 시트의 '여기서 지하로 갈 수 있는 곳'(4시간까지)을 한 번에 보여 준다. 띠마다 시간대별 색(30분~4시간) 그대로.
+  async function revealReach() {
     const s = S(), st = s.station;
-    if (!st || !st.reach || !st.reach.sources.length) return;
-    const res = st.reach, segs = UG.reach.segments(s.G, res), o = s.g.stations[st.si], name = PN().yeok(o.name);
-    phoneMapOnly();
-    for (let b = 0; b < res.bands.length; b++) {
-      s.reach.show(segs.map(function (x, i) { return i <= b ? x : []; }), [o.lat / 1e5, o.lon / 1e5]);
-      s.st.setOnly(new Set([st.si].concat(res.stations.filter(function (x) { return x.band >= 0 && x.band <= b; }).map(function (x) { return x.si; }))), 'reach');
-      caption(name + '에서 지하로 ' + BAND_TEXT[b] + ' · 역 ' + res.counts[b] + '곳');
-      const bb = UG.reach.bounds(s.G, res, b);
-      await fitView([[bb[0], bb[1]], [bb[2], bb[3]]], 15);
-      await hold(2300);
-    }
+    if (!st || !st.reach || !st.reach.sources.length) return null;
+    const res = st.reach, o = s.g.stations[st.si];
+    await phoneMapOnly();
+    s.reach.show(UG.reach.segments(s.G, res), [o.lat / 1e5, o.lon / 1e5]);
+    s.st.setOnly(new Set([st.si].concat(res.stations.filter(function (x) { return x.band >= 0; }).map(function (x) { return x.si; }))), 'reach');
+    const bb = UG.reach.bounds(s.G, res);
+    await fitView([[bb[0], bb[1]], [bb[2], bb[3]]], 15);
+    return res;
   }
 
   // 도착 뒤 앱이 연 역 시트: 폰에서는 요약 높이로, 지도는 그 역의 도달 범위에 맞춘다
   async function fitArrival() {
     const s = S(), st = s.station;
-    phonePeek();
+    await phonePeek();
     if (!st) return;
     if (st.reach && st.reach.sources.length) { const bb = UG.reach.bounds(s.G, st.reach); await fitView([[bb[0], bb[1]], [bb[2], bb[3]]], 15); }
     else { const o = s.g.stations[st.si]; await fitView([[o.lat / 1e5, o.lon / 1e5]], 16); }
@@ -364,7 +377,7 @@
     const at = function (r, into) { return UG.graph.pointAlong(r.pts, r.cum, into / r.len * r.cum[r.cum.length - 1]); };
     const walker = htmlMark(runs[0].pts[0], '<span class="pos-est" aria-hidden="true"><span class="pos-ring"></span></span>', 2000);
     let ri = 0, expoDone = 0, cur = null, lastDraw = 0;
-    phoneMapOnly();
+    await phoneMapOnly();
     await fitView([runs[0].pts[0]], isWide() ? 10 : 9);
     const boost = total / (walkMps() * 60 * CONF.far.flySec);    // ×60 일 때 flySec 초가 되는 배속
     await walk(total, boost, function (m) {
@@ -409,7 +422,7 @@
         if (!p) throw new Error('가장 가까운 지하로를 찾지 못함');
         const c = p.route.startConn;
         if (c) caption(PN().exitName(stName(c.si), c.ref) + ' · 지상 ' + PN().fmtDist(c.len));
-        phonePeek();
+        await phonePeek();
         await fitView(planPoints(p), 18);
         await hold(3000);
       } },
@@ -420,10 +433,9 @@
       { cap: '도착 — 여기서 지하로 갈 수 있는 곳', run: async function () {
         S().me.clear();                                         // 길에 있던 '내 위치' 점과 공습 표시는 지운다(이제 역 안)
         clearMarks();
-        await growReach();
-        const st = S().station;
-        if (st && st.reach) caption('걸어서 4시간 — 지하로만 역 ' + st.reach.counts[st.reach.counts.length - 1] + '곳');
-        await hold(3200);
+        const res = await revealReach();
+        if (res) caption('걸어서 4시간 — 지하로만 역 ' + res.counts[res.counts.length - 1] + '곳');
+        await hold(5200);
       } }
     ] },
 
@@ -431,7 +443,7 @@
       { cap: '여의도 → 광화문', run: async function (ctx) {
         const p = ctx.p = routeBetween(CONF.move.from, CONF.move.to);
         caption('여의도 → 광화문 · 지하로 ' + km(p.view.total_m));
-        phonePeek();
+        await phonePeek();
         await fitView(planPoints(p), 15);
         await hold(2800);
       } },
@@ -455,8 +467,8 @@
         await press('guide-block', 900);                    // 앱의 '앞이 막힘': 그 구간을 막고 마지막 확인 지점에서 다시 찾는다
         S().guideFollow = false;
         setWalked(0, true);                                  // 새 안내는 아직 0m(기다리는 동안 추정 위치가 흐르지 않게)
-        const p = S().plan;                                  // 막힌 곳과 다시 출발할 곳(마지막 확인 지점)이 함께 보이게
-        if (pos && p) await fitView([pos, [p.from.lat, p.from.lon]], 16);
+        const p = S().plan, here = S().guidePos || (p && [p.from.lat, p.from.lon]);   // 다시 출발할 곳(마지막 확인 지점)을 가운데에, 막힌 곳도 보이게
+        if (pos && here) await fitView(UG.app.aroundCenter([pos], here), 16);
         await hold(2800);
       } },
       { cap: '다른 하저터널로 다시 찾음', run: async function (ctx) {
@@ -477,23 +489,24 @@
     ] },
 
     { name: '지방 도시', short: '부산', scenes: [
-      { cap: '부산 서면 → 부산역', run: async function (ctx) {
+      { cap: CONF.busan.label, run: async function (ctx) {
         const p = ctx.p = routeBetween(CONF.busan.from, CONF.busan.to);
-        caption('부산 서면 → 부산역 · ' + km(p.view.total_m));
-        phonePeek();
+        caption(CONF.busan.label + ' · 지하로 ' + km(p.view.total_m), p.view.transfers ? '환승 ' + p.view.transfers + '번' : '');
+        await phonePeek();
         await fitView(planPoints(p), 15);
-        await hold(2400);
+        await hold(2600);
       } },
       { cap: '전 구간 지하 — 지상 노출 0m', run: async function (ctx) {
         caption('전 구간 지하 — 지상 노출 ' + PN().fmtDist(ctx.p.view.exposed_m));
         await flash(document.querySelector('#route-view .xbadge'), 2400);
       } },
-      { cap: '부산 1호선 선로를 따라 (빠르게)', run: async function () {
+      { cap: '선로를 따라 빠르게', run: async function () {
         UG.app.startGuide();
-        await walkGuide({ boost: CONF.boost.busan, camera: 'leg' });
+        await walkGuide({ boost: CONF.boost.busan, camera: 'follow', zoom: CONF.busan.zoom, fast: true, xferHold: CONF.busan.xferHold, onLeg: legCaption });
       } },
-      { cap: '부산역 도착', run: async function (ctx) {
-        caption('부산역 도착 · 걸어서 ' + PN().fmtTime(ctx.p.view.minutes));
+      { cap: '도착', run: async function (ctx) {
+        const st = S().station;
+        caption((st ? PN().yeok(stName(st.si)) : '목적지') + ' 도착 · 걸어서 ' + PN().fmtTime(ctx.p.view.minutes));
         await fitArrival();
         await hold(3200);
       } }
@@ -502,7 +515,7 @@
     { name: '장거리 피난의 한계', short: '장거리', scenes: [
       { cap: '서울역 → 부산역 — 도시를 벗어나면?', run: async function (ctx) {
         ctx.p = routeBetween(CONF.far.from, CONF.far.to);
-        phonePeek();
+        await phonePeek();
         await fitView(planPoints(ctx.p), 12);
         await hold(2600);
       } },

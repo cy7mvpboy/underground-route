@@ -410,16 +410,40 @@
     return ep;
   }
 
-  // 지도 위 점. label: '내 위치' | '지도 중심' | '고른 지점' | 장소 이름
+  /* 지도 위 점. label: '내 위치' | '지도 중심' | '고른 지점' | 장소 이름
+     잇는 곳 후보(conn): 역 출구·역, 그리고 egress.json 을 받았으면 터널 출입구·차량기지(router.connectPoint).
+     아직 안 받았으면 지금은 역 출구로만 잇고 받기 시작한다. 받으면 잇는 곳을 다시 골라 경로가 바뀌면 다시 찾는다(reconnectPoints).
+     eg = egress.json 을 따져서 만든 후보인지 */
   function pointEndpoint(lat, lon, label, exact) {
-    const conn = RT.connectPoint(state.G, lat, lon);
+    const conn = RT.connectPoint(state.G, lat, lon, state.egress || null);
     if (!conn.length) return null;
-    const near = nearText(conn[0]);
+    if (state.egress === undefined) loadEgress().then(reconnectPoints);
+    const near = nearText(nearConn(conn));
     const text = exact ? label : (label === '고른 지점' ? near + ' 부근' : label);
-    return { kind: 'point', lat: lat, lon: lon, conn: conn, label: label, text: text };
+    return { kind: 'point', lat: lat, lon: lon, conn: conn, label: label, text: text, eg: state.egress !== undefined };
+  }
+  // 이름표('○○역 3번 출구 부근')에 쓸 후보: 가까운 역 출구·역(없으면 터널 출입구·차량기지)
+  function nearConn(conn) {
+    return conn.find(function (c) { return c.kind === 'entrance' || c.kind === 'hub'; }) || conn[0];
+  }
+  // egress.json 을 받은 뒤: 그 전에 만든 지도 위 점의 잇는 곳을 다시 고르고, 경로가 달라지면 다시 찾는다(길 안내 중에는 그대로)
+  function reconnectPoints() {
+    if (!state.egress || !state.G) return;
+    let changed = false;
+    ['from', 'to'].forEach(function (k) {
+      const ep = state[k];
+      if (!ep || ep.kind !== 'point' || ep.eg) return;
+      ep.conn = RT.connectPoint(state.G, ep.lat, ep.lon, state.egress);
+      ep.eg = true; changed = true;
+    });
+    const p = state.plan;
+    if (!changed || !p || p.from !== state.from || p.to !== state.to || state.nearest || (state.guide && state.guide.isOpen())) return;
+    const r = RT.findRoute(state.G, p.from, p.to, { blocked: state.blocked }) || RT.findRoute(state.G, p.from, p.to, { blocked: state.blocked, surface: true });
+    if (r && !RT.sameRoute(r, p.alt ? p.alt.safe : p.route)) update();
   }
 
   function nearText(c) {
+    if (c.kind === 'portal' || c.kind === 'depot') return c.name;
     const name = state.g.stations[c.si].name;
     return c.kind === 'entrance' ? PN.exitName(name, c.ref) : PN.yeok(name);
   }
@@ -628,12 +652,40 @@
       showMessage('경로를 찾지 못했습니다. 두 곳을 잇는 선로가 그래프에 없습니다.', true); refreshPins(); emit(); return;
     }
     state.plan = { from: f, to: t, route: route, nearest: state.nearest, legs: {} };
+    state.plan.alt = findAlt(f, t, route);
     describePlan();
     showView('route', state.openSheetOnPlan ? 'half' : 'peek');
     state.openSheetOnPlan = false;
     drawPlan(true);
     requestLegs(state.plan);
     emit();
+  }
+
+  /* 대안 경로(router.js alternative, 사용자 결정 2026-11-11): 지하 우선 경로보다 꽤 짧으면 { safe, info, using }.
+     가장 가까운 지하로·여기서 나가기·지상으로 바로 걷기에는 두지 않는다. 기본으로 보여 주는 것은 늘 지하 우선 경로다. */
+  function findAlt(f, t, route) {
+    if (state.nearest || t.kind === 'egress' || route.walk) return null;
+    const info = RT.alternative(state.G, f, t, route, { blocked: state.blocked, speedKmh: state.speed });
+    return info ? { safe: route, info: info, using: false } : null;
+  }
+  // 지하 우선 경로 ↔ 대안 경로 바꾸기(결과 카드·길 안내 카드의 한 줄). 길 안내 중이면 바꾼 경로로 안내를 이어 간다.
+  function switchAlt() {
+    const p = state.plan;
+    if (!p || !p.alt) return;
+    const gs = state.guide && state.guide.isOpen() ? state.guide.state() : null;
+    const a = document.activeElement, refocus = !!(a && a.closest && a.closest('[data-action="alt"]'));
+    p.alt.using = !p.alt.using;
+    p.route = p.alt.using ? p.alt.info.route : p.alt.safe;
+    p.legs = {}; p._forks = null; state.activeItem = -1;
+    describePlan();
+    drawPlan(!gs);
+    requestLegs(p);
+    emit();
+    if (gs && gs.plan === p) {
+      openGuide(p, gs.startLabel, gs.note, gs.backtrack);
+      state.guide.setAlt(PN.altHtml(p.view.alt, 'g-alt'));
+    }
+    if (refocus) { const b = document.querySelector(gs ? '#guide-alt-slot [data-action="alt"]' : '#route-view [data-action="alt"]'); if (b) b.focus(); }
   }
 
   function epLabel(ep) { return ep.kind === 'point' ? (ep.label === '고른 지점' ? ep.text : ep.label || ep.text) : ep.text; }
@@ -655,6 +707,8 @@
     p.egressOnRoute = state.egress && UG.exithere ? UG.exithere.onRoute(state.G, p, state.egress) : null;   // 경로 위 수직구
     v.endSi = p.route.walk || p.route.egress ? -1 : p.route.endSi;
     v.endStation = v.endSi >= 0 ? state.g.stations[v.endSi].name : '';
+    const a = p.alt;   // 대안 경로 한 줄: 줄어드는 시간은 지금 걷는 속도로
+    v.alt = a ? { using: a.using, extra_m: a.info.extra_m, saved_m: a.info.saved_m, saved_min: a.info.saved_m / (state.speed * 1000 / 60) } : null;
     PN.renderRoute(state.R, v);
     if (state.view === 'route') state.sheet.refit();
   }
@@ -763,7 +817,8 @@
     });
     if (r.egress && r.egress.k === 'exit') { exits.push({ lat: r.egress.lat, lon: r.egress.lon, ref: r.egress.ref, title: r.egress.title }); used.push(r.egress.ent); }
     const warnings = p.desc.steps.filter(function (s) { return s.type === 'warning'; });
-    state.route.show({ segs: segs, from: endpointLatLng(p.from), to: endpointLatLng(p.to), exits: exits, warnings: warnings, junctions: p.junctions || [] });
+    const other = otherLine(p);
+    state.route.show({ segs: segs, from: endpointLatLng(p.from), to: endpointLatLng(p.to), exits: exits, warnings: warnings, junctions: p.junctions || [], other: other });
     if (!(state.guide && state.guide.isOpen())) { state.guideLayer.setFork(null); state.guideLayer.setTransfer(null); }
     if (fit) setExitFocus(null);
     state.exits.setUsed(used);
@@ -776,8 +831,21 @@
       const all = [];
       segs.forEach(function (s) { s.pts.forEach(function (q) { all.push(q); }); });
       all.push([p.from.lat, p.from.lon], [p.to.lat, p.to.lon]);
+      if (other) other.forEach(function (q) { all.push(q); });   // 비교하는 다른 경로도 보이게
       fitTo(all, 16);
     }
+  }
+
+  // 고르지 않은 다른 경로(지하 우선 ↔ 대안)의 선 하나: 출발 지점 → (간선 일부) → 간선들 → 도착 지점. 없으면 null
+  function otherLine(p) {
+    if (!p.alt) return null;
+    const r = p.alt.using ? p.alt.safe : p.alt.info.route, g = state.g, pts = [];
+    if (r.walk) return [[p.from.lat, p.from.lon], [p.to.lat, p.to.lon]];
+    if (r.startConn) pts.push([p.from.lat, p.from.lon]);
+    if (r.startPart) r.startPart.pts.forEach(function (q) { pts.push(q); });
+    r.path.forEach(function (x) { GR.edgeShape(g, x.e, x.u).forEach(function (q) { pts.push(q); }); });
+    if (r.endConn) pts.push([p.to.lat, p.to.lon]);
+    return pts.length > 1 ? pts : null;
   }
 
   // 단계 하나가 덮는 선(지도 강조·확대용)
@@ -872,6 +940,40 @@
     return { paddingTopLeft: [left, top], paddingBottomRight: [right, bottom] };
   }
 
+  /* ---------- 따라가기 (길 안내·시연이 같이 쓴다) ----------
+     지금 위치 점이 지도에서 보이는 곳(pad = viewPadding() 형식: 위 카드·아래 단추·시트를 뺀 곳)의 가운데 칸
+     (가로·세로 CAM.box = 20%) 밖으로 나가면, 점이 다시 가운데에 오도록 지도를 부드럽게 옮긴다(움직임 줄이기면 바로).
+     점이 움직이는 중이면 옮기는 동안 갈 만큼 앞을 겨냥해(가운데 칸 크기까지만) 옮긴 뒤에도 가운데에 있게 한다.
+     지도 그림(캔버스)은 옮기기가 끝날 때만 다시 그려지므로 프레임마다 옮기지 않는다. */
+  const CAM = { box: 0.2, panSec: 0.6 };
+  const cam = { busy: false, last: null };
+  function keepCentered(ll, pad) {
+    const map = state.map;
+    if (!ll || !map || cam.busy || map._animatingZoom || (map._panAnim && map._panAnim._inProgress)) return;
+    const at = L.latLng(ll), now = performance.now(), z = map.getZoom(), px = map.project(at, z);
+    // 움직이는 빠르기(지도 픽셀/초): 바로 전 위치(1.5초 안, 같은 줌)와 비교
+    const prev = cam.last;
+    const v = prev && prev.z === z && now - prev.t > 0 && now - prev.t < 1500 ? px.subtract(prev.px).divideBy((now - prev.t) / 1000) : null;
+    cam.last = { px: px, t: now, z: z };
+    const sz = map.getSize(), l = pad.paddingTopLeft[0], t = pad.paddingTopLeft[1];
+    const r = sz.x - pad.paddingBottomRight[0], b = sz.y - pad.paddingBottomRight[1];
+    if (r - l < 60 || b - t < 60) return;   // 보이는 곳이 너무 작으면 그대로
+    const hx = (r - l) * CAM.box / 2, hy = (b - t) * CAM.box / 2, pt = map.latLngToContainerPoint(at);
+    let dx = pt.x - (l + r) / 2, dy = pt.y - (t + b) / 2;
+    if (Math.abs(dx) <= hx && Math.abs(dy) <= hy) return;   // 가운데 칸 안: 그대로
+    if (state.reduceMotion) { map.panBy([dx, dy], { animate: false }); return; }
+    if (v) { dx += Math.max(-hx, Math.min(hx, v.x * CAM.panSec)); dy += Math.max(-hy, Math.min(hy, v.y * CAM.panSec)); }
+    cam.busy = true;
+    map.once('moveend', function () { cam.busy = false; });
+    map.panBy([dx, dy], { animate: true, duration: CAM.panSec, easeLinearity: v ? 1 : 0.5 });
+  }
+  // 지도 맞추기용 점: c 를 가운데에 두고 pts 가 모두 보이게(c 를 중심으로 뒤집은 점을 더한다)
+  function aroundCenter(pts, c) {
+    const out = pts.concat([c]);
+    pts.forEach(function (q) { out.push([2 * c[0] - q[0], 2 * c[1] - q[1]]); });
+    return out;
+  }
+
   function popupPadding() {
     const p = viewPadding();
     return { topLeft: L.point(p.paddingTopLeft[0], p.paddingTopLeft[1]), bottomRight: L.point(p.paddingBottomRight[0], p.paddingBottomRight[1]) };
@@ -880,9 +982,10 @@
   function onRouteViewClick(ev) {
     const act = ev.target.closest('[data-action]');
     if (act) {
-      if (act.dataset.action === 'guide') startGuide();
+      if (act.dataset.action === 'guide') startGuide(true);   // 누르기 처리 안: 걸음 세기 권한(iOS)을 여기서 묻는다
       if (act.dataset.action === 'unblock') unblockAll();
       if (act.dataset.action === 'station') openStation(+act.dataset.si, { tab: 'reach' });
+      if (act.dataset.action === 'alt') switchAlt();
       return;
     }
     const nb = ev.target.closest('[data-near]');
@@ -1008,6 +1111,9 @@
       stopFollow();
       if (state.guide && state.guide.isOpen()) { state.guideFollow = false; state.guide.setFollow(false); }
     });
+    state.ui.mapEl.addEventListener('keydown', function (ev) {   // 키보드 화살표로 지도를 옮기면 길 안내 따라가기를 멈춘다
+      if (/^Arrow/.test(ev.key) && state.guide && state.guide.isOpen()) { state.guideFollow = false; state.guide.setFollow(false); }
+    });
     map.on('click', function (ev) {
       if (Date.now() - state.lastPopupClose < 350) return;   // 팝업이 열려 있을 때 누른 것은 팝업 닫기로만 본다
       if (state.guide && state.guide.isOpen()) return;
@@ -1022,8 +1128,8 @@
 
   function openPickPopup(latlng) {
     if (!state.G) return;
-    const conn = RT.connectPoint(state.G, latlng.lat, latlng.lng);
-    const near = conn.length ? '가까운 ' + (conn[0].kind === 'entrance' ? '출구' : '역') + ': ' + nearText(conn[0]) + ' · ' + PN.fmtDist(conn[0].dist)
+    const conn = RT.connectPoint(state.G, latlng.lat, latlng.lng), c0 = conn.length ? nearConn(conn) : null;
+    const near = c0 ? '가까운 ' + (c0.kind === 'entrance' ? '출구' : '역') + ': ' + nearText(c0) + ' · ' + PN.fmtDist(c0.dist)
       : '20km 안에 역이 없습니다.';
     const pad = popupPadding();
     L.popup({ maxWidth: 280, autoPanPaddingTopLeft: pad.topLeft, autoPanPaddingBottomRight: pad.bottomRight })
@@ -1182,7 +1288,11 @@
      8. 길 안내 (지도가 보이는 안내: 위 카드 · 가운데 지도 · 아래 버튼)
      ========================================================= */
   function setupGuide() {
+    // 걸음 세기(pdr.js): 역 사이에서 걸은 거리를 걸음 수 × 보폭으로. 센서를 못 쓰면 지금처럼 걸은 시간 × 속도
+    state.pdr = UG.pdr ? UG.pdr.create({ fillSpeed: function () { return state.speed / 3.6; } }) : null;
+    if (state.pdr) state.pdr.onupdate = function () { if (state.guide && state.guide.isOpen()) state.guide.ping(); };
     state.guide = UG.guide.GuideView({
+      pdr: state.pdr,
       root: state.ui.guide, panel: PN, steps: ST, lines: LN, reduceMotion: state.reduceMotion,
       getSpeed: function () { return state.speed; },
       onArrive: function () { state.guide.arrive(); },
@@ -1194,7 +1304,8 @@
       routePos: gpsRoutePos,
       onExitHere: guideExitHere,
       onExitPick: pickExit,
-      onExitClose: function () { state.exitHere = null; state.guideLayer.setCandidates(null); if (state.guideFollow) fitGuideStep(); }
+      onExitClose: function () { state.exitHere = null; state.guideLayer.setCandidates(null); if (state.guideFollow) fitGuideStep(); },
+      onAlt: switchAlt
     });
   }
 
@@ -1216,9 +1327,13 @@
     return (ep.label || ep.text || '출발 지점') + ' 출발';
   }
 
-  function startGuide() {
+  /* 길 안내 시작. byTap = 사용자가 '안내 시작'을 누름: 그 누르기 처리 안에서 곧바로 걸음 세기를 켜고(iOS 권한) 화면을 켜 둔다.
+     시연(UG.app.startGuide)은 걸은 시간을 당겨 위치를 움직이므로 켜지 않는다. 다시 찾기(openGuide)도 켜지 않는다(이미 켜져 있다).
+     iOS 가 거절('denied'·'prompt')하거나 센서가 없으면 알리지 않고 시간으로 추정한다. */
+  function startGuide(byTap) {
     if (!state.plan) return;
     if (!state.guide) setupGuide();
+    if (byTap === true && state.pdr) { state.pdr.start(); UG.pdr.keepScreenOn(true); }
     openGuide(state.plan, startLabel(state.plan.from), '', 0);
   }
 
@@ -1240,6 +1355,7 @@
   function closeGuideView() {
     if (!state.guide || !state.guide.isOpen()) return;
     state.guide.close();
+    if (state.pdr) { state.pdr.stop(); UG.pdr.keepScreenOn(false); }   // 걸음 세기·화면 켜 두기 끄기
     state.guideLayer.clear();
     if (state.me) state.me.setLook({ hidden: false, tag: '', stale: !state.myLoc || Date.now() - state.myLoc.t > CFG.staleMs });
     if (geo.wanted) startWatch();   // 평소 정확도로 되돌린다
@@ -1281,17 +1397,20 @@
       if (off > CFG.offRouteM) state.guideOff = off;
       state.guideLayer.setEstimate(null);
       state.me.setLook({ hidden: false, stale: false, tag: state.guideOff ? '경로에서 벗어남' : '' });
-      state.guide.setPosMode(state.guideOff ? '경로 밖 ' + PN.fmtDist(off) : 'GPS 위치', state.guideOff ? 'off' : 'gps');
+      state.guide.setPosMode(state.guideOff ? '경로 밖 ' + PN.fmtDist(off) : 'GPS', state.guideOff ? 'off' : 'gps');
     } else {
       const walked = Math.min(state.guide.walkedM(), p.toNext_m);
       pos = UG.guide.pointAt(track, Math.min(doneAt + walked, track.total));
       const confirmed = st.cur >= 0 && walked < 30;   // 방금 '도착'을 눌렀으면 확인한 곳
-      state.guideLayer.setEstimate(pos, confirmed ? '확인한 곳' : '추정');
+      const how = confirmed ? '확인한 곳' : state.pdr && state.pdr.usable() ? '걸음' : '추정';   // 위치 출처: 센 걸음 / 걸은 시간
+      state.guideLayer.setEstimate(pos, how);
       state.me.setLook({ hidden: true, tag: '' });     // 오래된 GPS 점은 숨긴다(추정 고리와 헷갈리지 않게)
-      state.guide.setPosMode(confirmed ? '확인한 곳' : '추정 위치', 'est');
+      state.guide.setPosMode(how, 'est');
     }
     state.guidePos = pos;
-    if (info.stepChanged && state.guideFollow) fitGuideStep();
+    if (!state.guideFollow) return;
+    if (info.stepChanged) fitGuideStep();
+    else if (!(state.guideOff > 1000) && !state.guide.exitsOpen()) keepCentered(pos, viewPadding());   // 지금 위치를 가운데 가까이
   }
 
   function fitGuideStep() {
@@ -1299,16 +1418,16 @@
     if (!gs || !track) return;
     const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m);
     const x = guideXfer(gs, p);
-    if (x) { fitTo(xferView(x), 18); return; }
-    if (p.next && p.next.kind === 'junction' && p.next.jn != null) {   // 갈림길: 갈래가 보이게 크게
-      fitTo(forkPoints(forkData(gs.plan, p.next.jn)), 18);
-      return;
+    let pts = [], maxZoom = 17;
+    if (x) { pts = xferView(x); maxZoom = 18; }   // 환승: 두 승강장
+    else if (p.next && p.next.kind === 'junction' && p.next.jn != null) { pts = forkPoints(forkData(gs.plan, p.next.jn)); maxZoom = 18; }   // 갈림길: 갈래가 보이게 크게
+    else {
+      const doneAt = gs.cur >= 0 ? gs.cps[gs.cur].at : 0;
+      UG.guide.sliceTrack(track, doneAt, p.next ? p.next.at : doneAt).forEach(function (l) { l.forEach(function (q) { pts.push(q); }); });
     }
-    const doneAt = gs.cur >= 0 ? gs.cps[gs.cur].at : 0;
-    const pts = [];
-    UG.guide.sliceTrack(track, doneAt, p.next ? p.next.at : doneAt).forEach(function (l) { l.forEach(function (q) { pts.push(q); }); });
-    if (state.guidePos && !(state.guideOff > 1000)) pts.push(state.guidePos);   // 아주 멀리 벗어났으면 지금 단계만
-    if (pts.length) fitTo(pts, 17);
+    // 지금 위치를 가운데에 두고 이 단계(다음 확인 지점까지)가 보이게. 아주 멀리 벗어났으면 지금 단계만
+    if (state.guidePos && !(state.guideOff > 1000)) pts = aroundCenter(pts, state.guidePos);
+    if (pts.length) fitTo(pts, maxZoom);
   }
 
   // 마지막 확인 지점에 도착: 안내를 닫고 역 시트(여기서 지하로 갈 수 있는 곳)를 연다
@@ -1356,6 +1475,7 @@
     // 알림은 한 줄: '막은 구간 제외 · 정발산역까지 300m 되돌아가기' (되돌아갈 일이 없으면 '막은 구간 제외 · 새 경로')
     const note = '막은 구간 제외 · ' + (r.backtrack >= 10 ? PN.esc(back) + '까지 ' + PN.fmtDist(r.backtrack) + ' 되돌아가기' : '새 경로');
     openGuide(p, back + (r.from ? ' (확인한 곳)' : ''), note, r.backtrack);
+    if (p.alt) state.guide.setAlt(PN.altHtml(p.view.alt, 'g-alt'));   // 다시 찾은 길보다 꽤 짧은 대안(첫 확인 지점 전까지)
   }
 
   /* =========================================================
@@ -1757,9 +1877,10 @@
     onPlan: function (cb) { state.listeners.push(cb); },
     stationEndpoint: stationEndpoint, pointEndpoint: pointEndpoint, setEndpoint: setEndpoint,
     blocked: state.blocked, reroute: update, focusItem: focusItem, setSpeed: setSpeed, toast: toast,
-    goNearestUnderground: goNearestUnderground, runNearest: runNearest, startGuide: startGuide,
+    goNearestUnderground: goNearestUnderground, runNearest: runNearest, startGuide: function () { startGuide(false); },   // 시연: 걸음 세기 없이
     openStation: openStation, openSearch: openSearch, drawWalkLeg: drawWalkLeg, applyTheme: applyTheme,
-    guide: function () { return state.guide; }
+    guide: function () { return state.guide; },
+    keepCentered: keepCentered, aroundCenter: aroundCenter, switchAlt: switchAlt
   };
 
   /* 예전 미리보기 화면과 점검 스크립트가 쓰던 도우미 */

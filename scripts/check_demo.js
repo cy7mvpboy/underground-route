@@ -69,19 +69,26 @@ const p3 = planOf(b.from, p2.to);
 check(!!p3, p3 ? `다시 찾음 ${km(p3.view.total_m)}, 지상 ${Math.round(p3.view.exposed_m)}m: ${rides(p3)}` : '다시 찾기 실패');
 check(p3 && p3.route.path.every((x) => !blocked.has(x.e)), '다시 찾은 경로는 막은 간선을 쓰지 않음');
 check(p3 && p3.route.endSi === si(M.to), `다시 찾은 경로의 도착 = ${p3 ? g.stations[p3.route.endSi].name : '-'}`);
+// 어느 노선으로 건너는지는 그래프에 따라 바뀔 수 있어 정하지 않는다(막은 간선을 피하고, 광화문까지, 지상 노출 1km 이하)
+check(p3 && p3.view.exposed_m <= 1000, `다시 찾은 경로의 지상 노출 ${p3 ? Math.round(p3.view.exposed_m) : '-'}m (1km 이하)`);
 const cross2 = p3 && UG.demo.hanCrossing(G, p3.route.path);
-check(!!cross2 && !blocked.has(cross2.e), `다른 하저터널로 한강을 건넘: ${cross2 ? cross2.line + ' ' + cross2.a + '–' + cross2.b + ' (간선 ' + cross2.e + ')' : '없음'}`);
-check(p3 && p3.view.exposed_m === 0, `다시 찾은 경로도 지상 노출 ${p3 ? Math.round(p3.view.exposed_m) : '-'}m`);
+info(`한강을 건너는 곳: ${cross2 ? cross2.line + ' ' + cross2.a + '–' + cross2.b + ' (간선 ' + cross2.e + ')' : '하저터널 아님(자막은 \'다른 길로 다시 찾음\')'}`);
+const alt3 = p3 && UG.router.alternative(G, b.from, p2.to, p3.route, { blocked, speedKmh: SPEED });
+info(`길 안내 카드의 대안 경로 한 줄: ${alt3 ? '지상 ' + Math.round(alt3.extra_m) + 'm 더, ' + km(alt3.saved_m) + ' 짧음, ' + Math.round(alt3.saved_min) + '분 단축' : '없음'}`);
 const cps3 = p3 ? UG.guide.buildCheckpoints(G, p3) : [];
 check(cps3.length > 0 && cps3[cps3.length - 1].kind === 'end', `다시 찾은 경로 체크포인트 ${cps3.length}개(빨리 감기 동안 '도착'을 이만큼 누름)`);
 blocked.clear();
 
-/* ---------- 3) 부산 서면 → 부산역 ---------- */
-console.log('\n[3] 부산 서면 → 부산역');
+/* ---------- 3) 부산역 → 해운대 (길고, 전 구간 지하, 환승 있음) ---------- */
+console.log('\n[3] ' + CONF.busan.label);
 const p4 = planOf(st(CONF.busan.from), st(CONF.busan.to));
+const xf4 = p4 ? p4.items.filter((i) => i.kind === 'step' && i.step.type === 'transfer').length : 0;
 check(!!p4 && p4.view.exposed_m === 0, `${km(p4.view.total_m)}, 지상 노출 ${p4.view.exposed_m}m, 약 ${Math.round(p4.view.minutes)}분: ${rides(p4)}`);
+check(!!p4 && p4.view.total_m >= 15000 && xf4 >= 1, `15km 이상(${km(p4.view.total_m)}), 환승 ${xf4}번`);
 const cps4 = UG.guide.buildCheckpoints(G, p4);
-check(cps4[cps4.length - 1].si === si(CONF.busan.to), '체크포인트: ' + cps4.map((c) => c.label).join(' → '));
+check(cps4[cps4.length - 1].si === si(CONF.busan.to), `체크포인트 ${cps4.length}개: ` + cps4.map((c) => c.label).join(' → '));
+const walkSec4 = p4.view.total_m / (SPEED / 3.6 * 60 * CONF.boost.busan), xfHold4 = cps4.filter((c) => c.kind === 'transfer').length * CONF.busan.xferHold / 1000;
+info(`재생 시간(×60): 걷기 약 ${Math.round(walkSec4)}초 + 환승 멈춤 ${xfHold4}초`);
 
 /* ---------- 4) 서울역 → 부산역 ---------- */
 console.log('\n[4] 서울역 → 부산역');

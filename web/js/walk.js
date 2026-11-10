@@ -129,15 +129,18 @@
     const L = p.legs || {}, mpm = (speedKmh || 3.5) * 1000 / 60, r = p.route, E = G.g.edges;
     const round = UG.steps ? UG.steps.pyRound : Math.round;
     let delta = 0, used = false;
-    const setItem = function (it, l) {
+    // 차량기지 연결(router.egressConns)은 나가는 곳 ↔ 기지 안 대표 노드(inner)를 도로 길 뒤·앞에 그대로 붙인다
+    const setItem = function (it, l, enter) {
       if (!it || !l) return;
-      delta += l.m - it.m;
-      it.m = l.m; it.min = l.m / mpm; it.latlngs = l.pts; it.street = true; used = true;
+      const c = it.conn, inner = c && c.inner ? c.inner : 0, m = l.m + inner;
+      delta += m - it.m;
+      it.m = m; it.min = m / mpm; it.street = true; used = true;
+      it.latlngs = !inner ? l.pts : enter ? l.pts.concat([[c.inLat, c.inLon]]) : [[c.inLat, c.inLon]].concat(l.pts);
     };
     p.items.forEach(function (it) {
       if (it.kind === 'walk') setItem(it, L.walk);
-      else if (it.kind === 'enter') setItem(it, L.start);
-      else if (it.kind === 'exit') setItem(it, L.end);
+      else if (it.kind === 'enter') setItem(it, L.start, true);
+      else if (it.kind === 'exit') setItem(it, L.end, false);
       else if (it.kind === 'step' && it.step.type === 'surface') {
         const i = it.step._idx[0], l = L['s' + i];
         if (!l) return;

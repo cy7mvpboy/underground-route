@@ -292,6 +292,16 @@
     }).sort(function (a, b) { return a.dist - b.dist; });
   }
 
+  /* 들어가고 나오는 곳(출발·도착 지점 ↔ 그래프 연결 c, router.connectPoint)의 이름.
+     역 출구 '서울역 3번 출구', 출구 자료 없는 역 '서울역', 터널 출입구는 egress.json 이름(들어갈 때는 '… 터널 입구'), 차량기지 이름 */
+  function connLabel(c, stName, enter) {
+    const yeok = stName.endsWith('역') ? stName : stName + '역';
+    if (c.kind === 'entrance') return yeok + ' ' + (c.ref ? c.ref + '번 출구' : '출구');
+    if (c.kind === 'portal') return enter ? c.name.replace(/터널 출입구$/, '터널 입구') : c.name;
+    if (c.kind === 'depot') return c.name;
+    return yeok;
+  }
+
   function planItems(G, p, speedKmh) {
     const speed = speedKmh || WALK_KMH, g = G.g, r = p.route, mpm = speed * 1000 / 60;
     p.desc = r.walk ? { steps: [] } : describe(G, r.startSi, r.path, speed);
@@ -302,7 +312,7 @@
       if (r.startConn) {
         const c = r.startConn;
         items.push({ kind: 'enter', conn: c, stName: g.stations[c.si].name, label: p.from.label, m: c.len, min: c.len / mpm,
-          latlngs: [[p.from.lat, p.from.lon], [c.lat, c.lon]] });
+          latlngs: [[p.from.lat, p.from.lon], [c.lat, c.lon]].concat(c.inner ? [[c.inLat, c.inLon]] : []) });   // 차량기지: 나가는 곳 -> 기지 안
       }
       if (r.startPart) {   // 선로 위 지금 위치에서 첫 노드까지(여기서 나가기)
         const sp = r.startPart, v0 = r.path.length ? r.path[0].u : -1, si0 = v0 >= 0 ? stationOfNode(G, v0) : -1;
@@ -316,8 +326,10 @@
           surface: !!r.endWalk, label: r.egress.title });
       } else if (r.endConn) {
         const c = r.endConn;
+        const station = c.kind === 'entrance' || c.kind === 'hub';   // 터널 출입구·차량기지는 '다른 출구' 목록이 없다
         items.push({ kind: 'exit', conn: c, stName: g.stations[c.si].name, label: p.to.label, m: c.len, min: c.len / mpm,
-          latlngs: [[c.lat, c.lon], [p.to.lat, p.to.lon]], others: exitList(G, c.si, p.to.lat, p.to.lon, c.ent) });
+          latlngs: (c.inner ? [[c.inLat, c.inLon]] : []).concat([[c.lat, c.lon], [p.to.lat, p.to.lon]]),
+          others: station ? exitList(G, c.si, p.to.lat, p.to.lon, c.ent) : [] });
       } else {
         const s = g.stations[r.endSi];
         items.push({ kind: 'arrive', si: r.endSi, stName: s.name, latlngs: [[s.lat / 1e5, s.lon / 1e5]],
@@ -391,7 +403,7 @@
 
   UG.steps = {
     WALK_KMH: WALK_KMH, STRUCT_KO: STRUCT_KO, SOURCE_KO: SOURCE_KO, pyRound: pyRound, isExposed: isExposed,
-    describe: describe, buildSteps: buildSteps, terminalDirection: terminalDirection, planItems: planItems, exitList: exitList,
+    describe: describe, buildSteps: buildSteps, terminalDirection: terminalDirection, planItems: planItems, exitList: exitList, connLabel: connLabel,
     fmtMinutes: fmtMinutes, fmtKm: fmtKm, fixed1: fixed1, circled: circled, stepText: stepText
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = UG.steps;

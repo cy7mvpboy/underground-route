@@ -63,6 +63,27 @@
       }).join('') + '</ol></section>';
   }
 
+  /* ---------- 대안 경로 한 줄(router.js alternative) ----------
+     alt = { using, extra_m, saved_m, saved_min }. 지하 우선 경로를 보는 중이면 '지상 700m 걸으면 14km 짧아요 · 약 4시간 단축',
+     대안을 보는 중이면 '지하 우선 경로로'. 결과 카드와 길 안내(앞이 막힘 뒤) 카드가 같이 쓴다. */
+  function roundDist(m) {   // 10km 넘으면 km 정수, 1km 넘으면 0.1km, 그 아래는 10m 단위
+    return m >= 10000 ? Math.round(m / 1000) + 'km' : m >= 1000 ? fmtDist(m) : Math.round(m / 10) * 10 + 'm';
+  }
+  function approxTime(min) {  // 1시간 아래는 5분 단위, 3시간 아래는 30분 단위, 그 위는 시간 단위
+    if (min < 60) return Math.max(5, Math.round(min / 5) * 5) + '분';
+    if (min >= 180) return Math.round(min / 60) + '시간';
+    const h = Math.round(min / 30) / 2;
+    return Math.floor(h) + '시간' + (h % 1 ? ' 30분' : '');
+  }
+  function altText(alt) {
+    if (alt.using) return '지하 우선 경로로';
+    return '지상 ' + roundDist(alt.extra_m) + ' 걸으면 ' + roundDist(alt.saved_m) + ' 짧아요 · 약 ' + approxTime(alt.saved_min) + ' 단축';
+  }
+  const ALT_ICON = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v9a5 5 0 0 0 5 5h7M16 15l3 3-3 3"/></svg>';
+  function altHtml(alt, cls) {
+    return alt ? '<button type="button" class="alt-line' + (alt.using ? ' is-using' : '') + (cls ? ' ' + cls : '') + '" data-action="alt">' + ALT_ICON + '<span>' + esc(altText(alt)) + '</span></button>' : '';
+  }
+
   function blockedHtml(n) {
     return n ? '<p class="msg blocked">막은 구간 ' + n + '곳 제외 <button type="button" class="link-btn" data-action="unblock">모두 풀기</button></p>' : '';
   }
@@ -95,7 +116,7 @@
     return out;
   }
 
-  // view: { total_m, exposed_m, minutes, items, hasTransfer, seoulSource, usesPoint, speed, nearest?, blocked, fromText, toText, street, endSi }
+  // view: { total_m, exposed_m, minutes, items, hasTransfer, seoulSource, usesPoint, speed, nearest?, blocked, fromText, toText, street, endSi, alt?(대안 경로 한 줄) }
   function renderRoute(R, view) {
     const lines = routeLines(view.items);
     let headLine;
@@ -119,6 +140,7 @@
       (lines.length ? '<p class="rc-lines" aria-label="지나는 노선">' + lines.map(function (n, i) {
         return (i ? '<span class="rc-sep" aria-hidden="true">›</span>' : '') + (n === '지상 걷기' ? '<span class="lc lc-walk">지상 걷기</span>' : chip(n));
       }).join('') + '</p>' : '') +
+      altHtml(view.alt) +
       '<button type="button" class="btn-primary" data-action="guide">' +
       '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3.5l15 8.5-15 8.5 3.5-8.5z"/></svg>안내 시작</button></div>' +
       (view.nearest ? nearestHtml(view.nearest, view.speed * 1000 / 60) : '') +
@@ -264,11 +286,11 @@
     }
     if (it.kind === 'walk') return '<li class="step">' + stepBtn(i, WALK_ICON, 's', n + '지상으로 바로 걷기', distTime(it.m, it.min, true), '') + '</li>';
     if (it.kind === 'enter') {
-      const title = ro(it.conn.kind === 'entrance' ? exitName(it.stName, it.conn.ref) : yeok(it.stName)) + ' 들어가기';
+      const title = ro(ST.connLabel(it.conn, it.stName, true)) + ' 들어가기';   // 출구·역·터널 입구·차량기지
       return '<li class="step">' + stepBtn(i, WALK_ICON, 's', n + esc(title), distTime(it.m, it.min, true), '') + '</li>';
     }
     if (it.kind === 'exit') {
-      const title = it.conn.kind === 'entrance' ? ro(exitName(it.stName, it.conn.ref)) + ' 나가기' : yeok(it.stName) + '에서 나가기';
+      const title = it.conn.kind === 'hub' ? yeok(it.stName) + '에서 나가기' : ro(ST.connLabel(it.conn, it.stName, false)) + ' 나가기';
       const area = it.conn.kind === 'entrance' ? areasText(it.conn.si, it.conn.ref) : '';   // '5번 출구로 나가기 · 동자동, 서울역 방면'
       return '<li class="step">' + stepBtn(i, WALK_ICON, 's', n + esc(title) + (area ? '<span class="step-area">· ' + esc(area) + '</span>' : ''),
         distTime(it.m, it.min, true), '') + exitsHtml(it.others, '다른 출구', it.conn.si) + '</li>';
@@ -345,7 +367,7 @@
 
   UG.panel = {
     esc: esc, yeok: yeok, ro: ro, fmtDist: fmtDist, fmtTime: fmtTime, exitName: exitName, shortRegion: shortRegion,
-    bigDist: bigDist, bigTime: bigTime, expoClass: expoClass, expoBadge: expoBadge,
+    bigDist: bigDist, bigTime: bigTime, expoClass: expoClass, expoBadge: expoBadge, altText: altText, altHtml: altHtml,
     mountRoute: mountRoute, renderRoute: renderRoute, messageHtml: messageHtml, routeLines: routeLines,
     xferBadge: xferBadge, xferChips: xferChips, xferLine: xferLine, depthChip: depthChip, areasText: areasText, junctionShort: junctionShort, approxM: approxM,
     forkSvg: forkSvg, exitHereHtml: exitHereHtml, ehIcon: ehIcon, ehSvg: ehSvg,

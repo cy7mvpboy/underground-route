@@ -373,7 +373,8 @@
      지상 도보 구간(출발 지점·출구 사이 등): 주황빨강 끊은 선.
      모양을 모르는 곳(지하도 모양이 없는 환승, 지하도 선 끝 ↔ 승강장): 테두리 없이 옅은 점선(xferLink)만.
      역 안 지하도 모양(passage.json)이 있는 출구 구간·환승은 app.js 가 그 선을 'under' 로 넘긴다.
-     segs: [{pts, kind: 'under'|'ground'|'bridge'|'walk'|'xfer'}] */
+     segs: [{pts, kind: 'under'|'ground'|'bridge'|'walk'|'xfer'}]
+     other: 고르지 않은 다른 경로(지하 우선 ↔ 대안)의 선 [[lat, lon], …] — 비교용으로 가늘고 옅게, 경로 아래에 */
   function RouteLayer(map) {
     const renderer = L.svg({ pane: 'route', padding: 0.5 });
     const hlGroup = L.layerGroup().addTo(map);       // 누른 단계 강조(경로 아래)
@@ -415,6 +416,7 @@
       drawn.segs.forEach(function (s) { (by[s.kind] || by.ground).push(s.pts); });
       const opt = { renderer: renderer, interactive: false, lineCap: 'round', lineJoin: 'round' };
       const all = by.under.concat(by.ground, by.bridge, by.walk);
+      if (drawn.other && drawn.other.length) L.polyline(drawn.other, Object.assign({ color: pal.text, weight: 3.5, opacity: 0.4 }, opt)).addTo(group);
       if (by.xfer.length) L.polyline(by.xfer, Object.assign({}, opt, xferLink(pal))).addTo(group);
       if (all.length) L.polyline(all, Object.assign({ color: pal.casing, weight: 12, opacity: 1 }, opt)).addTo(group);
       if (by.under.length) L.polyline(by.under, Object.assign({ color: pal.route, weight: 6.5, opacity: 1 }, opt)).addTo(group);
@@ -431,7 +433,7 @@
     return {
       setPalette: function (p) { pal = p; paint(); paintBlocked(); paintHl(); },
       setBlocked: function (lines) { blockedLines = lines || []; paintBlocked(); },
-      // view: { segs, from: {lat,lon}|null, to, exits: [{lat, lon, ref, title}], warnings: [{lat, lon}] }
+      // view: { segs, from: {lat,lon}|null, to, exits: [{lat, lon, ref, title}], warnings: [{lat, lon}], other: [[lat, lon], …]|null }
       show: function (view) {
         drawn = view;
         paint();
