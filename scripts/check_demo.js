@@ -47,8 +47,8 @@ check(reach1.counts.every((n, i) => n > 0 && (i === 0 || n >= reach1.counts[i - 
 const segs1 = UG.reach.segments(G, reach1);
 check(segs1.length === 4 && segs1.every((s) => s.length > 0), `시간대별 선 조각: ${segs1.map((s) => s.length).join(' · ')}개 (띠마다 칠할 선 있음)`);
 
-/* ---------- 2) 여의도 → 광화문, 한강 하저터널 막힘 → 재탐색 ---------- */
-console.log('\n[2] 여의도 → 광화문, 막힘 + 재탐색');
+/* ---------- 2) 공덕 → 한성백제: 한강 하저터널 막힘 → 다른 하저터널로 재탐색 → 갈림길 통과 → 도착 ---------- */
+console.log('\n[2] 공덕 → 한성백제, 하저터널 막힘 + 재탐색 + 갈림길');
 const M = CONF.move;
 const p2 = planOf(st(M.from), st(M.to));
 check(!!p2 && p2.view.exposed_m === 0, `처음 경로 ${km(p2.view.total_m)}, 지상 ${p2.view.exposed_m}m: ${rides(p2)}`);
@@ -58,25 +58,43 @@ check(at >= 0 && at + 1 < cps2.length, `막기 전 마지막 확인 지점 = ${a
 const legM = cps2[at + 1].at - cps2[at].at, walked = legM * M.blockFrac;
 const han = new Map(g.presets.han_crossings.map((x) => [x.e, x]));
 const crossed = UG.demo.hanCrossing(G, p2.route.path);
-check(!!crossed, `처음 경로가 지나는 한강 하저터널: ${crossed ? crossed.line + ' ' + crossed.a + '–' + crossed.b + ' (간선 ' + crossed.e + ')' : '없음'}`);
+const crossAt = crossed ? p2.route.path.findIndex((x) => x.e === crossed.e) : -1;
+check(!!crossed && crossed.line === '5호선' && crossed.a === '마포' && crossed.b === '여의나루' && cps2[at].pos < crossAt && cps2[at + 1].pos >= crossAt,
+  `처음 경로가 지나는 한강 하저터널: ${crossed ? crossed.line + ' ' + crossed.a + '–' + crossed.b + ' (간선 ' + crossed.e + ')' : '없음'} = ${cps2[at].label}과 ${cps2[at + 1].label} 사이`);
+// 갈림길은 막힌 뒤 다시 찾은 길에서 보인다(설계): 막기 전 구간에는 갈림길 체크포인트가 없다
+check(cps2.slice(0, at + 2).every((c) => c.kind !== 'junction'), `막기 전(출발 ~ ${cps2[at + 1].label})에는 갈림길 없음`);
+const pre = cps2[at].at + walked;
+info(`막히기 전 걷는 거리 ${km(pre)} (확인 지점 ${at + 1}곳)`);
 const b = UG.guide.planBlock(G, { plan: p2, cps: cps2, cur: at }, walked);
 const blockedHan = [...b.edges].filter((e) => han.has(e));
 check(!b.error && crossed && b.edges.has(crossed.e), `앞이 막힘(터널 ${Math.round(walked)}m 지점): 간선 ${b.edges.size}개 막음, 그중 한강 하저터널 ${blockedHan.join(', ')} · 다시 출발 ${b.from && b.from.label} · 되돌아감 ${Math.round(b.backtrack)}m`);
 const extra = [...b.edges].filter((e) => !han.has(e));
-check(!extra.length, `한강 하저터널 말고는 막지 않음(이웃 여의도–여의나루 터널은 그대로)${extra.length ? ': 더 막힌 간선 ' + extra.join(', ') : ''}`);
+check(!extra.length, `한강 하저터널 말고는 막지 않음(이웃 공덕–마포·여의나루–여의도 터널은 그대로)${extra.length ? ': 더 막힌 간선 ' + extra.join(', ') : ''}`);
+check(b.from && b.from.si === si(M.blockAfter), `다시 출발 = ${M.blockAfter.replace(/@.*/, '')}역(마지막 확인 지점)`);
 b.edges.forEach((e) => blocked.add(e));
 const p3 = planOf(b.from, p2.to);
 check(!!p3, p3 ? `다시 찾음 ${km(p3.view.total_m)}, 지상 ${Math.round(p3.view.exposed_m)}m: ${rides(p3)}` : '다시 찾기 실패');
 check(p3 && p3.route.path.every((x) => !blocked.has(x.e)), '다시 찾은 경로는 막은 간선을 쓰지 않음');
 check(p3 && p3.route.endSi === si(M.to), `다시 찾은 경로의 도착 = ${p3 ? g.stations[p3.route.endSi].name : '-'}`);
-// 어느 노선으로 건너는지는 그래프에 따라 바뀔 수 있어 정하지 않는다(막은 간선을 피하고, 광화문까지, 지상 노출 1km 이하)
-check(p3 && p3.view.exposed_m <= 1000, `다시 찾은 경로의 지상 노출 ${p3 ? Math.round(p3.view.exposed_m) : '-'}m (1km 이하)`);
+check(p3 && p3.view.exposed_m === 0, `다시 찾은 경로의 지상 노출 ${p3 ? Math.round(p3.view.exposed_m) : '-'}m (전 구간 지하)`);
 const cross2 = p3 && UG.demo.hanCrossing(G, p3.route.path);
-info(`한강을 건너는 곳: ${cross2 ? cross2.line + ' ' + cross2.a + '–' + cross2.b + ' (간선 ' + cross2.e + ')' : '하저터널 아님(자막은 \'다른 길로 다시 찾음\')'}`);
+const cross2At = cross2 ? p3.route.path.findIndex((x) => x.e === cross2.e) : -1;
+check(!!cross2 && !blocked.has(cross2.e) && han.get(cross2.e).s === 'tunnel', `다른 한강 하저터널로 건넘: ${cross2 ? cross2.line + ' ' + cross2.a + '–' + cross2.b + ' (간선 ' + cross2.e + ')' : '없음'}`);
 const alt3 = p3 && UG.router.alternative(G, b.from, p2.to, p3.route, { blocked, speedKmh: SPEED });
-info(`길 안내 카드의 대안 경로 한 줄: ${alt3 ? '지상 ' + Math.round(alt3.extra_m) + 'm 더, ' + km(alt3.saved_m) + ' 짧음, ' + Math.round(alt3.saved_min) + '분 단축' : '없음'}`);
+info(`길 안내 카드의 대안 경로 한 줄: ${alt3 ? '지상 ' + Math.round(alt3.extra_m) + 'm 더, ' + km(alt3.saved_m) + ' 짧음, ' + Math.round(alt3.saved_min) + '분 단축(시연은 잠깐 짚고 지하 우선으로 계속)' : '없음(시연은 대안 한 줄 없이 지나감)'}`);
 const cps3 = p3 ? UG.guide.buildCheckpoints(G, p3) : [];
 check(cps3.length > 0 && cps3[cps3.length - 1].kind === 'end', `다시 찾은 경로 체크포인트 ${cps3.length}개(빨리 감기 동안 '도착'을 이만큼 누름)`);
+// 갈림길: 다시 찾은 길에서 하저터널을 건넌 뒤 처음 만나는 갈림길 = 강동 지나 5호선 본선(길동)과 마천지선(둔촌동)이 갈라지는 곳
+const jk = cps3.findIndex((c) => c.kind === 'junction' && c.jn != null);
+const jn = jk >= 0 ? p3.junctions[cps3[jk].jn] : null;
+check(!!jn && jn.pos > cross2At && jk < cps3.length - 1, jn ? `갈림길 체크포인트(다시 찾은 길 ${km(cps3[jk].at)} 지점, 하저터널 뒤): ${UG.junctions.junctionText(jn)}` : '다시 찾은 길에 갈림길 없음');
+check(!!jn && jn.chosen.kind === 'line' && jn.alternatives.length === 1 && jn.alternatives[0].kind === 'line' && /마천지선/.test(jn.chosen.name + ' ' + jn.alternatives[0].name),
+  jn ? `갈래 두 개 모두 노선 선로: 갈 쪽 ${jn.chosen.side} ${jn.chosen.name}(${jn.chosen.toward}), 다른 쪽 ${jn.alternatives.map((a) => a.side + ' ' + a.name + '(' + a.toward + ')').join(', ')}` : '갈래 없음');
+check(cps3.filter((c) => c.kind === 'junction').length === 1, `다시 찾은 길의 갈림길은 이곳 하나('통과' 한 번)`);
+const B = CONF.boost, mps = SPEED / 3.6 * 60;   // ×60 일 때 1배속 1초에 걷는 m
+const jAt = jk >= 0 ? cps3[jk].at : 0, before = jk > 0 ? cps3[jk - 1].at : 0;
+const walkSec2 = cps2[at].at / (mps * B.move) + walked / (mps * B.move) + before / (mps * B.ff) + (jAt - before) / (mps * B.fork) + (p3 ? p3.view.total_m - jAt : 0) / (mps * B.arrive);
+info(`재생 시간(×60): 걷기 약 ${Math.round(walkSec2)}초 (+ 장면마다 멈춤)`);
 blocked.clear();
 
 /* ---------- 3) 부산역 → 해운대 (길고, 전 구간 지하, 환승 있음) ---------- */

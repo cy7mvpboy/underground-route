@@ -2,7 +2,8 @@
    여는 법: 정보 탭의 '발표용 재생 시작' · 주소 끝 #demo (1번부터) · #demo2 ~ #demo4 (그 시나리오부터) · UG.demo.open(번호).
    시나리오 (장면마다 자막 한 줄):
      1. 공습 → 가장 가까운 지하로: 서울 시청 앞 → 가까운 출구 → 지하 승강장 → 여기서 지하로 4시간 안에 갈 수 있는 곳(한 번에, 시간대별 색)
-     2. 이동 + 막힘: 여의도 → 광화문 길 안내, 한강 아래 5호선 터널에서 '앞이 막힘' → 다른 길로 다시 찾기 → 도착
+     2. 하저터널 막힘 + 갈림길: 공덕 → 한성백제 길 안내, 한강 아래 5호선 마포–여의나루 터널에서 '앞이 막힘' → 마포역으로 되돌아가
+        다른 하저터널(5호선 광나루–천호)로 다시 찾기 → 강동 지나 갈림길(오른쪽 갈래 = 마천지선, '통과') → 도착
      3. 지방 도시: 부산역 → 해운대 18.5km, 전 구간 지하(지상 노출 0m), 연산·수영에서 환승 2번(빨리 감기)
      4. 장거리 피난의 한계: 서울역 → 부산역, 지상 노출 구간을 빨갛게 칠하며 빠르게 따라가기
    조작: 아래 칸(시나리오 · 재생/멈춤 · 다음 장면 · 처음부터 · 속도 · 끝내기), 키보드 Space · → · 1~4 · Esc.
@@ -24,10 +25,12 @@
      ========================================================= */
   const CONF = {
     raid: { lat: 37.5663, lon: 126.9779, label: '시청 앞' },                                    // 1. 서울 시청 앞 길
-    move: { from: '여의도@서울', to: '광화문@서울', blockAfter: '여의나루@서울', blockFrac: 0.45 }, // 2. 여의나루 지나 터널 45% 지점에서 막힘
+    // 2. 마포 지나 하저터널 45% 지점에서 막힘. 다시 찾은 길은 광나루–천호 하저터널 → 강동 지나 갈림길(마천지선) → 도착. 빨리 감기는 줌 ffZoom 으로 따라감
+    move: { from: '공덕@서울', to: '한성백제@서울', blockAfter: '마포@서울', blockFrac: 0.45, ffZoom: 12 },
     busan: { from: '부산역@부산', to: '해운대@부산', label: '부산역 → 해운대', zoom: 14, xferHold: 1600 },  // 3. 지도는 줌 14로 따라감, 환승에서 잠깐 멈춤
     far: { from: '서울역@서울', to: '부산역@부산', flySec: 24 },                                 // 4. ×60 일 때 24초 동안 따라가기
-    boost: { raid: 0.5, move: 2, ff: 40, busan: 16 },                                           // 장면별 배속(고른 속도 × 이 값). 부산은 ×60 이면 걷기 약 20초
+    // 장면별 배속(고른 속도 × 이 값). 2번: move = 터널까지 걷기, ff = 갈림길까지 빨리 감기, fork = 갈림길 앞, arrive = 도착까지. 부산은 ×60 이면 걷기 약 20초
+    boost: { raid: 0.5, move: 3, ff: 40, fork: 1.5, arrive: 12, busan: 16 },
     speedKmh: 3.5                                                                               // 시연 중 걷는 속도(앱 기본값)
   };
   const SPEEDS = [30, 60, 120];
@@ -192,7 +195,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('.demo-press'), function (b) { b.classList.remove('demo-press'); });
     clearMarks();
     bigText('');
-    pin = null;
+    pin = null; still = false;
   }
 
   // 지도에서 가리지 않는 곳: 위(검색 막대·안내 카드), 왼쪽(넓은 화면의 패널), 아래(시연 칸)
@@ -267,7 +270,8 @@
   function guideView() { const g = UG.app.guide(); return g && g.isOpen() ? g : null; }
 
   // 걸은 거리 m 를 길 안내에 알린다: since 를 당겨 놓고, 화면은 0.1초마다(움직임 줄이기면 1초마다) 다시 그린다
-  let lastPing = 0, pin = null;
+  // still = 지도를 멈춰 둔다(갈림길을 크게 본 채 걷기: 따라가기 없이 위치만 움직임)
+  let lastPing = 0, pin = null, still = false;
   function setWalked(m, force) {
     const g = guideView(), gs = g && g.state();
     if (!gs) return;
@@ -277,7 +281,7 @@
     if (!force && now - lastPing < (reduce() ? 1000 : 90)) return;
     lastPing = now;
     g.ping();                    // 앱이 추정 위치·남은 거리를 다시 그린다
-    follow(S().guidePos);
+    if (!still) follow(S().guidePos);
   }
 
   // 마지막 확인 지점 ~ 다음 확인 지점의 선(지도 맞추기용)
@@ -314,11 +318,57 @@
     }
   }
   // 따라가기 자막: 타는 구간 '부산 1호선 · 부산역 → 연산역', 환승 '연산역 환승 · 부산 1호선 → 부산 3호선'
-  function legCaption(next, gs) {
+  function legText(next, gs) {
     const it = gs.plan.items[next.item], st = it && it.kind === 'step' ? it.step : null;
-    if (!st) return;
-    if (st.type === 'transfer') caption(PN().yeok(st.station) + ' 환승 · ' + st.from_line + ' → ' + st.to_line);
-    else if (st.type === 'ride') caption(st.line + ' · ' + PN().yeok(st.from_station) + ' → ' + PN().yeok(st.to_station));
+    if (!st) return '';
+    if (st.type === 'transfer') return PN().yeok(st.station) + ' 환승 · ' + st.from_line + ' → ' + st.to_line;
+    if (st.type === 'ride') return st.line + ' · ' + PN().yeok(st.from_station) + ' → ' + PN().yeok(st.to_station);
+    return '';
+  }
+  function legCaption(next, gs) { const t = legText(next, gs); if (t) caption(t); }
+  // 자막 한 줄은 그대로 두고 아래 작은 줄만 지금 구간으로(빨리 감기)
+  function legSub(next, gs) { const t = legText(next, gs); if (t && ui) caption(ui.cap.textContent, t); }
+
+  // 갈림길에서 갈 쪽 말: '오른쪽 갈래로' · '오른쪽 선로로' · '직진 선로로' (guide.js 와 같은 말)
+  function forkGo(side) { return side === '직진' ? '직진 선로로' : side + (/갈래$/.test(side) ? '로' : ' 선로로'); }
+  // 갈림길 그림(앱이 그리는 Y자: 들어오는 선 약 120m, 갈래마다 약 160m, 끝에 이름표)이 다 보이게 맞출 점들
+  function forkPoints(gs, cp) {
+    const s = S(), GR = UG.graph, J = UG.junctions, j = gs.plan.junctions[cp.jn], c = [j.lat, j.lon], pts = [c], ends = [];
+    const add = function (l) { l.forEach(function (q) { pts.push(q); }); };
+    UG.guide.sliceTrack(s.guideTrack, Math.max(0, cp.at - 120), cp.at).forEach(add);
+    const ahead = UG.guide.sliceTrack(s.guideTrack, cp.at, cp.at + 160);
+    ahead.forEach(add);
+    if (ahead.length) { const l = ahead[ahead.length - 1]; ends.push(l[l.length - 1]); }
+    j.alternatives.forEach(function (a) {   // 다른 갈래: 앱처럼 선로를 따라간 처음 160m
+      let line = [];
+      J.followBranch(s.G, j.node, a.edge, null, Object.assign({}, J.DEFAULTS, { walkM: 400 })).steps.forEach(function (x) {
+        const sh = GR.edgeShape(s.g, x[0], x[1]);
+        line = line.length ? line.concat(sh.slice(1)) : sh;
+      });
+      if (line.length < 2) return;
+      const cum = GR.cumulative(line), l = GR.sliceAlong(line, cum, 0, Math.min(160, cum[cum.length - 1]));
+      add(l); ends.push(l[l.length - 1]);
+    });
+    return pts;
+  }
+  // 지도에 그린 갈래 이름표(글자 상자)·갈림길 점·지금 위치가 보이는 곳 가운데에 오게 옮긴다.
+  // 지도 맞추기는 글자 상자 크기를 모르므로 그린 뒤 화면에서 재고, 안 들어가면 한 단계 줄여 다시 잰다(폰은 보이는 곳이 좁다).
+  async function centerFork() {
+    const map = S().map;
+    for (let k = 0; k < 3; k++) {
+      await until(function () { return !map._animatingZoom; });
+      await hold(reduce() ? 50 : 400);                     // 옮기는 움직임이 끝나게
+      const els = Array.prototype.filter.call(document.querySelectorAll('.fork-tag, .jn-dot.is-cur, .pos-est'), function (el) { return el.getClientRects().length; });
+      if (!els.length) return;
+      let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+      els.forEach(function (el) { const q = el.getBoundingClientRect(); l = Math.min(l, q.left); t = Math.min(t, q.top); r = Math.max(r, q.right); b = Math.max(b, q.bottom); });
+      const pad = viewPad(), m = map.getContainer().getBoundingClientRect();
+      const box = { l: m.left + pad.paddingTopLeft[0], t: m.top + pad.paddingTopLeft[1], r: m.right - pad.paddingBottomRight[0], b: m.bottom - pad.paddingBottomRight[1] };
+      if (k < 2 && (r - l > box.r - box.l || b - t > box.b - box.t)) { map.setZoom(map.getZoom() - 1, { animate: !reduce() }); continue; }
+      const dx = (l + r - box.l - box.r) / 2, dy = (t + b - box.t - box.b) / 2;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) map.panBy([dx, dy], { animate: !reduce() });
+      return;
+    }
   }
 
   /* ---------- 시연 표시(공습 고리, 막힘 표시, 장거리 따라가기 선) ---------- */
@@ -439,10 +489,10 @@
       } }
     ] },
 
-    { name: '이동 + 막힘 재탐색', short: '막힘', scenes: [
-      { cap: '여의도 → 광화문', run: async function (ctx) {
-        const p = ctx.p = routeBetween(CONF.move.from, CONF.move.to);
-        caption('여의도 → 광화문 · 지하로 ' + km(p.view.total_m));
+    { name: '하저터널 막힘 + 갈림길', short: '막힘', scenes: [
+      { cap: '공덕 → 한성백제', run: async function (ctx) {
+        const p = ctx.p = routeBetween(CONF.move.from, CONF.move.to), h = hanCrossing(S().G, p.route.path);
+        caption('공덕 → 한성백제 · 지하로 ' + km(p.view.total_m), h ? '한강 아래: ' + h.line + ' ' + h.a + '–' + h.b + ' 하저터널' : '');
         await phonePeek();
         await fitView(planPoints(p), 15);
         await hold(2800);
@@ -452,37 +502,74 @@
         const stop = stationIndex(CONF.move.blockAfter);
         await walkGuide({ boost: CONF.boost.move, camera: 'leg', until: function (next, gs) { return gs.cur >= 0 && gs.cps[gs.cur].si === stop; } });
       } },
-      { cap: '한강 아래 터널: 여의나루 → 마포', run: async function () {
+      { cap: '한강 아래 하저터널', run: async function (ctx) {
         const g = guideView(), gs = g && g.state();
         if (!gs) return;
+        const h = hanCrossing(S().G, ctx.p.route.path);
+        if (h) caption('한강 아래 하저터널: ' + h.a + ' → ' + h.b);
         const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m), m = p.toNext_m * CONF.move.blockFrac;
         S().guideFollow = false;
         await fitView(legPoints(gs, p), 16);
         await walk(m, CONF.boost.move, setWalked);
         setWalked(m, true);
       } },
-      { cap: '앞이 막힘 — 터널이 무너졌다', run: async function () {
-        const pos = S().guidePos;
+      { cap: '한강 하저터널 막힘', run: async function (ctx) {
+        const pos = ctx.blockPos = S().guidePos;
         if (pos) htmlMark(pos, '<span class="demo-x" aria-hidden="true">막힘</span>', 1950);
         await press('guide-block', 900);                    // 앱의 '앞이 막힘': 그 구간을 막고 마지막 확인 지점에서 다시 찾는다
         S().guideFollow = false;
         setWalked(0, true);                                  // 새 안내는 아직 0m(기다리는 동안 추정 위치가 흐르지 않게)
-        const p = S().plan, here = S().guidePos || (p && [p.from.lat, p.from.lon]);   // 다시 출발할 곳(마지막 확인 지점)을 가운데에, 막힌 곳도 보이게
-        if (pos && here) await fitView(UG.app.aroundCenter([pos], here), 16);
-        await hold(2800);
+        const p = S().plan, g = guideView(), gs = g && g.state(), here = S().guidePos || (p && [p.from.lat, p.from.lon]);
+        if (p && gs && gs.backtrack >= 10) caption('한강 하저터널 막힘', (p.from.label || '확인한 곳') + '까지 ' + PN().fmtDist(gs.backtrack) + ' 되돌아가 다시 찾기');
+        if (pos && here) await fitView(UG.app.aroundCenter([pos], here), 16);   // 다시 출발할 곳(마지막 확인 지점)을 가운데에, 막힌 곳도 보이게
+        await hold(2600);
       } },
-      { cap: '다른 하저터널로 다시 찾음', run: async function (ctx) {
+      { cap: '되돌아가 다른 하저터널로', run: async function (ctx) {
         const p = ctx.p2 = S().plan;
         if (!p) return;
         const h = hanCrossing(S().G, p.route.path);
-        caption(h ? '다른 하저터널로: ' + h.line + ' ' + h.a + '–' + h.b : '다른 길로 다시 찾음', km(p.view.total_m) + ' · 지상 노출 ' + PN().fmtDist(p.view.exposed_m));
-        await fitView(planPoints(p), 15);
-        await hold(3800);
+        caption(h ? '되돌아가 다른 하저터널로' : '되돌아가 다른 길로', (h ? h.line + ' ' + h.a + '–' + h.b + ' · ' : '') + km(p.view.total_m) + ' · 지상 노출 ' + PN().fmtDist(p.view.exposed_m));
+        // 다시 찾은 길 전체와 막힌 곳. 가장자리 표시(막힘·출발·도착)가 잘리지 않게 둘레를 6% 넓힌다
+        const bb = L.latLngBounds(planPoints(p).concat(ctx.blockPos ? [ctx.blockPos] : [])).pad(0.06);
+        await fitView([bb.getSouthWest(), bb.getNorthEast()], 15);
+        await hold(3400);
+        // 대안 한 줄(지상을 조금 걸으면 짧은 길)이 카드에 보이면 잠깐 짚고, 누르지 않고 지하 우선 경로로 간다
+        const alt = document.querySelector('#guide-alt-slot:not([hidden]) [data-action="alt"]');
+        if (alt) { caption('대안: ' + alt.textContent, '누르지 않고 지하 우선 경로로 계속'); await flash(alt, 2200); }
+      } },
+      { cap: '빨리 감기 — 갈림길까지', run: async function () {
+        await walkGuide({ boost: CONF.boost.ff, camera: 'follow', zoom: CONF.move.ffZoom, fast: true, onLeg: legSub,
+          until: function (next) { return next.kind === 'junction' && next.jn != null; } });
+      } },
+      { cap: '갈림길 — 갈 갈래로', run: async function () {
+        const g = guideView(), gs = g && g.state();
+        if (!gs) return;
+        const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m), cp = p.next;
+        if (!cp || cp.kind !== 'junction' || cp.jn == null) return;
+        const j = gs.plan.junctions[cp.jn], a = j.alternatives[0], toward = function (b) { return b.toward ? b.toward + ' 방면' : b.name; };
+        caption('갈림길 — ' + forkGo(j.chosen.side), toward(j.chosen) + (a ? ' · ' + a.side + (/갈래$/.test(a.side) ? '는 ' : '은 ') + toward(a) : ''));
+        S().guideFollow = false;
+        // 1) 지금 위치와 갈림길이 보이게 맞추고 따라가며 걷다가, 2) 갈림길 약 60m 앞에서 Y자 갈래(이름표 포함)를 크게 보고 지도를 멈춘 채 마저 걷는다
+        const pos = S().guidePos, near = Math.max(0, p.toNext_m - 60);
+        await fitView((pos ? [pos] : []).concat([[j.lat, j.lon]]), 17);
+        await walk(near, CONF.boost.fork, setWalked);
+        setWalked(near, true);
+        still = true;
+        try {
+          await fitView(forkPoints(gs, cp), 18);
+          await centerFork();
+          await walk(p.toNext_m - near, CONF.boost.fork, function (m) { setWalked(near + m); });
+          setWalked(p.toNext_m, true);
+          await hold(900);                                   // 안내 카드의 큰 Y자와 지도의 갈래 이름표
+          await press('guide-arrive', 1400);                 // 큰 단추 '통과'
+        } finally { still = false; }
       } },
       { cap: '도착까지 빨리 감기', run: async function () {
-        await walkGuide({ boost: CONF.boost.ff, camera: 'none', fast: true });
+        await walkGuide({ boost: CONF.boost.arrive, camera: 'leg', fast: true, onLeg: legSub });
       } },
-      { cap: '광화문역 도착 — 막힌 터널을 돌아 지하로', run: async function () {
+      { cap: '도착 — 막힌 터널을 돌아 지하로', run: async function (ctx) {
+        const st = S().station;
+        caption((st ? PN().yeok(stName(st.si)) + ' ' : '') + '도착 — 막힌 터널을 돌아 지하로', ctx.p2 ? '다시 찾은 길 ' + km(ctx.p2.view.total_m) + ' · 지상 노출 ' + PN().fmtDist(ctx.p2.view.exposed_m) : '');
         await fitArrival();
         await hold(3200);
       } }
