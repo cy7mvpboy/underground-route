@@ -222,8 +222,10 @@
 
   /* ---------- 경로 위 거리 -> 지도 위치 ----------
      체크포인트의 at(출발부터 m)과 같은 순서·같은 거리로 경로 선을 이어 붙인다.
-     조각마다 안내 거리(len)와 선 모양(pts)이 있고, 조각 안에서는 선 길이에 비례해 위치를 찾는다. */
-  function routeTrack(G, plan) {
+     조각마다 안내 거리(len)와 선 모양(pts)이 있고, 조각 안에서는 선 길이에 비례해 위치를 찾는다.
+     shape(e, u) 를 주면 간선 모양을 그것으로 바꾼다(app.js: 출입구·환승 간선을 지도에 그린 지하도 선으로. null 이면 원래 모양).
+     모양만 바뀌고 거리(len)는 그대로라 체크포인트·남은 거리는 같다. */
+  function routeTrack(G, plan, shape) {
     const path = plan.route.path, E = G.g.edges, pieces = [];
     let at = 0;
     const add = function (pts, len) {
@@ -236,7 +238,7 @@
       const s = it.step;
       s._idx.forEach(function (i) {
         if (s.type === 'surface' && s._pts) add(s._pts, s._m);
-        else add(GR.edgeShape(G.g, path[i].e, path[i].u), E.len[path[i].e]);
+        else add((shape && shape(path[i].e, path[i].u)) || GR.edgeShape(G.g, path[i].e, path[i].u), E.len[path[i].e]);
       });
     });
     return { pieces: pieces, total: at };

@@ -73,12 +73,18 @@
 
   /* ---------- 준비(한 번만) ---------- */
   // 이름을 미리 정규화해 둔다. index 객체에 숨은 속성으로 붙여 두고 다시 쓴다.
-  function prepare(index) {
+  // budgetMs 를 주면 그 시간만 하고 멈춘다(다 못 했으면 null). 다음에 부르면 멈춘 곳부터 이어서 한다.
+  // 나눠서 만들어도 결과(열쇠와 그 순서)는 한 번에 만든 것과 같다. budgetMs 가 없으면 끝까지 한다.
+  const now = typeof performance !== 'undefined' ? function () { return performance.now(); } : Date.now;
+  function prepare(index, budgetMs) {
     if (index._prep) return index._prep;
     const P = index.p, types = index.types;
-    const keys = [], keyEntry = [], keyAlias = [];
-    for (let i = 0; i < P.length; i++) {
-      const e = P[i], type = types[e[1]];
+    if (!index._work) Object.defineProperty(index, '_work', { value: { i: 0, keys: [], keyEntry: [], keyAlias: [] }, enumerable: false, configurable: true });
+    const w = index._work, keys = w.keys, keyEntry = w.keyEntry, keyAlias = w.keyAlias;
+    const until = budgetMs != null ? now() + budgetMs : Infinity;
+    for (; w.i < P.length; w.i++) {
+      if ((w.i & 255) === 0 && now() > until) return null;   // 시간이 다 됐다: 이 장소(w.i)부터 다음에
+      const i = w.i, e = P[i], type = types[e[1]];
       const names = [e[0]];
       if (e.length > 5 && e[5]) for (const a of e[5]) names.push(a);
       const seen = {};
@@ -98,6 +104,7 @@
     };
     for (let i = 0; i < P.length; i++) prep.boost[i] = TYPE_BOOST[types[P[i][1]]] || 0;
     Object.defineProperty(index, '_prep', { value: prep, enumerable: false, configurable: true });
+    delete index._work;
     return prep;
   }
 

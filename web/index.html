@@ -3,9 +3,12 @@
 <title>지하로</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0B1214">
+<!-- 철도망 자료(약 1MB)를 HTML을 읽자마자 받기 시작한다. 스크립트를 다 받은 뒤 app.js 가 같은 주소를 fetch 하면 이 응답을 쓴다(crossorigin 이 있어야 fetch 와 맞는다). -->
+<link rel="preload" href="data/graph.json" as="fetch" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<!-- 글꼴 CSS는 첫 화면을 막지 않게 media="print"로 받아 두고, app.js 가 시작할 때 media="all"로 켠다(그 전에는 기본 글꼴). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" media="print">
 <style>
 /* =====================================================================
    디자인 토큰 (설명: docs/design.md)
@@ -509,7 +512,6 @@ html.guide-open .toast { top: auto; bottom: calc(var(--ui-bottom) + 16px); }
 .xh-t .lc { height: 22px; }
 .xh-r .xh-t { left: 15px; transform: translateY(-50%); }
 .xh-l .xh-t { right: 15px; transform: translateY(-50%); }
-.xh-arrow { position: absolute; left: 0; top: 0; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 16px solid var(--c); filter: drop-shadow(0 0 1.5px var(--casing)) drop-shadow(0 0 1.5px var(--casing)); }
 .next-cp { position: absolute; display: flex; align-items: center; gap: 6px; transform: translate(-9px, -50%); white-space: nowrap; }
 .next-cp-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--sos); border: 3px solid var(--casing); box-shadow: var(--shadow); }
 .next-cp-t { padding: 3px 8px; border-radius: 6px; background: var(--surface); color: var(--text); border: 1px solid var(--line-strong); font-size: 12px; font-weight: 700; box-shadow: var(--shadow); }
@@ -857,6 +859,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
           <li>환승 거리(2025-03-31)·역 깊이(2024-11-04): 서울교통공사, 서울 열린데이터광장, 공공누리 제1유형</li>
           <li>출구 주변 이름(2026-09-02): 서울교통공사 역별 역세권 현황, 공공데이터포털</li>
           <li>빠른 환승(2025-09-23): 국토교통부 철도역 빠른 환승 정보, 공공데이터포털</li>
+          <li>역 안 지하도 모양(출구·환승 통로, 2021년 무렵): 서울시 지하철역 연계 지하도 공간정보, 공공데이터포털</li>
           <li>도보 경로: FOSSGIS OSRM (routing.openstreetmap.de), © OpenStreetMap</li>
           <li>온라인 장소 검색: Photon (komoot), © OpenStreetMap</li>
           <li>지도 프로그램: Leaflet · 글꼴: IBM Plex Sans KR (OFL)</li>
@@ -974,6 +977,7 @@ html.guide-open .topbar, html.guide-open .fab-col, html.guide-open .sos-bar, htm
 <script src="js/exithere.js"></script>
 <script src="js/steps.js"></script>
 <script src="js/transfer.js"></script>
+<script src="js/passage.js"></script>
 <script src="js/nearest.js"></script>
 <script src="js/guide.js"></script>
 <script src="js/places.js"></script>

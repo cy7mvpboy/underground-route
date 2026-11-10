@@ -22,6 +22,7 @@
     basemapUrl: 'data/basemap.json',
     placesUrl: 'data/places.json',
     extraUrl: 'data/extra.json',     // 덧붙는 공식 자료(빠른 환승·출구 주변). 없어도 된다
+    passageUrl: 'data/passage.json', // 역 안 지하도 선 모양(서울, 출구 구간·환승 그림). 없어도 된다
     egressUrl: 'data/egress.json',   // 터널 출입구·수직구·차량기지(여기서 나가기·출구 후보 표시). 없어도 된다(역 출구만)
     egressZoom: 13, depotZoom: 12,   // 출구 후보 표시: 터널 출입구·수직구는 줌 13, 차량기지는 줌 12 이상
     offRouteM: 150,                  // 길 안내 중 GPS 위치가 경로에서 이만큼 떨어지면 '경로에서 벗어남'
@@ -84,9 +85,17 @@
     places: null, nearest: null, openSheetOnPlan: false,
     guide: null, guideTrack: null, guideFollow: true, guidePos: null, guideOff: 0, myLoc: null,
     egress: undefined, egressLoading: null, egressLayer: null, exitHere: null,   // egress.json(undefined = 아직 안 받음, null = 없음), 여기서 나가기 목록
+    passage: undefined, exitFocus: null,   // passage.json(undefined = 아직 안 받음, null = 없음), 지하도 선을 그린 출구 번호
     sheet: null, search: null, saveDlg: null, view: null, station: null,
     fit: null, fitTimer: 0, loading: false, lastPopupClose: 0, fitToken: 0, listeners: []
   };
+
+  // 글꼴 CSS 켜기(index.html 에서 첫 화면을 막지 않게 media="print" 로 받아 둠).
+  // graph.json 을 다 받은 뒤에 켠다: 글꼴 파일(약 270KB)이 철도망 자료와 같은 때 받히면 철도망이 늦게 온다.
+  function enableFonts() {
+    const fontCss = document.querySelector('link[media="print"][href*="fonts.googleapis.com"]');
+    if (fontCss) fontCss.media = 'all';
+  }
 
   function boot() {
     const ui = state.ui = getUi();
@@ -156,7 +165,9 @@
     let g;
     try {
       g = await GR.loadGraph(CFG.dataUrl, function (bytes) { ui.statusDetail.textContent = (bytes / 1048576).toFixed(1) + ' MB 받음'; });
+      enableFonts();
     } catch (e) {
+      enableFonts();
       state.loading = false;
       const t = (ERROR_TEXT[e.kind] || ERROR_TEXT.network)(e.detail);
       setStatus('error', t[0], t[1]);
@@ -178,22 +189,32 @@
     }
     setStatus('busy', '선로를 그리는 중입니다', '');
     await nextFrame();
-    drawLayers();
+    drawLayers();               // 철도망은 지금 보이는 곳만 먼저 그린다(layers.js NetworkLayer)
     setStatus('hidden');
-    loadBasemap().then(loadExtra).then(loadPlaces);   // 모두 첫 화면을 막지 않는다
     emit();
+    /* 첫 화면 뒤에 받는 것(docs\graph-format.md 14.1절). 모두 첫 화면을 막지 않는다.
+       간이 배경 지도, 나머지 선로(화면이 놀 때 조금씩)
+         -> 다 그리면 extra.json -> egress.json(출구 후보를 켠 채 줌 12 이상일 때) -> passage.json -> places.json.
+       필요하면 그 전에라도 받는다: 경로·역 시트(extra, passage), 검색 화면(places), 길 안내·여기서 나가기·확대(egress).
+       인터넷이 끊겨도 쓰도록 결국 받아 둔다. */
+    loadBasemap();
+    state.net.drawRest(function () {
+      loadExtra().then(wantEgress).then(loadPassage).then(loadPlaces);
+    });
   }
 
   // 덧붙는 공식 자료(extra.json: 빠른 환승·출구 주변 이름). 없거나 형식이 다르면 조용히 넘어간다.
-  // 받으면 지금 보이는 경로·역 시트를 다시 그려 새 내용을 넣는다.
-  async function loadExtra() {
-    if (!UG.transfer) return;
-    let data;
-    try { data = await GR.fetchJson(CFG.extraUrl); } catch (e) { return; }
-    UG.transfer.setExtra(data);
-    if (!UG.transfer.hasExtra()) return;
-    if (state.plan) { describePlan(); refreshGuide(); }
-    if (state.station) renderStation();
+  // 받으면 지금 보이는 경로·역 시트를 다시 그려 새 내용을 넣는다. 여러 번 불러도 한 번만 받는다.
+  let extraLoading = null;
+  function loadExtra() {
+    if (!UG.transfer) return Promise.resolve();
+    if (!extraLoading) extraLoading = GR.fetchJson(CFG.extraUrl).then(function (data) {
+      UG.transfer.setExtra(data);
+      if (!UG.transfer.hasExtra()) return;
+      if (state.plan) { describePlan(); refreshGuide(); }
+      if (state.station) renderStation();
+    }, function () { /* 없으면 넘어간다 */ });
+    return extraLoading;
   }
   /* 터널 출입구·수직구·차량기지(egress.json, 형식 'egress-1'). 처음 필요할 때 한 번만 받는다:
      출구 후보 표시를 켠 채 줌 12 이상, 길 안내 시작, '여기서 나가기'. 없거나 형식이 다르면 null(역 출구만 쓴다). */
@@ -212,21 +233,65 @@
     return state.egressLoading;
   }
 
+  /* 역 안 지하도 선 모양(passage.json, 서울만, 약 22KB). 출구 구간·환승을 그릴 때 처음 받는다(그림만 바뀐다).
+     없거나 형식이 다르면 null: 출구 구간은 직선, 환승은 옅은 점선 그대로. 받으면 보이는 경로·안내·출구 그림을 다시 그린다. */
+  let passageLoading = null;
+  function loadPassage() {
+    if (!UG.passage) return Promise.resolve();
+    if (!passageLoading) passageLoading = GR.fetchJson(CFG.passageUrl).then(function (d) { return UG.passage.ok(d) ? d : null; }, function () { return null; })
+      .then(function (d) {
+        state.passage = d;
+        if (!d) return;
+        if (state.plan && !(state.reach && state.reach.active())) drawPlan(false);
+        const gs = state.guide && state.guide.state();
+        if (gs && gs.plan === state.plan && state.guide.isOpen()) { state.guideTrack = guideTrack(state.plan); refreshGuide(); }
+        if (state.exitFocus != null) zoomToExit(state.exitFocus, true);
+      });
+    return passageLoading;
+  }
+  // 간선 e(노드 u 쪽에서 걸음)를 지도에 그릴 조각들: 지하도 모양이 있으면 그 선, 환승은 없으면 옅은 점선(passage.js). 바꿀 것이 없으면 null
+  function passagePieces(e, u) {
+    return UG.passage ? UG.passage.edgePieces(state.G, state.passage, e, u) : null;
+  }
+  // 경로가 출입구·환승 간선을 지나면 passage.json 을 받는다(아직 안 받았을 때만)
+  function wantPassage(path) {
+    if (state.passage !== undefined || passageLoading) return;
+    const E = state.g.edges, c = state.G.codes;
+    if (path.some(function (x) { return E.k[x.e] === c.entrance || E.k[x.e] === c.transfer; })) loadPassage();
+  }
+  // 길 안내 위치 추정 선: 출입구·환승 간선은 그린 모양(지하도 선)을 따라가게 한다. 거리는 간선 길이 그대로다(guide.js routeTrack)
+  function guideTrack(p) {
+    return UG.guide.routeTrack(state.G, p, function (e, u) {
+      const pc = passagePieces(e, u);
+      return pc ? UG.passage.joined(pc) : null;
+    });
+  }
+
+  // 출구 후보 표시를 켠 채 줌 12 이상이면 egress.json 을 받는다
+  function wantEgress() {
+    if (state.map && state.vis.egress && state.map.getZoom() >= CFG.depotZoom) return loadEgress();
+    return Promise.resolve();
+  }
+
   // 길 안내가 열려 있으면 같은 경로로 다시 그린다(확인한 곳은 그대로)
   function refreshGuide() {
     const gs = state.guide && state.guide.state();
     if (gs && gs.plan === state.plan) state.guide.refresh(state.plan, UG.guide.buildCheckpoints(state.G, state.plan));
   }
 
-  // 오프라인 장소 색인: 없거나 아직 안 만들어졌으면 역 검색만 쓴다
-  async function loadPlaces() {
-    if (!UG.places) return;
-    let data;
-    try { data = await GR.fetchJson(CFG.placesUrl); } catch (e) { return; }
-    if (data && data.format === 'places-1' && Array.isArray(data.p)) {
+  // 오프라인 장소 색인: 없거나 아직 안 만들어졌으면 역 검색만 쓴다. 여러 번 불러도 한 번만 받는다.
+  let placesLoading = null;
+  function loadPlaces() {
+    if (!UG.places) return Promise.resolve();
+    if (!placesLoading) placesLoading = GR.fetchJson(CFG.placesUrl).then(function (data) {
+      if (!data || data.format !== 'places-1' || !Array.isArray(data.p)) return;
       state.places = data;
-      setTimeout(function () { try { UG.places.prepare(data); } catch (e) { /* 무시 */ } }, 300);   // 첫 검색이 빠르게
-    }
+      // 첫 검색이 빠르게: 검색 열쇠를 화면이 놀 때 조금씩(한 번에 약 8ms) 만들어 둔다.
+      // 그 전에 검색하면 searchPlaces 가 남은 부분을 마저 만든다(결과는 같다).
+      const step = function () { try { if (!UG.places.prepare(data, 8)) LY.whenIdle(step); } catch (e) { /* 무시 */ } };
+      LY.whenIdle(step);
+    }, function () { /* 없으면 역 검색만 */ });
+    return placesLoading;
   }
 
   // 상태 문구가 먼저 그려지게 한 프레임 쉰다. 숨은 탭에서는 rAF 가 멈추므로 타이머로도 넘어간다.
@@ -254,14 +319,13 @@
       minZoom: CFG.exitMinZoom,
       popupHtml: function (i) { return PN.exitPopupHtml(g.stations[g.entrances.station[i]].name, g.entrances.ref[i], i); }
     });
-    // 출구 후보(egress.json): 켜져 있고 줌 12 이상이 되면 그때 받는다(첫 화면을 막지 않게)
+    // 출구 후보(egress.json): 켜져 있고 줌 12 이상이 되면 그때 받는다.
+    // 처음 보기는 start() 가 철도망을 다 그린 뒤 부른다(첫 화면을 막지 않게). 그 전에 확대하면 그때 받는다.
     state.egressLayer = LY.EgressLayer(map, {
       minZoom: CFG.egressZoom, depotZoom: CFG.depotZoom, icon: PN.ehSvg, popupHtml: PN.egressPopupHtml
     });
     state.egressLayer.setVisible(state.vis.egress);
-    const wantEgress = function () { if (state.vis.egress && map.getZoom() >= CFG.depotZoom) loadEgress(); };
     map.on('zoomend', wantEgress);
-    wantEgress();
     const paint = function () {
       state.pal = LY.readPalette();
       [state.net, state.st, state.route, state.reach, state.guideLayer, state.me].forEach(function (l) { l.setPalette(state.pal); });
@@ -577,6 +641,7 @@
   // 속도가 바뀌거나 실제 도보 길을 받으면 단계만 다시 만든다(경로는 그대로)
   function describePlan() {
     const p = state.plan;
+    loadExtra();                                // 환승 카드의 계단 위치·출구 주변 이름(아직 안 받았으면 지금 받고, 받으면 다시 그린다)
     ST.planItems(state.G, p, state.speed);      // p.desc, p.items, p.view (steps.js)
     if (UG.walk) UG.walk.applyLegs(state.G, p, state.speed);
     if (UG.transfer) UG.transfer.annotate(state.G, p, state.speed);   // 환승 카드 내용(item.xfer)과 환승 횟수(view.transfers)
@@ -604,7 +669,7 @@
       drawPlan(false);
       refitSoon();
       const gs = state.guide && state.guide.state();
-      if (gs && gs.plan === p) { state.guideTrack = UG.guide.routeTrack(state.G, p); state.guide.refresh(p, UG.guide.buildCheckpoints(state.G, p)); }
+      if (gs && gs.plan === p) { state.guideTrack = guideTrack(p); state.guide.refresh(p, UG.guide.buildCheckpoints(state.G, p)); }
     });
   }
 
@@ -629,6 +694,8 @@
   function refreshPins() {
     if (!state.route) return;
     state.route.pins(endpointLatLng(state.from), endpointLatLng(state.to));
+    if (!(state.guide && state.guide.isOpen())) state.guideLayer.setTransfer(null);   // 단계 목록에서 누른 환승 그림
+    setExitFocus(null);
     state.net.setDim(false);
     state.st.setOnly(null);
     state.exits.setUsed([]);
@@ -681,8 +748,15 @@
         segs.push(drawWalkLeg(s._pts || GR.edgeShape(g, x.e, x.u), 'surface'));
         return;
       }
-      s._idx.forEach(function (i) { const x = r.path[i]; push(GR.edgeShape(g, x.e, x.u), edgeKind(x.e)); });
+      // 출입구·환승 간선은 passage.js 가 고른 조각으로: 지하도 모양이 있으면 그 선(지하 색),
+      // 환승인데 모양이 없으면 옅은 점선(xfer, 실제 통로처럼 보이는 직선을 그리지 않는다). 나머지는 선로 모양 그대로.
+      s._idx.forEach(function (i) {
+        const x = r.path[i], pc = passagePieces(x.e, x.u);
+        if (pc) pc.forEach(function (q) { push(q.pts, q.kind); });
+        else push(GR.edgeShape(g, x.e, x.u), s.type === 'transfer' ? 'xfer' : edgeKind(x.e));   // passage.js 가 없어도 환승은 점선
+      });
     });
+    wantPassage(r.path);
     const exits = [], used = [r.startConn, r.endConn].filter(function (c) { return c && c.kind === 'entrance'; }).map(function (c) { return c.ent; });
     [r.startConn, r.endConn].forEach(function (c) {
       if (c && c.kind === 'entrance') exits.push({ lat: c.lat, lon: c.lon, ref: c.ref, title: PN.exitName(g.stations[c.si].name, c.ref) });
@@ -690,7 +764,8 @@
     if (r.egress && r.egress.k === 'exit') { exits.push({ lat: r.egress.lat, lon: r.egress.lon, ref: r.egress.ref, title: r.egress.title }); used.push(r.egress.ent); }
     const warnings = p.desc.steps.filter(function (s) { return s.type === 'warning'; });
     state.route.show({ segs: segs, from: endpointLatLng(p.from), to: endpointLatLng(p.to), exits: exits, warnings: warnings, junctions: p.junctions || [] });
-    if (!(state.guide && state.guide.isOpen())) state.guideLayer.setFork(null);
+    if (!(state.guide && state.guide.isOpen())) { state.guideLayer.setFork(null); state.guideLayer.setTransfer(null); }
+    if (fit) setExitFocus(null);
     state.exits.setUsed(used);
     // 경로만 또렷하게: 철도망은 흐리게, 역은 경로가 지나는 역만, 출구 번호는 출발·도착 역 것만
     state.net.setDim(true);
@@ -710,7 +785,10 @@
     const p = state.plan, g = state.g;
     if (it.kind === 'step') {
       if (it.step.type === 'surface' && it.step._pts) return [it.step._pts];
-      return (it.step._idx || []).map(function (i) { const e = p.route.path[i]; return GR.edgeShape(g, e.e, e.u); });
+      return (it.step._idx || []).map(function (i) {   // 출입구·환승 간선은 지도에 그린 모양(지하도 선)으로
+        const e = p.route.path[i], pc = passagePieces(e.e, e.u);
+        return pc ? UG.passage.joined(pc) : GR.edgeShape(g, e.e, e.u);
+      });
     }
     if (it.kind === 'arrive') return [it.latlngs.concat(it.others.map(function (x) { return GR.nodeLatLng(g, g.entrances.node[x.ent]); }))];
     return [it.latlngs];
@@ -721,12 +799,17 @@
     if (!p || !p.items[i] || !state.map) return;
     state.activeItem = i;
     state.guideLayer.setFork(null);
-    const lines = itemLines(p.items[i]);
-    state.route.highlight(p.items[i].kind === 'arrive' ? null : lines);
+    setExitFocus(null);
+    const it = p.items[i], lines = itemLines(it);
+    // 환승: 띠로 강조하지 않고 두 승강장 점과 노선 칩, 그 사이 통로 그림만 보여 준다(길 안내의 환승 그림과 같다)
+    const xfer = xferPicture(p, it);
+    state.guideLayer.setTransfer(xfer);
+    state.route.highlight(it.kind === 'arrive' || xfer ? null : lines);
     Array.prototype.forEach.call(state.ui.routeView.querySelectorAll('[data-item]'), function (b) {
       b.classList.toggle('is-active', +b.dataset.item === i);
     });
     shrinkForMap();
+    if (xfer) { fitTo(xferView(xfer), 18); return; }   // 노선 이름표가 잘리지 않게(길 안내의 환승 그림과 같은 범위)
     const pts = [];
     lines.forEach(function (l) { l.forEach(function (q) { pts.push(q); }); });
     fitTo(pts, 17);
@@ -855,6 +938,8 @@
     if (!p || !p.junctions || !p.junctions[n] || !state.map) return;
     const f = forkData(p, n);
     state.route.highlight(null);
+    state.guideLayer.setTransfer(null);
+    setExitFocus(null);
     state.guideLayer.setFork(f);
     shrinkForMap();
     fitTo(forkPoints(f), 18);
@@ -866,11 +951,50 @@
     if (!state.wide.matches && state.sheet.state() === 'full') state.sheet.set('half');
   }
 
-  function zoomToExit(ent) {
+  /* 환승 그림 자료(지도): transfer.js 의 환승 내용(두 승강장 위치·노선) + 그릴 조각(passage.js: 지하도 선, 없으면 옅은 점선).
+     같은 그림이면 같은 객체를 돌려준다(GuideLayer 가 다시 그리지 않게). passage.json 을 받으면 새로 만든다. */
+  function xferPicture(p, it) {
+    if (!it || it.kind !== 'step' || it.step.type !== 'transfer' || !it.xfer) return null;
+    if (!it._pic || it._pic.data !== state.passage) {
+      const x = p.route.path[it.step._idx[0]];
+      it._pic = { data: state.passage, x: Object.assign({}, it.xfer, { pieces: passagePieces(x.e, x.u) }) };
+    }
+    return it._pic.x;
+  }
+
+  // 환승 그림을 볼 지도 범위: 두 승강장(과 지하도 선)만 크게. 양 옆의 노선 이름표가 잘리지 않게 동서로 넉넉히(약 60m 이상) 잡는다
+  function xferView(x) {
+    const pts = [[x.from.lat, x.from.lon], [x.to.lat, x.to.lon]].concat(x.pieces ? UG.passage.joined(x.pieces) : []);
+    const la = pts.map(function (q) { return q[0]; }), lo = pts.map(function (q) { return q[1]; });
+    const s = Math.min.apply(null, la), n = Math.max.apply(null, la), w = Math.min.apply(null, lo), e = Math.max.apply(null, lo);
+    const padLon = Math.max((e - w) * 0.7, 0.0007), padLat = Math.max((n - s) * 0.25, 0.0002);
+    return [[s - padLat, w - padLon], [n + padLat, e + padLon]];
+  }
+
+  // 출구 하나를 지도에서 크게(역 시트의 출구 줄, 결과의 다른 출구 목록).
+  // 지하도 모양(passage.json)이 있으면 그 출구에서 승강장 허브까지의 선도 그리고, 선 전체가 보이게 맞춘다.
+  function zoomToExit(ent, redraw) {
     if (!state.map) return;
-    const v = state.g.entrances.node[ent];
+    const g = state.g, v = g.entrances.node[ent];
+    let pts = [GR.nodeLatLng(g, v)];
+    const e = exitEdge(ent), pc = e >= 0 ? passagePieces(e, v) : null;
+    setExitFocus(ent, pc);
+    if (pc) pts = pts.concat(UG.passage.joined(pc));
+    else if (e >= 0 && state.passage === undefined) loadPassage();
+    if (redraw && !pc) return;
     shrinkForMap();
-    fitTo([GR.nodeLatLng(state.g, v)], 18);
+    fitTo(pts, 18);
+  }
+  // 출입구 번호 -> 그 출입구 간선 번호(-1 = 없음)
+  function exitEdge(ent) {
+    const G = state.G, v = state.g.entrances.node[ent];
+    for (let k = G.adjStart[v]; k < G.adjStart[v + 1]; k++) if (state.g.edges.k[G.adjEdge[k]] === G.codes.entrance) return G.adjEdge[k];
+    return -1;
+  }
+  // 출구 지하도 그림을 켜고 끈다(ent = null 이면 지운다)
+  function setExitFocus(ent, pieces) {
+    state.exitFocus = ent;
+    if (state.guideLayer) state.guideLayer.setExitPath(ent != null ? pieces || null : null);
   }
 
   /* =========================================================
@@ -968,6 +1092,7 @@
 
   function openSearch(focus) {
     if (!state.G) { toast('철도망 데이터를 불러오는 중입니다. 잠시 뒤 다시 누르세요.'); return; }
+    loadPlaces();   // 오프라인 장소 검색(아직 안 받았으면 지금. 받기 전에는 역 이름 검색만)
     state.ui.fromInput.value = state.from ? state.from.text : '';
     state.ui.toInput.value = state.to ? state.to.text : '';
     syncPill();
@@ -1101,7 +1226,8 @@
     state.search.close();
     loadEgress();   // 긴 터널의 '○○m 앞 비상 출구'·여기서 나가기에 쓴다(없어도 된다)
     if (state.map) state.map.closePopup();
-    state.guideTrack = UG.guide.routeTrack(state.G, p);
+    state.guideTrack = guideTrack(p);
+    setExitFocus(null);
     state.guideFollow = true;
     state.guide.setFollow(true);
     state.route.highlight(null);
@@ -1124,14 +1250,13 @@
     if (state.plan) { drawPlan(true); showView('route', 'peek'); }
   }
 
-  // 지금 안내 중인 항목이 환승이면 그 환승 내용(transfer.js), 아니면 null
+  // 지금 안내 중인 항목이 환승이면 그 환승 그림 자료(xferPicture), 아니면 null
   function guideXfer(gs, p) {
-    const it = p.next ? gs.plan.items[p.next.item] : null;
-    return it && it.kind === 'step' && it.step.type === 'transfer' && it.xfer ? it.xfer : null;
+    return p.next ? xferPicture(gs.plan, gs.plan.items[p.next.item]) : null;
   }
 
   /* 지도 위: 지금 단계(마지막 확인 지점 -> 다음 확인 지점)를 강조하고, 다음 확인 지점과 지금 위치를 표시.
-     - 환승 단계: 두 노선 승강장 사이 화살표(모식도)로 바꿔 그린다.
+     - 환승 단계: 두 노선 승강장 점과 노선 칩, 그 사이 옅은 점선만 그린다(통로 모양은 모른다).
      - 지금 위치: 쓸 만한 GPS(최근 20초, 정확도 80m 안)가 있으면 파란 점, 경로에서 150m 넘게 떨어지면 '경로에서 벗어남'.
                   없으면 추정 위치(마지막 확인 뒤 걸은 시간 × 속도)를 속이 빈 점선 고리 + '추정'으로. */
   function renderGuideMap(info) {
@@ -1174,13 +1299,7 @@
     if (!gs || !track) return;
     const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m);
     const x = guideXfer(gs, p);
-    if (x) {   // 환승: 역 안 두 승강장만 크게. 양 옆의 노선 이름표가 잘리지 않게 동서로 넉넉히(약 60m 이상) 잡는다
-      const dLat = Math.abs(x.to.lat - x.from.lat), dLon = Math.abs(x.to.lon - x.from.lon);
-      const padLon = Math.max(dLon * 0.7, 0.0007), padLat = Math.max(dLat * 0.25, 0.0002);
-      fitTo([[Math.min(x.from.lat, x.to.lat) - padLat, Math.min(x.from.lon, x.to.lon) - padLon],
-        [Math.max(x.from.lat, x.to.lat) + padLat, Math.max(x.from.lon, x.to.lon) + padLon]], 18);
-      return;
-    }
+    if (x) { fitTo(xferView(x), 18); return; }
     if (p.next && p.next.kind === 'junction' && p.next.jn != null) {   // 갈림길: 갈래가 보이게 크게
       fitTo(forkPoints(forkData(gs.plan, p.next.jn)), 18);
       return;
@@ -1360,7 +1479,9 @@
     if (!state.G || (state.guide && state.guide.isOpen())) return;
     if (state.map) state.map.closePopup();
     closeStationExits();
+    setExitFocus(null);
     state.station = { si: si, tab: opts.tab || 'info', arrived: opts.arrived || '', reach: null };
+    loadExtra();   // 출구 주변 이름(아직 안 받았으면)
     renderStation();
     showView('station', 'half');
     if (state.station.tab === 'reach') showReach();
@@ -1517,6 +1638,7 @@
     if (state.view === 'station') {
       state.station = null;
       closeStationExits();
+      setExitFocus(null);
       clearReach();
       if (state.plan) { drawPlan(true); showView('route', 'peek'); } else { refreshPins(); hideSheet(); }
       return;
@@ -1593,7 +1715,7 @@
     if (state.net) state.net.setVisible(state.vis);
     if (state.egressLayer) {   // 출구 후보: 켜면(줌 12 이상일 때) egress.json 을 받는다
       state.egressLayer.setVisible(state.vis.egress);
-      if (state.vis.egress && state.map.getZoom() >= CFG.depotZoom) loadEgress();
+      wantEgress();
     }
   }
 

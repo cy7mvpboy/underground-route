@@ -6,6 +6,7 @@
 //      환승: 첫 점이 간선 a 허브에서, 끝 점이 b 허브에서 41m 안인지
 //   4) web/js/graph.js 의 decodePolyline 을 불러올 수 있으면 같은 결과인지
 //   5) 예시 5개: 양재 6번 출구, 종로3가 1↔3, 고속터미널 3↔7, 왕십리, 김포공항 5↔9
+//   6) 웹 그리기 고르기(web/js/passage.js): 모양이 있으면 지하도 선, 없으면 예전 그림(출구 직선·환승 옅은 점선), 방향, 거리 그대로
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -148,6 +149,60 @@ console.log(`왕십리 환승 ${wangAll}쌍 중 ${wang}쌍 있음`);
 showXfer('왕십리', '5호선', '2호선');
 showXfer('왕십리', '2호선', '경의중앙선');
 showXfer('김포공항', '5호선', '9호선');
+
+// 6) 웹 그리기 고르기(web/js/passage.js edgePieces, 순수 함수): 모양이 있으면 그 선, 없으면 예전 그림
+//    출구: 지하도 선(지하 색) + 선 끝 ↔ 허브 점선, 없으면 null(직선 그대로). 환승: 허브 ↔ 선 ↔ 허브, 없으면 옅은 점선 하나.
+//    걷는 방향(b → a)이면 뒤집힌다. 거리는 바뀌지 않는다(routeTrack 총 거리 같음).
+try {
+  for (const f of ['graph', 'router', 'steps', 'guide', 'passage']) require(path.join(ROOT, 'web/js', f + '.js'));
+  const UG = globalThis.UG, PS = UG.passage;
+  const G = UG.graph.indexGraph(JSON.parse(fs.readFileSync(path.join(ROOT, 'web/data/graph.json'), 'utf8')));
+  const same = (a, b) => a.length === b.length && a.every((p, i) => p[0] === b[i][0] && p[1] === b[i][1]);
+  const kinds = (pc) => pc.map((p) => p.kind).join('+');
+  // 출구: 양재 6번
+  const si = stationIdx('양재'), ei = ENT.node.findIndex((n, k) => ENT.station[k] === si && ENT.ref[k] === '6');
+  const [je, hub] = entEdge.get(ei), entNode = ENT.node[ei], line = decodePolyline(P.exits[ei]);
+  const inn = PS.edgePieces(G, P, je, entNode), out = PS.edgePieces(G, P, je, hub);
+  const gapEnd = dist(line[line.length - 1], nodePt(hub)) >= PS.GAP_M;
+  const lastPt = PS.joined(inn)[PS.joined(inn).length - 1];   // 점선이 있으면 허브, 없으면 지하도 선 끝
+  check(inn[0].kind === 'under' && same(inn[0].pts, line) && kinds(inn) === (gapEnd ? 'under+xfer' : 'under') &&
+    same([lastPt], [gapEnd ? nodePt(hub) : line[line.length - 1]]),
+    `그리기: 양재 6번 출구로 들어감 = 지하도 선(${line.length}점) ${gapEnd ? '+ 끝 ↔ 허브 점선' : ''}(${kinds(inn)})`);
+  check(kinds(out) === kinds(inn).split('+').reverse().join('+') && same(PS.joined(out), PS.joined(inn).slice().reverse()),
+    `그리기: 양재 6번 출구로 나감 = 같은 선을 거꾸로(${kinds(out)})`);
+  check(PS.edgePieces(G, null, je, entNode) === null, '그리기: passage.json 을 아직 못 받았으면 출구는 예전 직선(null)');
+  const noExit = [...entEdge.keys()].find((i) => !P.exits[i]);
+  check(PS.edgePieces(G, P, entEdge.get(noExit)[0], ENT.node[noExit]) === null, `그리기: 모양 없는 출구(출입구 ${noExit})는 예전 직선(null)`);
+  // 환승: 종로3가 1→3 (모양 있음), 시청 2↔1 (뺀 쌍, 모양 없음)
+  const jx = xferBetween('종로3가', '1호선', '3호선'), xl = decodePolyline(P.transfers[jx]);
+  const fwd = PS.edgePieces(G, P, jx, E.a[jx]), back = PS.edgePieces(G, P, jx, E.b[jx]);
+  const under = fwd.filter((p) => p.kind === 'under');
+  check(under.length === 1 && same(under[0].pts, xl) && fwd.every((p) => p.kind === 'under' || p.kind === 'xfer'),
+    `그리기: 종로3가 환승(간선 ${jx}) = 지하도 선 실선 1개 + 끝 점선(${kinds(fwd)})`);
+  const J = PS.joined(fwd);
+  check(dist(J[0], nodePt(E.a[jx])) < PS.GAP_M && dist(J[J.length - 1], nodePt(E.b[jx])) < PS.GAP_M,
+    '그리기: 환승 그림이 두 승강장 허브(a → b)에 닿음');
+  check(same(PS.joined(back), J.slice().reverse()), `그리기: b → a 로 걸으면 거꾸로(${kinds(back)})`);
+  const js = xferBetween('시청', '2호선', '1호선');
+  const plain = PS.edgePieces(G, P, js, E.a[js]);
+  check(!P.transfers[js] && plain.length === 1 && plain[0].kind === 'xfer' && same(plain[0].pts, UG.graph.edgeShape(g, js, E.a[js])),
+    `그리기: 모양 없는 환승(시청 2↔1, 간선 ${js}) = 두 허브 사이 옅은 점선 하나`);
+  const pre = PS.edgePieces(G, null, jx, E.a[jx]);
+  check(pre.length === 1 && pre[0].kind === 'xfer', '그리기: passage.json 을 아직 못 받았으면 환승은 옅은 점선 하나');
+  const track = E.k.findIndex((k) => k === T.kinds.indexOf('track'));
+  check(PS.edgePieces(G, P, track, E.a[track]) === null, '그리기: 선로 간선은 바꾸지 않음(null)');
+  // 경로 하나(종각 → 안국, 종로3가 1→3 환승): 길 안내 위치 추정 선을 지하도 모양으로 바꿔도 총 거리는 같다
+  const R = UG.router.findRoute(G, { kind: 'station', si: stationIdx('종각') }, { kind: 'station', si: stationIdx('안국') });
+  const plan = UG.steps.planItems(G, { from: {}, to: {}, route: R }, 3.5);
+  const shape = (e, u) => { const pc = PS.edgePieces(G, P, e, u); return pc ? PS.joined(pc) : null; };
+  const t0 = UG.guide.routeTrack(G, plan), t1 = UG.guide.routeTrack(G, plan, shape);
+  const usesX = R.path.some((x) => x.e === jx);
+  check(usesX && t0.total === t1.total && t0.pieces.length === t1.pieces.length &&
+    t1.pieces.some((p) => same(p.pts, J) || same(p.pts, J.slice().reverse())),
+    `길 안내 선: 종각 → 안국이 종로3가 환승을 지나고, 지하도 모양으로 바꿔도 총 거리 ${Math.round(t1.total)}m 그대로`);
+} catch (e) {
+  check(false, '그리기 시험 실패: ' + e.stack);
+}
 
 const raw = fs.statSync(path.join(ROOT, 'web/data/passage.json')).size;
 const gz = require('zlib').gzipSync(fs.readFileSync(path.join(ROOT, 'web/data/passage.json')), { level: 9 }).length;

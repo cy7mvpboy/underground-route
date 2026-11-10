@@ -98,18 +98,65 @@
     return groups;
   }
 
-  // 지하 선로는 또렷하게, 지상·교량은 옅게(경로를 볼 때 노출 구간은 경로가 따로 진하게 그린다).
-  // dim: 0 = 보통, 1 = 경로·도달 범위를 볼 때(전체를 약 25%로)
+  // 그릴 선로 간선 번호(선로이고 구조가 지하·교량·지상인 것), 간선 번호 순
+  function trackEdges(g) {
+    const E = g.edges, T = g.tables, track = T.kinds.indexOf('track');
+    const structKey = T.structs.map(function (n) { return STRUCTS.indexOf(n) >= 0 ? n : null; });
+    const out = [];
+    for (let e = 0; e < E.a.length; e++) if (E.k[e] === track && structKey[E.s[e]]) out.push(e);
+    return out;
+  }
+  // edges 중 양 끝 노드를 감싼 네모가 box = [남, 서, 북, 동] 과 겹치는 간선(첫 화면에 먼저 그릴 선로)
+  function edgesInBox(g, edges, box) {
+    const E = g.edges, N = g.nodes;
+    return edges.filter(function (e) {
+      const la1 = N.lat[E.a[e]] / 1e5, lo1 = N.lon[E.a[e]] / 1e5, la2 = N.lat[E.b[e]] / 1e5, lo2 = N.lon[E.b[e]] / 1e5;
+      return Math.max(la1, la2) >= box[0] && Math.min(la1, la2) <= box[2] && Math.max(lo1, lo2) >= box[1] && Math.min(lo1, lo2) <= box[3];
+    });
+  }
+
+  // 화면이 놀 때 fn 을 부른다(requestIdleCallback 이 없는 브라우저는 setTimeout)
+  function whenIdle(fn) {
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(fn, { timeout: 300 });
+    else setTimeout(fn, 16);
+  }
+
+  /* 지하 선로는 또렷하게, 지상·교량은 옅게(경로를 볼 때 노출 구간은 경로가 따로 진하게 그린다).
+     dim: 0 = 보통, 1 = 경로·도달 범위를 볼 때(전체를 약 25%로)
+     전국 선로(약 9만 6천 점)를 한 번에 그리면 느린 폰에서 첫 화면이 늦게 뜬다. 그래서 두 번에 나눠 그린다.
+       1) 만들 때: 지금 보이는 곳(둘레 포함, 화면 2배)에 닿는 선로만 묶는다. setVisible 로 바로 그려진다.
+       2) drawRest(done): 화면이 놀 때 나머지 선 모양을 조금씩(한 번에 약 8ms) 풀어 두고,
+          다 풀면 묶음(6개)을 하나씩 전국 선로로 바꾼다. 다 바꾼 뒤 모습은 예전(전국을 한 번에 그림)과 같다(같은 묶음·같은 순서). */
+  const REST_SLICE_MS = 8;
   function NetworkLayer(map, g) {
     const renderer = L.canvas({ padding: 0.3 });
-    const groups = buildTrackGroups(g);
-    const parts = [];
-    ['service', 'main'].forEach(function (tier) {
-      ['ground', 'bridge', 'tunnel'].forEach(function (key) {
-        if (!groups[key][tier].length) return;
-        parts.push({ key: key, tier: tier, layer: L.polyline(groups[key][tier], { renderer: renderer, interactive: false, smoothFactor: 1.5 }) });
+    const E = g.edges, main = g.tables.services.indexOf('');
+    const structs = g.tables.structs;
+    const edges = trackEdges(g);
+    const shapes = new Array(E.a.length);   // 간선 번호 -> 선 모양(L.LatLng 배열). 한 번만 푼다
+    function shape(e) {
+      if (!shapes[e]) shapes[e] = GR.edgeShape(g, e).map(function (p) { return L.latLng(p[0], p[1]); });
+      return shapes[e];
+    }
+    // 간선 목록 -> 묶음 [{key, tier, lines}] (측선 아래·본선 위, 지상 < 교량 < 지하 순서). buildTrackGroups 와 같은 묶음이다.
+    function groupLines(list) {
+      const groups = {};
+      STRUCTS.forEach(function (k) { groups[k] = { main: [], service: [] }; });
+      list.forEach(function (e) { groups[structs[E.s[e]]][E.svc[e] === main ? 'main' : 'service'].push(shape(e)); });
+      const out = [];
+      ['service', 'main'].forEach(function (tier) {
+        ['ground', 'bridge', 'tunnel'].forEach(function (key) {
+          if (groups[key][tier].length) out.push({ key: key, tier: tier, lines: groups[key][tier] });
+        });
       });
-    });
+      return out;
+    }
+    function makePart(gr) {
+      return { key: gr.key, tier: gr.tier, layer: L.polyline(gr.lines, { renderer: renderer, interactive: false, smoothFactor: 1.5 }) };
+    }
+    const b = map.getBounds().pad(0.5);
+    let parts = groupLines(edgesInBox(g, edges, [b.getSouth(), b.getWest(), b.getNorth(), b.getEast()])).map(makePart);
+    let full = false, restStarted = false;
     let pal = null, zt = -1, dim = 0, vis = null;
     function style(p) {
       const main = p.tier === 'main', under = p.key === 'tunnel';
@@ -124,6 +171,42 @@
       zt = t;
       parts.forEach(function (p) { p.layer.setStyle(style(p)); });
     }
+    // 보이게 할 묶음을 정해진 순서로 지도에 넣는다
+    function shown(p) { return vis[p.key] && (p.tier === 'main' || vis.service); }
+    function show() {
+      parts.forEach(function (p) { if (shown(p)) p.layer.addTo(map); });
+    }
+    function drawRest(done) {
+      if (full || restStarted) return;
+      restStarted = true;
+      let i = 0, groups = null, k = 0;
+      // 1) 나머지 선 모양 풀기(한 번에 약 8ms)
+      const decode = function () {
+        const until = performance.now() + REST_SLICE_MS;
+        while (i < edges.length) {
+          shape(edges[i++]);
+          if ((i & 63) === 0 && performance.now() > until) break;
+        }
+        if (i < edges.length) { whenIdle(decode); return; }
+        groups = groupLines(edges);
+        whenIdle(swap);
+      };
+      // 2) 묶음 하나씩 전국 선로로 바꾸기: 새 묶음을 넣고 같은 묶음의 첫 화면 선을 뺀다.
+      //    새 묶음은 맨 위에 쌓이므로, 6개를 다 바꾸면 순서가 예전과 같아진다.
+      const swap = function () {
+        const p = makePart(groups[k++]);
+        if (pal) p.layer.setStyle(style(p));
+        const old = parts.filter(function (q) { return q.key === p.key && q.tier === p.tier && !q.full; })[0];
+        p.full = true;
+        parts = parts.filter(function (q) { return q !== old; }).concat([p]);
+        if (vis && shown(p)) p.layer.addTo(map);
+        if (old) map.removeLayer(old.layer);
+        if (k < groups.length) { whenIdle(swap); return; }
+        full = true;
+        if (done) done();
+      };
+      whenIdle(decode);
+    }
     return {
       setPalette: function (p) { pal = p; restyle(true); },
       onZoom: function () { restyle(false); },
@@ -132,8 +215,10 @@
       setVisible: function (v) {
         vis = v;
         parts.forEach(function (p) { map.removeLayer(p.layer); });
-        parts.forEach(function (p) { if (vis[p.key] && (p.tier === 'main' || vis.service)) p.layer.addTo(map); });
+        show();
       },
+      drawRest: drawRest,
+      isFull: function () { return full; },
       count: function () { return parts.length; }
     };
   }
@@ -276,10 +361,19 @@
     };
   }
 
+  // 모양을 모르는 연결(지하도 모양이 없는 환승, 지하도 선 끝 ↔ 승강장)의 옅은 점선. 경로와 길 안내 그림이 같이 쓴다.
+  // 실제 통로처럼 보이지 않게 가늘고 흐리게.
+  function xferLink(pal) {
+    return { color: pal.text, weight: 2.5, opacity: 0.5, dashArray: '5 7', lineCap: 'round' };
+  }
+
   /* ---------- 경로 ----------
      맨 위 층(route)에 테두리(어두운 테마: 어두운 색, 밝은 테마: 흰색)를 먼저 깔고 그 위에 색 선을 그린다.
      지하: 밝은 청록 실선. 지상 노출(선로): 지상은 주황빨강, 교량은 호박색의 조금 굵은 끊은 선.
-     지상 도보 구간(출발 지점·출구 사이 등): 주황빨강 끊은 선. segs: [{pts, kind: 'under'|'ground'|'bridge'|'walk'}] */
+     지상 도보 구간(출발 지점·출구 사이 등): 주황빨강 끊은 선.
+     모양을 모르는 곳(지하도 모양이 없는 환승, 지하도 선 끝 ↔ 승강장): 테두리 없이 옅은 점선(xferLink)만.
+     역 안 지하도 모양(passage.json)이 있는 출구 구간·환승은 app.js 가 그 선을 'under' 로 넘긴다.
+     segs: [{pts, kind: 'under'|'ground'|'bridge'|'walk'|'xfer'}] */
   function RouteLayer(map) {
     const renderer = L.svg({ pane: 'route', padding: 0.5 });
     const hlGroup = L.layerGroup().addTo(map);       // 누른 단계 강조(경로 아래)
@@ -317,10 +411,11 @@
     function paint() {
       group.clearLayers();
       if (!drawn || !pal) return;
-      const by = { under: [], ground: [], bridge: [], walk: [] };
+      const by = { under: [], ground: [], bridge: [], walk: [], xfer: [] };
       drawn.segs.forEach(function (s) { (by[s.kind] || by.ground).push(s.pts); });
       const opt = { renderer: renderer, interactive: false, lineCap: 'round', lineJoin: 'round' };
       const all = by.under.concat(by.ground, by.bridge, by.walk);
+      if (by.xfer.length) L.polyline(by.xfer, Object.assign({}, opt, xferLink(pal))).addTo(group);
       if (all.length) L.polyline(all, Object.assign({ color: pal.casing, weight: 12, opacity: 1 }, opt)).addTo(group);
       if (by.under.length) L.polyline(by.under, Object.assign({ color: pal.route, weight: 6.5, opacity: 1 }, opt)).addTo(group);
       if (by.ground.length) L.polyline(by.ground, Object.assign({ color: pal.expo, weight: 7.5, opacity: 1, dashArray: '14 8', lineCap: 'butt' }, opt)).addTo(group);
@@ -402,7 +497,8 @@
 
   /* ---------- 길 안내 표시 ----------
      지금 단계 강조(경로 아래 노란 띠), 다음 확인 지점, 추정 위치(GPS 가 없을 때: 속이 빈 점선 고리 + '추정' 글),
-     환승 단계의 승강장 그림(두 노선 승강장 허브 사이 화살표. 모식도라 직선으로 잇는다).
+     환승 그림(두 노선 승강장 점과 노선 칩, 그 사이 지하도 선. 모양 자료가 없으면 옅은 점선),
+     눌러 본 출구의 지하도 선(출구 -> 승강장).
      GPS 로 찾은 진짜 위치는 MeLayer(파란 점)가 그린다. */
   function GuideLayer(map) {
     const renderer = L.svg({ pane: 'guide', padding: 0.5 });
@@ -414,25 +510,31 @@
       if (!seg || !seg.length || !pal) return;
       L.polyline(seg, { renderer: renderer, interactive: false, color: pal.sos, weight: 26, opacity: 0.55, lineCap: 'round', lineJoin: 'round' }).addTo(group);
     }
-    // 환승 그림: 테두리 + 색 선(지하 청록, 지상 주황빨강) + 가운데 화살촉 + 양 끝 승강장 점과 노선 칩
+    // 지하도 조각 그리기(passage.js 의 [{kind, pts}]): 'under' = 테두리 + 경로의 지하 색 실선, 'xfer' = 옅은 점선(xferLink)
+    function drawPieces(pieces, group) {
+      const opt = { renderer: xferRenderer, interactive: false, lineCap: 'round', lineJoin: 'round' };
+      const under = pieces.filter(function (p) { return p.kind === 'under'; }).map(function (p) { return p.pts; });
+      const gaps = pieces.filter(function (p) { return p.kind !== 'under'; }).map(function (p) { return p.pts; });
+      if (gaps.length) L.polyline(gaps, Object.assign({}, opt, xferLink(pal))).addTo(group);
+      if (under.length) {
+        L.polyline(under, Object.assign({ color: pal.casing, weight: 11, opacity: 1 }, opt)).addTo(group);
+        L.polyline(under, Object.assign({ color: pal.route, weight: 6, opacity: 1 }, opt)).addTo(group);
+      }
+    }
+    function ensurePane() {
+      if (!map.getPane('xfer')) map.createPane('xfer').style.zIndex = 462;   // 경로(455) 위
+      xferRenderer = xferRenderer || L.svg({ pane: 'xfer', padding: 0.5 });
+    }
+    // 환승 그림: 두 승강장 점과 노선 칩, 그 사이 통로.
+    // 통로 모양(passage.json)이 있으면 그 지하도 선(xfer.pieces), 없으면 옅은 점선 하나(xferLink).
+    // 모양을 모를 때 통로처럼 보이는 굵은 직선·화살표는 그리지 않는다(사용자 결정 2026-11-10).
     function paintXfer() {
       xferGroup.clearLayers();
       if (!xfer || !pal) return;
-      if (!map.getPane('xfer')) map.createPane('xfer').style.zIndex = 462;   // 경로(455) 위
-      xferRenderer = xferRenderer || L.svg({ pane: 'xfer', padding: 0.5 });
+      ensurePane();
       const a = L.latLng(xfer.from.lat, xfer.from.lon), b = L.latLng(xfer.to.lat, xfer.to.lon);
-      const color = xfer.underground ? pal.route : pal.expo;
-      const opt = { renderer: xferRenderer, interactive: false, lineCap: 'round' };
-      L.polyline([a, b], Object.assign({ color: pal.casing, weight: 12, opacity: 1 }, opt)).addTo(xferGroup);
-      L.polyline([a, b], Object.assign({ color: color, weight: 6, opacity: 1, dashArray: xfer.underground ? null : '10 7' }, opt)).addTo(xferGroup);
-      // 화면 방향(메르카토르라 확대해도 각도가 같다)
-      const pa = map.project(a, 16), pb = map.project(b, 16);
-      const deg = Math.atan2(pb.y - pa.y, pb.x - pa.x) * 180 / Math.PI;
-      const right = pb.x >= pa.x;   // 이름표는 서로 바깥쪽에 단다(겹치지 않게)
-      L.marker(L.latLng((a.lat + b.lat) / 2, (a.lng + b.lng) / 2), {
-        icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<span class="xh-arrow" style="--c:' + color + ';transform:translate(-50%,-50%) rotate(' + deg.toFixed(1) + 'deg)"></span>' }),
-        keyboard: false, interactive: false, zIndexOffset: 1600
-      }).addTo(xferGroup);
+      drawPieces(xfer.pieces || [{ kind: 'xfer', pts: [a, b] }], xferGroup);
+      const right = map.project(b, 16).x >= map.project(a, 16).x;   // 이름표는 서로 바깥쪽에 단다(겹치지 않게)
       [[a, xfer.from, right ? 'l' : 'r', '출발 승강장'], [b, xfer.to, right ? 'r' : 'l', '갈아탈 승강장']].forEach(function (h) {
         const chipHtml = UG.lines ? UG.lines.chip(h[1].line) : esc(h[1].line);
         L.marker(h[0], {
@@ -481,8 +583,18 @@
         }).addTo(candGroup);
       });
     }
+    /* 출구 하나의 지하도 선(역 시트·결과에서 출구를 눌렀을 때): 출구 -> 승강장 허브. pieces = passage.js 조각 */
+    const exitGroup = L.layerGroup().addTo(map);
+    let exitPath = null;
+    function paintExit() {
+      exitGroup.clearLayers();
+      if (!exitPath || !pal) return;
+      ensurePane();
+      drawPieces(exitPath, exitGroup);
+    }
     return {
-      setPalette: function (p) { pal = p; paintSeg(); paintXfer(); paintFork(); },
+      setPalette: function (p) { pal = p; paintSeg(); paintXfer(); paintFork(); paintExit(); },
+      setExitPath: function (pieces) { exitPath = pieces || null; paintExit(); },
       setSegment: function (lines) { seg = lines; paintSeg(); },
       setFork: function (f) { fork = f || null; paintFork(); },
       setCandidates: function (list) { cands = list && list.length ? list : null; paintCands(); },
@@ -505,6 +617,7 @@
       },
       clear: function () {
         seg = null; group.clearLayers(); xfer = null; xferGroup.clearLayers(); fork = null; forkGroup.clearLayers(); cands = null; candGroup.clearLayers();
+        exitPath = null; exitGroup.clearLayers();
         this.setEstimate(null); this.setNext(null);
       }
     };
@@ -616,7 +729,8 @@
 
   UG.layers = {
     STRUCTS: STRUCTS, esc: esc, readPalette: readPalette, watchTheme: watchTheme, createMap: createMap, addBaseTiles: addBaseTiles,
-    buildTrackGroups: buildTrackGroups, buildStations: buildStations, computeBounds: computeBounds,
+    buildTrackGroups: buildTrackGroups, trackEdges: trackEdges, edgesInBox: edgesInBox, whenIdle: whenIdle,
+    buildStations: buildStations, computeBounds: computeBounds,
     NetworkLayer: NetworkLayer, StationLayer: StationLayer, ExitLayer: ExitLayer, BasemapLayer: BasemapLayer,
     RouteLayer: RouteLayer, ReachLayer: ReachLayer, GuideLayer: GuideLayer, MeLayer: MeLayer, EgressLayer: EgressLayer
   };
