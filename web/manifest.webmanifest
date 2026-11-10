@@ -1,0 +1,17 @@
+{
+  "name": "지하로",
+  "short_name": "지하로",
+  "description": "지상이 위험할 때 멈춘 철도 터널로 걸어 지상 노출을 줄이는 비상 길찾기",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#0B1214",
+  "background_color": "#0B1214",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

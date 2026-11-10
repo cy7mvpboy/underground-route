@@ -119,6 +119,8 @@
     setupButtons();
     setupNotice();
     setupGeo();
+    // 오프라인 사용(offline.js): 정보 탭 '오프라인 준비' 줄, 오프라인 표시, 새 판 알림. 길 안내 중에는 새 판을 적용하지 않는다
+    if (UG.offline) UG.offline.init({ toast: toast, busy: function () { return !!(state.guide && state.guide.isOpen()); } });
     ui.retry.addEventListener('click', start);
 
     if (window.L) {
@@ -192,14 +194,16 @@
     drawLayers();               // 철도망은 지금 보이는 곳만 먼저 그린다(layers.js NetworkLayer)
     setStatus('hidden');
     emit();
+    if (UG.offline) UG.offline.stage('interactive');   // 첫 화면이 떴다: 서비스 워커 등록(앱 파일 저장)
     /* 첫 화면 뒤에 받는 것(docs\graph-format.md 14.1절). 모두 첫 화면을 막지 않는다.
        간이 배경 지도, 나머지 선로(화면이 놀 때 조금씩)
          -> 다 그리면 extra.json -> egress.json(출구 후보를 켠 채 줌 12 이상일 때) -> passage.json -> places.json.
        필요하면 그 전에라도 받는다: 경로·역 시트(extra, passage), 검색 화면(places), 길 안내·여기서 나가기·확대(egress).
-       인터넷이 끊겨도 쓰도록 결국 받아 둔다. */
+       인터넷이 끊겨도 쓰도록 결국 받아 둔다. 다 받으면 데이터 파일을 기기에 저장한다(offline.js, 14.2절). */
     loadBasemap();
     state.net.drawRest(function () {
-      loadExtra().then(wantEgress).then(loadPassage).then(loadPlaces);
+      loadExtra().then(wantEgress).then(loadPassage).then(loadPlaces)
+        .then(function () { if (UG.offline) UG.offline.stage('idle'); });
     });
   }
 
