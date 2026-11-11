@@ -21,6 +21,8 @@ const DIP = 160;     // 한강 아래 그림용 추가 내림(장면 단위, 실
 const COL = { bg: 0x0B1214, ground: 0x18262A, net: 0x3A5257, safe: 0x3FE6D5, expo: 0xFF5A36, river: 0x2F7FE0, est: 0x9FB3B0, white: 0xE8F1EF };
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (id) => document.getElementById(id);
+// 제목: 자료의 출발·도착 역(이야기가 바뀌어도 build_3d.js 만 다시 돌리면 된다)
+const setTitle = (a, b) => { document.title = `지하로 3D · ${a} → ${b}`; $('title').textContent = document.title; };
 const fail = (msg) => { document.body.insertAdjacentHTML('beforeend', '<div class="fail"><p>' + msg + '<br><a href="../" style="color:#3FE6D5">지하로 앱 열기</a></p></div>'); };
 
 let D, renderer;
@@ -128,9 +130,12 @@ const T = {
   shaft: tube(LEG.enter.v.slice(cut), COL.safe, 9, riv('enter').slice(cut)),                // 출구 통로 → 승강장
   ride1: tube(LEG.ride1.v, COL.safe, 9, riv('ride1')),
   blocked: tube(LEG.blocked.v, COL.safe, 9, riv('blocked')),
-  ride2: tube(LEG.ride2.v, COL.safe, 9, riv('ride2')),
-  alt: tube(LEG.alt.v, COL.est, 6)
+  ride2: tube(LEG.ride2.v, COL.safe, 9, riv('ride2'))
 };
+
+// 처음 길의 나머지(여의나루 → 도착): 점선. 선은 멀리서도 1px 이라 전체 보기에서도 보인다
+const restLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(LEG.rest.v), new THREE.LineDashedMaterial({ color: COL.safe, dashSize: 260, gapSize: 180, transparent: true, opacity: 0.7 }));
+restLine.computeLineDistances(); scene.add(restLine);
 
 // 사람 점: 흰 공 + 빛 번짐(스프라이트)
 const glowTex = (() => {
@@ -157,6 +162,7 @@ const blockMark = (() => {
 
 /* ---------- 3. 역 표시와 이름표 ---------- */
 const F = D.facts;
+setTitle(F.start, F.end);
 const st = (n, l) => D.stations.find((s) => s.n === n && (!l || s.l === l));
 const fm = (x) => x.toFixed(1) + 'm', km = (m) => (m / 1000).toFixed(1) + 'km';
 const labelsEl = $('labels'), labels = [];
@@ -168,7 +174,7 @@ function label(text, v, cls = '', vis = null, pri = 0) {
 const drops = [], seen = new Set();
 const lineCount = (n) => new Set(D.stations.filter((s) => s.n === n).map((s) => s.l)).size;
 // 다시 찾은 길이 나타나는 시각(아래 4절에서 정함) 전에는 그 길의 역을 숨긴다
-let REVEAL_T = 0, BLOCK_T = 0, FORK_T = 0;
+let REVEAL_T = 0, BLOCK_T = 0;
 D.stations.forEach((s) => {
   const key = s.n + '|' + s.l;
   if (seen.has(key)) return; seen.add(key);
@@ -188,45 +194,43 @@ D.stations.forEach((s) => {
 // 그 밖의 이름표
 const mid = (a) => (a[0] + a[1]) / 2;
 label(`${F.start}역 ${F.exit_ref}번 출구`, posAt('enter', E.expo_m).add(new THREE.Vector3(0, 40, 0)), '');
-label('한강 아래 · 깊이 추정', posAt('ride1', F.block_m - 300).add(new THREE.Vector3(0, -60, 0)), 'est');   // 막힘 표시와 겹치지 않게 조금 앞
-label('한강 아래 · 깊이 추정', posAt('ride2', mid(F.crossB.m)).add(new THREE.Vector3(0, -60, 0)), 'est', (t) => t >= REVEAL_T);
+label('한강 아래 · 깊이 추정', posAt('ride1', F.block_m - 300).add(new THREE.Vector3(0, -160, 0)), 'est');   // 막힘 표시·점과 겹치지 않게 앞쪽 아래
+label('한강 아래 · 깊이 추정', posAt('ride2', F.crossB.m[0] + 0.72 * (F.crossB.m[1] - F.crossB.m[0])).add(new THREE.Vector3(0, -160, 0)), 'est', (t) => t >= REVEAL_T);   // 점이 오래 머물지 않는 곳
 // '한강' 글자: 중심선에서 경도 126.94(마포 부근)에 가장 가까운 점
 label('한강', (() => { const [x, z] = toXZ(...D.river.line.reduce((b, p) => (Math.abs(p[1] - 126.94) < Math.abs(b[1] - 126.94) ? p : b))); return new THREE.Vector3(x, 0, z); })(), 'river', null, 1);
 label('막힘', blockMark.position.clone().add(new THREE.Vector3(0, 120, 0)), 'red', (t) => t >= BLOCK_T, 2);
-const alt = F.junction.alt[0];
-label(`${alt.toward} 방면`, LEG.alt.v[LEG.alt.v.length - 1].clone().add(new THREE.Vector3(0, 30, 0)), 'dim', (t) => t >= FORK_T, 1);
-label(`${F.junction.toward} 방면`, posAt('ride2', F.junction.m + 700).add(new THREE.Vector3(0, 30, 0)), '', (t) => t >= FORK_T, 1);
+label(`처음 길 ${km(F.first_m)}`, posAt('rest', LEG.rest.len * 0.5).add(new THREE.Vector3(0, 30, 0)), 'dim', null, 1);
 
 /* ---------- 4. 장면(자막 한 줄)과 움직임 ----------
-   움직임 = [구간, 시작 m, 끝 m, 초, 카메라 거리('all' = 전체 보기)]. 긴 직선 구간은 짧은 시간에 빨리 감는다. */
-const g1 = st(F.start, '5호선'), mp = st(F.crossA.a, '5호선'), yn = st(F.crossA.b, '5호선');
-const J = F.junction, endM = LEG.ride2.len, B = F.crossB.m;
-const eun = (s) => s + (/갈래$/.test(s) ? '는' : '은');
+   움직임 = [구간, 시작 m, 끝 m, 초, 카메라 거리('all' = 전체 보기), 볼 곳(구간 m, 없으면 사람을 따라감)].
+   긴 직선 구간은 짧은 시간에 빨리 감는다. 하저터널은 터널 가운데를 고정해 보고 점만 지나가게 한다(시연과 같은 모습). */
+const g1 = st(F.start, '5호선');
+const endM = LEG.ride2.len, A = F.crossA.m, B = F.crossB.m;
 const BEATS = [
   { cap: `${F.start}역 ${F.exit_ref}번 출구로 들어가 5호선 승강장으로`, sub: `지상 ${F.expo_m}m를 걸은 뒤 지하 ${g1.f} 승강장(깊이 ${fm(g1.d)})`,
     moves: [['enter', 0, LEG.enter.len, RM ? 10 : 6, 650], ['enter', LEG.enter.len, LEG.enter.len, 0.8, 700]] },
-  { cap: `한강 아래 ${F.crossA.line} ${F.crossA.a}–${F.crossA.b} 하저터널`, sub: `승강장 깊이 ${F.crossA.a} ${fm(mp.d)} · ${F.crossA.b} ${fm(yn.d)}, 그 사이 터널 깊이는 추정`,
-    moves: [['ride1', 0, F.mapo_m, 3, 900], ['ride1', F.mapo_m, F.block_m, 5, 1100]] },
+  { cap: `한강 아래 ${F.crossA.line} ${F.crossA.a}–${F.crossA.b} 하저터널`, sub: `${F.end}역까지 지하로 ${km(F.first_m)}, 지상 ${F.first_expo_m}m인 길 · 터널 깊이는 추정`,
+    moves: [['ride1', 0, F.mapo_m, 3, 900], ['ride1', F.mapo_m, F.block_m, 5, 2000, (A[0] + F.block_m) / 2 + 150]] },
   { cap: `앞이 막힘 · ${F.crossA.a}역으로 ${F.backtrack_m}m 되돌아감`, sub: `막힌 하저터널을 빼고 ${F.crossA.a}역에서 다시 찾기`,
     moves: [['ride1', F.block_m, F.block_m, 2, 1000], ['ride1', F.block_m, F.mapo_m, 3.5, 1200], ['ride1', F.mapo_m, F.mapo_m, 1.5, 1800]] },
-  { cap: `한강 아래 다른 하나: ${F.crossB.line} ${F.crossB.a}–${F.crossB.b} 하저터널`, sub: '서울에서 한강을 지하로만 건너는 길은 5호선 하저터널 두 곳뿐',
-    moves: [['ride2', 0, B[0] - 500, 9, 3200], ['ride2', B[0] - 500, B[1] + 150, 7, 1400]] },
-  { cap: `${J.prev} 지나 갈림길 · ${J.side}로`, sub: `${J.name} ${J.toward} 방면 · ${eun(alt.side)} ${alt.name} ${alt.toward} 방면`,
-    moves: [['ride2', B[1] + 150, J.m - 350, 2.5, 1400], ['ride2', J.m - 350, J.m + 250, 4.5, 800]] },
-  { cap: `${F.end}역 도착`, sub: `지하에 들어간 뒤 지상 노출 ${F.exposed_after_m}m · 다시 찾은 길 ${km(F.total2_m)}`,
-    moves: [['ride2', J.m + 250, endM, 5.5, 1000], ['ride2', endM, endM, 4.5, 'all']] }
+  { cap: `다시 찾은 길 ${km(F.total2_m)}, 지상 ${F.second_expo_m}m`, sub: `${F.crossA.a}에서 남은 ${km(F.left_m)}보다 ${km(F.total2_m - F.left_m)} 더 · 한강은 ${F.crossB.a}–${F.crossB.b} 하저터널로`,
+    moves: [['ride2', 0, B[0] - 300, 10, 3200]] },
+  { cap: `한강 아래 다른 하저터널: ${F.crossB.a} → ${F.crossB.b}`, sub: '서울에서 한강을 지하로만 건너는 길은 5호선 하저터널 두 곳뿐',
+    moves: [['ride2', B[0] - 300, B[1] + 200, 8, 2200, mid(B)]] },
+  { cap: `${F.end}역 도착`, sub: `지하에 들어간 뒤 지상 노출 ${F.exposed_after_m}m · 지상은 처음 출구까지 ${F.expo_m}m`,
+    moves: [['ride2', B[1] + 200, endM, 6, 1400], ['ride2', endM, endM, 4.5, 'all']] }
 ];
 // 평평한 움직임 목록 + 시각. 조각 경계 속도 = 앞뒤 평균 속도 중 작은 쪽(방향이 다르거나 구간이 바뀌면 0)
 const MOVES = [];
 let TOTAL = 0;
-BEATS.forEach((b, bi) => b.moves.forEach(([leg, m0, m1, sec, dist]) => { MOVES.push({ leg, m0, m1, sec, dist, bi, t0: TOTAL }); TOTAL += sec; }));
+BEATS.forEach((b, bi) => b.moves.forEach(([leg, m0, m1, sec, dist, look]) => { MOVES.push({ leg, m0, m1, sec, dist, look, bi, t0: TOTAL }); TOTAL += sec; }));
 MOVES.forEach((mv, i) => {
   const v = (x) => (x ? (x.m1 - x.m0) / x.sec : 0), a = MOVES[i - 1], b = MOVES[i + 1], me = v(mv);
   const edge = (o) => (o && o.leg === mv.leg && v(o) * me > 0 ? Math.sign(me) * Math.min(Math.abs(v(o)), Math.abs(me)) : 0);
   mv.v0 = edge(a); mv.v1 = edge(b);
 });
 const beatT = (bi) => MOVES.find((m) => m.bi === bi).t0;
-BLOCK_T = beatT(2); REVEAL_T = MOVES.filter((m) => m.bi === 2)[2].t0; FORK_T = beatT(4);
+BLOCK_T = beatT(2); REVEAL_T = MOVES.filter((m) => m.bi === 2)[2].t0;
 
 // 시각 t 의 위치: 3차 에르미트(양 끝 속도 v0, v1)로 m 을 정한다 → 조각이 바뀌어도 속도가 끊기지 않는다
 function moveAt(t) {
@@ -268,7 +272,7 @@ const fmt = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStar
 const tmp = new THREE.Vector3(), off = new THREE.Vector3(), want = new THREE.Vector3(), a = new THREE.Vector3(), b = new THREE.Vector3();
 const sph = new THREE.Spherical(), PHI = 0.78, PHI_ALL = 0.7, MIN_Y = 80;
 // 전체 보기: 다시 찾은 길과 처음 길이 다 들어오는 거리
-const box = new THREE.Box3().setFromPoints([...LEG.ride1.v, ...LEG.ride2.v]), CENTER = box.getCenter(new THREE.Vector3()).setY(-300);
+const box = new THREE.Box3().setFromPoints([...LEG.ride1.v, ...LEG.rest.v, ...LEG.ride2.v]), CENTER = box.getCenter(new THREE.Vector3()).setY(-300);
 const overview = () => { const s = box.getSize(tmp); const h = 2 * Math.tan(camera.fov * Math.PI / 360); return Math.max(s.x / (h * camera.aspect), s.z / h) * 1.3 + 2000; };
 const wrap = (x) => Math.atan2(Math.sin(x), Math.cos(x));   // 각도 차이를 -π~π 로
 function resetCamera() {
@@ -278,18 +282,19 @@ function resetCamera() {
 let sway = 0, realT = 0;
 function follow(dt, mv, m) {
   const all = mv.dist === 'all', k = (r) => (snap && t > 0 ? 1 : 1 - Math.exp(-dt * r));
-  if (all) want.copy(CENTER); else { want.copy(person.position); want.y *= 0.75; }
+  const lookM = mv.look != null ? mv.look : m;                         // 하저터널은 터널 가운데를 고정해 본다
+  if (all) want.copy(CENTER); else { posAt(mv.leg, lookM, want); want.y *= 0.75; }
   tmp.copy(controls.target);
   controls.target.lerp(want, snap ? 1 : 1 - Math.exp(-dt * (all ? 1.2 : RM ? 2 : 3)));
   camera.position.add(tmp.subVectors(controls.target, tmp));          // 보는 점이 움직인 만큼 카메라도
   if (touched) return;                                                 // 사용자가 돌렸으면 각도·거리는 그대로
   sph.setFromVector3(off.subVectors(camera.position, controls.target));
-  const fit = Math.max(1, 1.1 / camera.aspect);                        // 세로로 긴 화면(폰)은 좌우가 좁아서 더 멀리
+  const fit = Math.max(1, 1.4 / camera.aspect);                        // 세로로 긴 화면(폰)은 좌우가 좁아서 더 멀리
   sph.radius += ((all ? overview() : mv.dist * fit) - sph.radius) * k(RM ? 0.6 : 1.1);   // 처음에는 멀리서 천천히 다가간다
   sph.phi += ((all ? PHI_ALL : PHI) - sph.phi) * k(1.5);
   if (all) sph.theta += wrap(0 - sph.theta) * k(0.8);                  // 전체 보기는 남쪽에서(북쪽이 위)
   else {   // 진행 방향(앞뒤 200m)의 옆
-    posAt(mv.leg, m + 200, a); posAt(mv.leg, m - 200, b);
+    posAt(mv.leg, lookM + 200, a); posAt(mv.leg, lookM - 200, b);
     const dx = a.x - b.x, dz = a.z - b.z;
     if (dx * dx + dz * dz > 400) {
       let th = Math.atan2(dz, -dx);
@@ -324,7 +329,7 @@ function frame() {
   const onStreet = mv.leg === 'enter' && m < E.expo_m;
   halo.material.color.set(onStreet ? COL.expo : COL.safe);
 
-  // 막힘 · 다시 찾은 길 나타남 · 갈림길 다른 갈래
+  // 막힘 · 다시 찾은 길 나타남 · 처음 길 나머지
   const blocked = t >= BLOCK_T;
   blockMark.visible = blocked;
   if (blocked) blockMark.scale.setScalar(170 * (RM ? 1 : 1 + 0.35 * Math.exp(-(t - BLOCK_T) * 1.5) * Math.abs(Math.sin((t - BLOCK_T) * 6))));
@@ -332,7 +337,7 @@ function frame() {
   const rev = Math.max(0, Math.min(1, (t - REVEAL_T) / 1.2));
   T.ride2.set(COL.safe, rev);
   D.stations.forEach((s) => { if (s.mk) s.mk.visible = rev > 0.5; });
-  T.alt.set(COL.est, t >= FORK_T ? 0.6 : 0);
+  restLine.material.color.set(blocked ? COL.est : COL.safe);                     // 처음 길의 나머지: 막힌 뒤에는 회색
 
   follow(dt, mv, m);
   snap = false;

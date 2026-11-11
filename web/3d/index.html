@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>지하로 3D · 공덕 → 한성백제</title>
-<meta name="description" content="지하로 시연 이야기를 3D로: 공덕역에서 한성백제역까지 지하로, 한강 아래 하저터널 두 곳">
+<title>지하로 3D · 공덕 → 수서</title>
+<meta name="description" content="지하로 시연 이야기를 3D로: 공덕역에서 수서역까지 지하로, 한강 아래 하저터널 두 곳">
 <meta name="theme-color" content="#0B1214">
 <link rel="icon" href="../icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@
   --font: 'IBM Plex Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); overflow: hidden; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); overflow: hidden; word-break: keep-all; }
 #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 #labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
 .lb { position: absolute; left: 0; top: 0; font-size: 12px; line-height: 1.3; padding: 2px 6px; border-radius: 6px;
@@ -64,12 +64,12 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 </script>
 </head>
 <body>
-<canvas id="c" aria-label="공덕역에서 한성백제역까지 지하 이동 3D 그림"></canvas>
+<canvas id="c" aria-label="공덕역에서 수서역까지 지하 이동 3D 그림"></canvas>
 <div id="labels" aria-hidden="true"></div>
 <div class="top">
-  <h1>지하로 3D · 공덕 → 한성백제</h1>
+  <h1 id="title">지하로 3D · 공덕 → 수서</h1>
   <a href="../">지하로 앱 열기</a>
-  <p>깊이 ×20 · 역 깊이는 서울교통공사 자료(1~8호선)<br>역 사이 터널 · 9호선 · 한강 아래는 깊이 추정</p>
+  <p>깊이 ×20 · 역 깊이는 서울교통공사 자료(1~8호선, 9호선 2·3단계)<br>역 사이 터널 · 자료 없는 역 · 한강 아래는 깊이 추정</p>
 </div>
 <section class="panel">
   <p class="cap" id="cap" aria-live="polite">불러오는 중</p>

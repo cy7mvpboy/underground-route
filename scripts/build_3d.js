@@ -2,15 +2,16 @@
 // 사용법(프로젝트 폴더에서): node scripts\build_3d.js
 //   시연 1번 이야기(web/js/demo.js CONF.story, scripts/check_demo.js 와 같은 순서)를 앱 코드로 다시 계산한다:
 //   공덕역 2번 출구로 들어감 → 5호선 마포–여의나루 하저터널에서 막힘 → 마포역으로 되돌아감
-//   → 다른 하저터널(광나루–천호)로 다시 찾은 길 → 강동 지나 갈림길(오른쪽 갈래) → 한성백제 도착.
+//   → 다른 하저터널(광나루–천호)로 다시 찾은 길 → 가족 약속 장소(수서) 도착.
 // 내보내는 것
 //   - legs: 이동 구간별 선 모양. 점 = [위도, 경도, 구간 시작부터 m, 깊이 m, 한강 아래 정도 0~1]
-//   - stations: 지나는 역(노선별 승강장 깊이). 깊이는 서울교통공사 역사심도정보(graph.json stations[].depth)만 '실제'
+//   - stations: 지나는 역(노선별 승강장 깊이). 깊이는 graph.json stations[].depth(서울교통공사 역사심도정보:
+//     1~8호선, 9호선 2·3단계)만 '실제'
 //   - river: 한강 중심선(OSM way 378066781, data/raw/han_river.json)과 그림용 반폭
 //   - net: 바탕에 옅게 그릴 주변 철도 선로(graph.json, OSM)
 //   - facts: 자막에 넣을 숫자(앱 계산 결과)
 // 깊이 규칙: 깊이 자료가 있는 역(승강장)만 실제 값이다. 역 사이 터널은 두 역 사이를 거리 비율로 잇고(추정),
-//   자료가 없는 곳(9호선 등)은 가장 가까운 자료 값을 그대로 쓴다(추정). 강바닥 깊이 자료는 없어서
+//   자료가 없는 곳(9호선 1단계·수인분당선 등)은 앞뒤 자료 역 사이를 잇거나 가장 가까운 값을 그대로 쓴다(추정). 강바닥 깊이 자료는 없어서
 //   한강 아래 정도(riv)만 내보내고, 화면이 그림으로만 터널을 더 내려 그린다(숫자를 만들지 않는다).
 'use strict';
 const fs = require('fs');
@@ -20,7 +21,7 @@ const ROOT = path.join(__dirname, '..');
 for (const f of ['graph', 'junctions', 'router', 'exithere', 'steps', 'transfer', 'nearest', 'guide', 'reach', 'saved', 'demo']) require(path.join(ROOT, 'web/js', f + '.js'));
 const UG = globalThis.UG, GR = UG.graph;
 // 시연 설정: demo.js 의 CONF 를 쓴다(없으면 같은 값). 한강 횡단 찾기(hanCrossing)도 demo.js 것을 쓴다
-const CONF = (UG.demo && UG.demo.CONF) || { speedKmh: 3.5, story: { lat: 37.5447, lon: 126.9497, label: '공덕오거리 부근', meet: '한성백제@서울', blockAfter: '마포@서울', blockFrac: 0.45 } };
+const CONF = (UG.demo && UG.demo.CONF) || { speedKmh: 3.5, story: { lat: 37.5447, lon: 126.9497, label: '공덕오거리 부근', meet: '수서@서울', blockAfter: '마포@서울', blockFrac: 0.45 } };
 const Y = CONF.story;
 const g = JSON.parse(fs.readFileSync(path.join(ROOT, 'web/data/graph.json'), 'utf8'));
 const G = GR.indexGraph(g);
@@ -51,9 +52,6 @@ const b = UG.guide.planBlock(G, { plan: p2, cps: cps2, cur: at }, walked);
 b.edges.forEach((e) => blocked.add(e));
 const p3 = planOf(b.from, p2.to);                                  // 마포에서 다시 찾은 길
 const crossB = UG.demo.hanCrossing(G, p3.route.path);
-const cps3 = UG.guide.buildCheckpoints(G, p3);
-const jk = cps3.findIndex((c) => c.kind === 'junction' && c.jn != null);
-const jn = p3.junctions[cps3[jk].jn];
 // '두 곳뿐' 확인: 5호선 하저터널 두 곳을 다 막으면 가장 나은 길도 지상을 걷는다
 const both = new Set(blocked);
 g.presets.han_crossings.filter((x) => x.s === 'tunnel' && (x.lines || []).includes('5호선')).forEach((x) => both.add(x.e));
@@ -196,37 +194,9 @@ function legOf(ps, an, m0, m1) {
 
 const ps1 = pieces(p1), ps2 = pieces(p2), ps3 = pieces(p3);
 const A1 = anchorsOf(ps1), A2 = anchorsOf(ps2), A3 = anchorsOf(ps3);
-const total1 = ps1.reduce((a, p) => a + p.len, 0), total3 = ps3.reduce((a, p) => a + p.len, 0);
+const total1 = ps1.reduce((a, p) => a + p.len, 0), total2 = ps2.reduce((a, p) => a + p.len, 0), total3 = ps3.reduce((a, p) => a + p.len, 0);
 const mapoAt = cps2[at].at, blockAt = mapoAt + walked, yeouiAt = cps2[at + 1].at;
 const expo1 = ps1.filter((p) => p.walk).reduce((a, p) => a + p.len, 0);   // 공덕역 출구까지 지상
-
-// 갈림길에서 다른 갈래(길동 방면) 앞부분 약 700m: 첫 간선부터 같은 노선 선로를 따라간다
-function branchStub(jn, maxM) {
-  const alt = jn.alternatives[0];
-  let e = alt.edge, v = E.a[e] === jn.node ? E.b[e] : E.a[e], u = jn.node, m = 0;
-  const pts = [];
-  while (e >= 0 && m < maxM) {
-    const shape = GR.edgeShape(g, e, u);
-    shape.forEach((q, i) => { if (i > 0 || !pts.length) pts.push(q); });
-    m += E.len[e];
-    let next = -1;   // 다음 간선: 같은 노선 묶음의 선로 간선 하나뿐일 때만
-    const cand = [];
-    for (let k = G.adjStart[v]; k < G.adjStart[v + 1]; k++) {
-      const f = G.adjEdge[k];
-      if (f !== e && T.kinds[E.k[f]] === 'track' && E.svc[f] === 0) cand.push([f, G.adjNode[k]]);
-    }
-    if (cand.length === 1) { next = cand[0][0]; u = v; v = cand[0][1]; }
-    e = next;
-  }
-  const jm = jn.at_m, d = depthAt(A3.an, jm);
-  const out = [];
-  let acc = 0;
-  pts.forEach((q, i) => {
-    if (i > 0) acc += GR.haversine(pts[i - 1][0], pts[i - 1][1], q[0], q[1]);
-    if (acc <= maxM) out.push([r5(q[0]), r5(q[1]), r1(acc), r1(d), 0]);
-  });
-  return out;
-}
 
 // 바탕 선로: 경로 둘레 상자 안의 본선 선로(옅게). 30m 오차로 점을 줄인다
 const allPts = [...ps1, ...ps2, ...ps3].flatMap((p) => p.pts);
@@ -266,14 +236,14 @@ const crossM = (ps, c) => { const p = ps.find((x) => x.e === c.e); return [r1(p.
 const out = {
   format: 'jiharo-3d-1',
   built: new Date().toISOString().slice(0, 10),
-  attribution: ['© OpenStreetMap contributors (ODbL)', '역 깊이: 서울교통공사 역사심도정보(2024-11-04, 서울 열린데이터광장, 공공누리 제1유형)'],
+  attribution: ['© OpenStreetMap contributors (ODbL)', '역 깊이: 서울교통공사 역사심도정보(1~8호선 2024-11-04, 9호선 2·3단계 2026-01-31), 서울 열린데이터광장, 공공누리 제1유형'],
   river: { line: river, half_w: HALF_W, fade: FADE },
   legs: {
     enter: { pts: legOf(ps1, A1.an, 0, total1), expo_m: r1(expo1) },
     ride1: { pts: legOf(ps2, A2.an, 0, blockAt) },
     blocked: { pts: legOf(ps2, A2.an, blockAt, yeouiAt) },
-    ride2: { pts: legOf(ps3, A3.an, 0, total3) },
-    alt: { pts: branchStub(jn, 700) }
+    rest: { pts: legOf(ps2, A2.an, yeouiAt, total2) },   // 처음 길의 나머지(여의나루 → 도착): 옅게만 그린다
+    ride2: { pts: legOf(ps3, A3.an, 0, total3) }
   },
   net,
   stations: [...stOut(A1, 'enter', 0, total1), ...stOut(A2, 'ride1', 0, blockAt), ...stOut(A2, 'blocked', blockAt, yeouiAt), ...stOut(A3, 'ride2', 0, total3)],
@@ -282,20 +252,19 @@ const out = {
     crossA: { a: crossA.a, b: crossA.b, line: crossA.line, m: crossM(ps2, crossA) },
     mapo_m: r1(mapoAt), block_m: r1(blockAt), backtrack_m: Math.round(b.backtrack), walked_m: Math.round(walked),
     crossB: { a: crossB.a, b: crossB.b, line: crossB.line, m: crossM(ps3, crossB) },
-    junction: { m: r1(jn.at_m), lat: jn.lat, lon: jn.lon, prev: jn.prev && jn.prev.name, fromPrev_m: Math.round(jn.fromPrev_m || 0),
-      side: jn.chosen.side, name: jn.chosen.name, toward: jn.chosen.toward,
-      alt: jn.alternatives.map((a) => ({ side: a.side, name: a.name, toward: a.toward })) },
-    end: name(meetSi), total2_m: Math.round(total3), exposed_after_m: Math.round(p2.view.exposed_m + p3.view.exposed_m),
+    // 거리: 처음 길 전체 · 마포에서 남았던 거리 · 다시 찾은 길(앱 view 값 = 안내 화면과 같은 값)
+    first_m: Math.round(p2.view.total_m), left_m: Math.round(total2 - mapoAt), total2_m: Math.round(p3.view.total_m),
+    first_expo_m: Math.round(p2.view.exposed_m), second_expo_m: Math.round(p3.view.exposed_m),
+    end: name(meetSi), exposed_after_m: Math.round(p2.view.exposed_m + p3.view.exposed_m),
     both_blocked_expo_m: pNone ? Math.round(pNone.exposed_m) : null,
     rides: rides3
   }
 };
-// 갈림길 거리: junction at_m 은 경로 시작(마포 승강장)부터 잰 값이라 ride2 거리와 같다
 const file = path.join(ROOT, 'web/3d/ride.json');
 fs.mkdirSync(path.dirname(file), { recursive: true });
 fs.writeFileSync(file, JSON.stringify(out));
 const L = out.legs;
-console.log(`ride.json ${fs.statSync(file).size} byte · 점 enter ${L.enter.pts.length} ride1 ${L.ride1.pts.length} blocked ${L.blocked.pts.length} ride2 ${L.ride2.pts.length} alt ${L.alt.pts.length} · 바탕 선로 ${net.length}개`);
+console.log(`ride.json ${fs.statSync(file).size} byte · 점 enter ${L.enter.pts.length} ride1 ${L.ride1.pts.length} blocked ${L.blocked.pts.length} rest ${L.rest.pts.length} ride2 ${L.ride2.pts.length} · 바탕 선로 ${net.length}개`);
 console.log(`역 ${out.stations.length}개: ` + out.stations.map((s) => `${s.n}(${s.l} ${s.d == null ? '추정' : s.d + 'm'})`).join(' '));
 console.log('facts', JSON.stringify(out.facts).slice(0, 900));
 console.log('강 반폭', HALF_W, 'm · 강가 역 거리', bankSt.map((s) => s.name + ' ' + Math.round(distToLine([s.lat / 1e5, s.lon / 1e5], han)) + 'm').join(', '));
