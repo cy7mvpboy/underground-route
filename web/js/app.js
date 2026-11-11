@@ -83,6 +83,7 @@
     net: null, st: null, exits: null, route: null, reach: null, guideLayer: null, me: null, basemap: null, tiles: 'unknown', badge: null,
     from: null, to: null, plan: null, blocked: new Set(), blockCount: 0, activeItem: -1,
     places: null, nearest: null, openSheetOnPlan: false,
+    cameraHold: false,   // 시연(demo.js)이 지도를 움직이는 동안 true: 앱의 자동 맞추기는 맞출 곳만 기억하고, 길 안내 따라가기도 쉰다(지도를 옮기지 않는다)
     guide: null, guideTrack: null, guideFollow: true, guidePos: null, guideOff: 0, myLoc: null,
     egress: undefined, egressLoading: null, egressLayer: null, exitHere: null,   // egress.json(undefined = 아직 안 받음, null = 없음), 여기서 나가기 목록
     passage: undefined, exitFocus: null,   // passage.json(undefined = 아직 안 받음, null = 없음), 지하도 선을 그린 출구 번호
@@ -893,7 +894,7 @@
     if (!pts.length || !state.map) return;
     stopFollow();   // 경로·역으로 지도를 맞추면 내 위치 따라가기는 멈춘다
     state.fit = { pts: pts, maxZoom: maxZoom };
-    doFit(true);
+    if (!state.cameraHold) doFit(true);
   }
   function doFit(animate) {
     const f = state.fit;
@@ -902,7 +903,7 @@
   }
   function refitSoon() {
     clearTimeout(state.fitTimer);
-    if (state.fit) state.fitTimer = setTimeout(function () { doFit(true); }, 220);
+    if (state.fit && !state.cameraHold) state.fitTimer = setTimeout(function () { doFit(true); }, 220);
   }
 
   // 지도 크기가 0 이면(숨은 탭·미리보기 썸네일) 맞추면 최대 확대가 되므로, 크기가 생길 때까지 미룬다.
@@ -1412,7 +1413,7 @@
       state.guide.setPosMode(how, 'est');
     }
     state.guidePos = pos;
-    if (!state.guideFollow) return;
+    if (!state.guideFollow || state.cameraHold) return;   // 시연 중에는 시연이 지도를 맞춘다
     if (info.stepChanged) fitGuideStep();
     else if (!(state.guideOff > 1000) && !state.guide.exitsOpen()) keepCentered(pos, viewPadding());   // 지금 위치를 가운데 가까이
   }

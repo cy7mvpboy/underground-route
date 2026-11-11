@@ -506,7 +506,7 @@
     const renderer = L.svg({ pane: 'guide', padding: 0.5 });
     const group = L.layerGroup().addTo(map);
     const xferGroup = L.layerGroup().addTo(map);
-    let pal = null, seg = null, posMarker = null, nextMarker = null, xfer = null, xferRenderer = null;
+    let pal = null, seg = null, posMarker = null, posLabel = '', nextMarker = null, xfer = null, xferRenderer = null;
     function paintSeg() {
       group.clearLayers();
       if (!seg || !seg.length || !pal) return;
@@ -603,12 +603,17 @@
       // x = transfer.js 의 info 결과(없으면 지운다)
       setTransfer: function (x) { if ((x || null) === xfer) return; xfer = x || null; paintXfer(); },
       // 추정 위치(GPS 없음): 속이 빈 점선 고리와 이름표('추정 위치', '확인한 곳'). latlng 이 없으면 지운다.
+      //   이름표가 같으면 표시를 새로 만들지 않고 자리만 옮긴다(자주 불러도 깜빡이지 않게)
       setEstimate: function (latlng, label) {
         if (!latlng) { if (posMarker) { map.removeLayer(posMarker); posMarker = null; } return; }
-        const html = '<span class="pos-est" aria-hidden="true"><span class="pos-ring"></span><span class="pos-tag">' + esc(label || '추정') + '</span></span>';
+        label = label || '추정';
+        const html = '<span class="pos-est" aria-hidden="true"><span class="pos-ring"></span><span class="pos-tag">' + esc(label) + '</span></span>';
         if (!posMarker) posMarker = L.marker(latlng, { icon: L.divIcon({ className: '', html: html, iconSize: [0, 0] }), keyboard: false, interactive: false, zIndexOffset: 2000 }).addTo(map);
-        else { posMarker.setLatLng(latlng); posMarker.setIcon(L.divIcon({ className: '', html: html, iconSize: [0, 0] })); }
+        else { posMarker.setLatLng(latlng); if (label !== posLabel) posMarker.setIcon(L.divIcon({ className: '', html: html, iconSize: [0, 0] })); }
+        posLabel = label;
       },
+      // 추정 위치 표시를 그 자리로만 옮긴다(이름표 그대로). 시연이 화면 한 프레임마다 부른다
+      moveEstimate: function (latlng) { if (posMarker && latlng) posMarker.setLatLng(latlng); },
       setNext: function (latlng, label) {
         if (nextMarker) { map.removeLayer(nextMarker); nextMarker = null; }
         if (!latlng) return;

@@ -27,13 +27,13 @@
      ========================================================= */
   const CONF = {
     // 1. 이야기: 공습경보가 울린 곳(공덕오거리 부근 거리. 가장 가까운 출구가 5호선 승강장으로 이어지는 공덕역 2번 출구가 되는 자리),
-    //    가족 약속 장소(meet), 마포 지나 하저터널 blockFrac 지점에서 막힘. 빨리 감기는 줌 ffZoom 으로 따라감
-    story: { lat: 37.5447, lon: 126.9497, label: '공덕오거리 부근', meet: '한성백제@서울', blockAfter: '마포@서울', blockFrac: 0.45, ffZoom: 12 },
+    //    가족 약속 장소(meet), 마포 지나 하저터널 blockFrac 지점에서 막힘. 빨리 감기는 멈출 곳까지 한 화면에 담고 점만 움직인다
+    story: { lat: 37.5447, lon: 126.9497, label: '공덕오거리 부근', meet: '한성백제@서울', blockAfter: '마포@서울', blockFrac: 0.45 },
     busan: { from: '부산역@부산', to: '해운대@부산', label: '부산역 → 해운대', zoom: 14, xferHold: 1600 },  // 2. 지도는 줌 14로 따라감, 환승에서 잠깐 멈춤
     far: { from: '서울역@서울', to: '부산역@부산', flySec: 24 },                                 // 3. ×60 일 때 24초 동안 따라가기
     // 장면별 배속(고른 속도 × 이 값). 1번: enter = 출구로 들어가 승강장까지, move = 터널까지 걷기, ff = 갈림길까지 빨리 감기,
     // fork = 갈림길 앞, arrive = 도착까지. 부산은 ×60 이면 걷기 약 20초
-    boost: { enter: 0.5, move: 2, ff: 25, fork: 1.5, arrive: 8, busan: 16 },
+    boost: { enter: 0.6, move: 2.3, ff: 30, fork: 1.5, arrive: 9, busan: 16 },
     speedKmh: 3.5                                                                               // 시연 중 걷는 속도(앱 기본값)
   };
   const SPEEDS = [30, 60, 120];
@@ -159,6 +159,7 @@
     saved.notice = s.ui.notice ? s.ui.notice.hidden : true;
     saved.myLoc = null;
     UG.walk = null;                                       // 지상 도보 길 찾기(인터넷) 끄기: 직선으로, 늘 같은 결과
+    s.cameraHold = true;                                  // 지도는 시연만 움직인다(앱의 자동 맞추기와 겹쳐 두 번 움직이지 않게)
     UG.saved.useMemory(true);                             // 저장한 장소는 메모리에만(보는 사람의 장소는 그대로)
     muteGeo();
     if (s.speed !== CONF.speedKmh) UG.app.setSpeed(CONF.speedKmh);
@@ -167,6 +168,7 @@
   function restore() {
     const s = S();
     UG.walk = saved.walk;
+    s.cameraHold = false;
     UG.saved.useMemory(false);                            // 보는 사람이 저장해 둔 장소로 돌아간다
     unmuteGeo();
     saved.blocked.forEach(function (e) { s.blocked.add(e); });
@@ -202,7 +204,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('.demo-press'), function (b) { b.classList.remove('demo-press'); });
     clearMarks();
     bigText('');
-    pin = null; still = false;
+    pin = null; follows = false;
   }
 
   // 지도에서 가리지 않는 곳: 위(검색 막대·안내 카드), 왼쪽(넓은 화면의 패널), 아래(시연 칸)
@@ -217,18 +219,39 @@
     return { paddingTopLeft: [left, top], paddingBottomRight: [16, bottom] };
   }
 
-  // 지도 맞추기(앱이 미뤄 둔 맞추기는 버린다). 확대 움직임 중이면 끝난 뒤에.
-  // 위 여백을 PIN_H 만큼 더 둔다: 출발·도착 핀은 그 자리 위로 그려지므로 위 카드에 가리지 않게
+  /* 지도 맞추기: 장면마다 한 번, 부드럽게 날아가서(flyTo) 내려앉을 때까지 기다린다.
+     - 시연 동안 앱의 자동 맞추기는 쉰다(app.js cameraHold): 지도를 움직이는 것은 이 함수뿐이라 두 움직임이 겹치지 않는다.
+     - 시트·시연 칸 높이가 먼저 자리 잡은 뒤(settle) 부른다: 여백(viewPad)은 그때 잰 값.
+     - 위 여백을 PIN_H 만큼 더 둔다: 출발·도착 핀은 그 자리 위로 그려지므로 위 카드에 가리지 않게.
+     - 걸리는 시간은 옮기는 거리·확대 차이에 따라 0.6~1.5초. 움직임 줄이기면 바로 옮긴다. */
   const PIN_H = 36;
   async function fitView(pts, maxZoom) {
-    const s = S(), map = s.map;
+    const map = S().map;
     if (!map || !pts || !pts.length) return;
-    s.fitToken++; s.fit = null;
     await until(function () { return !map._animatingZoom; });
-    const pad = viewPad();
-    pad.paddingTopLeft[1] += PIN_H;
-    map.fitBounds(L.latLngBounds(pts), Object.assign(pad, { maxZoom: maxZoom || 17, animate: !reduce() }));
+    const pad = viewPad(), tl = L.point(pad.paddingTopLeft[0], pad.paddingTopLeft[1] + PIN_H), br = L.point(pad.paddingBottomRight);
+    // 목표 자리(Leaflet fitBounds 와 같은 계산): 여백을 뺀 곳에 다 들어가는 가장 큰 줌과 그때의 가운데
+    const b = L.latLngBounds(pts), z = Math.min(maxZoom || 17, map.getBoundsZoom(b, false, tl.add(br)));
+    const c = map.unproject(map.project(b.getSouthWest(), z).add(map.project(b.getNorthEast(), z)).divideBy(2).add(br.subtract(tl).divideBy(2)), z);
+    await flyTo(c, z);
   }
+  function flyTo(c, z) {
+    const map = S().map, z0 = map.getZoom(), size = map.getSize();
+    const far = map.project(c, z0).distanceTo(map.project(map.getCenter(), z0)) / Math.hypot(size.x, size.y);   // 화면 대각선 몇 개만큼 옮기나
+    if (far < 0.004 && Math.abs(z - z0) < 0.05) return Promise.resolve();
+    if (reduce()) { map.setView(c, z, { animate: false }); return Promise.resolve(); }
+    const sec = Math.min(1.5, Math.max(0.6, 0.6 + 0.15 * Math.abs(z - z0) + 0.3 * Math.min(far, 3)));
+    let landed = false;
+    map.once('moveend', function () { landed = true; });
+    map.flyTo(c, z, { duration: sec });
+    // 다음 장면으로 건너뛰면 날아가기를 멈추고 목표 자리에 바로 둔다(반쯤 옮긴 채로 두지 않게)
+    return task(function (dt) {
+      if (!landed && dt === Infinity) { map.setView(c, z, { animate: false }); landed = true; }
+      return landed;
+    });
+  }
+  // 지도를 맞추면서 자막을 ms 동안 보여 준다(날아가는 시간도 읽는 시간에 넣는다)
+  function show(pts, maxZoom, ms) { return Promise.all([fitView(pts, maxZoom), hold(ms)]); }
 
   // 걷는 동안 추정 위치를 따라감: 앱 길 안내와 같은 규칙(보이는 곳 가운데 20% 칸을 벗어나면 가운데로 부드럽게)
   function follow(ll) { if (ll) UG.app.keepCentered(ll, viewPad()); }
@@ -241,13 +264,15 @@
 
   // 폰에서 결과·역 시트를 요약 높이로(지도가 보이게). 지도가 주인공인 장면(장거리 따라가기)은 시트를 내린다.
   // 시트 높이가 바뀌면 시연 칸도 따라 움직인다: 칸 자리가 멈춘 뒤에 지도를 맞춘다(settle)
-  async function phonePeek() { const s = S(); if (isWide()) return; if (s.sheet.state() !== 'hidden' && s.sheet.state() !== 'peek') s.sheet.set('peek'); await settle(); }
-  async function phoneMapOnly() { const s = S(); if (isWide()) return; if (s.sheet.state() !== 'hidden') s.sheet.set('hidden'); await settle(); }
-  // 시연 칸 자리가 0.15초 동안 그대로일 때까지 기다린다(0.25~1초, 시연 시계)
+  // 넓은 화면은 시트(왼쪽 패널) 높이를 바꾸지 않지만, 패널이 떠오르는 동안은 기다린다(settle)
+  async function phonePeek() { const s = S(); if (!isWide() && s.sheet.state() !== 'hidden' && s.sheet.state() !== 'peek') s.sheet.set('peek'); await settle(); }
+  async function phoneMapOnly() { const s = S(); if (!isWide() && s.sheet.state() !== 'hidden') s.sheet.set('hidden'); await settle(); }
+  // 시연 칸과 시트의 자리가 0.15초 동안 그대로일 때까지 기다린다(0.25~1초, 시연 시계)
   function settle() {
     let last = null, still = 0, t = 0;
     return task(function (dt) {
-      const top = ui ? Math.round(ui.root.getBoundingClientRect().top) : 0;
+      const sh = S().ui.sheet;
+      const top = (ui ? Math.round(ui.root.getBoundingClientRect().top) : 0) + ',' + (sh.getClientRects().length ? Math.round(sh.getBoundingClientRect().top) : -1);
       still = top === last ? still + dt : 0;
       last = top; t += dt;
       return (t >= 250 && still >= 150) || t >= 1000;
@@ -282,44 +307,64 @@
     if (!S().plan) throw new Error('경로 없음: ' + a + ' → ' + b);
     return S().plan;
   }
-  // 경로 결과의 '안내 시작'을 보인 뒤 길 안내를 연다(시연은 걸음 세기 없이: UG.app.startGuide)
+  // 경로 결과의 '안내 시작'을 보인 뒤 길 안내를 연다(시연은 걸음 세기 없이: UG.app.startGuide).
+  // 안내 카드·아래 단추가 나타나고 시연 칸이 자리 잡을 때까지 기다린다(그 뒤에 지도를 옮긴다)
   async function startGuide() {
     await flash(document.querySelector('#route-view [data-action="guide"]'), 800);
     UG.app.startGuide();
+    await settle();
   }
 
   /* ---------- 길 안내 따라 걷기 ---------- */
   function guideView() { const g = UG.app.guide(); return g && g.isOpen() ? g : null; }
 
-  // 걸은 거리 m 를 길 안내에 알린다: since 를 당겨 놓고, 화면은 0.1초마다(움직임 줄이기면 1초마다) 다시 그린다
-  // still = 지도를 멈춰 둔다(갈림길을 크게 본 채 걷기: 따라가기 없이 위치만 움직임)
-  let lastPing = 0, pin = null, still = false;
+  // 걸은 거리 m 를 길 안내에 알린다: since 를 당겨 놓고, 안내 카드·지도 표시는 0.1초마다(움직임 줄이기면 1초마다) 다시 그린다.
+  // 그 사이 프레임에는 추정 위치 표시만 옮겨(glide) 점이 끊기지 않고 미끄러지듯 움직인다.
+  // follows = 지도가 지금 위치를 따라간다(부산 시나리오의 'follow'). 이야기는 장면마다 한 화면에 담고 따라가지 않는다.
+  let lastPing = 0, pin = null, follows = false;
   function setWalked(m, force) {
     const g = guideView(), gs = g && g.state();
     if (!gs) return;
     pin = { gs: gs, cur: gs.cur, m: m };
     gs.since = Date.now() - m / walkMps() * 1000;
     const now = performance.now();
-    if (!force && now - lastPing < (reduce() ? 1000 : 90)) return;
-    lastPing = now;
-    g.ping();                    // 앱이 추정 위치·남은 거리를 다시 그린다
-    if (!still) follow(S().guidePos);
+    if (force || now - lastPing >= (reduce() ? 1000 : 90)) {
+      lastPing = now;
+      g.ping();                  // 앱이 추정 위치·남은 거리·안내 카드를 다시 그린다
+      if (follows) follow(S().guidePos);
+    } else if (!reduce()) glide(gs, m);
+  }
+  // 추정 위치 표시만 걸은 거리 자리로(앱의 계산과 같다: 마지막 확인 지점 + 걸은 거리)
+  function glide(gs, m) {
+    const s = S(), track = s.guideTrack;
+    if (!track || !s.guideLayer) return;
+    const doneAt = gs.cur >= 0 ? gs.cps[gs.cur].at : 0;
+    s.guideLayer.moveEstimate(UG.guide.pointAt(track, Math.min(doneAt + m, track.total)));
   }
 
   // 마지막 확인 지점 ~ 다음 확인 지점의 선(지도 맞추기용)
-  function legPoints(gs, p) {
+  function legPoints(gs, p) { return trackPoints(gs, p.next ? p.next.at : null); }
+  // 마지막 확인 지점부터 경로 위 거리 endAt(m)까지의 선 점들
+  function trackPoints(gs, endAt) {
     const track = S().guideTrack, doneAt = gs.cur >= 0 ? gs.cps[gs.cur].at : 0, pts = [];
-    if (track) UG.guide.sliceTrack(track, doneAt, p.next ? p.next.at : doneAt).forEach(function (l) { l.forEach(function (q) { pts.push(q); }); });
+    if (track) UG.guide.sliceTrack(track, doneAt, endAt == null ? doneAt : endAt).forEach(function (l) { l.forEach(function (q) { pts.push(q); }); });
     return pts;
+  }
+  // 빨리 감기를 한 화면에: 지금부터 멈출 확인 지점(until 이 참인 곳, 없으면 끝)까지
+  function aheadPoints(gs, until) {
+    let end = gs.cps[gs.cps.length - 1];
+    for (let i = gs.cur + 1; i < gs.cps.length; i++) if (until && until(gs.cps[i], gs)) { end = gs.cps[i]; break; }
+    return trackPoints(gs, end.at);
   }
 
   /* 다음 확인 지점까지 걷고 큰 단추를 누르기를 되풀이한다. 마지막 '도착'을 누르면 앱이 역 시트를 연다.
-     지도는 걷는 동안 늘 지금 위치를 가운데 가까이 따라간다(follow). 구간을 시작할 때는
-     opt = { boost, camera: 'leg'(구간마다: 지금 위치를 가운데에 두고 다음 확인 지점까지 보이게) | 'follow'(처음 한 번 줌 opt.zoom) | 'none',
+     opt = { boost, camera: 'leg'(구간마다 한 번: 지금 위치를 가운데에 두고 다음 확인 지점까지 보이게, 걷는 동안 지도는 그대로)
+                          | 'fixed'(처음 한 번: 멈출 곳까지 전부 한 화면에, 빨리 감기용) | 'follow'(처음 한 번 줌 opt.zoom, 걷는 동안 따라감) | 'none',
              fast(단추 누름을 짧게), xferHold(환승 완료를 누르기 전 기다림 ms), onLeg(next, gs)(구간마다, 자막 바꾸기),
              until(next, gs) -> true 면 그 앞에서 멈춤 } */
   async function walkGuide(opt) {
     let first = true;
+    follows = opt.camera === 'follow';
     for (;;) {
       const g = guideView(), gs = g && g.state();
       if (!gs) return;
@@ -329,6 +374,7 @@
       if (opt.onLeg) opt.onLeg(p.next, gs);
       const pos = S().guidePos;
       if (opt.camera === 'leg') await fitView(pos ? UG.app.aroundCenter(legPoints(gs, p), pos) : legPoints(gs, p), 17);
+      else if (opt.camera === 'fixed' && first) await fitView(aheadPoints(gs, opt.until), opt.zoom || 15);
       else if (opt.camera === 'follow' && first && pos) await fitView([pos], opt.zoom || 14);
       first = false;
       await walk(p.toNext_m, opt.boost, setWalked);
@@ -379,16 +425,17 @@
     const map = S().map;
     for (let k = 0; k < 3; k++) {
       await until(function () { return !map._animatingZoom; });
-      await hold(reduce() ? 50 : 400);                     // 옮기는 움직임이 끝나게
+      await hold(reduce() ? 50 : 150);                     // 이름표를 그린 뒤에 잰다
       const els = Array.prototype.filter.call(document.querySelectorAll('.fork-tag, .jn-dot.is-cur, .pos-est'), function (el) { return el.getClientRects().length; });
       if (!els.length) return;
       let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
       els.forEach(function (el) { const q = el.getBoundingClientRect(); l = Math.min(l, q.left); t = Math.min(t, q.top); r = Math.max(r, q.right); b = Math.max(b, q.bottom); });
       const pad = viewPad(), m = map.getContainer().getBoundingClientRect();
       const box = { l: m.left + pad.paddingTopLeft[0], t: m.top + pad.paddingTopLeft[1], r: m.right - pad.paddingBottomRight[0], b: m.bottom - pad.paddingBottomRight[1] };
-      if (k < 2 && (r - l > box.r - box.l || b - t > box.b - box.t)) { map.setZoom(map.getZoom() - 1, { animate: !reduce() }); continue; }
+      // 고칠 때도 부드럽게 날아간다(flyTo): 한 단계 줄이기, 또는 가운데로 옮기기
+      if (k < 2 && (r - l > box.r - box.l || b - t > box.b - box.t)) { await flyTo(map.getCenter(), map.getZoom() - 1); continue; }
       const dx = (l + r - box.l - box.r) / 2, dy = (t + b - box.t - box.b) / 2;
-      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) map.panBy([dx, dy], { animate: !reduce() });
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) await flyTo(map.containerPointToLatLng(map.getSize().divideBy(2).add([dx, dy])), map.getZoom());
       return;
     }
   }
@@ -412,9 +459,17 @@
     if (b && b.getAttribute('aria-selected') !== 'true') b.click();
   }
   // 다시 찾은 길 전체와 막힌 곳이 보이게. 가장자리 표시(막힘·출발·도착)가 잘리지 않게 둘레를 10% 넓힌다
-  async function fitReroute(ctx, p) {
+  function fitReroute(ctx, p, ms) {
     const bb = L.latLngBounds(planPoints(p).concat(ctx.blockPos ? [ctx.blockPos] : [])).pad(0.1);
-    await fitView([bb.getSouthWest(), bb.getNorthEast()], 15);
+    return show([bb.getSouthWest(), bb.getNorthEast()], 15, ms || 0);
+  }
+  // 시트(와 알림)를 짧게 흐리게 한 뒤 닫는다: 앱의 ×(역 시트 닫기·경로 지우기)
+  async function closeSheet() {
+    const s = S(), els = [s.ui.sheet, s.ui.toast];
+    if (!reduce()) { els.forEach(function (el) { el.classList.add('demo-out'); }); await hold(180); }
+    els.forEach(function (el) { el.classList.remove('demo-out'); });
+    s.ui.sheetClose.click();
+    s.ui.toast.hidden = true;
   }
 
   // 도착 뒤 앱이 연 역 시트: 폰에서는 요약 높이로, 지도는 그 역의 도달 범위에 맞춘다
@@ -482,21 +537,20 @@
         const mi = stationIndex(CONF.story.meet), o = S().g.stations[mi];
         UG.app.openStation(mi, { tab: 'info' });            // 역 시트 → ☆ → '가족 약속 장소'(앱의 저장 대화상자)
         caption('평소: 가족 약속 장소 저장', PN().yeok(o.name));
-        await phonePeek();
+        await phonePeek();                                   // 시트 높이가 자리 잡은 뒤에 지도를 옮긴다
         await fitView([[o.lat / 1e5, o.lon / 1e5]], 16);
         await tap(document.querySelector('#view-station .st-save'), 900);
         await tap(document.querySelector('#save-dlg [data-name="' + UG.saved.FAMILY + '"]'), 1400);
-        await hold(2400);                                    // 알림 '"가족 약속 장소"(으)로 저장했습니다'
+        await hold(1500);                                    // 알림 '"가족 약속 장소"(으)로 저장했습니다'
       } },
       { cap: '공습경보 · ' + CONF.story.label, run: async function () {
         const r = CONF.story, s = S();
-        s.ui.sheetClose.click();                             // 역 시트 닫기(앱의 ×)
-        s.ui.toast.hidden = true;
+        await closeSheet();                                  // 역 시트 닫기(앱의 ×)
+        await settle();
         htmlMark([r.lat, r.lon], '<span class="demo-raid" aria-hidden="true"><span class="demo-raid-t">공습경보</span></span>', 1700);
         s.me.set({ lat: r.lat, lon: r.lon, acc: 15, t: Date.now(), heading: null });   // '내 위치' 점(GPS 대신 정한 자리)
         s.me.setLook({ hidden: false, stale: false, tag: '' });
-        await fitView([[r.lat, r.lon]], 17);
-        await hold(3600);
+        await show([[r.lat, r.lon]], 17, 3300);
       } },
       { cap: '가장 가까운 지하로', run: async function () {
         const r = CONF.story;
@@ -507,8 +561,7 @@
         const c = p.route.startConn;
         if (c) caption(PN().exitName(stName(c.si), c.ref) + ' · 지상 ' + PN().fmtDist(c.len));
         await phonePeek();
-        await fitView(planPoints(p), 18);
-        await hold(3800);
+        await show(planPoints(p), 18, 3500);
       } },
       { cap: '출구로 들어가 지하 승강장까지', run: async function () {
         await startGuide();
@@ -521,8 +574,8 @@
         if (!st) return;
         stationTab('go');                                    // '지하로 계속 이동' 탭: 저장한 가족 약속 장소가 맨 위
         const o = s.g.stations[st.si];
-        await fitView(s.plan ? planPoints(s.plan) : [[o.lat / 1e5, o.lon / 1e5]], 17);   // 걸어 들어온 길(출구 → 승강장)
-        await hold(1800);
+        await settle();                                      // 역 시트가 다 올라온 뒤
+        await show(s.plan ? planPoints(s.plan) : [[o.lat / 1e5, o.lon / 1e5]], 17, 1800);   // 걸어 들어온 길(출구 → 승강장)
         await tap(document.querySelector('#view-station [data-act="go-saved"]'), 1800);   // 앱이 이 역 지하 승강장에서 다시 찾는다
       } },
       { cap: '가족 약속 장소까지 지하로', run: async function (ctx) {
@@ -532,8 +585,7 @@
         caption(PN().yeok(stName(p.route.endSi)) + '까지 지하로 ' + km(p.view.total_m),
           '지상 노출 ' + PN().fmtDist(p.view.exposed_m) + (h ? ' · 한강 아래 ' + h.a + '–' + h.b : ''));
         await phonePeek();
-        await fitView(planPoints(p), 15);
-        await hold(4800);
+        await show(planPoints(p), 15, 3900);
       } },
       { cap: '안내 시작 · GPS 없이 위치 추정', run: async function () {
         await startGuide();
@@ -559,8 +611,9 @@
         setWalked(0, true);                                  // 새 안내는 아직 0m(기다리는 동안 추정 위치가 흐르지 않게)
         const p = S().plan, g = guideView(), gs = g && g.state(), here = S().guidePos || (p && [p.from.lat, p.from.lon]);
         if (p && gs && gs.backtrack >= 10) caption('하저터널 막힘', (p.from.label || '확인한 곳') + '까지 ' + PN().fmtDist(gs.backtrack) + ' 되돌아가 다시 찾기');
-        if (pos && here) await fitView(UG.app.aroundCenter([pos], here), 16);   // 다시 출발할 곳(마지막 확인 지점)을 가운데에, 막힌 곳도 보이게
-        await hold(3800);
+        await settle();                                      // 안내 카드에 '막은 구간 제외' 줄이 붙고 시연 칸 자막이 두 줄이 된 뒤
+        if (pos && here) await show(UG.app.aroundCenter([pos], here), 16, 3500);   // 다시 출발할 곳(마지막 확인 지점)을 가운데에, 막힌 곳도 보이게
+        else await hold(3500);
       } },
       { cap: '되돌아가 다른 하저터널로', run: async function (ctx) {
         const p = ctx.p2 = S().plan;
@@ -570,14 +623,13 @@
         // check_demo.js 가 이 길에서 확인한다(두 곳을 다 막으면 가장 나은 길도 지상 721m)
         caption(h ? '한강 아래 다른 하나, ' + h.a + '–' + h.b + '로' : '되돌아가 다른 길로',
           (h ? h.line + ' · ' : '') + km(p.view.total_m) + ' · 지상 노출 ' + PN().fmtDist(p.view.exposed_m));
-        await fitReroute(ctx, p);
-        await hold(5600);
+        await fitReroute(ctx, p, 4600);
         // 대안 한 줄(지상을 조금 걸으면 짧은 길)이 카드에 보이면 잠깐 짚고, 누르지 않고 지하 우선 경로로 간다
         const alt = document.querySelector('#guide-alt-slot:not([hidden]) [data-action="alt"]');
         if (alt) { caption('대안: ' + alt.textContent, '누르지 않고 지하 우선 경로로 계속'); await flash(alt, 2200); }
       } },
       { cap: '빨리 감기 · 갈림길까지', run: async function () {
-        await walkGuide({ boost: CONF.boost.ff, camera: 'follow', zoom: CONF.story.ffZoom, fast: true, onLeg: legSub,
+        await walkGuide({ boost: CONF.boost.ff, camera: 'fixed', fast: true, onLeg: legSub,
           until: function (next) { return next.kind === 'junction' && next.jn != null; } });
       } },
       { cap: '갈림길 · 갈 갈래로', run: async function () {
@@ -588,23 +640,20 @@
         const j = gs.plan.junctions[cp.jn], a = j.alternatives[0], toward = function (b) { return b.toward ? b.toward + ' 방면' : b.name; };
         caption('갈림길 · ' + forkGo(j.chosen.side), toward(j.chosen) + (a ? ' · ' + a.side + (/갈래$/.test(a.side) ? '는 ' : '은 ') + toward(a) : ''));
         S().guideFollow = false;
-        // 1) 지금 위치와 갈림길이 보이게 맞추고 따라가며 걷다가, 2) 갈림길 약 60m 앞에서 Y자 갈래(이름표 포함)를 크게 보고 지도를 멈춘 채 마저 걷는다
+        // 1) 지금 위치와 갈림길이 한 화면에 보이게 날아가 걷다가, 2) 갈림길 약 60m 앞에서 Y자 갈래(이름표 포함)를 크게 보며 마저 걷는다
         const pos = S().guidePos, near = Math.max(0, p.toNext_m - 60);
         await fitView((pos ? [pos] : []).concat([[j.lat, j.lon]]), 17);
         await walk(near, CONF.boost.fork, setWalked);
         setWalked(near, true);
-        still = true;
-        try {
-          await fitView(forkPoints(gs, cp), 18);
-          await centerFork();
-          await walk(p.toNext_m - near, CONF.boost.fork, function (m) { setWalked(near + m); });
-          setWalked(p.toNext_m, true);
-          await hold(1200);                                  // 안내 카드의 큰 Y자와 지도의 갈래 이름표
-          await press('guide-arrive', 1400);                 // 큰 단추 '통과'
-        } finally { still = false; }
+        await fitView(forkPoints(gs, cp), 18);
+        await centerFork();
+        await walk(p.toNext_m - near, CONF.boost.fork, function (m) { setWalked(near + m); });
+        setWalked(p.toNext_m, true);
+        await hold(900);                                     // 안내 카드의 큰 Y자와 지도의 갈래 이름표
+        await press('guide-arrive', 1400);                   // 큰 단추 '통과'
       } },
       { cap: '도착까지 빨리 감기', run: async function () {
-        await walkGuide({ boost: CONF.boost.arrive, camera: 'leg', fast: true, onLeg: legSub });
+        await walkGuide({ boost: CONF.boost.arrive, camera: 'fixed', fast: true, onLeg: legSub });
       } },
       { cap: '도착', run: async function (ctx) {
         const st = S().station;
@@ -612,10 +661,10 @@
         const expo = (ctx.p ? ctx.p.view.exposed_m : 0) + (ctx.p2 ? ctx.p2.view.exposed_m : 0);
         caption((st ? PN().yeok(stName(st.si)) + ' ' : '') + '도착', '지하에 들어간 뒤 지상 노출 ' + PN().fmtDist(expo));
         stationTab('info');                                  // 도달 범위 대신 이 역 정보: 앱이 다시 찾은 경로를 다시 그린다
-        await phoneMapOnly();                                // 폰: 역 시트를 내리고 지도만(지나온 길이 크게)
-        if (ctx.p2) await fitReroute(ctx, ctx.p2);           // 막힌 곳부터 도착까지 지나온 길 전체
-        else await fitArrival();
-        await hold(7000);
+        // 폰: 앱이 연 역 시트를 화면에 그리기 전에 내린다(열렸다 닫히는 깜빡임 없이 지도만, 지나온 길이 크게)
+        await phoneMapOnly();
+        if (ctx.p2) await fitReroute(ctx, ctx.p2, 5000);     // 막힌 곳부터 도착까지 지나온 길 전체
+        else { await fitArrival(); await hold(5000); }
       } }
     ] },
 
@@ -712,7 +761,7 @@
   const svg = function (k) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + ICON[k] + '</svg>'; };
 
   const CSS = [
-    '.demo { position: absolute; z-index: 55; left: var(--gutter-l, 16px); right: var(--gutter-r, 16px); bottom: calc(var(--ui-bottom, 0px) + 28px); display: grid; gap: 6px; padding: 10px 10px 10px 14px; background: var(--surface); color: var(--text); border: 1px solid var(--line-strong); border-radius: var(--r-l, 18px); box-shadow: var(--shadow); }',
+    '.demo { position: absolute; z-index: 55; left: var(--gutter-l, 16px); right: var(--gutter-r, 16px); bottom: calc(var(--ui-bottom, 0px) + 28px); display: grid; gap: 6px; padding: 10px 10px 10px 14px; background: var(--surface); color: var(--text); border: 1px solid var(--line-strong); border-radius: var(--r-l, 18px); box-shadow: var(--shadow); transition: bottom .22s cubic-bezier(.2, .8, .2, 1); }',
     '.demo-meta { margin: 0; font-size: var(--fs-xs, .75rem); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }',
     '.demo-cap { margin: 0; font-size: clamp(1.125rem, 5vw, 1.5rem); line-height: 1.25; font-weight: 700; letter-spacing: -.01em; }',
     '.demo-sub { margin: 0; font-size: var(--fs-md, 1rem); font-weight: 700; color: var(--muted); }',
@@ -739,6 +788,14 @@
     '  .demo-pick { flex: 0 1 240px; }',
     '}',
     'html.demo-on .fab-col { display: none !important; }',
+    // 화면 바뀜을 부드럽게(시연 동안만): 시트·안내 카드·아래 단추는 0.22초 동안 떠오르고, 대화상자·알림·자막은 흐렸다가 나타난다. 닫을 때는 흐려진 뒤 닫는다(closeSheet)
+    'html.demo-on .sheet:not([hidden]), html.demo-on .guide:not([hidden]) .g-bar { animation: demo-rise .22s cubic-bezier(.2, .8, .2, 1); }',
+    'html.demo-on .guide:not([hidden]) .g-card { animation: demo-drop .22s cubic-bezier(.2, .8, .2, 1); }',
+    'html.demo-on .dlg-wrap:not([hidden]), html.demo-on .toast:not([hidden]), .demo-new { animation: demo-fade .2s ease-out; }',
+    'html.demo-on .demo-out { opacity: 0; transition: opacity .18s ease-in; }',
+    '@keyframes demo-rise { from { opacity: 0; transform: translateY(16px); } }',
+    '@keyframes demo-drop { from { opacity: 0; transform: translateY(-12px); } }',
+    '@keyframes demo-fade { from { opacity: 0; } }',
     '.demo-press { box-shadow: 0 0 0 4px var(--focus), 0 0 0 10px rgb(255 224 102 / .35) !important; transform: scale(.97); transition: transform .15s; }',
     '.demo-raid { position: absolute; left: 0; top: 0; width: 0; height: 0; }',
     '.demo-raid::before, .demo-raid::after { content: ""; position: absolute; left: 0; top: 0; width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--expo); transform: translate(-50%, -50%) scale(.25); opacity: .95; animation: demo-raid 1.8s ease-out infinite; }',
@@ -747,6 +804,8 @@
     '.demo-raid-t { position: absolute; left: 0; top: -58px; transform: translateX(-50%); padding: 3px 10px; border-radius: 6px; background: var(--expo); color: var(--on-expo); font-size: 15px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }',
     '.demo-x { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); padding: 4px 10px; border: 3px solid var(--casing); border-radius: 8px; background: var(--expo); color: var(--on-expo); font-size: 16px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }',
     '@media (prefers-reduced-motion: reduce) {',
+    '  .demo { transition: none; }',
+    '  html.demo-on .sheet, html.demo-on .guide .g-bar, html.demo-on .guide .g-card, html.demo-on .dlg-wrap, html.demo-on .toast, .demo-new { animation: none !important; }',
     '  .demo-raid::before { animation: none; transform: translate(-50%, -50%) scale(.6); }',
     '  .demo-raid::after { display: none; }',
     '  .demo-press { transform: none; }',
@@ -807,7 +866,15 @@
   }
 
   // 자막 한 줄(+ 필요하면 작은 숫자 줄)
-  function caption(t, sub) { if (!ui) return; ui.cap.textContent = t; ui.sub.textContent = sub || ''; ui.sub.hidden = !sub; }
+  // 바뀐 줄만 짧게(0.2초) 흐렸다가 나타나게 한다
+  function caption(t, sub) {
+    if (!ui) return;
+    sub = sub || '';
+    if (ui.cap.textContent !== t) { ui.cap.textContent = t; fadeIn(ui.cap); }
+    if (ui.sub.textContent !== sub) { ui.sub.textContent = sub; if (sub) fadeIn(ui.sub); }
+    ui.sub.hidden = !sub;
+  }
+  function fadeIn(el) { el.classList.remove('demo-new'); void el.offsetWidth; el.classList.add('demo-new'); }
   function bigText(t) { if (!ui) return; ui.big.textContent = t; ui.big.hidden = !t; }
   function syncUi() {
     if (!ui) return;
