@@ -96,23 +96,42 @@
   }
 
   /* ---------- 종착역 방면 ----------
-     노선 relation 정차 순서에서 '출발역 바로 다음이 다음 역'이고 그 뒤에 도착역이 있는 것을 모두 찾아,
-     방면이 하나로 정해질 때만 돌려준다(여러 방면이 섞이면 null). 순환선은 한 바퀴 더 이어 붙여 찾는다. */
+     승강장 표지판처럼 종착역으로 적는다(route.py terminal_direction 과 같음).
+     1) 노선 relation 정차 순서에서 '출발역 바로 다음이 다음 역'이고 그 뒤에 도착역이 있는 것을 모두 찾는다.
+     2) 그중 다른 relation 이 앞으로 지날 역에서 끝나는 것(중간 종착, 예: 5호선 상일동행)은 뺀다.
+     3) 남은 방면이 하나면 그대로, 여럿이면(도착역 뒤에서 노선이 갈라짐) 종착역을 '·'로 잇는다(예: '하남검단산·마천 방면').
+        셋 이상이면 정차역이 가장 많은(가장 긴) 두 방면만 남긴다(같으면 line_routes 순서). 잇는 순서는 line_routes 순서.
+     4) 하나도 못 찾으면 이 단계의 도착역 방면(예: '천호 방면'). 다음 역은 지나고 나면 반대쪽처럼 읽힌다.
+     순환선은 한 바퀴 더 이어 붙여 찾는다. */
   function terminalDirection(G, line, seq) {
-    if (line === null || seq.length < 2) return null;
+    if (seq.length < 2) return null;
     const a = seq[0], b = seq[1], z = seq[seq.length - 1];
-    const dirs = [];
+    const found = [];   // { dir: 방면, end: 종착역, ahead: 다음 역부터 앞으로 지날 정차역, n: relation 정차역 수 }
     (G.g.line_routes || []).forEach(function (r) {
       if (r.l !== line) return;
       const st = r.loop ? r.st.concat(r.st.slice(1)) : r.st;
       for (let i = 0; i < st.length - 1; i++) {
         if (st[i] === a && st[i + 1] === b && st.indexOf(z, i + 1) >= 0) {
-          if (dirs.indexOf(r.dir) < 0) dirs.push(r.dir);
+          found.push({ dir: r.dir, end: r.st[r.st.length - 1], ahead: st.slice(i + 1), n: r.st.length });
           break;
         }
       }
     });
-    return dirs.length === 1 ? dirs[0] : null;
+    let dirs = [];
+    const stops = {};   // 방면 -> 그 방면 relation 중 가장 많은 정차역 수
+    found.forEach(function (f) {
+      // 중간 종착: 다른 방면 열차가 이 종착역을 지나 더 간다
+      if (found.some(function (o) { return o.dir !== f.dir && o.ahead.indexOf(f.end) >= 0; })) return;
+      if (dirs.indexOf(f.dir) < 0) dirs.push(f.dir);
+      stops[f.dir] = Math.max(stops[f.dir] || 0, f.n);
+    });
+    if (dirs.length > 2) {   // 셋 이상(1호선)이면 가장 긴 두 방면만. sort 는 같은 값의 순서를 지키므로 같으면 line_routes 순서
+      const keep = dirs.slice().sort(function (x, y) { return stops[y] - stops[x]; }).slice(0, 2);
+      dirs = dirs.filter(function (d) { return keep.indexOf(d) >= 0; });
+    }
+    if (dirs.length === 1) return dirs[0];
+    if (dirs.length) return dirs.map(function (d) { return d.replace(' 방면', ''); }).join('·') + ' 방면';
+    return G.g.stations[z].name + ' 방면';
   }
 
   /* ---------- 타기 단계 ---------- */

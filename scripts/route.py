@@ -224,23 +224,39 @@ def assign_lines(g, path, idx):
 
 
 def terminal_direction(g, line, seq):
-    """종착역 방면(예: '오금 방면', 순환선은 '내선순환'). 노선 relation의 정차역 순서에서
-    '출발역 바로 다음이 다음 역'이고 그 뒤에 도착역이 있는 relation을 모두 찾아, 방면이 하나로 정해질 때만 돌려준다.
-    여러 방면이 섞이면(예: 1호선 인천행·동두천행) None."""
-    if line is None or len(seq) < 2:
+    """종착역 방면(예: '오금 방면', 순환선은 '내선순환'). 승강장 표지판처럼 종착역으로 적는다.
+    1) 노선 relation의 정차역 순서에서 '출발역 바로 다음이 다음 역'이고 그 뒤에 도착역이 있는 relation을 모두 찾는다.
+    2) 그중 다른 relation이 앞으로 지날 역에서 끝나는 것(중간 종착, 예: 5호선 상일동행은 하남검단산행이 지나는 역에서 끝남)은 뺀다.
+    3) 남은 방면이 하나면 그대로, 여럿이면(도착역 뒤에서 노선이 갈라짐) 종착역을 '·'로 잇는다(예: '하남검단산·마천 방면').
+       셋 이상이면 정차역이 가장 많은(가장 긴) 두 방면만 남긴다(같으면 line_routes 순서). 잇는 순서는 line_routes 순서.
+    4) 하나도 못 찾으면 이 단계의 도착역 방면(예: '천호 방면'). 다음 역은 지나고 나면 반대쪽처럼 읽힌다."""
+    if len(seq) < 2:
         return None
     a, b, z = seq[0], seq[1], seq[-1]
-    dirs = []
+    found = []  # (방면, 종착역, 다음 역부터 앞으로 지날 정차역, relation 정차역 수)
     for r in g.get("line_routes", []):
         if r["l"] != line:
             continue
         st = r["st"] + r["st"][1:] if r["loop"] else r["st"]  # 순환선은 한 바퀴 더 붙여 끝을 넘어가는 경로도 찾는다
         for i in range(len(st) - 1):
             if st[i] == a and st[i + 1] == b and z in st[i + 1:]:
-                if r["dir"] not in dirs:
-                    dirs.append(r["dir"])
+                found.append((r["dir"], r["st"][-1], st[i + 1:], len(r["st"])))
                 break
-    return dirs[0] if len(dirs) == 1 else None
+    dirs, stops = [], {}  # stops: 방면 → 그 방면 relation 중 가장 많은 정차역 수
+    for d, end, _, n in found:
+        if any(d2 != d and end in ahead2 for d2, _, ahead2, _ in found):
+            continue  # 중간 종착: 다른 방면 열차가 이 종착역을 지나 더 간다
+        if d not in dirs:
+            dirs.append(d)
+        stops[d] = max(stops.get(d, 0), n)
+    if len(dirs) > 2:  # 셋 이상(1호선)이면 가장 긴 두 방면만. sorted는 같은 값의 순서를 지키므로 같으면 line_routes 순서
+        keep = sorted(dirs, key=lambda d: -stops[d])[:2]
+        dirs = [d for d in dirs if d in keep]
+    if len(dirs) == 1:
+        return dirs[0]
+    if dirs:
+        return "·".join(d.replace(" 방면", "") for d in dirs) + " 방면"
+    return f"{g['stations'][z]['name']} 방면"
 
 
 def ride_step(g, path, idx, line, from_si, m_per_min):

@@ -58,7 +58,8 @@ x2.forEach((x) => console.log('    ' + show(x)));
 const sd = x2.find((x) => x.station === '신도림'), kc = x2.find((x) => x.station === '까치산');
 check(!!sd && sd.from.line === '2호선' && sd.to.line === '1호선' && !sd.underground && !sd.to.ug && TR.levelText(sd.to) === '지상' && /지상 노출/.test(sd.micro[1]),
   '신도림: 2호선 → 1호선, 지상 통로(1호선 승강장 지상), 행동 안내에 지상 노출');
-check(!!sd && sd.source_label === '서울교통공사 실측 거리' && TR.fmtMin(sd.minutes) === '1분' && sd.dir && sd.dir.head === '구로 방면', `신도림: 81m 약 ${sd && TR.fmtMin(sd.minutes)}, 구로 방면`);
+check(!!sd && sd.source_label === '서울교통공사 실측 거리' && TR.fmtMin(sd.minutes) === '1분' && sd.dir && sd.dir.head === '인천·신창(순천향대) 방면' && sd.dir.next === '구로',
+  `신도림: 81m 약 ${sd && TR.fmtMin(sd.minutes)}, ${sd && sd.dir && sd.dir.head}(다음 역 구로)`);   // 1호선은 구로 뒤에서 갈라져 가장 긴 두 종착역을 적는다
 check(!!kc && kc.delta_m === 0 && kc.move === '같은 깊이', `까치산: 5호선 B5 → 2호선 B5, '${kc && kc.move}'`);
 
 /* ---------- 3) 종각 → 안국: 종로3가 깊이 차이 ---------- */
