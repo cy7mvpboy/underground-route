@@ -63,7 +63,7 @@ for (const [a, b, why] of [['부산역@부산', '서면@부산', '이미 짧고 
 }
 
 /* ---------- 앞이 막혀 다시 찾은 경로(시연 1번 이야기와 같은 막기: 공덕역 승강장에서 가족 약속 장소로) ---------- */
-console.log('\n[앞이 막힘 뒤] 공덕 → 한성백제, 5호선 마포–여의나루 하저터널 막힘 (참고)');
+console.log('\n[앞이 막힘 뒤] 공덕 → ' + UG.demo.CONF.story.meet.replace(/@.*/, '') + ', 5호선 마포–여의나루 하저터널 막힘 (참고)');
 {
   const M = UG.demo.CONF.story, from = '공덕@서울', blocked = new Set();
   const p = { from: st(from), to: st(M.meet), route: RT.findRoute(G, st(from), st(M.meet)) };
