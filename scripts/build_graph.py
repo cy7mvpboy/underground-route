@@ -11,7 +11,8 @@
 #   6) 좌표를 줄여(더글러스-포이커 5m, 소수 5자리) 압축 JSON으로 저장하고, 점검 결과를 report로 남긴다.
 #   7) 이름: 간선마다 운행 노선(예: 3호선, LINE_TABLE로 통일)과 선로의 선 이름(예: 일산선)을 따로 담고,
 #      노선 relation의 정차역 순서(line_routes)를 남겨 길 안내에서 '오금 방면' 같은 방면을 찾게 한다.
-#   8) 역 깊이: 서울교통공사 역 깊이 자료(1~8호선)를 역·노선에 맞춰 stations[].depth로 남긴다(자료가 있는 역만).
+#   8) 역 깊이: 서울교통공사 역 깊이 자료(1~8호선, 9호선 2·3단계 언주~중앙보훈병원)를 역·노선에 맞춰
+#      stations[].depth로 남긴다(자료가 있는 역만).
 # 사용법(프로젝트 폴더에서): python -I scripts\build_graph.py
 # 지하 판정: tunnel 태그가 있고 no가 아니면 지하. layer<0만 있는 선로는 지상으로 둔다(docs\data-check.md 4.4절).
 import csv
@@ -29,7 +30,8 @@ ENTRANCES = "data/raw/entrances.json"
 ROUTES = "data/raw/routes.json"
 HAN_RIVER = "data/raw/han_river.json"
 SEOUL_TRANSFER = "data/raw/seoul/transfer_distance_20250331.csv"
-SEOUL_DEPTH = "data/raw/seoul/station_depth_20241104.csv"
+# 서울교통공사 역사심도정보: 1~8호선(OA-13305), 9호선 2·3단계(OA-22446). 두 파일의 열 순서가 같다
+SEOUL_DEPTH = ("data/raw/seoul/station_depth_20241104.csv", "data/raw/seoul9/station_depth9_20260131.csv")
 OUT_GRAPH = "web/data/graph.json"
 OUT_REPORT = "data/derived/graph_report.json"
 
@@ -825,7 +827,7 @@ def write_graph(nodes, edges, platform_edges, transfers, entrance_edges, station
     graph = {
         "format": "underground-route-graph", "version": 1,
         "attribution": ["© OpenStreetMap contributors (ODbL)",
-                        "서울교통공사 환승역 환승거리(2025-03-31)·역 깊이(2024-11-04), 서울 열린데이터광장, 공공누리 제1유형"],
+                        "서울교통공사 환승역 환승거리(2025-03-31)·역 깊이(1~8호선 2024-11-04, 9호선 2·3단계 2026-01-31), 서울 열린데이터광장, 공공누리 제1유형"],
         "osm_base": "2026-11-10",
         "weights": {"under": 1, "exposed": 1000},
         "tables": {"structs": STRUCTS, "under_structs": sorted(UNDER_STRUCTS), "kinds": KINDS, "sources": SOURCES,
@@ -972,7 +974,7 @@ def match_depth_rows(station_out):
             for n in s["names"]:
                 by_name[n].append(si)
     out = []
-    for row in read_cp949_csv(SEOUL_DEPTH):
+    for row in (r for path in SEOUL_DEPTH for r in read_cp949_csv(path)):
         line = seoul_csv_line(row[1])
         hits = []
         for name in (row[2], DEPTH_ALIASES.get(row[2].strip(), "")):  # 원래 이름 먼저, 없으면 바뀐 이름

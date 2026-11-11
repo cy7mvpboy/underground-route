@@ -76,6 +76,7 @@ python -m http.server 8000 -d web
 |---|---|---|
 | `data/raw/seoul/transfer_distance_20250331.csv` | 서울교통공사 환승역 환승거리·소요시간 | [공공데이터포털 15044419](https://www.data.go.kr/data/15044419/fileData.do), [서울 열린데이터광장 OA-13290](https://data.seoul.go.kr/dataList/OA-13290/F/1/datasetView.do) |
 | `data/raw/seoul/station_depth_20241104.csv` | 서울교통공사 역사심도정보(CP949) | [서울 열린데이터광장 OA-13305](https://data.seoul.go.kr/dataList/OA-13305/F/1/datasetView.do) |
+| `data/raw/seoul9/station_depth9_20260131.csv` | 서울교통공사 9호선 2·3단계 역사 심도 정보(CP949) | [서울 열린데이터광장 OA-22446](https://data.seoul.go.kr/dataList/OA-22446/F/1/datasetView.do) |
 | `data/raw/transfer/fast_transfer_20250923.csv` | 국토교통부 철도역 빠른 환승 정보(CP949) | [공공데이터포털 15151816](https://www.data.go.kr/data/15151816/fileData.do) |
 | `data/raw/transfer/exit_area_20260902.csv` | 서울교통공사 역별 역세권 현황(CP949) | [공공데이터포털 15044230](https://www.data.go.kr/data/15044230/fileData.do) |
 | `data/raw/passage/seoul_station_passage.csv` | 서울시 지하철역 연계 지하도 공간정보(CP949) | [공공데이터포털 15098161](https://www.data.go.kr/data/15098161/openapi.do) |
@@ -157,7 +158,8 @@ docs/                계획서, 그래프 형식(graph-format.md), 디자인, �
 |---|---|---|---|---|
 | 철도 선로·역·출입구·장소·행정경계 | © OpenStreetMap contributors | ODbL | 2026-11-10 | 지하·교량·지상 구조, 역, 출구, 터널 출입구, 장소 검색, 간이 배경 지도 |
 | 환승역 환승거리 | 서울교통공사, 서울 열린데이터광장 | 공공누리 제1유형 | 2025-03-31 | 환승 거리·시간 |
-| 역사심도정보 | 서울교통공사, 서울 열린데이터광장 | 공공누리 제1유형 | 2024-11-04 | 승강장·선로 깊이 |
+| 역사심도정보 | 서울교통공사, 서울 열린데이터광장 | 공공누리 제1유형 | 2024-11-04 | 승강장·선로 깊이 (1~8호선) |
+| 9호선 2·3단계 역사 심도 정보 | 서울교통공사, 서울 열린데이터광장 | 공공누리 제1유형 | 2026-01-31 | 승강장·선로 깊이 (9호선 언주~중앙보훈병원 13개 역) |
 | 역별 역세권 현황 | 서울교통공사, 공공데이터포털 15044230 | 이용허락범위 제한 없음 | 2026-09-02 | 출구 주변 지명 |
 | 철도역 빠른 환승 정보 | 국토교통부, 공공데이터포털 15151816 | 이용허락범위 제한 없음 | 2025-09-23 | 환승 계단 위치 |
 | 지하철역 연계 지하도 공간정보 | 서울특별시, 공공데이터포털 15098161 | 이용허락범위 제한 없음 | 2021년 무렵 (서울만) | 서울 역 안 통로 모양 |
