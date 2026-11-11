@@ -17,6 +17,7 @@
      - 깊이: y = -(깊이 m × EXAG). 지면은 y = 0. 세로만 EXAG(자료의 exag, 10)배 늘려서 깊이 차이가 보이게 한다.
      - 한강 아래: 그릴 깊이는 둑 높이(양쪽 둑 지반을 이은 값)에서 잰 깊이라 터널이 강 아래로 내려가 보인다. 글자는 수면 아래 깊이.
        강바닥 자료는 없어서 그리지 않는다(단면의 물·흙 경계는 그림).
+   행정 경계: 서울 자치구·경기 시·군(OSM) 선을 지면 위 옅은 점선으로, 경로가 지나는 시·군·구 이름을 옅게.
    터널: 반투명 껍데기 + 고리 + 바닥·레일 + 벽 등. 걷는 점 가까운 고리는 밝게(점이 터널 안을 비추는 것처럼).
    역: 승강장 상자(깊이 = 자료 값, 노선 색 테두리) · 환승역과 입구는 대합실 판(깊이 추정). 모양은 개략.
    공습경보: 거리의 빨간 고리 · 먼 곳 섬광 몇 번 · 먼 연기 기둥 두세 개. 몇 초 뒤 사라진다(폭발·사람 피해는 그리지 않는다).
@@ -107,6 +108,16 @@ function lines(polys, y, color, opacity) {
   const a = [];
   polys.forEach((l) => { for (let i = 1; i < l.length; i++) { const p = toXZ(l[i - 1][0], l[i - 1][1]), q = toXZ(l[i][0], l[i][1]); a.push(p[0], y, p[1], q[0], y, q[1]); } });
   const o = new THREE.LineSegments(geo(a), new THREE.LineBasicMaterial({ color, transparent: true, opacity })); scene.add(o); return o;
+}
+// 행정 경계(OSM): 서울 자치구·경기 시·군은 옅은 점선, 서울 경계는 조금 진한 긴 점선. 지면 바로 위
+{
+  for (const [lv, op, dash] of [[6, 0.45, 90], [4, 0.7, 220]]) {
+    const a = [];
+    (D.bounds || []).filter((b) => b.lv === lv).forEach((b) => { for (let i = 1; i < b.p.length; i++) { const p = toXZ(b.p[i - 1][0], b.p[i - 1][1]), q = toXZ(b.p[i][0], b.p[i][1]); a.push(p[0], 1.5, p[1], q[0], 1.5, q[1]); } });
+    if (!a.length) continue;
+    const o = new THREE.LineSegments(geo(a), new THREE.LineDashedMaterial({ color: COL.est, transparent: true, opacity: op, dashSize: dash, gapSize: dash * 0.7, depthWrite: false }));
+    o.computeLineDistances(); scene.add(o);
+  }
 }
 lines(D.net, 1, COL.net, 0.55);
 // 한강: 중심선 양쪽으로 half_w 만큼 편 띠(지면 높이, 그림용 폭)
@@ -394,8 +405,10 @@ scene.add(new THREE.LineSegments(geo(drops), new THREE.LineBasicMaterial({ color
 // 대합실: 가까이 볼 때만
 D.structs.filter((s) => s.k === 'concourse').forEach((s) => {
   const [x, z] = toXZ(s.c[0], s.c[1]);
-  label(`${s.n} 대합실 · 깊이 추정`, new THREE.Vector3(x, -s.d * EXAG + 12, z), 'est', s.leg === 'ride2' ? (c) => c >= EV.reveal : null, 0, 2600);
+  label(`${s.n} 대합실 · 높이 개략`, new THREE.Vector3(x, -s.d * EXAG + 12, z), 'est', s.leg === 'ride2' ? (c) => c >= EV.reveal : null, 0, 2600);
 });
+// 시·군·구 이름: 경로가 지나는 곳만, 지면 위. 다른 이름표보다 뒤(겹치면 숨김)
+(D.regions || []).forEach((r) => { const [x, z] = toXZ(r.c[0], r.c[1]); label(r.n, new THREE.Vector3(x, 0, z), 'dim region', null, -1); });
 const mid = (a) => (a[0] + a[1]) / 2;
 label(`${F.start}역 ${F.exit_ref}번 출구`, posAt('enter', E.expo_m).add(new THREE.Vector3(0, 40, 0)), '');
 label('공습경보', LEG.enter.v[0].clone().add(new THREE.Vector3(0, 60, 0)), 'red', (c) => c >= EV.raid && c < EV.raid + 6, 3);

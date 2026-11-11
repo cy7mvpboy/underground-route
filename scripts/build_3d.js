@@ -684,12 +684,15 @@ const LG = {
    - 그릴 깊이 = 기준 지반 − 걷는 바닥 높이. 기준 지반 = 보정한 SRTM 지반을 길 따라 10m 마다 재고, 한강 위는 양쪽 둑 값을 직선으로 이은 뒤
      σ 150m 로 부드럽게 하고 역 자리에서 공식 지반고와 같게 맞춘 값. 평평한 지면 아래라도 깊이가 뚝 바뀌지 않고, 승강장은 공식 깊이 그대로다.
      한강 아래는 둑 높이에서 잰 깊이라 글자(수면 아래 깊이)보다 둑과 수면의 높이 차만큼 깊게 그려진다.
-   - 역 안(환승·입구)은 3판처럼 개략 모양: 승강장 → 경사(화면에서 60° 이하) → 대합실(깊이 추정) → 경사 → 승강장.
+   - 역 안(환승·입구)은 3판처럼 개략 모양: 승강장 → 경사(화면에서 60° 이하) → 대합실 → 경사 → 승강장.
+     대합실 높이(자료 없음, 개략): 바닥 = 기준 지반 − 6.5m(지하 1층). 이어지는 승강장 중 얕은 쪽이 13m 보다 얕으면 그 깊이의 반.
+     그래서 늘 지면과 승강장 사이다(0 < 대합실 < 승강장). 입구는 출구(지면) → 대합실 → 승강장, 환승은 승강장 → 대합실 → 승강장.
    점 = [위도, 경도, 구간 m, 그릴 깊이, 한강 아래 정도 0~1, 한강 단면 정도 0~1, 실제 깊이] */
 const LL5 = (q) => { const ll = toLL(q); return [Math.round(ll[0] * 1e5) / 1e5, Math.round(ll[1] * 1e5) / 1e5]; };
 const ss3 = (t) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
 const MAX_SLOPE = Math.tan(Math.PI / 3), STEP_ST = 4;
 const rampRun = (dd) => Math.max(100, 1.5 * Math.abs(dd) * EXAG / MAX_SLOPE);   // 경사 수평 길이(m): 화면 기울기 60° 이하
+const CONC3 = 6.5, concDepth = (dPlat) => Math.min(CONC3, dPlat / 2);              // 대합실 깊이(m, 개략): 지하 1층, 얕은 승강장이면 그 반
 // 한강: 그림용 반폭(하저터널 양 끝 역 중 강에 가장 가까운 역보다 안쪽) · 한강 아래 정도
 const bankSt = [crossA.a, crossA.b, crossB.a, crossB.b].map((n) => S[si(n + '@서울')]);
 const HALF_W = Math.round(Math.min(450, ...bankSt.map((s) => distToLine(toXY([s.lat / 1e5, s.lon / 1e5]), hanAll) - 60)));
@@ -753,14 +756,14 @@ function view(key, lg, sts, endDir, ref) {
     const dirA = back ? unit(sub(sa, back.q)) : unit(sub(sb, sa)), dirB = fwd ? unit(sub(fwd.q, sb)) : endDir || dirA;
     const st = sts.reduce((b, s) => (!b || Math.abs(s.m - mS) < Math.abs(b.m - mS) ? s : b), null);
     let poly, ctl;
-    if (A.k === 's') {   // 입구: 출구 → 경사 → 대합실(깊이 6m 추정) → 경사 → 승강장
-      const c = 6, r2_ = rampRun(db - c), q2 = sub(sb, mul(dirB, r2_)), toQ2 = sub(q2, sa);
+    if (A.k === 's') {   // 입구: 출구 → 경사 → 대합실 → 경사 → 승강장
+      const c = concDepth(db), r2_ = rampRun(db - c), q2 = sub(sb, mul(dirB, r2_)), toQ2 = sub(q2, sa);
       const rr = Math.min(rampRun(c), len(toQ2) * 0.6), q1 = add(sa, mul(unit(toQ2), rr)), mid = len(sub(q2, q1)), L = rr + mid + r2_;
       const m1 = mS + (mE - mS) * rr / L, m2 = mS + (mE - mS) * (rr + mid) / L;
       poly = round3([sa, q1, q2, sb], 30); ctl = [[mS, m1, 0, c], [m1, m2, c, c], [m2, mE, c, db]];
       concourse3([q1, q2, sb], sub(q2, q1), c, st ? st.n : '', key);
-    } else {             // 환승: 승강장 A → 경사 → 대합실(얕은 승강장보다 6m 위, 5~8m 추정) → 경사 → 승강장 B
-      const c = Math.min(8, Math.max(5, Math.min(da, db) - 6)), rA = rampRun(da - c), rB = rampRun(db - c);
+    } else {             // 환승: 승강장 A → 경사 → 대합실 → 경사 → 승강장 B
+      const c = concDepth(Math.min(da, db)), rA = rampRun(da - c), rB = rampRun(db - c);
       const qa = add(sa, mul(dirA, rA)), qb = sub(sb, mul(dirB, rB)), mid = len(sub(qb, qa)), L = rA + mid + rB;
       const mA = mS + (mE - mS) * rA / L, mB = mS + (mE - mS) * (rA + mid) / L;
       poly = round3([sa, qa, qb, sb], 40); ctl = [[mS, mA, da, c], [mA, mB, c, c], [mB, mE, c, db]];
@@ -812,6 +815,58 @@ for (let e = 0; e < E.a.length; e++) {
 const riverLine = simplify(hanAll.filter(inBox3), 15).map(LL5);
 
 
+/* ---------- 11-2. 행정 경계(화면 바닥에 옅게): 서울 자치구·경기 시·군(OSM admin_level 6) + 서울 경계(admin_level 4) ----------
+   자료(이미 받아 둔 것): data/raw/places/admin67.json(시·군·구 관계, Overpass 'out geom'), data/raw/basemap/admin.json(시·도 관계).
+   - 선: 그림 범위(모든 구간 + 3.3km, 남쪽 선 포함) 안 부분만 25m 오차로 줄인다. 같은 선(way)은 한 번. 서울특별시 관계의 선은 lv 4, 나머지 lv 6.
+   - 이름: 경로(모든 구간)가 300m 넘게 지나는 시·군·구마다 하나. 그 안을 지나는 경로 점들의 가운데 점에서 옆으로 700m(그 시·군·구 안이고
+     경로에서 400m 넘게 떨어진 쪽). 둘 다 안 되면 가운데 점 자리. 안 여부는 관계의 모든 선을 가로지르는 횟수(홀짝)로 판단한다 */
+const ADM6 = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/raw/places/admin67.json'), 'utf8')).elements.filter((r) => r.tags && r.tags.admin_level === '6');
+const ADM4 = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/raw/basemap/admin.json'), 'utf8')).elements.filter((r) => r.tags && r.tags.name === '서울특별시');
+const routeXY = Object.values(V).flatMap((v) => v.pts.map((p) => toXY([p[0], p[1]])));
+const RB = routeXY.reduce((bb, q) => [Math.min(bb[0], q[0]), Math.min(bb[1], q[1]), Math.max(bb[2], q[0]), Math.max(bb[3], q[1])], [1e9, 1e9, -1e9, -1e9]);
+const inRB = (q) => q[0] > RB[0] - 3300 && q[0] < RB[2] + 3300 && q[1] > RB[1] - 3300 && q[1] < RB[3] + 3300;
+const wayXY = (m) => (m.geometry || []).filter(Boolean).map((p) => toXY([p.lat, p.lon]));
+// 상자 안 부분만(앞뒤 한 점씩 더 넣어 상자 끝까지 이어지게)
+function clipRuns(P) {
+  const out = []; let cur = null;
+  P.forEach((q, i) => {
+    const ok = inRB(q) || (i > 0 && inRB(P[i - 1])) || (i + 1 < P.length && inRB(P[i + 1]));
+    if (ok) { if (!cur) out.push(cur = []); cur.push(q); } else cur = null;
+  });
+  return out.filter((r) => r.length > 1);
+}
+const bounds = [], seenWay = new Set();
+const addWays = (rels, lv) => rels.forEach((r) => (r.members || []).forEach((m) => {
+  if (m.type !== 'way' || seenWay.has(m.ref)) return;
+  seenWay.add(m.ref);
+  clipRuns(wayXY(m)).forEach((run) => { const sp = simplify(run, 25); if (sp.length > 1) bounds.push({ lv, p: sp.map(LL5) }); });
+}));
+addWays(ADM4, 4);   // 서울 경계를 먼저(같은 선이면 lv 4 로 남는다)
+const relIn = (r) => { const bb = r.bounds; if (!bb) return false; const lo = toXY([bb.minlat, bb.minlon]), hi = toXY([bb.maxlat, bb.maxlon]); return lo[0] < RB[2] + 3300 && hi[0] > RB[0] - 3300 && lo[1] < RB[3] + 3300 && hi[1] > RB[1] - 3300; };
+addWays(ADM6.filter(relIn), 6);
+// 이름표 자리
+const segsOf = (r) => (r.members || []).filter((m) => m.type === 'way').flatMap((m) => { const P = wayXY(m); return P.slice(1).map((q, i) => [P[i], q]); });
+const insideRel = (q, segs) => { let c = false; for (const [a, b] of segs) if ((a[1] > q[1]) !== (b[1] > q[1]) && q[0] < a[0] + (b[0] - a[0]) * (q[1] - a[1]) / (b[1] - a[1])) c = !c; return c; };
+const samples = [];   // 경로 위 100m 마다(구간 순서대로)
+for (const v of Object.values(V)) {
+  const P = v.pts.map((p) => toXY([p[0], p[1]]));
+  for (let i = 1; i < P.length; i++) { const L = len(sub(P[i], P[i - 1])), n = Math.max(1, Math.ceil(L / 100)); for (let k = 0; k < n; k++) samples.push(lerp2(P[i - 1], P[i], k / n)); }
+}
+const nearRoute = (q) => samples.reduce((d, s) => Math.min(d, len(sub(q, s))), Infinity);
+const regions = [];
+ADM6.forEach((r) => {
+  const b = r.bounds; if (!b) return;
+  const lo = toXY([b.minlat, b.minlon]), hi = toXY([b.maxlat, b.maxlon]);
+  const cand = samples.filter((q) => q[0] >= lo[0] && q[0] <= hi[0] && q[1] >= lo[1] && q[1] <= hi[1]);
+  if (cand.length < 3) return;
+  const segs = segsOf(r), ins = cand.filter((q) => insideRel(q, segs));
+  if (ins.length < 3) return;
+  const m = ins[Math.floor(ins.length / 2)], k = samples.indexOf(m), a = samples[Math.max(0, k - 3)], c = samples[Math.min(samples.length - 1, k + 3)];
+  const t = unit(sub(c, a)), nrm = [-t[1], t[0]];
+  const opts = [add(m, mul(nrm, 700)), add(m, mul(nrm, -700))].filter((q) => insideRel(q, segs)).map((q) => ({ q, d: nearRoute(q) })).filter((o) => o.d > 400).sort((x, y) => y.d - x.d);
+  regions.push({ n: r.tags.name, c: LL5(opts.length ? opts[0].q : m) });
+});
+
 const out = {
   format: 'jiharo-3d-4',
   built: new Date().toISOString().slice(0, 10),
@@ -827,6 +882,8 @@ const out = {
     south: { pts: V.south.pts }
   },
   net,
+  bounds,    // 행정 경계 선 { lv: 4 시·도 | 6 시·군·구, p: [[위도, 경도], ...] }
+  regions,   // 시·군·구 이름표 { n, c: [위도, 경도] }
   stations: st3,
   structs: [...plat3, ...conc3],
   facts: {
@@ -863,7 +920,7 @@ fs.mkdirSync(path.dirname(file), { recursive: true });
 fs.writeFileSync(file, JSON.stringify(out));
 const L = out.legs;
 const pad = (s, n) => String(s).padEnd(n), lpad = (s, n) => String(s).padStart(n);
-console.log(`ride.json ${fs.statSync(file).size} byte · 점 ` + Object.keys(L).map((k) => `${k} ${L[k].pts.length}`).join(' ') + ` · 바탕 선로 ${net.length}개 · 역 구조 ${out.structs.length}개 · 강 반폭 ${HALF_W}m · 한강 수면 아래 ${out.facts.crossA.under}m / ${out.facts.crossB.under}m`);
+console.log(`ride.json ${fs.statSync(file).size} byte · 점 ` + Object.keys(L).map((k) => `${k} ${L[k].pts.length}`).join(' ') + ` · 바탕 선로 ${net.length}개 · 행정 경계 선 ${bounds.length}개(${bounds.reduce((n, x) => n + x.p.length, 0)}점) · 이름 ${regions.map((r) => r.n).join(' ')} · 역 구조 ${out.structs.length}개 · 강 반폭 ${HALF_W}m · 한강 수면 아래 ${out.facts.crossA.under}m / ${out.facts.crossB.under}m`);
 const offs = ctrl.map((c) => c.d);
 console.log(`지반 보정: 공식 역 지반고 − SRTM 하위 15%(±140m), 역 ${ctrl.length}곳(${ctrlAll}곳 중 12m 넘게 어긋난 ${dropped.length}곳 뺌: ${dropped.join(', ')}) 중앙값 ${OFF_MED.toFixed(1)}m, 절댓값 평균 ${(offs.reduce((a, c) => a + Math.abs(c), 0) / offs.length).toFixed(1)}m (보정 뒤 역 자리 차이 절댓값 평균 ${(ctrl.reduce((a, c) => a + Math.abs(c.d - offAt(c.q)), 0) / ctrl.length).toFixed(1)}m)`);
 console.log(`한강 수면(SRTM 중앙값): ${F2(out.facts.crossA)} · ${F2(out.facts.crossB)} · 띠 ${river.length}점, 폭 ${Math.round(median(river.map((r) => r.WL + r.WR)))}m(중앙값)`);
@@ -876,5 +933,5 @@ for (const r of RADIUS) console.log(`${pad(r.path, 8)} ${pad(r.line, 6)} ${pad(r
 console.log('편 선이 OSM 에서 벗어난 최대 거리: ' + [D2, D3, D4].map((D) => Math.max(...D.runs.filter((x) => x.t === 'track').map((r) => r.dev)).toFixed(1) + 'm').join(' · '));
 console.log('\n[역 높이] 공식 = 서울교통공사 CSV · 위키 = 위키 깊이 · 층수 = 층수 평균 깊이(추정) · 추정 = 앞뒤 역 보간');
 for (const s of stations) console.log(`${pad(s.leg, 8)} ${pad(s.n + ' ' + s.l, 16)} 레일 ${lpad(s.z, 7)}m 지반 ${lpad(s.g, 6)}m 깊이 ${lpad(s.d == null ? '-' : s.d, 6)}m ${pad(s.src, 4)} ${s.form || ''} ${s.car ? '· ' + s.car : ''}${s.src !== '공식' && s.note ? ' · ' + s.note : ''}`);
-console.log('\n대합실(추정): ' + structs.filter((x) => x.k === 'conc').map((x) => `${x.n} 해발 ${x.z}m ${x.L}×${x.W}`).join(', '));
+console.log('\n대합실(화면, 높이 개략: 기준 지반 − 6.5m, 얕은 승강장이면 그 깊이의 반): ' + conc3.map((x) => `${x.n} 깊이 ${x.d}m`).join(', '));
 console.log('남쪽:', JSON.stringify(out.facts.south));
