@@ -26,8 +26,8 @@
     egressUrl: 'data/egress.json',   // 터널 출입구·수직구·차량기지(여기서 나가기·출구 후보 표시). 없어도 된다(역 출구만)
     egressZoom: 13, depotZoom: 12,   // 출구 후보 표시: 터널 출입구·수직구는 줌 13, 차량기지는 줌 12 이상
     offRouteM: 150,                  // 길 안내 중 GPS 위치가 경로에서 이만큼 떨어지면 '경로에서 벗어남'
-    gpsFreshMs: 20000,               // 길 안내: 이보다 오래된 GPS 위치는 쓰지 않고 추정 위치를 쓴다
-    gpsGoodM: 80,                    //           정확도가 이보다 나쁘면(m) 추정 위치를 쓴다
+    gps: UG.guide.GPS_RULES,         // 길 안내 중 GPS 를 믿는 규칙(guide.js): 6초 동안 새 위치가 없거나 정확도 80m 밖이면 추정 위치,
+                                     // 잃은 뒤 추정 위치가 지하 구간이면 25m 안 위치가 3초 넘게 3번 모여야 다시 GPS
     staleMs: 60000,                  // 내 위치 점을 흐리게(오래된 위치)
     tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     home: [37.5665, 126.9780], homeZoom: 12,      // 처음 보기: 서울 도심(전국을 한꺼번에 보여 주지 않는다)
@@ -527,13 +527,18 @@
 
   /* ---------- 내 위치 (GPS) ----------
      위치 권한을 받은 뒤에는 watchPosition 하나를 계속 돌려 파란 점(layers.js 의 MeLayer)을 갱신한다.
-     - 정확도: 길 안내 중에는 높게(enableHighAccuracy), 평소에는 배터리를 아끼려고 낮게. maximumAge 10초.
+     - 정확도: 길 안내 중에는 높게(enableHighAccuracy), 평소에는 배터리를 아끼려고 낮게.
+       maximumAge: 길 안내 중 0(브라우저가 저장해 둔 위치를 받지 않는다: 지하에 내려간 뒤 지상 위치가 새 위치처럼 오지 않게), 평소 10초.
+     - 위치 시각(t)은 받은 시각(Date.now()). 끊김은 이것으로 잰다. pos.timestamp(ts)는 Date.now() 와 견주지 않고
+       위치끼리 순서만 본다: 같은 위치를 또 받았거나 더 오래된 위치면 버린다(guide.js notNewer. 점이 뒤로 가지 않게).
+     - 길 안내 중 GPS 를 쓸지는 guide.js 의 GpsGate 가 정한다(6초 끊기면 추정 위치, 잃은 뒤 지하 구간이면 엄하게 다시 잡기).
      - 화면이 숨으면(다른 앱·화면 꺼짐) 멈추고, 다시 보이면 이어서 돈다.
      - 내 위치 단추 상태(data-state): off(꺼짐) · searching(찾는 중) · located(찾음) · following(지도가 나를 따라감) · denied(쓸 수 없음)
        following 은 사용자가 지도를 끌거나 다른 화면 맞추기(경로·역)가 일어나면 located 로 돌아간다.
      - 오류는 알림(toast) 한 번만, 화면은 막지 않는다. 미리보기(claude.ai)처럼 위치가 막힌 곳에서는 그 뒤로 조용하다.
        내 위치 단추를 직접 누른 경우에만 다시 알린다(누른 것에 대한 답). */
-  const geo = { watchId: null, high: false, wanted: false, follow: false, denied: false, told: false, waiting: false, centerOnce: false, staleTimer: 0 };
+  const geo = { watchId: null, high: false, wanted: false, follow: false, denied: false, told: false, waiting: false, centerOnce: false, staleTimer: 0,
+    gate: UG.guide.GpsGate(), lostTimer: 0 };
 
   function setupGeo() {
     state.ui.btnLocate.addEventListener('click', onLocateClick);
@@ -554,7 +559,7 @@
     stopWatch(true);
     geo.high = high;
     try {
-      geo.watchId = navigator.geolocation.watchPosition(onFix, onWatchError, { enableHighAccuracy: high, maximumAge: 10000, timeout: 30000 });
+      geo.watchId = navigator.geolocation.watchPosition(onFix, onWatchError, { enableHighAccuracy: high, maximumAge: high ? 0 : 10000, timeout: 30000 });
     } catch (e) { geo.watchId = null; noteGeoError({ code: 1 }); }
     syncLocate();
   }
@@ -569,7 +574,13 @@
     if (geo.waiting) { geo.waiting = false; hideToast(); }
     if (geo.follow || geo.centerOnce) { geo.centerOnce = false; centerOnMe(); }
     syncLocate();
-    if (state.guide && state.guide.isOpen()) state.guide.ping();   // 길 안내 지도 표시를 바로 갱신
+    if (state.guide && state.guide.isOpen()) {
+      state.guide.ping();   // 길 안내 지도 표시를 바로 갱신
+      // 이 위치 뒤로 새 위치가 끊기면 끊김 기준(6초)이 지나자마자 다시 그려 추정 위치로 바꾼다(5초마다 그리기를 기다리지 않는다)
+      clearTimeout(geo.lostTimer);
+      geo.lostTimer = setTimeout(function () { if (state.guide && state.guide.isOpen()) state.guide.ping(); },
+        Math.max(0, state.myLoc.t + CFG.gps.freshMs - Date.now()) + 100);
+    }
   }
   function onWatchError(err) {
     noteGeoError(err);
@@ -593,9 +604,15 @@
   }
 
   function setMyLoc(pos) {
-    const c = pos.coords;
-    state.myLoc = { lat: c.latitude, lon: c.longitude, acc: c.accuracy, t: Date.now(),
+    const c = pos.coords, ts = pos.timestamp;
+    const fix = { lat: c.latitude, lon: c.longitude, acc: c.accuracy,
+      t: Date.now(),                                              // 받은 시각: 끊김(6초)·오래된 점은 이것으로 잰다
+      ts: typeof ts === 'number' && isFinite(ts) ? ts : null,    // 측정 시각: 위치끼리 순서만(Date.now() 와 견주지 않는다)
+      alt: c.altitude != null && isFinite(c.altitude) ? c.altitude : null,   // 고도가 없으면 대개 와이파이·기지국 위치(GpsGate 가 참고만 한다)
       heading: c.heading != null && isFinite(c.heading) && (c.speed == null || c.speed > 0.3) ? c.heading : null };   // 멈춰 있으면 방향이 없다
+    if (UG.guide.notNewer(fix, state.myLoc)) return;   // 같은 위치를 또 받았거나 더 오래된 위치: 점을 되돌리지 않는다
+    state.myLoc = fix;
+    geo.gate.add(fix);
     if (state.me) { state.me.set(state.myLoc); state.me.setLook({ stale: false }); }
     clearTimeout(geo.staleTimer);
     geo.staleTimer = setTimeout(function () { if (state.me && !(state.guide && state.guide.isOpen())) state.me.setLook({ stale: true }); }, CFG.staleMs);
@@ -1315,10 +1332,17 @@
     });
   }
 
-  // 쓸 만한 GPS(최근 20초, 정확도 80m 안)
+  /* 쓸 만한 GPS: guide.js 의 GpsGate 가 정한다.
+     6초 동안 새 위치가 없거나 정확도가 80m 밖이면 잃음(추정 위치). 잡히는 동안에는 지하 구간이어도 GPS.
+     잃은 뒤에는 추정 위치가 지상이면 위치 하나로 바로, 지하 구간이면 25m 안 위치가 3초 넘게 3번 모여야 다시 GPS.
+     시연은 위치를 숨겨(state.myLoc = null) 늘 추정 위치다. */
   function gpsUsable() {
-    const f = state.myLoc;
-    return !!f && Date.now() - f.t < CFG.gpsFreshMs && f.acc <= CFG.gpsGoodM;
+    return !!state.myLoc && geo.gate.usable(Date.now(), guideUnder());
+  }
+  // 길 안내의 추정 위치(마지막 확인 지점 + 걸은 거리)가 지하 구간인지(guide.js underNow)
+  function guideUnder() {
+    const gs = state.guide && state.guide.state();
+    return !!gs && !!state.guideTrack && UG.guide.underNow(state.guideTrack, gs.cps, gs.cur, state.guide.walkedM());
   }
   // GPS 위치를 경로 위 거리(m)로. 경로에서 150m 넘게 떨어졌거나 GPS 가 없으면 null(그때는 걸은 시간으로 추정)
   function gpsRoutePos() {
@@ -1379,7 +1403,8 @@
 
   /* 지도 위: 지금 단계(마지막 확인 지점 -> 다음 확인 지점)를 강조하고, 다음 확인 지점과 지금 위치를 표시.
      - 환승 단계: 두 노선 승강장 점과 노선 칩, 그 사이 옅은 점선만 그린다(통로 모양은 모른다).
-     - 지금 위치: 쓸 만한 GPS(최근 20초, 정확도 80m 안)가 있으면 파란 점, 경로에서 150m 넘게 떨어지면 '경로에서 벗어남'.
+     - 지금 위치: 쓸 만한 GPS(gpsUsable: 6초 안에 온 정확도 80m 안 위치, 잃은 뒤 지하 구간이면 엄하게)가 있으면 파란 점,
+                  경로에서 150m 넘게 떨어지면 '경로에서 벗어남'.
                   없으면 추정 위치(마지막 확인 뒤 걸은 시간 × 속도)를 속이 빈 점선 고리 + '추정'으로. */
   function renderGuideMap(info) {
     const st = info.st, p = info.p, track = state.guideTrack;

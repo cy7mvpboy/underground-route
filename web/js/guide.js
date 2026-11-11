@@ -6,7 +6,8 @@
    - 앞부분(buildCheckpoints, blockSpan, progress, routeTrack)은 DOM 을 쓰지 않아 Node 에서도 시험한다.
    - 화면은 GuideView: 지도를 가리지 않는 안내(위 카드·아래 버튼). 지도 위 표시는 app.js 가 onRender 로 그린다.
    - 환승 단계에서는 카드가 환승 모양이 된다(갈아탈 방향 · 승강장 깊이 · 행동 안내 세 줄, 큰 '환승 완료' 단추).
-   - distanceToTrack: GPS 위치가 경로에서 얼마나 떨어졌는지(경로에서 벗어남 경고). */
+   - distanceToTrack: GPS 위치가 경로에서 얼마나 떨어졌는지(경로에서 벗어남 경고).
+   - GpsGate: 길 안내 중 GPS 를 믿을지(6초 끊기면 추정, 잃은 뒤 추정 위치가 지하 구간이면 엄하게 다시 잡기). underNow 가 지하 구간인지 본다. */
 (function (root) {
   'use strict';
   const UG = root.UG = root.UG || {};
@@ -228,24 +229,134 @@
      체크포인트의 at(출발부터 m)과 같은 순서·같은 거리로 경로 선을 이어 붙인다.
      조각마다 안내 거리(len)와 선 모양(pts)이 있고, 조각 안에서는 선 길이에 비례해 위치를 찾는다.
      shape(e, u) 를 주면 간선 모양을 그것으로 바꾼다(app.js: 출입구·환승 간선을 지도에 그린 지하도 선으로. null 이면 원래 모양).
-     모양만 바뀌고 거리(len)는 그대로라 체크포인트·남은 거리는 같다. */
+     모양만 바뀌고 거리(len)는 그대로라 체크포인트·남은 거리는 같다.
+     조각마다 ug(지하인지)도 적는다: 간선의 구조가 graph.json 의 under_structs(출입구 통로·터널·지하 승강장·지하 환승 통로)면 지하.
+     경로 탐색이 '지하'로 치는 기준과 같다. 지상 걷기(출발 지점 -> 출구, 출구 -> 도착 지점, 바로 걷기, 역 사이 지상 걷기)는 지상.
+     GPS 를 잃은 뒤 다시 잡을 때 얼마나 엄하게 볼지(GpsGate)를 이것으로 정한다. */
   function routeTrack(G, plan, shape) {
-    const path = plan.route.path, E = G.g.edges, pieces = [];
+    const path = plan.route.path, E = G.g.edges, T = G.g.tables, pieces = [];
+    const under = new Set(T.under_structs.map(function (s) { return T.structs.indexOf(s); }));
+    const ugEdge = function (e) { return under.has(E.s[e]); };
     let at = 0;
-    const add = function (pts, len) {
-      if (pts && pts.length >= 2 && len > 0) pieces.push({ from: at, len: len, pts: pts, cum: GR.cumulative(pts) });
+    const add = function (pts, len, ug) {
+      if (pts && pts.length >= 2 && len > 0) pieces.push({ from: at, len: len, pts: pts, cum: GR.cumulative(pts), ug: !!ug });
       at += len > 0 ? len : 0;
     };
     plan.items.forEach(function (it) {
-      if (it.kind === 'walk' || it.kind === 'enter' || it.kind === 'exit' || it.kind === 'approach' || it.kind === 'egress') { add(it.latlngs, it.m); return; }
+      if (it.kind === 'walk' || it.kind === 'enter' || it.kind === 'exit') { add(it.latlngs, it.m, false); return; }
+      if (it.kind === 'approach') { add(it.latlngs, it.m, ugEdge(it.part.e)); return; }   // 선로 위 지금 위치 -> 첫 노드: 그 선로
+      if (it.kind === 'egress') {   // 수직구까지는 그 터널 간선 일부, 차량기지 안 걷기는 지상
+        add(it.latlngs, it.m, !it.surface && !!plan.route.endPart && ugEdge(plan.route.endPart.e));
+        return;
+      }
       if (it.kind !== 'step' || it.step.type === 'warning') return;
       const s = it.step;
       s._idx.forEach(function (i) {
-        if (s.type === 'surface' && s._pts) add(s._pts, s._m);
-        else add((shape && shape(path[i].e, path[i].u)) || GR.edgeShape(G.g, path[i].e, path[i].u), E.len[path[i].e]);
+        if (s.type === 'surface' && s._pts) add(s._pts, s._m, false);
+        else add((shape && shape(path[i].e, path[i].u)) || GR.edgeShape(G.g, path[i].e, path[i].u), E.len[path[i].e], ugEdge(path[i].e));
       });
     });
     return { pieces: pieces, total: at };
+  }
+
+  // 경로 위 거리 m 이 지하 조각인지. 조각 경계에서는 back 이면 앞 조각, 아니면 뒤 조각을 본다
+  function underAt(track, m, back) {
+    const ps = track.pieces;
+    for (let i = 0; i < ps.length; i++) {
+      const end = ps[i].from + ps[i].len;
+      if (back ? m <= end : m < end) return ps[i].ug;
+    }
+    return ps.length ? ps[ps.length - 1].ug : false;
+  }
+
+  /* 길 안내의 추정 위치(마지막 확인 지점 + 걸은 거리, 다음 확인 지점까지)가 지하 구간인지. GPS 는 보지 않는다.
+     - 방금 확인한 곳(걸은 거리 0)이면 그 뒤 구간을 본다: 지하역 출구에서 '도착'을 누르면 그 뒤는 출구 통로(지하).
+     - 추정이 다음 확인 지점에 닿았는데 아직 확인하지 않았으면 그 앞 구간을 본다(확인하기 전에는 아직 그 앞에 있을 수 있다).
+     - 다 왔으면 지상(도착 지점·나온 곳. 지하역 도착은 app.js 가 안내를 닫고 역 시트를 연다). */
+  function underNow(track, cps, cur, walked) {
+    const next = cps[cur + 1];
+    if (!track || !track.pieces.length || !next) return false;
+    const doneAt = cur >= 0 ? cps[cur].at : 0, m = doneAt + Math.max(0, walked || 0);
+    if (next.at > doneAt && m >= next.at) return underAt(track, next.at, true);
+    return underAt(track, next.at > doneAt ? m : doneAt, false);
+  }
+
+  /* ---------- 길 안내 중 GPS 를 믿을지 (app.js 의 '내 위치 (GPS)'가 쓴다) ----------
+     GPS 가 잡히는 동안에는 늘 GPS 를 쓴다. 경로 진행(걸은 거리 추정)만 보고 추정 위치로 바꾸지 않는다:
+     걸은 시간·걸음으로 잰 추정은 실제보다 앞서거나 뒤처질 수 있다(사용자 결정 2026-11-12).
+     - 잃음: 마지막 위치를 받은 때(Date.now())부터 freshMs 동안 새 위치가 없거나, 정확도가 goodM 보다 나쁜 위치가 옴.
+             그때부터 추정 위치를 쓴다.
+     - 시각: 끊김·간격은 모두 받은 시각(t)으로 잰다. pos.timestamp(ts)는 Date.now() 와 견주지 않는다:
+             안드로이드는 GNSS 위성 시각을 줄 때가 있어 기기 시계가 몇 초만 앞서도 모든 위치가 오래된 것으로 보여
+             길 안내 내내 GPS 를 못 쓸 수 있다. ts 는 같은 시계끼리인 위치들의 순서(같은 위치를 또 받음·더 오래된 위치)만 가린다(notNewer).
+             길 안내 중 브라우저가 저장해 둔 위치는 maximumAge 0(app.js)으로 막는다.
+     - 다시 잡음: 쓸 만한 위치(freshMs 안, 정확도 goodM 안) 하나로 바로 GPS 로 돌아간다(전과 같음).
+             다만 GPS 를 잃은 뒤 추정 위치가 지하 구간이면 엄하게 본다. 역 안에서는 와이파이·기지국 위치(정확도 20~60m)가
+             자주 와서, 그대로 믿으면 파란 점이 추정 위치를 끌고 간다(실제 폰 시험 2026-11-12).
+             잃은 뒤에 연달아 온 위치가 ugCount 번 넘게, ugSpanMs 넘게 이어지고, 모두 정확도 ugGoodM 안
+             (고도가 없는 위치는 ugNoAltM 안)이며, 서로 ugSpreadM 안에 모여 있어야 다시 잡는다.
+             다른 출구로 나와도 이렇게 다시 잡고, 그 뒤는 '경로에서 벗어남'(app.js)이 그대로 판단한다. */
+  const GPS_RULES = {
+    freshMs: 6000,    // 끊김: GNSS 는 잡혀 있으면 대개 1초마다 위치를 주므로 6초 = 연달아 5번 넘게 빠짐.
+                      // 걷는 속도(초속 1~1.4m)로 6~8m, 계단 한 층을 내려가는 동안 알아챈다(전에는 20초 + 저장된 위치 10초 = 수십 m).
+                      // 더 짧으면 지상에서 잠깐 빠질 때(고가 밑·높은 건물 사이) 추정으로 깜빡인다.
+    goodM: 80,        // 이보다 정확도가 나쁘면 잃은 것으로 본다(전과 같음)
+    ugGoodM: 25,      // 지하 구간에서 다시 잡을 때 정확도: 하늘이 보이는 출구 밖 GNSS 는 대개 5~20m, 역 안 와이파이·기지국은 대개 20~60m
+    ugNoAltM: 15,     // 고도(altitude)가 없는 위치: 안드로이드에서는 대개 와이파이·기지국 위치다. iOS·PC 는 다를 수 있어
+                      // 이것만으로 버리지는 않고 정확도 기준만 더 엄하게 한다
+    ugCount: 3,       // 연달아 3번,
+    ugSpanMs: 3000,   // 3초 넘게: 와이파이 위치 한두 번이 우연히 정확해 보여도 넘지 못한다. 출구 밖 GNSS 는 3~4초면 된다
+    ugSpreadM: 30     // 서로 30m 안: 3초에 걷는 거리(약 4m)보다 넉넉하고, 와이파이 위치가 여러 AP 사이를 튀는 것(수십 m)은 거른다
+  };
+
+  // f 가 last 보다 새 위치가 아닌지: 둘 다 pos.timestamp(ts)가 있고 f.ts <= last.ts 면 true.
+  // 브라우저가 저장해 둔 같은 위치를 다시 주면 ts 가 똑같다. 둘 다 같은 기기·같은 시계라 서로 견줄 수 있다(Date.now() 와는 견주지 않는다).
+  function notNewer(f, last) {
+    return !!last && typeof f.ts === 'number' && isFinite(f.ts) && typeof last.ts === 'number' && isFinite(last.ts) && f.ts <= last.ts;
+  }
+
+  /* GPS 판단기: add(fix) 는 위치가 올 때, usable(now, under) 는 그릴 때 부른다.
+     fix = { lat, lon, acc(정확도 m), alt(고도, 없으면 null), t(받은 시각 Date.now() ms), ts(pos.timestamp, 없으면 null) },
+     under = 추정 위치가 지하 구간인지(underNow). rules 로 GPS_RULES 의 값을 바꿀 수 있다(시험용). */
+  function GpsGate(rules) {
+    const R = Object.assign({}, GPS_RULES, rules || {});
+    let last = null;    // 마지막 위치
+    let run = [];       // 연달아 온 지하 기준 위치(약한 위치가 오거나 잃으면 비운다 = 늘 잃은 뒤에 온 것만)
+    let lost = true;    // GPS 를 잃었나(= 추정 위치를 쓰는 중). 처음에는 위치가 없으니 잃은 것
+    const strong = function (f) { return f.acc <= (f.alt == null ? R.ugNoAltM : R.ugGoodM); };
+    const lose = function () { lost = true; run = []; };
+    // 지하 다시 잡기: 마지막 위치까지 이어진 위치들 중 ugCount 번·ugSpanMs 넘는 꼬리가 서로 ugSpreadM 안에 모였나
+    function regained() {
+      const end = run[run.length - 1];
+      if (!end || end !== last) return false;
+      for (let i = run.length - R.ugCount; i >= 0; i--) {
+        if (end.t - run[i].t < R.ugSpanMs) continue;
+        for (let a = i; a < run.length; a++) {
+          for (let b = a + 1; b < run.length; b++) if (GR.haversine(run[a].lat, run[a].lon, run[b].lat, run[b].lon) > R.ugSpreadM) return false;
+        }
+        return true;
+      }
+      return false;
+    }
+    return {
+      // 같은 위치를 또 받았거나 더 오래된 위치(ts 로 가림)면 false(쓰지 않음: 끊김 시계도 새로 시작하지 않는다)
+      add: function (f) {
+        if (notNewer(f, last)) return false;
+        if (last && f.t - last.t >= R.freshMs) lose();   // 그사이 끊겼었다(그동안 화면을 그리지 않았어도)
+        if (f.acc > R.goodM) lose();
+        if (strong(f)) { run.push(f); if (run.length > 20) run.shift(); } else run = [];
+        last = f;
+        return true;
+      },
+      usable: function (now, under) {
+        if (!last || now - last.t >= R.freshMs || last.acc > R.goodM) { lose(); return false; }
+        if (!lost) return true;                       // GPS 가 잡히는 중: 지하 구간이어도 그대로 GPS
+        if (under && !regained()) return false;       // 잃은 뒤 추정 위치가 지하: 엄하게
+        lost = false;                                 // 다시 잡음
+        return true;
+      },
+      isLost: function () { return lost; }
+    };
   }
 
   function pieceAt(track, m) {
@@ -646,7 +757,8 @@
   UG.guide = {
     buildCheckpoints: buildCheckpoints, progress: progress, blockSpan: blockSpan, planBlock: planBlock, planJunctions: planJunctions, forkGo: forkGo,
     routeTrack: routeTrack, pointAt: pointAt, sliceTrack: sliceTrack, distanceToTrack: distanceToTrack,
-    projectOnTrack: projectOnTrack, locateOnPath: locateOnPath, GuideView: GuideView
+    projectOnTrack: projectOnTrack, locateOnPath: locateOnPath, GuideView: GuideView,
+    underAt: underAt, underNow: underNow, GPS_RULES: GPS_RULES, notNewer: notNewer, GpsGate: GpsGate
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = UG.guide;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

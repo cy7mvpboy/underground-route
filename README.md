@@ -132,6 +132,7 @@ python -I scripts\merge_ways.py data\raw\region_nodes.json,data\raw\region_nodes
 |---|---|
 | `node scripts\check_router.js` | 브라우저 경로 탐색이 Python 기준 구현(`scripts/route.py`)과 같은 경로·거리·안내 문장을 내는지 |
 | `node scripts\check_guide.js` | 가장 가까운 지하로, 길 안내 체크포인트, 앞이 막힘 재탐색 |
+| `node scripts\check_gps.js` | 길 안내 중 GPS 믿기: 6초 끊기면 추정, 잃은 뒤 지하 구간에서는 엄하게 다시 잡기, 같은·더 오래된 위치 버리기(`pos.timestamp`는 순서만), 기기 시계 차이, 경로의 지하 구간 |
 | `node scripts\check_junctions.js` | 갈림길 안내를 실제 그래프 경로로 |
 | `node scripts\check_exit_here.js` | 여기서 나가기, 터널 출입구·수직구·차량기지 후보, 갈림길 체크포인트 |
 | `node scripts\check_connect.js` | 지도 위 점을 그래프에 잇는 후보(터널 출입구·차량기지 포함) |
