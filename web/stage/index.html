@@ -58,8 +58,41 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
   const $ = function (id) { return document.getElementById(id); };
   const demo = $('demo'), three = $('three'), O = location.origin;
   const lq = /[?&]lq\b/.test(location.search);
-  demo.src = '../?stage=1&theme=dark#demo';   // 앱은 어두운 화면으로(저장된 테마 설정은 바꾸지 않는다, web/js/app.js boot)
   three.src = '../3d/?follow' + (lq ? '&lq' : '');
+  // 앱은 어두운 화면으로(저장된 테마 설정은 바꾸지 않는다, web/js/app.js boot). 새 판을 확인한 뒤에 연다
+  freshApp().then(function () { demo.src = '../?stage=1&theme=dark#demo'; });
+
+  // 이 브라우저에 앱이 설치돼 있으면(서비스 워커) 새 판이 받아진 채 기다리고 있을 수 있다. 앱은 다음에 열 때 그 판을 켜는데
+  // 무대만 열면 켜지지 않아서, 앱 칸에 예전 판이 뜨고 3D(늘 최신)와 이야기가 따로 논다.
+  // 그래서 앱 칸을 열기 전에 새 판이 있는지 확인하고 있으면 켠다(최대 10초 기다림). 설치된 앱이 없으면 바로 연다.
+  function freshApp() {
+    const sw = navigator.serviceWorker;
+    if (!sw) return Promise.resolve();
+    return sw.getRegistration('../').then(function (reg) {
+      if (!reg) return;
+      return new Promise(function (done) {
+        const t = setTimeout(done, 10000);
+        let asked = false;
+        function finish() { clearTimeout(t); done(); }
+        function activate() {
+          if (asked || !reg.waiting) return;
+          asked = true;
+          sw.addEventListener('controllerchange', finish);
+          reg.waiting.postMessage({ type: 'activate' });   // web/sw.js: skipWaiting → 켜지면 이 화면도 맡는다(clients.claim)
+        }
+        function watch(w) {
+          if (w) w.addEventListener('statechange', function () {
+            if (w.state === 'installed') activate();
+            else if (w.state === 'redundant' && !reg.waiting) finish();   // 설치 실패: 있는 판으로
+          });
+        }
+        reg.addEventListener('updatefound', function () { watch(reg.installing); });
+        if (reg.waiting) activate();
+        else if (reg.installing) watch(reg.installing);
+        else reg.update().then(function () { if (!reg.installing && !reg.waiting) finish(); }, finish);
+      });
+    }).catch(function () { /* 확인 못 하면 그냥 연다 */ });
+  }
 
   // 폰 크기 맞추기: 화면 높이(위아래 여백 16px)에 맞추되 가로의 40%를 넘지 않게
   function fit() {
