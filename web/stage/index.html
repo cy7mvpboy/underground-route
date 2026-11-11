@@ -58,7 +58,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
   const $ = function (id) { return document.getElementById(id); };
   const demo = $('demo'), three = $('three'), O = location.origin;
   const lq = /[?&]lq\b/.test(location.search);
-  demo.src = '../?stage=1#demo';
+  demo.src = '../?stage=1&theme=dark#demo';   // 앱은 어두운 화면으로(저장된 테마 설정은 바꾸지 않는다, web/js/app.js boot)
   three.src = '../3d/?follow' + (lq ? '&lq' : '');
 
   // 폰 크기 맞추기: 화면 높이(위아래 여백 16px)에 맞추되 가로의 40%를 넘지 않게

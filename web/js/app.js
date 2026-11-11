@@ -100,7 +100,8 @@
 
   function boot() {
     const ui = state.ui = getUi();
-    applyTheme(SV.get(CFG.keys.theme, 'auto'), false);
+    // ?theme=dark|light 가 있으면 이번에만 그 테마로 연다(저장하지 않음). 발표 무대(web/stage/)가 앱을 어두운 화면으로 띄울 때 쓴다
+    applyTheme(new URLSearchParams(location.search).get('theme') || SV.get(CFG.keys.theme, 'auto'), false);
     Array.prototype.forEach.call(document.querySelectorAll('[data-app-name]'), function (el) { el.textContent = APP_NAME; });
     document.title = APP_NAME;
     state.wide = matchMedia(CFG.wideQuery);

@@ -58,8 +58,10 @@ COM's 해커톤 2026 · 주제: 전쟁 · 혼자 참가
 https://cy7mvpboy.github.io/underground-route/stage/ 를 노트북에서 전체 화면(F11)으로 연다(16:9, 1280×720 이상). 왼쪽은 폰 크기의 앱 시연(1번 이야기), 오른쪽은 앱을 따라가는 3D 단면이다.
 
 - 열면 바로 1번 이야기가 재생된다. Space = 재생/멈춤, → = 다음 장면. 무대 화면 어디서 눌러도 앱 시연으로 넘어간다. 속도·시나리오는 앱 시연 칸에서 고른다.
-- 3D 는 자기 시계 없이 앱이 보내는 장면과 걸은 거리로 움직인다. 공습경보(거리의 빨간 경보 고리, 먼 섬광·연기 몇 초), 하저터널 두 곳에서 잠깐 터널 안 시점, 막힘에서 무너짐과 잔해 더미, 다시 찾은 길의 충정로 환승역, 끝에서 전체 보기와 남쪽(수서 → 동탄) 선을 보여 준다.
-- 느린 컴퓨터: 주소 끝에 `?lq`를 붙인다(3D 를 가볍게). 3D 가 초당 25프레임 아래로 3초 이어지면 저절로 가볍게 바뀐다.
+- 3D 는 자기 시계 없이 앱이 보내는 장면과 걸은 거리로 움직인다. 공습경보(거리의 빨간 경보 고리, 먼 섬광·연기 몇 초), 출구로 내려가는 역 단면, 하저터널 두 곳의 한강 단면과 실제 크기 터널 안 시점, 막힘에서 무너짐과 잔해 더미, 다시 찾은 길의 충정로 환승역, 끝에서 전체 보기와 남쪽(수서 → 동탄) 선을 보여 준다.
+- 3D 높이: 역 레일 높이는 서울교통공사 역사심도정보(해발 = 레일면고 − 100.3m), 역 사이는 기울기 35‰ 이하 + 종곡선(반지름 3,000m)으로 이은 추정, 지형은 SRTM(공식 역 지반고로 보정). 전체·단면 장면은 높이를 8배로 늘려 보여 주고(화면에 표시), 터널 안·역 안은 실제 비율(1배)이다. 강바닥 깊이는 자료가 없어 그리지 않는다.
+- 앱 칸은 어두운 화면으로 연다(`?theme=dark`, 저장된 테마 설정은 바꾸지 않음).
+- 느린 컴퓨터: 주소 끝에 `?lq`를 붙인다(3D 를 가볍게: 빛 번짐·계단 없애기 끔, 화소 줄임). 3D 가 초당 30프레임 아래로 3초 이어지면 저절로 가볍게 바뀐다.
 - 이 브라우저에 앱을 설치해 두었는데 3D 가 따라가지 않으면, 앱(https://cy7mvpboy.github.io/underground-route/)을 한 번 새로고침해 새 판을 받은 뒤 무대를 다시 연다.
 
 ## 실행 방법 (로컬)
@@ -179,6 +181,7 @@ docs/                계획서, 그래프 형식(graph-format.md), 디자인, �
 | 온라인 장소 검색 | Photon (komoot, `photon.komoot.io`) | 데이터 ODbL, 공개 API 이용 조건(과도한 사용 금지) | 실시간 | 목적지 검색 (인터넷이 될 때) |
 | 도보 길찾기 | FOSSGIS OSRM (`routing.openstreetmap.de`) | 데이터 ODbL, FOSSGIS 이용 정책(출처 표시, 초당 1회 이하) | 실시간 | 지상 도보 구간의 실제 길 (인터넷이 될 때) |
 | 배경 지도 타일 | OpenStreetMap (`tile.openstreetmap.org`) | 데이터 ODbL, OSM 타일 사용 정책 | 실시간 | 배경 지도 (인터넷이 될 때) |
+| 지형 높이(3D) | SRTM data courtesy of the U.S. Geological Survey (AWS Terrain Tiles, Terrarium 형식) | 공공 자료(출처 표시) | SRTM | 3D 지형·한강 수면 높이. `build_3d.js` 가 표본 값만 `web/3d/ride.json` 에 넣고 화면은 타일을 받지 않는다 |
 
 - 지하도 자료는 2021년 무렵 기준이라 이후 생기거나 바뀐 출구·통로는 반영되지 않는다. 자료가 없는 곳은 점선 등 다른 표시로 구분한다.
 - OSM은 2026-11-10에 받은 시점의 자료다. 이후의 연장·개통은 반영되지 않는다.
@@ -190,6 +193,7 @@ docs/                계획서, 그래프 형식(graph-format.md), 디자인, �
 |---|---|---|---|---|
 | [Leaflet](https://leafletjs.com/) | 1.9.4 | BSD-2-Clause | cdnjs (`cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js`) | 지도 표시 |
 | [IBM Plex Sans KR](https://fonts.google.com/specimen/IBM+Plex+Sans+KR) | 400/500/700 | SIL Open Font License 1.1 | Google Fonts | 화면 글꼴 |
+| [three.js](https://threejs.org/) | 0.170.0 | MIT | 본체 cdnjs (`cdnjs.cloudflare.com/ajax/libs/three.js/0.170.0/three.module.min.js`), 덧붙이(OrbitControls·EffectComposer·RenderPass·UnrealBloomPass·OutputPass) jsDelivr (`cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/`) | 3D 화면(`web/3d/`) |
 
 데이터 처리는 Python 표준 라이브러리만, 검사는 Node.js만 쓴다. 그 밖의 외부 패키지는 없다.
 
