@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>지하로 3D · 공덕 → 수서</title>
 <meta name="description" content="지하로 시연 이야기를 3D로: 공덕역에서 수서역까지 지하로, 한강 아래 하저터널 두 곳">
-<meta name="theme-color" content="#05080D">
+<meta name="theme-color" content="#0B1214">
 <link rel="icon" href="../icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
 <style>
 /* 색은 앱(web/index.html)의 디자인 토큰과 같다: 청록 = 지하, 주황빨강 = 지상 노출·막힘 */
 :root {
-  --bg: #05080D; --surface: #121C1F; --line: #24363B; --line-strong: #3A5257;
+  --bg: #0B1214; --surface: #121C1F; --line: #24363B; --line-strong: #3A5257;
   --text: #E8F1EF; --muted: #9FB3B0; --safe: #2EC4B6; --route-safe: #3FE6D5;
   --expo: #FF5A36; --expo-text: #FF6A49; --river: #8EC5FF; --focus: #FFE066;
   --font: 'IBM Plex Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
@@ -26,18 +26,14 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
   background: rgb(11 18 20 / .72); color: var(--text); white-space: nowrap; will-change: transform; }
 .lb.est { color: var(--muted); }
 .lb.red { color: var(--expo-text); border: 1px solid var(--expo); font-weight: 700; }
-.lb.river { color: var(--river); font-size: 13px; font-weight: 700; }
-.lb.st { font-size: 15px; font-weight: 700; padding: 3px 8px; background: rgb(11 18 20 / .82); border: 1px solid var(--line-strong); }
-.lb.st.est { color: var(--muted); }
-.lb.dim { background: rgb(11 18 20 / .5); color: var(--muted); }
-.top b { color: var(--text); font-weight: 700; }
-.top .src { font-size: 11px; opacity: .8; }
-@media (max-width: 480px) { .top p { font-size: 11px; } .top .src { font-size: 10px; } }
+.lb.river { background: none; color: var(--river); font-size: 13px; }
+.lb.dim { background: none; color: var(--muted); }
 
 /* 위: 제목 · 앱으로 · 깊이 과장 안내 */
 .top { position: fixed; left: 16px; right: 16px; top: calc(12px + env(safe-area-inset-top)); display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 12px; pointer-events: none; }
 .top h1 { margin: 0; font-size: 15px; font-weight: 700; }
 .top p { grid-column: 1 / -1; margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
+.top .src { font-size: 10px; opacity: .7; }
 .top a { pointer-events: auto; flex: none; font-size: 13px; color: var(--route-safe); text-decoration: none;
   border: 1px solid var(--line-strong); border-radius: 999px; padding: 6px 12px; background: rgb(11 18 20 / .7); }
 .top a:focus-visible, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
@@ -65,7 +61,7 @@ body.follow .panel, body.follow .top h1, body.follow .top a { display: none; }
 .fail { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--muted); }
 @media (min-width: 900px) { .panel { left: 24px; right: auto; bottom: 24px; width: 560px; } .top { left: 24px; right: 24px; top: 20px; } }
 </style>
-<!-- three.js 0.170.0: 본체는 cdnjs, 덧붙이(OrbitControls·후처리)는 cdnjs 에 없어 jsDelivr(같은 판) -->
+<!-- three.js 0.170.0: 본체는 cdnjs, OrbitControls 는 cdnjs 에 없어 jsDelivr(같은 판) -->
 <script type="importmap">
 { "imports": {
   "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.170.0/three.module.min.js",
@@ -80,7 +76,7 @@ body.follow .panel, body.follow .top h1, body.follow .top a { display: none; }
 <div class="top">
   <h1 id="title">지하로 3D · 공덕 → 수서</h1>
   <a href="../">지하로 앱 열기</a>
-  <p><b id="exag">높이 ×8</b> · 역 깊이는 서울교통공사 자료, 역 사이는 추정<br><span class="src">SRTM data courtesy of the U.S. Geological Survey · 지도 © OpenStreetMap contributors</span></p>
+  <p>깊이 ×<span id="exag">10</span> · 역 레일 높이는 서울교통공사 자료, 역 사이는 35‰ 이하·종곡선으로 이음 · 한강 바닥은 그리지 않음<br><span class="src">SRTM data courtesy of the U.S. Geological Survey · 선로 © OpenStreetMap contributors</span></p>
 </div>
 <section class="panel">
   <p class="cap" id="cap" aria-live="polite">불러오는 중</p>

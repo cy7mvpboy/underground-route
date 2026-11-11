@@ -18,10 +18,9 @@
 //   - 수평 선형: OSM 선로를 10m 간격으로 나눠 OSM 에서 10m 넘게 벗어나지 않는 범위에서 부드럽게 편다(꺾인 점 없애기).
 //   - 환승·입구: 승강장 → 에스컬레이터(30°) → 대합실(지하 1층, 지반 − 6m, 추정) → 에스컬레이터 → 승강장.
 //     환승 계단 자리는 빠른 환승 자료(web/data/extra.json fast)의 칸 번호가 있으면 그 칸 앞에 둔다.
-// 내보내는 것(web/3d/ride.json, 형식 jiharo-3d-3)
-//   - legs: 구간별 점 [x(동쪽 m), y(북쪽 m), 구간 m(앱 거리), 걷는 바닥 높이 z, 지반(또는 수면) 높이 g, 수면 높이 w(강 아래만)] + k(점마다 종류 글자)
-//     종류: s 지상 · t 터널 · i 섬식 승강장 구간(승강장 바닥 = 레일 + 1.1m) · p 상대식 승강장 구간 · x 역 안(에스컬레이터·대합실)
-//   - stations, structs(승강장·대합실·에스컬레이터·출구), terrain(지형 격자 둘), river(수면 띠), net, lights(아파트 위치), facts, tables
+// 내보내는 것(web/3d/ride.json, 형식 jiharo-3d-4). 화면(web/3d/ride.js)은 3판 그림 그대로이고 선로 모양·높이만 위의 실제 값이다(11-1절)
+//   - legs: 구간별 점 [위도, 경도, 구간 m(앱 거리), 그릴 깊이 m, 한강 아래 정도 0~1, 한강 단면 정도 0~1, 실제 깊이 m]
+//   - stations(승강장 깊이: 공식 자료가 있는 역만), structs(승강장 상자 · 대합실 판, 개략), river(중심선·그림용 반폭), net, facts, tables(종단·평면 표)
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -37,7 +36,7 @@ const SOUTH = '동탄';   // 끝 장면: 수서에서 남쪽으로 이어지는 
 const g = JSON.parse(fs.readFileSync(path.join(ROOT, 'web/data/graph.json'), 'utf8'));
 const G = GR.indexGraph(g);
 const E = g.edges, T = g.tables, S = g.stations;
-const EXAG = 8;   // 화면 세로 과장 배율(지형·깊이 같은 배율). 터널 안·역 안 장면은 화면이 1배로 바꾼다
+const EXAG = 10;   // 화면 세로 과장 배율(3판과 같은 값). 역 안 경사 길이를 이 배율로 정한다(11-1절)
 
 /* ---------- 1. 경로 계산 (check_demo.js 와 같은 순서) ---------- */
 const blocked = new Set();
@@ -623,7 +622,7 @@ function legOf(dp, m0, m1, tol = 0.3) {
   return { pts, k: sel.map((p) => p.k).join('') };
 }
 
-// 바탕 선로: 본 그림 상자 안의 본선 선로(옅게). 30m 오차로 점을 줄인다
+// 점 줄이기(바탕 선로·한강 중심선)
 function simplify(pts, tol) {   // 더글러스-포이커(평면 m)
   if (pts.length < 3) return pts;
   const keep = new Uint8Array(pts.length); keep[0] = keep[pts.length - 1] = 1;
@@ -635,40 +634,6 @@ function simplify(pts, tol) {   // 더글러스-포이커(평면 m)
     if (best > tol) { keep[bi] = 1; stack.push([i, bi], [bi, j]); }
   }
   return pts.filter((_, k) => keep[k]);
-}
-const xyOut = (q) => [Math.round(q[0]), Math.round(q[1])];
-const net = [];
-for (let e = 0; e < E.a.length; e++) {
-  if (T.kinds[E.k[e]] !== 'track' || E.svc[e] !== 0) continue;
-  const pts = xyOf(GR.edgeShape(g, e));
-  if (!pts.some((q) => inMain(q))) continue;
-  net.push(simplify(pts, 30).map(xyOut));
-}
-
-// 지형 격자: 본 그림(180m) · 남쪽(동탄까지, 400m). 값 = 지반 해발(dm, 정수). 수면 띠 안은 수면 − 1m(강바닥이 아니라 수면 아래로 숨기는 값)
-function grid(x0, y0, x1, y1, step) {
-  const nx = Math.round((x1 - x0) / step) + 1, ny = Math.round((y1 - y0) / step) + 1, h = [];
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
-    const q = [x0 + i * step, y0 + j * step], w = waterAt(q);
-    h.push(Math.round((w != null ? w - 1 : groundRaw(q)) * 10));
-  }
-  return { x0: Math.round(x0), y0: Math.round(y0), dx: step, nx, ny, h };
-}
-const southXY = D4.pts.map((p) => p.q);
-const SB = southXY.reduce((bb, q) => [Math.min(bb[0], q[0]), Math.min(bb[1], q[1]), Math.max(bb[2], q[0]), Math.max(bb[3], q[1])], [1e9, 1e9, -1e9, -1e9]);
-const terrain = [grid(MAIN[0], MAIN[1], MAIN[2], MAIN[3], 180), grid(Math.max(COVER[0], SB[0] - 7000), Math.max(COVER[1], SB[1] - 2400), Math.min(COVER[2], SB[2] + 7000), MAIN[1] + 400, 400)];
-
-// 밤 도시 불빛: OSM 아파트 위치(본 그림 상자 안). [x, y, 층수]
-const lights = [];
-for (const f of ['apartments_0.json', 'apartments_1.json']) {
-  const fp = path.join(ROOT, 'data/raw/places', f);
-  if (!fs.existsSync(fp)) continue;
-  JSON.parse(fs.readFileSync(fp, 'utf8')).elements.forEach((el) => {
-    const c = el.center || (el.lat != null ? el : null);
-    if (!c) return;
-    const q = toXY([c.lat, c.lon]);
-    if (inMain(q, -3000) && waterAt(q) == null) lights.push([Math.round(q[0]), Math.round(q[1]), Math.min(60, parseInt((el.tags || {})['building:levels'], 10) || 10)]);
-  });
 }
 
 /* ---------- 11. 내보내기 ---------- */
@@ -682,6 +647,7 @@ const stations = [...stOut(D1.stops, (m) => ['enter', m]), ...stOut(D2.stops.fil
   ...stOut(D3.stops, (m) => ['ride2', m]), ...stOut(D4.stops, (m) => ['south', m])];
 // 역 구조: 공덕 입구 · 처음 길(여의나루까지) · 다시 찾은 길. 같은 역·종류·노선은 한 번만
 const seen = new Set(), structs = [];
+const xyOut = (q) => [Math.round(q[0]), Math.round(q[1])];
 const sOut = (x, leg) => {
   const o = { leg, k: x.k, n: x.n };
   if (x.c) o.c = xyOut(x.c);
@@ -703,32 +669,171 @@ const rides = (p, ps) => p.items.filter((i) => i.kind === 'step' && (i.step.type
 });
 const crossM = (ps, c) => { const p = ps.find((x) => x.e === c.e); return [r1(p.from), r1(p.from + p.len)]; };
 const waterOf = (c) => r1(river.reduce((bst, r) => { const d = distToLine(r.q, [nodeXY(E.a[c.e]), nodeXY(E.b[c.e])]); return d < bst.d ? { d, W: r.W } : bst; }, { d: Infinity, W: 0 }).W);
+const LG = {
+  enter: legOf(D1, 0, total1),
+  ride1: legOf(D2, 0, blockAt),
+  blocked: legOf(D2, blockAt, yeouiAt),
+  rest: legOf(D2, yeouiAt, total2, 5),   // 처음 길의 나머지(여의나루 → 도착): 점선으로만
+  ride2: legOf(D3, 0, total3),
+  south: legOf(D4, 0, total4, 5)         // 수서 → 동탄: 끝 전체 보기에서 옅게
+};
+
+/* ---------- 11-1. 화면(3판 그림)용 자료 ----------
+   화면은 3판 그대로: 평평한 지면(y = 0) 아래로 '그릴 깊이' × EXAG. 선로의 평면 모양과 높이만 7~8절에서 계산한 실제 값을 쓴다.
+   - 실제 깊이(글자) = 기준 지반(아래) − 걷는 바닥 높이. 한강 위는 수면(SRTM 중앙값) − 걷는 바닥 높이.
+   - 그릴 깊이 = 기준 지반 − 걷는 바닥 높이. 기준 지반 = 보정한 SRTM 지반을 길 따라 10m 마다 재고, 한강 위는 양쪽 둑 값을 직선으로 이은 뒤
+     σ 150m 로 부드럽게 하고 역 자리에서 공식 지반고와 같게 맞춘 값. 평평한 지면 아래라도 깊이가 뚝 바뀌지 않고, 승강장은 공식 깊이 그대로다.
+     한강 아래는 둑 높이에서 잰 깊이라 글자(수면 아래 깊이)보다 둑과 수면의 높이 차만큼 깊게 그려진다.
+   - 역 안(환승·입구)은 3판처럼 개략 모양: 승강장 → 경사(화면에서 60° 이하) → 대합실(깊이 추정) → 경사 → 승강장.
+   점 = [위도, 경도, 구간 m, 그릴 깊이, 한강 아래 정도 0~1, 한강 단면 정도 0~1, 실제 깊이] */
+const LL5 = (q) => { const ll = toLL(q); return [Math.round(ll[0] * 1e5) / 1e5, Math.round(ll[1] * 1e5) / 1e5]; };
+const ss3 = (t) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
+const MAX_SLOPE = Math.tan(Math.PI / 3), STEP_ST = 4;
+const rampRun = (dd) => Math.max(100, 1.5 * Math.abs(dd) * EXAG / MAX_SLOPE);   // 경사 수평 길이(m): 화면 기울기 60° 이하
+// 한강: 그림용 반폭(하저터널 양 끝 역 중 강에 가장 가까운 역보다 안쪽) · 한강 아래 정도
+const bankSt = [crossA.a, crossA.b, crossB.a, crossB.b].map((n) => S[si(n + '@서울')]);
+const HALF_W = Math.round(Math.min(450, ...bankSt.map((s) => distToLine(toXY([s.lat / 1e5, s.lon / 1e5]), hanAll) - 60)));
+const fall = (d, w) => (d <= HALF_W ? 1 : d >= HALF_W + w ? 0 : 0.5 * (1 + Math.cos(Math.PI * (d - HALF_W) / w)));
+// 꺾인 점을 반지름 r 만큼 2차 베지어로 둥글게(역 안 경사·대합실 모서리)
+function round3(poly, r) {
+  const out = [poly[0]];
+  for (let i = 1; i < poly.length - 1; i++) {
+    const a = poly[i - 1], p = poly[i], c = poly[i + 1];
+    const k = Math.min(r, len(sub(p, a)) / 2, len(sub(c, p)) / 2);
+    const p0 = add(p, mul(unit(sub(a, p)), k)), p2 = add(p, mul(unit(sub(c, p)), k));
+    for (let j = 0; j <= 6; j++) { const t = j / 6; out.push(add(add(mul(p0, (1 - t) * (1 - t)), mul(p, 2 * t * (1 - t))), mul(p2, t * t))); }
+  }
+  out.push(poly[poly.length - 1]);
+  return out;
+}
+const concs = [];   // 대합실 판(개략)
+function concourse3(points, axis, d, n, leg) {
+  const u = unit(axis), w = [-u[1], u[0]];
+  const A = points.map((p) => dot(p, u)), B = points.map((p) => dot(p, w));
+  const a0 = Math.min(...A), a1 = Math.max(...A), b0 = Math.min(...B), b1 = Math.max(...B);
+  concs.push({ leg, k: 'concourse', n, l: '', c: LL5(add(mul(u, (a0 + a1) / 2), mul(w, (b0 + b1) / 2))), a: r2(Math.atan2(u[1], u[0])), L: Math.round(a1 - a0 + 40), W: Math.round(Math.max(40, b1 - b0 + 40)), d: r2(d), est: true });
+}
+// 구간 하나: 7~8절의 점([x, y, m, z, g, w] + 종류)을 화면 점으로
+// 기준 지반(그린 길 하나 전체에서 잰다. 구간 경계에서 값이 같게): 구간 m → 해발 m
+function refOf(lg, sts) {
+  const P = lg.pts.map((p) => ({ q: [p[0], p[1]], m: p[2] })), M = P[P.length - 1].m;
+  const qAt = (m) => { let i = P.findIndex((p) => p.m >= m); if (i <= 0) return P[Math.max(0, i)].q; const a = P[i - 1], c = P[i]; return lerp2(a.q, c.q, c.m > a.m ? (m - a.m) / (c.m - a.m) : 0); };
+  // 기준 지반: 10m 마다(한강 위는 비우고 둑 값을 직선으로 이음) → σ 150m → 역 자리에서 공식 지반고로
+  const n = Math.max(2, Math.ceil(M / 10) + 1), G = [];
+  for (let i = 0; i < n; i++) { const q = qAt(Math.min(M, i * 10)); G.push(waterAt(q) != null ? NaN : groundRaw(q)); }
+  const ok = G.map((v, i) => (Number.isNaN(v) ? -1 : i)).filter((i) => i >= 0);
+  for (let i = 0; i < n; i++) if (Number.isNaN(G[i])) {
+    const lo = ok.filter((j) => j < i).pop(), hi = ok.find((j) => j > i);
+    G[i] = lo == null ? G[hi] : hi == null ? G[lo] : G[lo] + (G[hi] - G[lo]) * (i - lo) / (hi - lo);
+  }
+  const Gs = G.map((_, i) => { let s = 0, w = 0; for (let j = Math.max(0, i - 45); j <= Math.min(n - 1, i + 45); j++) { const k = Math.exp(-(((j - i) * 10) ** 2) / (2 * 150 * 150)); s += G[j] * k; w += k; } return s / w; });
+  const gAt = (m) => { const f = Math.max(0, Math.min(n - 1, m / 10)), i = Math.min(n - 2, Math.floor(f)); return Gs[i] + (Gs[i + 1] - Gs[i]) * (f - i); };
+  const fix = sts.map((s) => ({ m: s.m, r: s.g - gAt(s.m) })).sort((a, c) => a.m - c.m);
+  const ref = (m) => {
+    if (!fix.length) return gAt(m);
+    let r = fix[0].r;
+    for (let i = 0; i < fix.length; i++) { if (m >= fix[i].m) r = fix[i].r; if (fix[i + 1] && m >= fix[i].m && m < fix[i + 1].m) r = fix[i].r + (fix[i + 1].r - fix[i].r) * (m - fix[i].m) / (fix[i + 1].m - fix[i].m); }
+    return gAt(m) + r;
+  };
+  return ref;
+}
+function view(key, lg, sts, endDir, ref) {
+  const P = lg.pts.map((p, i) => ({ q: [p[0], p[1]], m: p[2], z: p[3], g: p[4], w: p[5], k: lg.k[i] }));
+  const rivOf = (q) => { const dr = distToLine(q, hanAll); return [r2(fall(dr, 300)), r2(fall(dr, 900))]; };
+  const outP = (q, m, d, dt) => [...LL5(q), r1(m), r2(d), ...rivOf(q), r2(dt)];
+  const out = [];
+  for (let i = 0; i < P.length; i++) {
+    const p = P[i];
+    if (p.k !== 'x') { const s = p.k === 's', d = ref(p.m) - p.z; out.push(outP(p.q, p.m, s ? 0 : d, s ? 0 : p.w != null ? p.w - p.z : d)); continue; }
+    // 역 안(환승·입구): 앞뒤 점 사이를 3판 모양으로 새로 그린다
+    let j = i; while (j + 1 < P.length && P[j + 1].k === 'x') j++;
+    const A = P[i - 1], B = P[Math.min(P.length - 1, j + 1)], sa = A.q, sb = B.q, mS = A.m, mE = B.m;
+    const da = A.k === 's' ? 0 : ref(A.m) - A.z, db = ref(B.m) - B.z;
+    const back = P.slice(0, i).reverse().find((x) => len(sub(sa, x.q)) >= 30), fwd = P.slice(j + 2).find((x) => len(sub(x.q, sb)) >= 30);
+    const dirA = back ? unit(sub(sa, back.q)) : unit(sub(sb, sa)), dirB = fwd ? unit(sub(fwd.q, sb)) : endDir || dirA;
+    const st = sts.reduce((b, s) => (!b || Math.abs(s.m - mS) < Math.abs(b.m - mS) ? s : b), null);
+    let poly, ctl;
+    if (A.k === 's') {   // 입구: 출구 → 경사 → 대합실(깊이 6m 추정) → 경사 → 승강장
+      const c = 6, r2_ = rampRun(db - c), q2 = sub(sb, mul(dirB, r2_)), toQ2 = sub(q2, sa);
+      const rr = Math.min(rampRun(c), len(toQ2) * 0.6), q1 = add(sa, mul(unit(toQ2), rr)), mid = len(sub(q2, q1)), L = rr + mid + r2_;
+      const m1 = mS + (mE - mS) * rr / L, m2 = mS + (mE - mS) * (rr + mid) / L;
+      poly = round3([sa, q1, q2, sb], 30); ctl = [[mS, m1, 0, c], [m1, m2, c, c], [m2, mE, c, db]];
+      concourse3([q1, q2, sb], sub(q2, q1), c, st ? st.n : '', key);
+    } else {             // 환승: 승강장 A → 경사 → 대합실(얕은 승강장보다 6m 위, 5~8m 추정) → 경사 → 승강장 B
+      const c = Math.min(8, Math.max(5, Math.min(da, db) - 6)), rA = rampRun(da - c), rB = rampRun(db - c);
+      const qa = add(sa, mul(dirA, rA)), qb = sub(sb, mul(dirB, rB)), mid = len(sub(qb, qa)), L = rA + mid + rB;
+      const mA = mS + (mE - mS) * rA / L, mB = mS + (mE - mS) * (rA + mid) / L;
+      poly = round3([sa, qa, qb, sb], 40); ctl = [[mS, mA, da, c], [mA, mB, c, c], [mB, mE, c, db]];
+      concourse3([sa, sb, qa, qb], mid > 30 ? sub(qb, qa) : dirA, c, st ? st.n : '', key);
+    }
+    const dAt = (m) => { for (const [m0, m1, d0, d1] of ctl) if (m <= m1) return m1 > m0 ? d0 + (d1 - d0) * ss3((m - m0) / (m1 - m0)) : d1; return db; };
+    const cum = [0]; for (let k = 1; k < poly.length; k++) cum.push(cum[k - 1] + len(sub(poly[k], poly[k - 1])));
+    const Lp = cum[cum.length - 1] || 1;
+    for (let k = 1; k < poly.length; k++) {   // 마지막 끝점(다음 승강장 점)은 빼고
+      const steps = Math.max(1, Math.ceil((cum[k] - cum[k - 1]) / STEP_ST));
+      for (let s = 1; s <= steps - (k === poly.length - 1 ? 1 : 0); s++) { const t = s / steps, q = lerp2(poly[k - 1], poly[k], t), m = mS + (mE - mS) * (cum[k - 1] + (cum[k] - cum[k - 1]) * t) / Lp; const d = dAt(m); out.push(outP(q, m, d, d)); }
+    }
+    if (j + 1 >= P.length) out.push(outP(sb, mE, db, db));   // 구간이 역 안에서 끝남(입구 → 승강장)
+    i = j;
+  }
+  return { pts: out, ref };
+}
+// 구간별 역(공식 지반고 = 기준 지반을 맞출 자리)
+const stIn = (key) => (key === 'enter' ? [{ n: name(o1.si), m: total1, g: s0.g }] : stations.filter((s) => s.leg === key));   // 입구 끝 = 공덕 5호선 승강장(처음 길 첫 역)
+const V = {}, r1p = LG.ride1.pts, r1q = r1p.find((p) => Math.hypot(p[0] - r1p[0][0], p[1] - r1p[0][1]) >= 30) || r1p[r1p.length - 1];
+const off2 = { ride1: 0, blocked: blockAt, rest: yeouiAt };   // 처음 길(D2)의 세 구간은 기준 지반 하나를 같이 쓴다
+const ref2 = refOf(legOf(D2, 0, total2), stations.filter((s) => s.leg in off2).map((s) => ({ m: s.m + off2[s.leg], g: s.g })));
+for (const key of Object.keys(LG)) {
+  const ref = key in off2 ? (m) => ref2(m + off2[key]) : refOf(LG[key], stIn(key));
+  V[key] = view(key, LG[key], stIn(key), key === 'enter' ? unit([r1q[0] - r1p[0][0], r1q[1] - r1p[0][1]]) : null, ref);
+}
+// 그린 길 위 m 의 그릴 깊이(승강장 상자를 길과 같은 높이에)
+const dDraw = (key, m) => { const P = V[key].pts; let i = P.findIndex((p) => p[2] >= m); if (i <= 0) return P[Math.max(0, i)][3]; const a = P[i - 1], c = P[i]; return a[3] + (c[3] - a[3]) * (c[2] > a[2] ? (m - a[2]) / (c[2] - a[2]) : 0); };
+
+// 화면 역 이름표: 입구·처음 길(여의나루까지)·다시 찾은 길. 깊이 = 승강장 깊이(공식 자료가 있는 역만, 없으면 null = '깊이 추정')
+const st3 = stations.filter((s) => ['enter', 'ride1', 'blocked', 'ride2'].includes(s.leg)).map((s) => ({ leg: s.leg, n: s.n, l: s.l, m: s.m, d: s.src === '공식' ? s.pd : null, f: s.f }));
+// 역 구조: 승강장 상자(3판 크기: 폭 34m, 길이 = 실제 승강장 길이) + 개략 대합실
+const plat3 = structs.filter((x) => x.k === 'plat').map((x) => {
+  const s = stations.find((o) => o.n === x.n && o.l === x.l && o.leg !== 'south' && o.leg !== 'rest');
+  return { leg: x.leg, k: 'platform', n: x.n, l: x.l, c: LL5(x.c), a: x.a, L: Math.round(x.L), W: 34, d: s ? r2(dDraw(s.leg, s.m)) : r2(x.z), est: !s || s.src !== '공식' };
+});
+const seen3 = new Set(), conc3 = concs.filter((x) => { const k = x.n + '|' + x.leg; if (['rest', 'south'].includes(x.leg) || seen3.has(k)) return false; seen3.add(k); return true; });
+// 한강 아래 실제 깊이(수면 아래, 하저터널 구간에서 가장 깊은 곳)
+const under = (keys) => Math.round(Math.max(...keys.flatMap((k) => LG[k].pts.filter((p) => p[5] != null).map((p) => p[5] - p[3]))));
+// 바탕 선로·한강 중심선: 경로 둘레 약 3.3km 상자(3판과 같은 범위)
+const inBox3 = (q) => q[0] > BOX[0] - 3300 && q[0] < BOX[2] + 3300 && q[1] > BOX[1] - 3300 && q[1] < BOX[3] + 3300;
+const net = [];
+for (let e = 0; e < E.a.length; e++) {
+  if (T.kinds[E.k[e]] !== 'track' || E.svc[e] !== 0) continue;
+  const pts = xyOf(GR.edgeShape(g, e));
+  if (!pts.some(inBox3)) continue;
+  net.push(simplify(pts, 30).map(LL5));
+}
+const riverLine = simplify(hanAll.filter(inBox3), 15).map(LL5);
+
 
 const out = {
-  format: 'jiharo-3d-3',
+  format: 'jiharo-3d-4',
   built: new Date().toISOString().slice(0, 10),
-  origin: [LAT0, LON0],
   exag: EXAG,
   attribution: ['© OpenStreetMap contributors (ODbL)', '역 깊이: 서울교통공사 역사심도정보(1~8호선 2024-11-04, 9호선 2·3단계 2026-01-31), 서울 열린데이터광장, 공공누리 제1유형', 'SRTM data courtesy of the U.S. Geological Survey'],
-  river: { line: river.map((r) => [Math.round(r.q[0]), Math.round(r.q[1]), r1(r.W), Math.round(r.WL), Math.round(r.WR)]) },
-  terrain,
+  river: { line: riverLine, half_w: HALF_W },
   legs: {
-    enter: Object.assign(legOf(D1, 0, total1), { expo_m: r1(expo1) }),
-    ride1: legOf(D2, 0, blockAt),
-    blocked: legOf(D2, blockAt, yeouiAt),
-    rest: legOf(D2, yeouiAt, total2, 5),   // 처음 길의 나머지(여의나루 → 도착): 점선으로만
-    ride2: legOf(D3, 0, total3),
-    south: legOf(D4, 0, total4, 5)         // 수서 → 동탄: 끝 전체 보기에서 옅게
+    enter: { pts: V.enter.pts, expo_m: r1(expo1) },
+    ride1: { pts: V.ride1.pts },
+    blocked: { pts: V.blocked.pts },
+    rest: { pts: V.rest.pts },
+    ride2: { pts: V.ride2.pts },
+    south: { pts: V.south.pts }
   },
   net,
-  lights,
-  stations,
-  structs,
+  stations: st3,
+  structs: [...plat3, ...conc3],
   facts: {
     start: name(o1.si), exit_ref: o1.ref, expo_m: Math.round(expo1), story_label: Y.label,
-    crossA: { a: crossA.a, b: crossA.b, line: crossA.line, m: crossM(ps2, crossA), water: waterOf(crossA) },
+    crossA: { a: crossA.a, b: crossA.b, line: crossA.line, m: crossM(ps2, crossA), water: waterOf(crossA), under: under(['ride1', 'blocked']) },
     mapo_m: r1(mapoAt), block_m: r1(blockAt), backtrack_m: Math.round(b.backtrack), walked_m: Math.round(walked),
-    crossB: { a: crossB.a, b: crossB.b, line: crossB.line, m: crossM(ps3, crossB), water: waterOf(crossB) },
+    crossB: { a: crossB.a, b: crossB.b, line: crossB.line, m: crossM(ps3, crossB), water: waterOf(crossB), under: under(['ride2']) },
     // 거리: 처음 길 전체 · 마포에서 남았던 거리 · 다시 찾은 길(앱 view 값 = 안내 화면과 같은 값)
     first_m: Math.round(p2.view.total_m), left_m: Math.round(total2 - mapoAt), total2_m: Math.round(p3.view.total_m),
     first_expo_m: Math.round(p2.view.exposed_m), second_expo_m: Math.round(p3.view.exposed_m),
@@ -758,7 +863,7 @@ fs.mkdirSync(path.dirname(file), { recursive: true });
 fs.writeFileSync(file, JSON.stringify(out));
 const L = out.legs;
 const pad = (s, n) => String(s).padEnd(n), lpad = (s, n) => String(s).padStart(n);
-console.log(`ride.json ${fs.statSync(file).size} byte · 점 ` + Object.keys(L).map((k) => `${k} ${L[k].pts.length}`).join(' ') + ` · 바탕 선로 ${net.length}개 · 불빛 ${lights.length}개 · 역 구조 ${structs.length}개 · 지형 ${terrain.map((t) => t.nx + '×' + t.ny).join(' + ')}`);
+console.log(`ride.json ${fs.statSync(file).size} byte · 점 ` + Object.keys(L).map((k) => `${k} ${L[k].pts.length}`).join(' ') + ` · 바탕 선로 ${net.length}개 · 역 구조 ${out.structs.length}개 · 강 반폭 ${HALF_W}m · 한강 수면 아래 ${out.facts.crossA.under}m / ${out.facts.crossB.under}m`);
 const offs = ctrl.map((c) => c.d);
 console.log(`지반 보정: 공식 역 지반고 − SRTM 하위 15%(±140m), 역 ${ctrl.length}곳(${ctrlAll}곳 중 12m 넘게 어긋난 ${dropped.length}곳 뺌: ${dropped.join(', ')}) 중앙값 ${OFF_MED.toFixed(1)}m, 절댓값 평균 ${(offs.reduce((a, c) => a + Math.abs(c), 0) / offs.length).toFixed(1)}m (보정 뒤 역 자리 차이 절댓값 평균 ${(ctrl.reduce((a, c) => a + Math.abs(c.d - offAt(c.q)), 0) / ctrl.length).toFixed(1)}m)`);
 console.log(`한강 수면(SRTM 중앙값): ${F2(out.facts.crossA)} · ${F2(out.facts.crossB)} · 띠 ${river.length}점, 폭 ${Math.round(median(river.map((r) => r.WL + r.WR)))}m(중앙값)`);
