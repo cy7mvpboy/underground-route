@@ -113,6 +113,16 @@ check(cps3.every((c) => c.kind !== 'junction'), `다시 찾은 길의 갈림길 
 
 // 1-5. 도착: 지하에 들어간 뒤 지상 노출(처음 경로 + 다시 찾은 경로) 0m
 check(p2.view.exposed_m + (p3 ? p3.view.exposed_m : 1) === 0, `도착 ${name(meetSi)}역 · 지하에 들어간 뒤 지상 노출 0m (공습경보 뒤 지상은 처음 출구까지 ${Math.round(o1.len)}m)`);
+// 1-6. 끝 장면: 수서 지하 승강장에서 남쪽으로 이어지는 지하 길(시연은 선으로만 보여 준다, 안내 없음)
+const southSi = si(Y.south);
+const meetFrom = { kind: 'station', si: meetSi, hubs: UG.reach.underHubs(G, meetSi), text: name(meetSi) + '역 지하 승강장', lat: g.stations[meetSi].lat / 1e5, lon: g.stations[meetSi].lon / 1e5 };
+const pS = southSi >= 0 ? planOf(meetFrom, st(Y.south)) : null;
+check(!!pS && name(southSi) === '동탄' && pS.view.exposed_m === 0 && Math.abs(pS.view.total_m - 32400) < 100,
+  pS ? `남쪽: ${name(meetSi)} → ${name(southSi)} ${km(pS.view.total_m)}, 지상 ${pS.view.exposed_m}m: ${rides(pS)}` : '남쪽 역을 찾지 못함');
+for (const q2 of ['수원@경기', '평택지제@경기']) {   // 참고: 더 남쪽(자막에는 쓰지 않음)
+  const k2 = si(q2), p2s = k2 >= 0 ? planOf(meetFrom, st(q2)) : null;
+  info(`참고 ${name(meetSi)} → ${q2.replace(/@.*/, '')}: ${p2s ? km(p2s.view.total_m) + ', 지상 ' + Math.round(p2s.view.exposed_m) + 'm' : '없음'}`);
+}
 const B = CONF.boost, mps = SPEED / 3.6 * 60;   // ×60 일 때 1배속 1초에 걷는 m
 const aAt = ka >= 0 ? cps3[ka].at : 0, bAt = kb >= 0 ? cps3[kb].at : 0;
 const walkSec = p1.view.total_m / (mps * B.enter) + (cps2[at].at + walked) / (mps * B.move) + aAt / (mps * B.ff) + (bAt - aAt) / (mps * B.cross) + (p3 ? p3.view.total_m - bAt : 0) / (mps * B.arrive);

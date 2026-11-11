@@ -6,11 +6,12 @@
         → 5호선 승강장에 도착해 '가족 약속 장소까지 지하로' → 한강 아래 5호선 마포–여의나루 터널에서 '앞이 막힘'
         → 마포역으로 되돌아가 한강 아래 다른 하나(5호선 광나루–천호)로 다시 찾기 → 빨리 감기로 광나루까지 → 광나루–천호 하저터널을 걸어서 건넘
         → 도착까지 빨리 감기 → 수서역 도착(목적지는 사용자 결정 2026-11-11: 한성백제에서 수서로)
+        → 끝 장면: 수서에서 남쪽(동탄)으로도 지하 길이 이어진다는 것만 선으로 보여 준다(안내·위치 이동 없음)
      2. 지방 도시: 부산역 → 해운대 18.5km, 전 구간 지하(지상 노출 0m), 연산·수영에서 환승 2번(빨리 감기)
      3. 장거리 피난의 한계: 서울역 → 부산역, 지상 노출 구간을 빨갛게 칠하며 빠르게 따라가기
    조작: 아래 칸(시나리오 · 재생/멈춤 · 다음 장면 · 처음부터 · 속도 · 끝내기), 키보드 Space · → · 1~3 · Esc.
    동작 원리
-     - 앱의 공개 객체(UG.app, UG.guide, UG.reach, UG.layers, UG.panel, UG.saved)만 쓴다.
+     - 앱의 공개 객체(UG.app, UG.guide, UG.reach, UG.layers, UG.panel, UG.saved, UG.router)만 쓴다.
        지도는 장면마다 한 번 부드럽게 옮기고(fitView), 부산 시나리오만 앱 길 안내와 같은 따라가기(UG.app.keepCentered)를 쓴다.
      - 길 안내의 추정 위치 = 마지막 확인 지점 + (지금 - since) × 걷는 속도. 시연은 since 를 당겨 놓아
        빨리 걸은 것처럼 만들고, 다음 확인 지점에 닿으면 큰 단추('도착'·'환승 완료')를 실제로 누른다.
@@ -29,7 +30,7 @@
   const CONF = {
     // 1. 이야기: 공습경보가 울린 곳(공덕오거리 부근 거리. 가장 가까운 출구가 5호선 승강장으로 이어지는 공덕역 2번 출구가 되는 자리),
     //    가족 약속 장소(meet), 마포 지나 하저터널 blockFrac 지점에서 막힘. 빨리 감기는 멈출 곳까지 한 화면에 담고 점만 움직인다
-    story: { lat: 37.5447, lon: 126.9497, label: '공덕오거리 부근', meet: '수서@서울', blockAfter: '마포@서울', blockFrac: 0.45 },
+    story: { lat: 37.5447, lon: 126.9497, label: '공덕오거리 부근', meet: '수서@서울', south: '동탄@경기', blockAfter: '마포@서울', blockFrac: 0.45 },
     busan: { from: '부산역@부산', to: '해운대@부산', label: '부산역 → 해운대', zoom: 14, xferHold: 1600 },  // 2. 지도는 줌 14로 따라감, 환승에서 잠깐 멈춤
     far: { from: '서울역@서울', to: '부산역@부산', flySec: 24 },                                 // 3. ×60 일 때 24초 동안 따라가기
     // 장면별 배속(고른 속도 × 이 값). 1번: enter = 출구로 들어가 승강장까지, move = 첫 하저터널까지 걷기, ff = 다른 하저터널 앞까지 빨리 감기,
@@ -412,6 +413,16 @@
   function htmlMark(ll, html, z) {
     return L.marker(ll, { icon: L.divIcon({ className: '', iconSize: [0, 0], html: html }), keyboard: false, interactive: false, zIndexOffset: z || 1900 }).addTo(markLayer());
   }
+  // 미리 보기 선: 경로를 지하 색(지상 노출 구간은 주황빨강) 점선으로 그린다. 안내를 시작하지 않는다. 그린 점들을 돌려준다(지도 맞추기용)
+  function previewRoute(path) {
+    const lay = markLayer(), pal = UG.layers.readPalette(), renderer = L.svg({ pane: 'demo', padding: 0.5 }), pts = [];
+    flightRuns(S().G, path).forEach(function (r) {
+      L.polyline(r.pts, { renderer: renderer, interactive: false, className: 'demo-preview', color: r.exposed ? pal.expo : pal.route,
+        weight: 6, opacity: 0.95, dashArray: '10 9', lineCap: 'round', lineJoin: 'round' }).addTo(lay);
+      r.pts.forEach(function (q) { pts.push(q); });
+    });
+    return pts;
+  }
 
   // 역 시트의 탭 바꾸기(앱의 탭 단추를 누른다): 'reach' | 'go' | 'info'. 도달 범위 탭이 아니면 앱이 경로를 다시 그린다
   function stationTab(id) {
@@ -620,6 +631,20 @@
         await phoneMapOnly();
         if (ctx.p2) await fitReroute(ctx, ctx.p2, 5000);     // 막힌 곳부터 도착까지 지나온 길 전체
         else { await fitArrival(); await hold(5000); }
+      } },
+      { cap: '남쪽으로도 지하로 이어진다', run: async function (ctx) {
+        // 길이 있다는 것만 보여 준다(사용자 결정 2026-11-11): 도착한 역 지하 승강장에서 남쪽 역까지 앱의 경로 탐색 결과를 선으로만.
+        // 길 안내를 시작하지 않고 사람(추정 위치)도 움직이지 않는다. 지도는 두 역이 다 보이게 한 번 물러난다
+        const s = S(), si = stationIndex(CONF.story.meet), ti = stationIndex(CONF.story.south);
+        const from = UG.app.stationEndpoint(si, true), to = UG.app.stationEndpoint(ti);
+        const r = UG.router.findRoute(s.G, from, to, { blocked: s.blocked }) || UG.router.findRoute(s.G, from, to, { blocked: s.blocked, surface: true });
+        if (!r) return;
+        caption('남쪽으로도 지하로 이어진다', stName(si) + ' → ' + stName(ti) + ' ' + km(r.total_m) + ' · 지상 ' + PN().fmtDist(r.exposed_m));
+        const pts = previewRoute(r.path), end = pts[pts.length - 1];
+        htmlMark(end, '<span class="demo-end" aria-hidden="true">' + PN().esc(PN().yeok(stName(ti))) + '</span>', 1800);
+        // 지나온 길(막힌 곳 포함)과 남쪽 길이 한 화면에(가장자리에 반쯤 걸친 표시가 없게 둘레를 6% 넓힌다)
+        const bb = L.latLngBounds(pts.concat(ctx.p2 ? planPoints(ctx.p2) : []).concat(ctx.blockPos ? [ctx.blockPos] : [])).pad(0.06);
+        await show([bb.getSouthWest(), bb.getNorthEast()], 13, 4300);
       } }
     ] },
 
@@ -757,10 +782,12 @@
     '.demo-raid::after { animation-delay: .9s; }',
     '@keyframes demo-raid { to { transform: translate(-50%, -50%) scale(1); opacity: 0; } }',
     '.demo-raid-t { position: absolute; left: 0; top: -58px; transform: translateX(-50%); padding: 3px 10px; border-radius: 6px; background: var(--expo); color: var(--on-expo); font-size: 15px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }',
+    '.demo-end { position: absolute; left: 0; top: 0; transform: translate(-50%, -140%); padding: 2px 9px; border: 2px solid var(--route-safe); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 14px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }',
+    'html.demo-on .demo-preview { animation: demo-fade .5s ease-out; }',
     '.demo-x { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); padding: 4px 10px; border: 3px solid var(--casing); border-radius: 8px; background: var(--expo); color: var(--on-expo); font-size: 16px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }',
     '@media (prefers-reduced-motion: reduce) {',
     '  .demo { transition: none; }',
-    '  html.demo-on .sheet, html.demo-on .guide .g-bar, html.demo-on .guide .g-card, html.demo-on .dlg-wrap, html.demo-on .toast, .demo-new { animation: none !important; }',
+    '  html.demo-on .sheet, html.demo-on .guide .g-bar, html.demo-on .guide .g-card, html.demo-on .dlg-wrap, html.demo-on .toast, .demo-new, html.demo-on .demo-preview { animation: none !important; }',
     '  .demo-raid::before { animation: none; transform: translate(-50%, -50%) scale(.6); }',
     '  .demo-raid::after { display: none; }',
     '  .demo-press { transform: none; }',
