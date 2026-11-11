@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지하로 시연 무대</title>
+<meta name="theme-color" content="#0B1214">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;700&display=swap">
+<!--
+  발표 무대: 왼쪽 = 앱 시연(폰 크기), 오른쪽 = 3D(앱을 따라감). 발표는 이 화면 하나로 한다.
+  - 왼쪽 iframe: ../?stage=1#demo  → 앱의 시연(web/js/demo.js)이 열리고, 장면·걸은 거리를 이 창(부모)에 알린다.
+  - 오른쪽 iframe: ../3d/?follow   → 3D(web/3d/ride.js)가 자기 시계 대신 앱이 보낸 메시지로 움직인다.
+  - 이 페이지는 메시지를 넘겨 주기만 한다(같은 출처 postMessage).
+  메시지 형식
+    앱 → 무대 → 3D   { src: 'jiharo-demo', ver: 1, type, ... }
+      scene  { scenario, n, id }                 장면 시작(id: save·raid·nearest·enter·platform·plan·guide·crossA·block·reroute·ff·crossB·arriveFf·arrive·south)
+      leg    { leg, total_m }                    걷는 구간: entry(거리 → 승강장) · first(처음 길) · backtrack(되돌아가기) · reroute(다시 찾은 길) · south(남쪽, 걷지 않음)
+      pos    { leg, m, to, v, lat, lon }         걷는 동안 0.2초마다: m = 그 구간 출발부터 길 안내 거리, to = 멈출 거리, v = 실제 1초에 늘어나는 m, lat·lon = 앱 추정 위치
+      state  { playing, speed }                  재생·멈춤·속도
+      end    {}
+    3D → 무대        { src: 'jiharo-3d', type: 'hello' }(처음, 지금 상태를 다시 받기) · { type: 'key', key: ' '|'ArrowRight' }
+    무대 → 앱        { src: 'jiharo-stage', type: 'cmd', cmd: 'toggle'|'next'|'speed'|'hello' }
+  조작: 앱 시연 칸(재생·멈춤·다음·속도) 또는 이 화면에서 Space = 재생/멈춤, → = 다음 장면. 주소에 ?lq 를 붙이면 3D 를 가볍게.
+-->
+<style>
+:root { --bg: #0B1214; --line: #24363B; --text: #E8F1EF; --muted: #9FB3B0; --s: 1;
+  --font: 'IBM Plex Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); overflow: hidden; }
+.stage { position: fixed; inset: 0; display: flex; gap: 16px; padding: 16px; }
+/* 폰 틀: 앱은 390×844(CSS px)로 그리고 화면 높이에 맞게 줄이거나 늘린다(--s) */
+.phone { flex: none; position: relative; width: calc(var(--s) * 414px); height: calc(var(--s) * 868px); align-self: center; }
+.phone .body { position: absolute; left: 0; top: 0; width: 414px; height: 868px; padding: 12px; border-radius: 46px;
+  background: #050A0B; border: 1px solid #2A3A3E; transform: scale(var(--s)); transform-origin: 0 0; }
+.phone iframe { display: block; width: 390px; height: 844px; border: 0; border-radius: 34px; background: var(--bg); }
+.three { flex: 1; min-width: 0; position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); }
+.three iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.mark { position: absolute; right: 16px; bottom: 12px; font-size: 13px; font-weight: 700; color: var(--muted); pointer-events: none; }
+.keys { position: absolute; left: 16px; bottom: 12px; font-size: 12px; color: var(--muted); pointer-events: none; transition: opacity 1s; }
+.keys.off { opacity: 0; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="phone"><div class="body"><iframe id="demo" title="지하로 앱 시연" src="about:blank"></iframe></div></div>
+  <div class="three">
+    <iframe id="three" title="지하로 3D" src="about:blank"></iframe>
+    <span class="keys" id="keys">Space 재생·멈춤 · → 다음 장면</span>
+    <span class="mark">지하로</span>
+  </div>
+</div>
+<script>
+'use strict';
+(function () {
+  const $ = function (id) { return document.getElementById(id); };
+  const demo = $('demo'), three = $('three'), O = location.origin;
+  const lq = /[?&]lq\b/.test(location.search);
+  demo.src = '../?stage=1#demo';
+  three.src = '../3d/?follow' + (lq ? '&lq' : '');
+
+  // 폰 크기 맞추기: 화면 높이(위아래 여백 16px)에 맞추되 가로의 40%를 넘지 않게
+  function fit() {
+    const s = Math.min((innerHeight - 32) / 868, innerWidth * 0.4 / 414);
+    document.documentElement.style.setProperty('--s', s.toFixed(3));
+  }
+  addEventListener('resize', fit); fit();
+
+  // 메시지 넘기기: 앱 → 3D, 3D 의 hello·키 → 앱 명령
+  function cmd(c) { if (demo.contentWindow) demo.contentWindow.postMessage({ src: 'jiharo-stage', type: 'cmd', cmd: c }, O); }
+  addEventListener('message', function (ev) {
+    const d = ev.data;
+    if (ev.origin !== O || !d) return;
+    if (ev.source === demo.contentWindow && d.src === 'jiharo-demo') { if (three.contentWindow) three.contentWindow.postMessage(d, O); }
+    else if (ev.source === three.contentWindow && d.src === 'jiharo-3d') {
+      if (d.type === 'hello') cmd('hello');
+      else if (d.type === 'key') cmd(d.key === ' ' ? 'toggle' : 'next');
+    }
+  });
+  // 무대에서 누른 Space·→ 를 앱 시연으로(발표자가 iframe 안을 누르지 않아도 되게)
+  addEventListener('keydown', function (e) {
+    if (e.key === ' ') { e.preventDefault(); cmd('toggle'); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); cmd('next'); }
+  });
+  setTimeout(function () { $('keys').classList.add('off'); }, 8000);
+  window.focus();
+})();
+</script>
+</body>
+</html>

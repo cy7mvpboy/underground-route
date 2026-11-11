@@ -19,6 +19,7 @@
      - 저장한 장소는 시연 동안 메모리에만 둔다(saved.js useMemory): 보는 사람이 저장해 둔 장소는 건드리지 않는다.
      - 시간은 시연 시계(멈춤·건너뛰기)로 흐른다. 속도 ×30/×60/×120 = 실제 걷는 시간보다 몇 배 빠른지.
        장면마다 배속(boost)을 곱한다(예: 도착까지 빨리 감기 ×40).
+     - 발표 무대(web/stage/, 주소 ?stage=1): 장면 시작·걸은 거리·멈춤을 부모 창에 알리고 무대의 Space·→ 를 받는다(6절). 무대가 아니면 그대로.
    Node 에서는 계산 부분(CONF, hanCrossing, flightRuns)만 쓴다: node scripts\check_demo.js */
 (function (root) {
   'use strict';
@@ -127,6 +128,7 @@
   function walk(total, boost, onM) {
     let m = 0;
     eng.boost = boost;
+    stage.to = total;
     syncUi();
     onM(0);
     return task(function (dt) {
@@ -331,6 +333,7 @@
     if (!gs) return;
     pin = { gs: gs, cur: gs.cur, m: m };
     gs.since = Date.now() - m / walkMps() * 1000;
+    stagePos(gs, m, force);
     const now = performance.now();
     if (force || now - lastPing >= (reduce() ? 1000 : 90)) {
       lastPing = now;
@@ -504,7 +507,7 @@
     /* 1. 한 사람의 이야기: 평소 저장 → 공습경보 → 가장 가까운 지하로 → 가족 약속 장소까지 지하로 → 하저터널 막힘 → 다른 하저터널로 다시 찾기 → 그 하저터널 건너기 → 도착.
           ctx: p(가족 약속 장소까지 처음 경로), blockPos(막힌 곳), p2(다시 찾은 경로) */
     { name: '공습 → 가족 약속 장소', short: '이야기', scenes: [
-      { cap: '평소: 가족 약속 장소 저장', run: async function () {
+      { id: 'save', cap: '평소: 가족 약속 장소 저장', run: async function () {
         const mi = stationIndex(CONF.story.meet), o = S().g.stations[mi];
         UG.app.openStation(mi, { tab: 'info' });            // 역 시트 → ☆ → '가족 약속 장소'(앱의 저장 대화상자)
         caption('평소: 가족 약속 장소 저장', PN().yeok(o.name));
@@ -514,7 +517,7 @@
         await tap(document.querySelector('#save-dlg [data-name="' + UG.saved.FAMILY + '"]'), 1400);
         await hold(1500);                                    // 알림 '"가족 약속 장소"(으)로 저장했습니다'
       } },
-      { cap: '공습경보 · ' + CONF.story.label, run: async function () {
+      { id: 'raid', cap: '공습경보 · ' + CONF.story.label, run: async function () {
         const r = CONF.story, s = S();
         await closeSheet();                                  // 역 시트 닫기(앱의 ×)
         await settle();
@@ -523,7 +526,7 @@
         s.me.setLook({ hidden: false, stale: false, tag: '' });
         await show([[r.lat, r.lon]], 17, 3300);
       } },
-      { cap: '가장 가까운 지하로', run: async function () {
+      { id: 'nearest', cap: '가장 가까운 지하로', run: async function () {
         const r = CONF.story;
         await flash(document.getElementById('go-under'), 900);
         UG.app.runNearest(r.lat, r.lon, r.label, false);        // 앱의 '가장 가까운 지하로'(지점을 정해서)
@@ -534,11 +537,12 @@
         await phonePeek();
         await show(planPoints(p), 18, 3500);
       } },
-      { cap: '출구로 들어가 지하 승강장까지', run: async function () {
+      { id: 'enter', cap: '출구로 들어가 지하 승강장까지', run: async function () {
         await startGuide();
+        stageLeg('entry');
         await walkGuide({ boost: CONF.boost.enter, camera: 'leg' });   // 마지막 '도착'을 누르면 앱이 역 시트를 연다
       } },
-      { cap: '지하 승강장 도착 · 가족 약속 장소로', run: async function () {
+      { id: 'platform', cap: '지하 승강장 도착 · 가족 약속 장소로', run: async function () {
         const s = S(), st = s.station;
         s.me.clear();                                        // 길에 있던 '내 위치' 점과 공습 표시는 지운다(이제 역 안)
         clearMarks();
@@ -549,7 +553,7 @@
         await show(s.plan ? planPoints(s.plan) : [[o.lat / 1e5, o.lon / 1e5]], 17, 1800);   // 걸어 들어온 길(출구 → 승강장)
         await tap(document.querySelector('#view-station [data-act="go-saved"]'), 1800);   // 앱이 이 역 지하 승강장에서 다시 찾는다
       } },
-      { cap: '가족 약속 장소까지 지하로', run: async function (ctx) {
+      { id: 'plan', cap: '가족 약속 장소까지 지하로', run: async function (ctx) {
         const p = ctx.p = S().plan;
         if (!p) throw new Error('가족 약속 장소까지 경로 없음');
         const h = hanCrossing(S().G, p.route.path);
@@ -558,12 +562,13 @@
         await phonePeek();
         await show(planPoints(p), 15, 3900);
       } },
-      { cap: '안내 시작 · GPS 없이 위치 추정', run: async function () {
+      { id: 'guide', cap: '안내 시작 · GPS 없이 위치 추정', run: async function () {
         await startGuide();
+        stageLeg('first');
         const stop = stationIndex(CONF.story.blockAfter);
         await walkGuide({ boost: CONF.boost.move, camera: 'leg', until: function (next, gs) { return gs.cur >= 0 && gs.cps[gs.cur].si === stop; } });
       } },
-      { cap: '한강 아래 하저터널', run: async function (ctx) {
+      { id: 'crossA', cap: '한강 아래 하저터널', run: async function (ctx) {
         const g = guideView(), gs = g && g.state();
         if (!gs) return;
         const h = hanCrossing(S().G, ctx.p.route.path);
@@ -574,10 +579,11 @@
         await walk(m, CONF.boost.move, setWalked);
         setWalked(m, true);
       } },
-      { cap: '하저터널 막힘', run: async function (ctx) {
+      { id: 'block', cap: '하저터널 막힘', run: async function (ctx) {
         const pos = ctx.blockPos = S().guidePos;
         if (pos) htmlMark(pos, '<span class="demo-x" aria-hidden="true">막힘</span>', 1950);
         await press('guide-block', 900);                    // 앱의 '앞이 막힘': 그 구간을 막고 마지막 확인 지점에서 다시 찾는다
+        stageLeg('backtrack', guideView() ? guideView().state().backtrack : 0);   // 무대: 되돌아가기는 3D 가 그린다(앱 점은 바로 다시 출발할 곳)
         S().guideFollow = false;
         setWalked(0, true);                                  // 새 안내는 아직 0m(기다리는 동안 추정 위치가 흐르지 않게)
         const p = S().plan, g = guideView(), gs = g && g.state(), here = S().guidePos || (p && [p.from.lat, p.from.lon]);
@@ -586,9 +592,11 @@
         if (pos && here) await show(UG.app.aroundCenter([pos], here), 16, 3500);   // 다시 출발할 곳(마지막 확인 지점)을 가운데에, 막힌 곳도 보이게
         else await hold(3500);
       } },
-      { cap: '되돌아가 다른 하저터널로', run: async function (ctx) {
+      { id: 'reroute', cap: '되돌아가 다른 하저터널로', run: async function (ctx) {
         const p = ctx.p2 = S().plan;
         if (!p) return;
+        stageLeg('reroute', p.view.total_m);
+        if (STAGE) setWalked(0, true);                       // 무대: 3D 에 다시 찾은 길 출발점(0m)을 알린다
         const h = hanCrossing(S().G, p.route.path);
         // 서울에서 한강을 지하로만 건너는 곳은 5호선 하저터널 두 곳(계획서 분석): 하나가 막히면 남은 하나로.
         // check_demo.js 가 이 길에서 확인한다(두 곳을 다 막으면 가장 나은 길도 지상 721m)
@@ -599,14 +607,14 @@
         const alt = document.querySelector('#guide-alt-slot:not([hidden]) [data-action="alt"]');
         if (alt) { caption('대안: ' + alt.textContent, '누르지 않고 지하 우선 경로로 계속'); await flash(alt, 2200); }
       } },
-      { cap: '빨리 감기', run: async function (ctx) {
+      { id: 'ff', cap: '빨리 감기', run: async function (ctx) {
         // 다른 하저터널 앞 역(광나루)까지. 화면은 그 터널 건너편 역(천호)까지 한 번에 담는다
         const h = ctx.p2 && hanCrossing(S().G, ctx.p2.route.path);
         if (h) caption('빨리 감기 · ' + PN().yeok(h.a) + '까지');
         await walkGuide({ boost: CONF.boost.ff, camera: 'fixed', fast: true, onLeg: legSub,
           until: function (next) { return !!h && next.si === h.sb; } });
       } },
-      { cap: '한강 아래 하저터널', run: async function (ctx) {
+      { id: 'crossB', cap: '한강 아래 하저터널', run: async function (ctx) {
         // 다른 하저터널을 걸어서 건넌다(첫 하저터널 장면과 같은 모습: 그 구간을 한 화면에 담고 점만 움직임)
         const g = guideView(), gs = g && g.state();
         if (!gs) return;
@@ -618,10 +626,10 @@
         setWalked(p.toNext_m, true);
         await press('guide-arrive', 450);
       } },
-      { cap: '도착까지 빨리 감기', run: async function () {
+      { id: 'arriveFf', cap: '도착까지 빨리 감기', run: async function () {
         await walkGuide({ boost: CONF.boost.arrive, camera: 'fixed', fast: true, onLeg: legSub });
       } },
-      { cap: '도착', run: async function (ctx) {
+      { id: 'arrive', cap: '도착', run: async function (ctx) {
         const st = S().station;
         // 지하에 들어간 뒤 지상 노출 = 가족 약속 장소까지 처음 경로(막히기 전까지 걸은 곳) + 다시 찾은 경로. 둘 다 0m(check_demo.js)
         const expo = (ctx.p ? ctx.p.view.exposed_m : 0) + (ctx.p2 ? ctx.p2.view.exposed_m : 0);
@@ -632,13 +640,14 @@
         if (ctx.p2) await fitReroute(ctx, ctx.p2, 5000);     // 막힌 곳부터 도착까지 지나온 길 전체
         else { await fitArrival(); await hold(5000); }
       } },
-      { cap: '남쪽으로도 지하로 이어진다', run: async function (ctx) {
+      { id: 'south', cap: '남쪽으로도 지하로 이어진다', run: async function (ctx) {
         // 길이 있다는 것만 보여 준다(사용자 결정 2026-11-11): 도착한 역 지하 승강장에서 남쪽 역까지 앱의 경로 탐색 결과를 선으로만.
         // 길 안내를 시작하지 않고 사람(추정 위치)도 움직이지 않는다. 지도는 두 역이 다 보이게 한 번 물러난다
         const s = S(), si = stationIndex(CONF.story.meet), ti = stationIndex(CONF.story.south);
         const from = UG.app.stationEndpoint(si, true), to = UG.app.stationEndpoint(ti);
         const r = UG.router.findRoute(s.G, from, to, { blocked: s.blocked }) || UG.router.findRoute(s.G, from, to, { blocked: s.blocked, surface: true });
         if (!r) return;
+        stageLeg('south', r.total_m);
         caption('남쪽으로도 지하로 이어진다', stName(si) + ' → ' + stName(ti) + ' ' + km(r.total_m) + ' · 지상 ' + PN().fmtDist(r.exposed_m));
         const pts = previewRoute(r.path), end = pts[pts.length - 1];
         htmlMark(end, '<span class="demo-end" aria-hidden="true">' + PN().esc(PN().yeok(stName(ti))) + '</span>', 1800);
@@ -707,6 +716,7 @@
       caption(sc.scenes[i].cap);
       bigText('');
       syncUi();
+      stageScene(i + 1, sc.scenes[i].id);
       try { await sc.scenes[i].run(ctx); } catch (e) {
         if (e === ABORT || run !== eng.run) return;
         console.error('[demo]', e);
@@ -717,6 +727,7 @@
     if (run !== eng.run) return;
     eng.done = true; eng.skip = false;
     syncUi();
+    post({ type: 'end' });
   }
   // 다음 장면(지금 장면을 끝 상태로 건너뛴다). 시나리오가 끝났으면 다음 시나리오
   function next() {
@@ -859,6 +870,7 @@
   function fadeIn(el) { el.classList.remove('demo-new'); void el.offsetWidth; el.classList.add('demo-new'); }
   function bigText(t) { if (!ui) return; ui.big.textContent = t; ui.big.hidden = !t; }
   function syncUi() {
+    stageState();
     if (!ui) return;
     const sc = SCENARIOS[cur - 1], rate = Math.round(eng.base * eng.boost);
     ui.pick.value = String(cur);
@@ -930,6 +942,59 @@
   window.addEventListener('hashchange', function () {
     const n = hashScenario();
     if (n) open(n); else if (eng.open) close(true);
+  });
+
+  /* =========================================================
+     6. 발표 무대(web/stage/) 연결: 주소에 ?stage=1 이 있고 다른 화면(iframe) 안에서 열렸을 때만 동작한다.
+        무대는 이 앱과 3D(web/3d/?follow)를 나란히 놓고 메시지를 3D 로 넘긴다. 무대가 아니면 아무것도 보내지 않는다.
+        보내는 것(window.parent.postMessage, 같은 출처). 모두 { src: 'jiharo-demo', ver: 1(형식 판), type, ... }
+          scene  { scenario, n(장면 번호, 1부터), id(이야기 장면 이름: save·raid·…·south) }   장면 시작
+          leg    { leg: 'entry'|'first'|'backtrack'|'reroute'|'south', total_m }          걷는 구간이 바뀜(backtrack 은 되돌아간 거리)
+          pos    { leg, m, to, v, lat, lon }   걷는 동안 0.2초마다와 멈출 때. m = 그 구간 출발부터 길 안내 거리(앱 추정 위치와 같은 계산),
+                                              to = 이번 걷기가 멈출 거리, v = 실제 1초에 늘어나는 m(멈춤·멈춘 뒤면 0), lat·lon = 앱 추정 위치
+          state  { playing, speed }           재생·멈춤·속도(×30/60/120)가 바뀔 때
+          end    {}                           시나리오 끝
+        받는 것: { src: 'jiharo-stage', type: 'cmd', cmd: 'toggle'|'next'|'speed'|'hello' }  (hello = 지금 장면·구간·위치를 다시 보냄)
+     ========================================================= */
+  const STAGE = (function () { try { return /[?&]stage=1(&|$)/.test(location.search) && root.parent !== root; } catch (e) { return false; } })();
+  const stage = { leg: '', to: 0, sent: 0, scene: null, pos: null, state: '' };
+  function post(msg) {
+    if (!STAGE) return;
+    msg.src = 'jiharo-demo'; msg.ver = 1;   // v 는 걷는 속도라서 형식 판은 ver
+    try { root.parent.postMessage(msg, location.origin); } catch (e) { /* 무대가 없으면 무시 */ }
+  }
+  function stageScene(n, id) { stage.scene = { type: 'scene', scenario: cur, n: n, id: cur === 1 ? id : '' }; post(Object.assign({}, stage.scene)); }
+  function stageLeg(leg, total) { stage.leg = leg; post({ type: 'leg', leg: leg, total_m: total || 0 }); }
+  // 걸은 거리 알리기(setWalked 에서 부른다): 걷는 구간(entry·first·reroute)만, 0.2초마다 또는 멈출 때(force)
+  function stagePos(gs, m, force) {
+    if (!STAGE || !/^(entry|first|reroute)$/.test(stage.leg)) return;
+    const now = performance.now();
+    if (!force && now - stage.sent < 200) return;
+    stage.sent = now;
+    const doneAt = gs.cur >= 0 ? gs.cps[gs.cur].at : 0, track = S().guideTrack;
+    const ll = track ? UG.guide.pointAt(track, Math.min(doneAt + m, track.total)) : null;
+    stage.pos = { type: 'pos', leg: stage.leg, m: doneAt + m, to: doneAt + Math.max(m, stage.to), v: force || !eng.playing ? 0 : walkMps() * eng.base * eng.boost,
+      lat: ll ? ll[0] : null, lon: ll ? ll[1] : null };
+    post(Object.assign({}, stage.pos));
+  }
+  function stageState() {
+    const k = eng.playing + '|' + eng.base;
+    if (k === stage.state) return;
+    stage.state = k;
+    post({ type: 'state', playing: eng.playing, speed: eng.base });
+  }
+  if (STAGE) root.addEventListener('message', function (ev) {
+    const d = ev.data;
+    if (ev.source !== root.parent || !d || d.src !== 'jiharo-stage' || d.type !== 'cmd') return;
+    if (d.cmd === 'toggle') togglePlay();
+    else if (d.cmd === 'next') next();
+    else if (d.cmd === 'speed') cycleSpeed();
+    else if (d.cmd === 'hello') {
+      stage.state = ''; stageState();
+      if (stage.scene) post(Object.assign({}, stage.scene));
+      if (stage.leg) post({ type: 'leg', leg: stage.leg, total_m: 0, again: true });
+      if (stage.pos) post(Object.assign({}, stage.pos, { v: 0 }));
+    }
   });
 
   UG.demo = {

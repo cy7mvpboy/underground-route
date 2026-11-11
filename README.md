@@ -6,6 +6,7 @@ COM's 해커톤 2026 · 주제: 전쟁 · 혼자 참가
 
 - 서비스: https://cy7mvpboy.github.io/underground-route/
 - 시연 모드: https://cy7mvpboy.github.io/underground-route/#demo
+- 발표 무대(앱 시연 + 3D 나란히): https://cy7mvpboy.github.io/underground-route/stage/ · 3D만: https://cy7mvpboy.github.io/underground-route/3d/
 - GitHub: https://github.com/cy7mvpboy/underground-route
 - 발표 자료: https://cy7mvpboy.github.io/underground-route/slides/ (PDF: `docs/발표.pdf`), 계획서: `docs/계획서.pdf`
 
@@ -51,6 +52,15 @@ COM's 해커톤 2026 · 주제: 전쟁 · 혼자 참가
 3. 장거리 피난의 한계(서울역에서 부산역)
 
 시연 중 저장한 '가족 약속 장소'는 메모리에만 두고, 이 브라우저에 저장해 둔 장소는 건드리지 않는다.
+
+### 발표 무대로 시연하기
+
+https://cy7mvpboy.github.io/underground-route/stage/ 를 노트북에서 전체 화면(F11)으로 연다(16:9, 1280×720 이상). 왼쪽은 폰 크기의 앱 시연(1번 이야기), 오른쪽은 앱을 따라가는 3D 단면이다.
+
+- 열면 바로 1번 이야기가 재생된다. Space = 재생/멈춤, → = 다음 장면. 무대 화면 어디서 눌러도 앱 시연으로 넘어간다. 속도·시나리오는 앱 시연 칸에서 고른다.
+- 3D 는 자기 시계 없이 앱이 보내는 장면과 걸은 거리로 움직인다. 공습경보(거리의 빨간 경보 고리, 먼 섬광·연기 몇 초), 하저터널 두 곳에서 잠깐 터널 안 시점, 막힘에서 무너짐과 잔해 더미, 다시 찾은 길의 충정로 환승역, 끝에서 전체 보기와 남쪽(수서 → 동탄) 선을 보여 준다.
+- 느린 컴퓨터: 주소 끝에 `?lq`를 붙인다(3D 를 가볍게). 3D 가 초당 25프레임 아래로 3초 이어지면 저절로 가볍게 바뀐다.
+- 이 브라우저에 앱을 설치해 두었는데 3D 가 따라가지 않으면, 앱(https://cy7mvpboy.github.io/underground-route/)을 한 번 새로고침해 새 판을 받은 뒤 무대를 다시 연다.
 
 ## 실행 방법 (로컬)
 
@@ -140,6 +150,8 @@ python -I scripts\merge_ways.py data\raw\region_nodes.json,data\raw\region_nodes
 web/                 배포되는 웹 앱 (index.html, js/, data/, sw.js, manifest.webmanifest, icons/)
   data/              graph, extra, passage, basemap, places, egress (.json)
   slides/            발표 슬라이드 (build_slides.py가 만든 한 파일)
+  3d/                3D 지하 이동(ride.js, ride.json = build_3d.js가 만든 자료)
+  stage/             발표 무대: 앱 시연 + 3D 나란히
 slides/              발표 슬라이드 원본
 scripts/             데이터 만들기(build_*.py), 검사(check_*.js, check_extra.py), 기준 탐색기(route.py)
   queries/           Overpass 쿼리(.overpassql)

@@ -353,7 +353,7 @@ const out = {
   stations,
   structs,
   facts: {
-    start: name(o1.si), exit_ref: o1.ref, expo_m: Math.round(expo1),
+    start: name(o1.si), exit_ref: o1.ref, expo_m: Math.round(expo1), story_label: Y.label,
     crossA: { a: crossA.a, b: crossA.b, line: crossA.line, m: crossM(ps2, crossA) },
     mapo_m: r1(mapoAt), block_m: r1(blockAt), backtrack_m: Math.round(b.backtrack), walked_m: Math.round(walked),
     crossB: { a: crossB.a, b: crossB.b, line: crossB.line, m: crossM(ps3, crossB) },

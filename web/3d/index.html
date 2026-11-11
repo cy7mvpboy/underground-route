@@ -52,6 +52,11 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 .bar i { display: block; height: 4px; width: 100%; border-radius: 2px; background: var(--line-strong); position: relative; overflow: hidden; }
 .bar b { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--route-safe); }
 .time { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+/* 무대(?follow): 자막·조작·제목은 앱이 보여 준다. 걷는 점 옆 깊이 읽기만 */
+body.follow .panel, body.follow .top h1, body.follow .top a { display: none; }
+.depth { position: fixed; left: 0; top: 0; font-size: 12px; line-height: 1.3; padding: 2px 6px; border-radius: 6px; background: rgb(11 18 20 / .72);
+  color: var(--route-safe); white-space: nowrap; pointer-events: none; will-change: transform; }
+.depth[hidden] { display: none; }
 .fail { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--muted); }
 @media (min-width: 900px) { .panel { left: 24px; right: auto; bottom: 24px; width: 560px; } .top { left: 24px; right: 24px; top: 20px; } }
 </style>
@@ -66,6 +71,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 <body>
 <canvas id="c" aria-label="공덕역에서 수서역까지 지하 이동 3D 그림"></canvas>
 <div id="labels" aria-hidden="true"></div>
+<div class="depth" id="depth" hidden></div>
 <div class="top">
   <h1 id="title">지하로 3D · 공덕 → 수서</h1>
   <a href="../">지하로 앱 열기</a>
