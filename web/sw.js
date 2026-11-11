@@ -100,15 +100,24 @@ self.addEventListener('activate', function (ev) {
 });
 
 /* ---------- 응답 ---------- */
+// 발표 무대(web/stage/)가 띄운 앱(?stage=1)은 저장한 판을 쓰지 않고 서버의 최신 판을 받는다.
+// 저장한 판이 예전 것이면 무대의 3D(늘 최신)와 이야기가 어긋나기 때문이다. 무대는 어차피 인터넷이 필요하다(3D 라이브러리)
+const STAGE = /[?&]stage=1(?:[&#]|$)/;
+
 self.addEventListener('fetch', function (ev) {
   const req = ev.request;
   if (req.method !== 'GET') return;
   const kind = kindOf(req.url, req.mode);
-  if (kind === 'page') ev.respondWith(fromCache(PAGE, req));
-  else if (kind === 'app') ev.respondWith(fromCache(req.url, req));
-  else if (kind === 'tile') ev.respondWith(runtime(req, TILES, TILE_MAX, false));
-  else if (kind === 'font') ev.respondWith(runtime(req, FONTS, FONT_MAX, new URL(req.url).hostname === 'fonts.gstatic.com'));
-  // 그 밖(Photon·OSRM·manifest·아이콘)은 손대지 않는다: 브라우저가 평소처럼 받는다
+  if (!kind) return;                                   // 그 밖(Photon·OSRM·manifest·아이콘)은 손대지 않는다: 브라우저가 평소처럼 받는다
+  if (kind === 'page') { if (!STAGE.test(req.url)) ev.respondWith(fromCache(PAGE, req)); return; }
+  if (kind === 'app') {
+    ev.respondWith(self.clients.get(ev.clientId).then(function (c) {
+      return c && STAGE.test(c.url) ? fetch(req) : fromCache(req.url, req);
+    }));
+    return;
+  }
+  if (kind === 'tile') ev.respondWith(runtime(req, TILES, TILE_MAX, false));
+  else ev.respondWith(runtime(req, FONTS, FONT_MAX, new URL(req.url).hostname === 'fonts.gstatic.com'));
 });
 
 // 앱 파일: 저장한 것 먼저. 없으면 받아서 이 판 저장소에 넣는다(페이지는 설치 때만 넣는다)
