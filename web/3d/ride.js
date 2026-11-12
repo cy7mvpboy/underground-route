@@ -15,7 +15,7 @@
        북쪽 = (위도 - LAT0) × 110540. three.js 는 y 가 위쪽이라 북쪽을 -z 로 둔다.
        수십 km 범위라 평면으로 펴도 오차가 1% 미만이다.
      - 깊이: y = -(깊이 m × EXAG). 지면은 y = 0. 세로만 EXAG(자료의 exag, 10)배 늘려서 깊이 차이가 보이게 한다.
-     - 한강 아래: 그릴 깊이는 둑 높이(양쪽 둑 지반을 이은 값)에서 잰 깊이라 터널이 강 아래로 내려가 보인다. 글자는 수면 아래 깊이.
+     - 한강 아래: 그릴 깊이는 둑 높이(양쪽 둑 지반을 이은 값)에서 잰 깊이라 터널이 강 아래로 내려가 보인다. 깊이 숫자는 역(승강장 자료)에만 쓰고 역 사이·한강 아래는 쓰지 않는다.
        강바닥 자료는 없어서 그리지 않는다(단면의 물·흙 경계는 그림).
    행정 경계: 서울 자치구·경기 시·군(OSM) 선을 지면 위 옅은 점선으로, 경로가 지나는 시·군·구 이름을 옅게.
    터널: 반투명 껍데기 + 고리 + 바닥·레일 + 벽 등. 걷는 점 가까운 고리는 밝게(점이 터널 안을 비추는 것처럼).
@@ -423,8 +423,7 @@ D.structs.filter((s) => s.k === 'concourse').forEach((s) => {
 const mid = (a) => (a[0] + a[1]) / 2;
 label(`${F.start}역 ${F.exit_ref}번 출구`, posAt('enter', E.expo_m).add(new THREE.Vector3(0, 40, 0)), '');
 label('공습경보', LEG.enter.v[0].clone().add(new THREE.Vector3(0, 60, 0)), 'red', (c) => c >= EV.raid && c < EV.raid + 6, 3);
-label(`한강 수면 아래 약 ${F.crossA.under}m`, posAt('ride1', F.block_m - 300).add(new THREE.Vector3(0, -2.5 * R, 0)), 'est', null, 1);   // 막힘 표시·점과 겹치지 않게 앞쪽 아래
-label(`한강 수면 아래 약 ${F.crossB.under}m`, posAt('ride2', F.crossB.m[0] + 0.72 * (F.crossB.m[1] - F.crossB.m[0])).add(new THREE.Vector3(0, -2.5 * R, 0)), 'est', (c) => c >= EV.reveal, 1);
+// 깊이 숫자는 역(승강장 자료)에만 쓴다. 역 사이·한강 아래는 추정이라도 숫자를 쓰지 않는다(사용자 결정 2026-11-12)
 // '한강' 글자: 중심선에서 경도 126.94(마포 부근)에 가장 가까운 점
 label('한강', (() => { const [x, z] = toXZ(...D.river.line.reduce((b, p) => (Math.abs(p[1] - 126.94) < Math.abs(b[1] - 126.94) ? p : b))); return new THREE.Vector3(x, 0, z); })(), 'river', null, 1);
 label('막힘', blockMark.position.clone().add(new THREE.Vector3(0, 50, 0)), 'red', (c) => c >= EV.block, 2);
@@ -445,7 +444,7 @@ const BEATS = [
     moves: [['enter', 0, 0, RM ? 4 : 3, 1800]] },
   { id: 'enter', cap: `${F.start}역 ${F.exit_ref}번 출구로 들어가 5호선 승강장으로`, sub: `지상 ${F.expo_m}m를 걸은 뒤 지하 ${g1.f} 승강장(깊이 ${fm(g1.d)})`,
     moves: [['enter', 0, E.expo_m, RM ? 4 : 3, 650], ['enter', E.expo_m, LEG.enter.len, 3.5, 750], ['enter', LEG.enter.len, LEG.enter.len, 0.6, 800]] },
-  { id: 'crossA', cap: `한강 아래 ${F.crossA.line} ${F.crossA.a}–${F.crossA.b} 하저터널`, sub: `${F.end}역까지 지하로 ${km(F.first_m)}, 지상 ${F.first_expo_m}m인 길 · 한강 수면 아래 약 ${F.crossA.under}m`,
+  { id: 'crossA', cap: `한강 아래 ${F.crossA.line} ${F.crossA.a}–${F.crossA.b} 하저터널`, sub: `${F.end}역까지 지하로 ${km(F.first_m)}, 지상 ${F.first_expo_m}m인 길`,
     moves: [['ride1', 0, F.mapo_m, 3, 900], ['ride1', F.mapo_m, F.block_m, 6, 2000, (A[0] + F.block_m) / 2 + 150]] },
   { id: 'block', cap: `앞이 막힘 · ${F.crossA.a}역으로 ${F.backtrack_m}m 되돌아감`, sub: `막힌 하저터널을 빼고 ${F.crossA.a}역에서 다시 찾기`,
     moves: [['ride1', F.block_m, F.block_m, BL.c + BL.back, 420, F.block_m, [0, BL.c + BL.out + 1, 'collapse']], ['ride1', F.block_m, F.mapo_m, 3.5, 1200], ['ride1', F.mapo_m, F.mapo_m, 1.5, 1800]] },
@@ -746,13 +745,13 @@ function setLQ() {
   for (const T of tunnels) T.lamps.visible = false;
 }
 
-// 깊이 읽기(무대): 걷는 점 옆에 작게. 승강장(자료가 있는 역 앞뒤 80m)이면 실제 값, 그 밖은 '추정'
+// 깊이 읽기(무대): 걷는 점 옆에 작게. 승강장(자료가 있는 역 앞뒤 80m)에서만 실제 값. 역 사이는 아무것도 쓰지 않는다(추정 숫자 안 씀)
 let lastDepth = '';
 function showDepth(leg, m, onStreet) {
   let text = '';
   if (inside < 0.3) {
     const sta = D.stations.find((s) => s.leg === leg && s.d != null && Math.abs(s.m - m) < 80);
-    text = onStreet ? '지상' : sta ? `${sta.n} 승강장 ${fm(sta.d)}` : `${rivAt(leg, m) > 0.5 ? '한강 수면 아래' : '깊이'} 약 ${Math.round(depthAt(leg, m))}m · 추정`;
+    text = onStreet ? '지상' : sta ? `${sta.n} 승강장 ${fm(sta.d)}` : '';
   }
   if (text !== lastDepth) { lastDepth = text; ui.depth.textContent = text; ui.depth.hidden = !text; }
   if (!text) return;
