@@ -19,10 +19,14 @@
        강바닥 자료는 없어서 그리지 않는다(단면의 물·흙 경계는 그림).
    행정 경계: 서울 자치구·경기 시·군(OSM) 선을 지면 위 옅은 점선으로, 경로가 지나는 시·군·구 이름을 옅게.
    터널: 반투명 껍데기 + 고리 + 바닥·레일 + 벽 등. 걷는 점 가까운 고리는 밝게(점이 터널 안을 비추는 것처럼).
-   역: 승강장 상자(깊이 = 자료 값, 노선 색 테두리) · 환승역과 입구는 대합실 판(깊이 추정). 모양은 개략.
+   지상 노출(거리 걷기, 다시 찾은 길의 지상 선로·지상 환승 통로 = 자료 legs.*.expo): 지면 위 주황 관. 그 구간은 터널을 그리지 않는다.
+   역: 승강장 상자(깊이 = 자료 값, 노선 색 테두리, 지상역은 지면 위) · 환승역과 입구는 대합실 판. 모양은 개략.
+   다시 찾은 길: 이야기가 대안(지상을 조금 걷는 짧은 길)을 고르면 지하로만 다시 찾은 길(legs.main2)을 먼저 점선으로 보이고,
+     대안을 고르면(무대: 앱이 reroute 구간을 알릴 때) 점선은 사라지고 걷는 길(ride2)이 나타난다.
    공습경보: 거리의 빨간 고리 · 먼 곳 섬광 몇 번 · 먼 연기 기둥 두세 개. 몇 초 뒤 사라진다(폭발·사람 피해는 그리지 않는다).
    막힘: 터널 안으로 들어가 지켜본다. 잠깐 흔들린 뒤 앞쪽 천장에서 덩어리가 떨어져 터널 단면을 막고 먼지가 찬다(약 1.5초).
      잠시 본 뒤 밖으로 나와 막힌 구간(빨강)을 보고, 그다음 다시 출발할 역으로 되돌아간다. 터널 모양·깊이는 바꾸지 않는다.
+     막히지 않은 하저터널을 지나는 장면(crossB)에서는 막힘을 다시 보이지 않는다: 잔해·빨간 X·'막힘' 이름표·빨간 막힌 구간을 숨긴다(사용자 결정 2026-11-13).
    갈림길(처음 길에서 지나는 첫 갈림길, 자료 facts.junction · legs.fork): 다른 갈래는 옅은 회색 터널 400m.
      걷는 점이 다가가면 터널 안(갈림길 35m 앞)으로 들어가 두 갈래를 보여 준다. 고른 갈래(청록)에 앱 안내 문장, 다른 갈래에 그 선로 이름.
      잠시 멈췄다가 점이 고른 갈래로 들어가면 밖으로 나온다. 움직임 줄이기에서는 밖에서 이름표만.
@@ -69,9 +73,13 @@ const KX = 111320 * Math.cos(LAT0 * Math.PI / 180), KY = 110540;
 const toXZ = (lat, lon) => [(lon - LON0) * KX, -(lat - LAT0) * KY];
 const toV = (p) => { const [x, z] = toXZ(p[0], p[1]); return new THREE.Vector3(x, -p[3] * EXAG, z); };
 
-// 구간: enter 출구로 들어감 · ride1 처음 길 · blocked 막힌 터널 · rest 처음 길 나머지 · ride2 다시 찾은 길 · south 수서 → 동탄
+// 구간: enter 출구로 들어감 · ride1 처음 길 · blocked 막힌 터널 · rest 처음 길 나머지 · ride2 다시 찾은 길(걷는 길) · south 수서 → 동탄
+//       main2 지하로만 다시 찾은 길(대안을 고른 이야기에서 점선, 없을 수 있음) · fork 갈림길의 다른 갈래
+// expo: 지상 노출 구간 [구간 m 시작, 끝](enter 는 출구까지의 거리 걷기)
 const LEG = {};
-for (const [k, l] of Object.entries(D.legs)) LEG[k] = { v: l.pts.map(toV), m: l.pts.map((p) => p[2]), len: l.pts[l.pts.length - 1][2], pts: l.pts };
+for (const [k, l] of Object.entries(D.legs)) LEG[k] = { v: l.pts.map(toV), m: l.pts.map((p) => p[2]), len: l.pts[l.pts.length - 1][2], pts: l.pts, expo: l.expo || [] };
+LEG.enter.expo = [[0, D.legs.enter.expo_m]];
+const onExpo = (k, m) => !!LEG[k] && LEG[k].expo.some(([a, b]) => m >= a - 0.5 && m <= b + 0.5);   // 구간 k 의 m 이 지상 노출인가
 // 구간 k 위 m 지점: 점 사이를 직선으로(pos = 장면 좌표, depth = 그릴 깊이 m)
 function at(k, m) {
   const L = LEG[k], ms = L.m;
@@ -138,8 +146,8 @@ lines(D.net, 1, COL.net, 0.55);
 }
 
 // 단면: 터널 아래에서 지면까지 세로로 자른 땅. 한강 가까이(cut)에서 진하게, 한강 아래(riv)는 위쪽이 물(아래로 옅어짐)
-function slice(leg) {
-  const P = LEG[leg].pts, V = LEG[leg].v, pos = [], col = [], idx = [];
+function slice(leg, from = 0, to = LEG[leg].v.length - 1) {   // from·to: 점 번호(터널을 지상 노출 앞뒤로 나눠 그릴 때)
+  const P = LEG[leg].pts.slice(from, to + 1), V = LEG[leg].v.slice(from, to + 1), pos = [], col = [], idx = [];
   const earth = new THREE.Color(COL.earth), water = new THREE.Color(COL.river);
   V.forEach((v, i) => {
     const riv = P[i][4], cut = P[i][5], a = 0.05 + 0.4 * cut, top = earth.clone().lerp(water, riv);
@@ -162,8 +170,8 @@ const lampTex = (() => {
   gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
   x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c);
 })();
-function tunnel(leg, color, from = 0) {
-  const vs = LEG[leg].v.slice(from).filter((v, i, a) => i === 0 || v.distanceTo(a[i - 1]) > 0.5);
+function tunnel(leg, color, from = 0, to = LEG[leg].v.length - 1) {   // from·to: 점 번호(그 사이만)
+  const vs = LEG[leg].v.slice(from, to + 1).filter((v, i, a) => i === 0 || v.distanceTo(a[i - 1]) > 0.5);
   const curve = new THREE.CatmullRomCurve3(vs, false, 'centripetal');
   curve.arcLengthDivisions = vs.length * 4;
   const len = curve.getLength(), n = Math.max(16, Math.min(4000, Math.round(len / (LQ ? 20 : 12))));
@@ -190,7 +198,7 @@ function tunnel(leg, color, from = 0) {
   const fl = new THREE.Mesh(geo(floor, fIdx), basic({ color: 0x0E1517, opacity: 0.85, side: THREE.DoubleSide }));
   const rl = new THREE.LineSegments(geo(rails), new THREE.LineBasicMaterial({ color: 0x8FA3A0, transparent: true }));
   const lp = new THREE.Points(geo(lamps), new THREE.PointsMaterial({ color: COL.lamp, size: 6, map: lampTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-  const sl = leg === 'enter' || leg === 'fork' ? null : slice(leg);   // 입구·갈림길 다른 갈래는 단면 없이
+  const sl = leg === 'enter' || leg === 'fork' ? null : slice(leg, from, to);   // 입구·갈림길 다른 갈래는 단면 없이
   lp.visible = !LQ;
   scene.add(shell, rings, fl, rl, lp);
   const T = { leg, shell, slice: sl, lamps: lp, rings, ringPos, ringN, lit: new Float32Array(ringN).fill(-1), color: new THREE.Color(color), a: 1,
@@ -222,16 +230,34 @@ function lightRings(p) {
   }
 }
 
-// 길거리(지상 노출)는 지면 위 주황 관
+// 길거리(지상 노출)는 지면 위 주황 관. set(a) = 불투명도(다시 찾은 길이 나타날 때)
 function streetTube(vs) {
-  const curve = new THREE.CatmullRomCurve3(vs, false, 'centripetal');
-  scene.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 32, 7, 6), basic({ color: COL.expo, opacity: 1 })),
-    new THREE.Mesh(new THREE.TubeGeometry(curve, 32, 22, 8), basic({ color: COL.expo, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending })));
+  const curve = new THREE.CatmullRomCurve3(vs, false, 'centripetal'), n = Math.max(32, Math.round(curve.getLength() / 20));
+  const core = new THREE.Mesh(new THREE.TubeGeometry(curve, n, 7, 6), basic({ color: COL.expo, opacity: 1 }));
+  const glow = new THREE.Mesh(new THREE.TubeGeometry(curve, n, 22, 8), basic({ color: COL.expo, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending }));
+  scene.add(core, glow);
+  return { set(a) { core.material.opacity = a; glow.material.opacity = 0.16 * a; core.visible = glow.visible = a > 0.01; } };
 }
-const E = D.legs.enter, cut = E.pts.findIndex((p) => p[2] >= E.expo_m - 0.5);
-streetTube(LEG.enter.v.slice(0, cut + 1).map((v) => v.clone().setY(4)));
-LEG.enter.v = LEG.enter.v.map((v, i) => (i <= cut ? v.clone().setY(4) : v));   // 걷는 점도 지면 위로
-const TN = { enter: tunnel('enter', COL.safe, cut), ride1: tunnel('ride1', COL.safe), blocked: tunnel('blocked', COL.safe), ride2: tunnel('ride2', COL.safe) };
+// 구간 하나를 지상 노출 구간(주황 관, 걷는 점도 지면 위)과 그 사이 터널로 나눠 그린다. 돌려주는 것: { set(색, 불투명도) } — 터널·관을 함께
+function route(leg) {
+  const L = LEG[leg], last = L.v.length - 1, parts = [], streets = [];
+  const spans = L.expo.map(([a, b]) => {
+    let i0 = L.m.findIndex((m) => m >= a - 0.5), i1 = L.m.length - 1 - L.m.slice().reverse().findIndex((m) => m <= b + 0.5);
+    if (i0 < 0) i0 = last;
+    return [i0, Math.max(i0, i1)];
+  }).filter(([i0, i1]) => i1 > i0);
+  spans.forEach(([i0, i1]) => { for (let i = i0; i <= i1; i++) L.v[i] = L.v[i].clone().setY(4); });   // 걷는 점도 지면 위로
+  let from = 0;
+  spans.forEach(([i0, i1]) => {
+    if (i0 > from) parts.push(tunnel(leg, COL.safe, from, i0));
+    streets.push(streetTube(L.v.slice(i0, i1 + 1)));
+    from = i1;
+  });
+  if (from < last) parts.push(tunnel(leg, COL.safe, from, last));
+  return { parts, set(c, a) { parts.forEach((T) => T.set(c, a)); streets.forEach((s) => s.set(a)); } };
+}
+const E = D.legs.enter;
+const TN = { enter: route('enter'), ride1: tunnel('ride1', COL.safe), blocked: tunnel('blocked', COL.safe), ride2: route('ride2') };
 // 다른 갈래는 실제로 수백 m 를 처음 길과 거의 나란히(10m 안) 가서 그림 터널(지름 24)이 겹친다 → 그 갈래 쪽 옆으로 벌려 그린다(개략: 120m 에서 2.6R)
 if (LEG.fork && D.facts.junction) {
   const Jm = D.facts.junction.m, a0 = posAt('ride1', Jm + 150), side = posAt('fork', 150).sub(a0).setY(0).normalize();
@@ -242,12 +268,13 @@ if (LEG.fork && D.facts.junction) {
 }
 if (LEG.fork) { TN.fork = tunnel('fork', COL.est); TN.fork.set(COL.est, 0.6); }   // 갈림길의 다른 갈래(가지 않는 쪽): 옅은 회색
 
-// 점선: 처음 길의 나머지(여의나루 → 도착) · 수서 → 동탄. 선은 멀리서도 1px 이라 전체 보기에서도 보인다
+// 점선: 처음 길의 나머지(막힌 구간 끝 역 → 도착) · 수서 → 동탄 · 지하로만 다시 찾은 길(대안을 고르기 전까지). 선은 멀리서도 1px 이라 전체 보기에서도 보인다
 function dashed(leg, color, opacity) {
   const o = new THREE.Line(new THREE.BufferGeometry().setFromPoints(LEG[leg].v), new THREE.LineDashedMaterial({ color, dashSize: 260, gapSize: 180, transparent: true, opacity }));
   o.computeLineDistances(); scene.add(o); return o;
 }
-const restLine = dashed('rest', COL.safe, 0.7), southLine = dashed('south', COL.safe, 0);
+const restLine = dashed('rest', COL.safe, 0.7), southLine = dashed('south', COL.safe, 0), main2Line = LEG.main2 ? dashed('main2', COL.safe, 0) : null;
+if (main2Line) main2Line.visible = false;
 // 남쪽(수서 → 동탄): 끝 장면에서 수서부터 화살표처럼 이어진다. 갈매기표(›)가 앞으로 차례로 찍히고 맨 앞에 빛나는 화살촉,
 // 동탄에 닿으면 화살촉이 사라지고 갈매기표가 천천히 남쪽으로 흐른다. 진행은 남쪽 장면 시작 뒤 시각만으로 정한다(되감아도 같은 그림)
 const SOUTH = (() => {
@@ -307,7 +334,7 @@ function structures(list) {
   const E12 = [[0, 1], [1, 3], [3, 2], [2, 0], [4, 5], [5, 7], [7, 6], [6, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
   list.forEach((s, i) => {
     const [x, z] = toXZ(s.c[0], s.c[1]), plat = s.k === 'platform', H = plat ? 2 * R + 6 : 10;
-    const pos = new THREE.Vector3(x, -s.d * EXAG, z), scl = new THREE.Vector3(s.L, H, s.W);
+    const pos = new THREE.Vector3(x, s.ground ? H / 2 : -s.d * EXAG, z), scl = new THREE.Vector3(s.L, H, s.W);   // 지상역은 지면 위에 놓는다
     q.setFromAxisAngle(UP, s.a);
     mtx.compose(pos, q, scl);
     c.set(plat ? (s.est ? COL.est : LINE_COL[s.l] || COL.est) : COL.est);
@@ -422,8 +449,8 @@ const collapse = (() => {
     });
   }
   return {
-    update(tc) {   // tc = 막힘이 시작되고 지난 초(아직이면 음수)
-      const on = tc >= 0;
+    update(tc, hide) {   // tc = 막힘이 시작되고 지난 초(아직이면 음수), hide = 막히지 않은 하저터널 장면(잔해·먼지·부서진 고리를 숨김)
+      const on = tc >= 0 && !hide;
       chunks.visible = on; breakRings(on && tc > 0.3);
       if (!on) { dust.visible = false; return; }
       if (tc < 3.2) {   // 떨어지는 동안만 덩어리 자리를 다시 계산(그 뒤로는 쌓인 채로 멈춤)
@@ -463,7 +490,8 @@ function label(text, v, cls = '', vis = null, pri = 0, maxD = Infinity) {
   labelsEl.appendChild(el); labels.push({ el, v, vis, pri, maxD, on: false, w: 0, inT: / jn/.test(' ' + cls) });   // jn: 터널 안에서도 보임
 }
 // 사건 시각(혼자 재생 = 재생 시각, 무대 = 메시지를 받은 실제 시각). 그 전에는 해당 표시를 숨긴다
-const EV = { raid: Infinity, block: Infinity, reveal: Infinity, south: Infinity };
+// main2 = 지하로만 다시 찾은 길(점선)이 나타남, reveal = 걷는 다시 찾은 길(대안을 고른 이야기면 대안)이 나타남
+const EV = { raid: Infinity, block: Infinity, main2: Infinity, reveal: Infinity, south: Infinity };
 const drops = [], seen = new Set();
 const lineCount = (n) => new Set(D.stations.filter((s) => s.n === n).map((s) => s.l)).size;
 D.stations.forEach((s) => {
@@ -471,8 +499,9 @@ D.stations.forEach((s) => {
   if (seen.has(key)) return; seen.add(key);
   const v = posAt(s.leg, s.m);
   drops.push(v.x, 0, v.z, v.x, v.y, v.z);
-  const later = s.leg === 'ride2' && !D.stations.some((o) => o.n === s.n && o.leg !== 'ride2');
-  const text = s.n + (lineCount(s.n) > 1 ? ' ' + s.l : '') + ' ' + (s.d == null ? '깊이 추정' : fm(s.d));
+  const later = s.leg === 'ride2' && !D.stations.some((o) => o.n === s.n && o.l === s.l && o.leg !== 'ride2');   // 다시 찾은 길에만 있는 승강장
+  // 깊이 숫자는 자료(공식)가 있는 역만. 없으면 이름(과 노선)만 쓰고 깊이 글자는 쓰지 않는다(사용자 결정 2026-11-13)
+  const text = s.n + (lineCount(s.n) > 1 ? ' ' + s.l : '') + (s.d == null ? '' : ' ' + fm(s.d));
   label(text, v.clone().add(new THREE.Vector3(0, 2 * R + 6, 0)), s.d == null ? 'est' : '', later ? (c) => c >= EV.reveal : null);
 });
 // 역의 세로선(지면 → 승강장): 깊이를 읽기 쉽게
@@ -480,7 +509,7 @@ scene.add(new THREE.LineSegments(geo(drops), new THREE.LineBasicMaterial({ color
 // 대합실: 가까이 볼 때만
 D.structs.filter((s) => s.k === 'concourse').forEach((s) => {
   const [x, z] = toXZ(s.c[0], s.c[1]);
-  label(`${s.n} 대합실 · 높이 개략`, new THREE.Vector3(x, -s.d * EXAG + 12, z), 'est', s.leg === 'ride2' ? (c) => c >= EV.reveal : null, 0, 2600);
+  label(`${s.n} 대합실`, new THREE.Vector3(x, -s.d * EXAG + 12, z), 'est', s.leg === 'ride2' ? (c) => c >= EV.reveal : null, 0, 2600);
 });
 // 시·군·구 이름: 경로가 지나는 곳만, 지면 위. 다른 이름표보다 뒤(겹치면 숨김)
 (D.regions || []).forEach((r) => { const [x, z] = toXZ(r.c[0], r.c[1]); label(r.n, new THREE.Vector3(x, 0, z), 'dim region', null, -1); });
@@ -496,17 +525,24 @@ if (JN) {
   label(JN.label, posAt('ride1', JN.m + 110).add(new THREE.Vector3(0, R * 0.9, 0)), 'jn', () => jnOn, 4);
   label(JN.other.name || '다른 선로', posAt('fork', Math.min(110, LEG.fork.len)).add(new THREE.Vector3(0, R * 0.9, 0)), 'est jn', () => jnOn, 4);
 }
-label('막힘', blockMark.position.clone().add(new THREE.Vector3(0, 50, 0)), 'red', (c) => c >= EV.block, 2);
+// calm = 막히지 않은 하저터널을 지나는 장면(crossB): 막힘 표시(이름표·빨간 X·잔해·빨간 막힌 구간)를 숨긴다(8절 frame 이 정함)
+let calm = false;
+label('막힘', blockMark.position.clone().add(new THREE.Vector3(0, 50, 0)), 'red', (c) => c >= EV.block && !calm, 2);
 label(`처음 길 ${km(F.first_m)}`, posAt('rest', LEG.rest.len * 0.5).add(new THREE.Vector3(0, 30, 0)), 'dim', null, 1);
+// 다시 찾은 길의 지상 노출(대안): 그 구간 가운데 위에 '지상 노출 ○m'(다시 찾은 길이 나타난 뒤)
+const XP = F.expo && LEG.ride2.expo.length ? F.expo : null;
+if (XP) label(`지상 노출 ${Math.round(XP.len)}m`, posAt('ride2', (XP.m0 + XP.m1) / 2).add(new THREE.Vector3(0, 60, 0)), 'red', (c) => c >= EV.reveal, 3);
 const SF = F.south;
 label(`남쪽으로도 지하: ${F.end} → ${SF.to} ${km(SF.total_m)}`, posAt('south', LEG.south.len * 0.55).add(new THREE.Vector3(0, 30, 0)), '', (c) => c >= EV.south + SOUTH.GROW, 3);   // 화살표가 동탄에 닿은 뒤
 
 /* ---------- 4. 혼자 재생: 장면(자막 한 줄)과 움직임 ----------
-   움직임 = [구간, 시작 m, 끝 m, 초, 카메라 거리('all' 전체 보기 · 'south' 동탄까지), 볼 곳(구간 m, 없으면 사람), 터널 안(이 움직임 안의 [시작 초, 끝 초])].
+   움직임 = [구간, 시작 m, 끝 m, 초, 카메라 거리('all' 전체 보기 · 'south' 동탄까지 · 'main2' 지하로만 다시 찾은 길 전체), 볼 곳(구간 m, 없으면 사람), 터널 안(이 움직임 안의 [시작 초, 끝 초])].
    긴 직선 구간은 짧은 시간에 빨리 감는다. 하저터널은 터널 가운데를 고정해 보고 점만 지나가게 한다(시연과 같은 모습). */
 const g1 = st(F.start, F.start_line) || st(F.start);   // 출발역 승강장(첫 노선)
 const endM = LEG.ride2.len, A = F.crossA.m, B = F.crossB.m;
 const XF = F.rides.find((r) => r.t === 'transfer');   // 다시 찾은 길의 첫 환승역: 잠깐 멈춰 역 구조를 보여 준다
+// 그 환승역 보여 주기 범위(다시 찾은 길 m): 환승 시작 ~ 환승 끝(지상 노출이 이어지면 노출 끝까지, 예: 5호선 → 지상 → 수인분당선)
+const XS = [XF.m0, XP && XP.m0 <= XF.m1 + 50 ? Math.max(XF.m1, XP.m1) : XF.m1];
 const J = JN ? JN.m : 0, JE = JN ? JN.m + 200 : 0;    // 갈림길 · 갈림길 장면이 끝나는 곳(고른 갈래로 200m)
 // 막힘 시각(초): 막힘 장면 처음에 1초 동안 터널 안으로 → c 초에 무너짐(0.6초 전부터 흔들림) → c + out 에 1초 동안 밖으로 → c + back 에 되돌아가기
 const BL = { c: 1.4, out: 3.0, back: 4.8, dur: 3 };
@@ -525,9 +561,18 @@ const BEATS = [
     moves: [['ride1', JE, RS, RS - JE > 3000 ? 5 : 3, RS - JE > 3000 ? 3200 : 900], ['ride1', RS, F.block_m, 6, 2000, (A[0] + F.block_m) / 2 + 150]] },
   { id: 'block', cap: `앞이 막힘 · ${RSN}역으로 ${F.backtrack_m}m 되돌아감`, sub: `막힌 하저터널을 빼고 ${RSN}역에서 다시 찾기`,
     moves: [['ride1', F.block_m, F.block_m, BL.c + BL.back, 420, F.block_m, [0, BL.c + BL.out + 1, 'collapse']], ['ride1', F.block_m, RS, 3.5, 1200], ['ride1', RS, RS, 1.5, 1800]] },
-  { id: 'reroute', cap: `다시 찾은 길 ${km(F.total2_m)}, 지상 ${F.second_expo_m}m`, sub: `${F.crossA.a}에서 남은 ${km(F.left_m)}보다 ${km(F.total2_m - F.left_m)} 더 · 한강은 ${F.crossB.a}–${F.crossB.b} 하저터널로`,
-    moves: [['ride2', 0, XF.m0 - 150, 2.5, 1600], ['ride2', XF.m0 - 150, XF.m1 + 150, 3.5, 750, (XF.m0 + XF.m1) / 2], ['ride2', XF.m1 + 150, B[0] - 300, 8, 3200]] },
-  { id: 'crossB', cap: `한강 아래 다른 하저터널: ${F.crossB.a} → ${F.crossB.b}`, sub: '서울에서 한강을 지하로만 건너는 길은 5호선 하저터널 두 곳뿐',
+  // 다시 찾은 길: 대안을 고른 이야기(main2 있음)면 지하로만 다시 찾은 길을 점선으로 본 뒤 대안으로 → 환승역(지상 노출) 장면
+  ...(LEG.main2 && F.alt ? [
+    { id: 'reroute', cap: `지하로만 다시 찾은 길 ${km(F.main2_m)}`, sub: `대안: 지상 ${F.second_expo_m}m 걸으면 ${km(F.alt.saved_m)} 짧다 → ${km(F.total2_m)}로`,
+      moves: [['ride2', 0, 0, 3, 'main2'], ['ride2', 0, XS[0] - 150, 2.5, 1600]] },
+    { id: 'expo', cap: XP ? `${XP.at}역 ${XP.line} 지상 구간` : `${F.rides[0].b}역 환승`, sub: XP ? `지상 노출 ${Math.round(XP.len)}m · 다시 지하로` : '',
+      moves: [['ride2', XS[0] - 150, XS[1] + 150, 5, 900, (XS[0] + XS[1]) / 2], ['ride2', XS[1] + 150, B[0] - 300, 3, 3200]] }
+  ] : [
+    { id: 'reroute', cap: `다시 찾은 길 ${km(F.total2_m)}, 지상 ${F.second_expo_m}m`, sub: `${F.crossA.a}에서 남은 ${km(F.left_m)}보다 ${km(F.total2_m - F.left_m)} 더 · 한강은 ${F.crossB.a}–${F.crossB.b} 하저터널로`,
+      moves: [['ride2', 0, XS[0] - 150, 2.5, 1600], ['ride2', XS[0] - 150, XS[1] + 150, 3.5, 750, (XS[0] + XS[1]) / 2], ['ride2', XS[1] + 150, B[0] - 300, 8, 3200]] }
+  ]),
+  // 막히지 않은 하저터널: 막힘 표시는 숨기고(calm), 자막도 막힌 곳을 다시 가리키지 않는다
+  { id: 'crossB', cap: `한강 아래 하저터널: ${F.crossB.a} → ${F.crossB.b}`, sub: `${F.crossB.line} · 지하로 한강을 건넘`,
     moves: [['ride2', B[0] - 300, B[1] + 200, 8, 2200, mid(B), [2.4, 5.0]]] },
   { id: 'arrive', cap: `${F.end}역 도착`, sub: `지하에 들어간 뒤 지상 노출 ${F.exposed_after_m}m · 지상은 처음 출구까지 ${F.expo_m}m`,
     moves: [['ride2', B[1] + 200, endM, 6, 1400], ['ride2', endM, endM, 2.5, 'all'], ['ride2', endM, endM, 5, 'south']] }
@@ -542,7 +587,8 @@ MOVES.forEach((mv, i) => {
   mv.v0 = edge(a); mv.v1 = edge(b);
 });
 const beatT = (id) => MOVES.find((m) => m.id === id).t0;
-const SOLO_EV = { raid: 0, block: beatT('block') + BL.c, reveal: MOVES.filter((m) => m.id === 'block')[2].t0, south: MOVES.find((m) => m.dist === 'south').t0 };
+const backT = MOVES.filter((m) => m.id === 'block')[2].t0;   // 되돌아가서 다시 출발할 역에 선 때
+const SOLO_EV = { raid: 0, block: beatT('block') + BL.c, main2: LEG.main2 ? backT : Infinity, reveal: LEG.main2 ? MOVES.filter((m) => m.id === 'reroute')[1].t0 : backT, south: MOVES.find((m) => m.dist === 'south').t0 };
 if (!FOLLOW) Object.assign(EV, SOLO_EV);
 
 // 시각 t 의 위치: 3차 에르미트(양 끝 속도 v0, v1)로 m 을 정한다 → 조각이 바뀌어도 속도가 끊기지 않는다
@@ -563,13 +609,17 @@ const insideAt = (mv, t) => (mv.inside ? ss((t - mv.t0 - mv.inside[0]) / 1) * ss
      (앱 화면이 바빠 느려져도 3D 점이 앞서 나가지 않게).
    - 앱 구간 → 3D 구간: entry → enter, first → ride1, reroute → ride2. 거리(m)는 build_3d.js 가 앱 길 안내와 같은 거리로 만들어 그대로 쓴다.
    - backtrack(되돌아가기)은 앱이 걷지 않으므로 3D 가 무너짐(약 2초)을 보여 준 뒤 3초 동안 막힌 곳 → 다시 출발할 역으로 되돌아간다.
+     되돌아간 뒤에는 앱이 reroute 를 알릴 때까지 그 역에 서 있다.
+   - 대안을 고른 이야기: reroute 장면이 오면(되돌아가기가 끝난 뒤) 지하로만 다시 찾은 길(main2)을 점선으로 보이고 그 길 전체를 본다.
+     앱이 대안을 누르고 reroute 구간을 알리면 점선은 사라지고 걷는 길(ride2)이 나타나며 환승역(지상 노출)을 본다.
    - 장면 이름(id)마다 카메라가 볼 곳(SHOTS)을 정한다. 하저터널 두 곳은 걷는 동안 터널 안에 들어갔다 나온다. */
 const LEG_OF = { entry: 'enter', first: 'ride1', reroute: 'ride2' };
 const SHOTS = {
   save: { look: ['enter', 0], dist: 1600 }, raid: { look: ['enter', 0], dist: 1800 }, nearest: { look: ['enter', E.expo_m], dist: 900 },
   enter: { dist: 650 }, platform: { dist: 800 }, plan: { box: 'first' }, guide: { dist: 900 }, junction: { look: ['ride1', J], dist: 650 },
   crossA: { look: ['ride1', (A[0] + F.block_m) / 2 + 150], dist: 2000 },
-  block: { look: ['ride1', F.block_m], dist: 420 }, reroute: { look: ['ride2', (XF.m0 + XF.m1) / 2], dist: 750 }, ff: { dist: 3200 },
+  block: { look: ['ride1', F.block_m], dist: 420 }, reroute: { look: ['ride2', (XS[0] + XS[1]) / 2], dist: LEG.main2 ? 1100 : 750 }, ff: { dist: 3200 },
+  expo: { look: ['ride2', (XS[0] + XS[1]) / 2], dist: 900 },
   crossB: { look: ['ride2', mid(B)], dist: 2200, inside: ['ride2', mid(B) - 500, mid(B) + 500] }, arriveFf: { dist: 2600 }, arrive: { box: 'all' }, south: { box: 'south' }
 };
 const W = { leg: 'enter', m: 0, shown: 0, corr: 0, v: 0, vEff: 0, to: 0, at: 0, back: null, scene: 'save', sceneN: 0, bs: null };   // bs: 막힘 장면이 온 시각(터널 안으로)
@@ -580,9 +630,10 @@ function onDemo(d) {
   if (d.type === 'scene') {
     W.scene = d.id || ''; W.sceneN = d.n;
     if (d.scenario !== 1) { W.scene = 'arrive'; return; }   // 다른 시나리오(부산 등)는 3D 가 없다: 전체 보기만
-    if (d.n <= 2 && !d.again) { Object.assign(EV, { raid: Infinity, block: Infinity, reveal: Infinity, south: Infinity }); Object.assign(W, { leg: 'enter', m: 0, shown: 0, v: 0, back: null, bs: null }); }
+    if (d.n <= 2 && !d.again) { Object.assign(EV, { raid: Infinity, block: Infinity, main2: Infinity, reveal: Infinity, south: Infinity }); Object.assign(W, { leg: 'enter', m: 0, shown: 0, v: 0, back: null, bs: null }); }
     if (d.id === 'block' && W.bs == null) W.bs = wall();
     if (d.id === 'raid' && EV.raid === Infinity) EV.raid = wall();
+    if (d.id === 'reroute' && EV.main2 === Infinity && LEG.main2) EV.main2 = Math.max(wall(), W.back ? W.back.t0 + W.back.dur : 0);   // 지하로만 다시 찾은 길(점선): 되돌아간 뒤
     if (d.id === 'south' && EV.south === Infinity) EV.south = wall() + (RM ? 0 : 1.0);   // 앱 화살표와 같이(지도가 움직인 뒤)
   } else if (d.type === 'leg') {
     if (d.leg === 'backtrack') {
@@ -592,6 +643,7 @@ function onDemo(d) {
     } else if (LEG_OF[d.leg] && LEG_OF[d.leg] !== W.leg) {
       W.leg = LEG_OF[d.leg]; W.m = W.shown = 0; W.v = 0;
       if (d.leg === 'reroute' && EV.reveal === Infinity) { if (EV.block === Infinity) EV.block = wall(); EV.reveal = Math.max(wall(), W.back ? W.back.t0 + W.back.dur : 0); }   // 다시 찾은 길은 되돌아간 뒤 나타난다
+      if (d.leg === 'reroute' && EV.main2 > EV.reveal) EV.main2 = EV.reveal;
     }
   } else if (d.type === 'pos') {
     const leg = LEG_OF[d.leg];
@@ -623,6 +675,7 @@ function followWalker(dt) {
     const k = ss((wall() - W.back.t0) / W.back.dur);
     if (k < 1) return { leg: 'ride1', m: F.block_m + (RS - F.block_m) * k, dir: -1 };
     W.back = null;
+    if (W.leg === 'ride1') Object.assign(W, { m: RS, shown: RS, corr: 0, v: 0, to: RS });   // 다시 출발할 역에 선다(앱이 다시 찾은 길을 알릴 때까지)
   }
   const pred = W.v > 0 ? Math.min(Math.max(W.to, W.m), W.m + W.vEff * Math.min(performance.now() / 1000 - W.at, 0.4)) : W.m;
   W.corr *= Math.exp(-dt * 10);
@@ -655,6 +708,7 @@ function whereText(mv, m) {
     if (!F.rides1) return `${F.crossA.line} · ${F.start} → ${F.crossA.a} → ${F.crossA.b} 방면`;   // 옛 자료
     return `${rideHead(F.rides1, m)} · ${km(m)} / ${km(F.first_m)}`;
   }
+  if (mv.leg === 'ride2' && XP && onExpo('ride2', m)) return `지상 걷기 ${Math.max(0, Math.round(m - XP.m0))}m / ${Math.round(XP.len)}m · ${XP.line}`;
   return `${rideHead(F.rides, m)} · ${km(m)} / ${km(endM)}`;
 }
 // 탄 노선 목록(R)에서 m 자리: 'N호선 · A → B' 또는 'A 환승 · N호선 → M호선'
@@ -670,14 +724,15 @@ const fmt = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStar
    바깥(단면) 카메라: 볼 곳 = 사람(또는 정한 곳)보다 조금 위(깊이의 3/4). 진행 방향의 옆(지금 카메라와 가까운 쪽) 위에서 비스듬히 본다.
    옆에서 보면 터널이 오르내리는 모양(단면)이 잘 보인다. 카메라는 늘 지면(MIN_Y) 위에 둔다.
    터널 안 카메라: 점 뒤 80m, 터널 가운데 높이에서 점 앞 200m 를 본다. 두 카메라를 '터널 안 비율'로 섞는다.
-   shot = { leg, m(볼 곳), dist } 또는 { box: 'first'|'all'|'south' }(전체 보기) */
+   shot = { leg, m(볼 곳), dist } 또는 { box: 'first'|'all'|'south'|'main2' }(전체 보기) */
 const tmp = new THREE.Vector3(), off = new THREE.Vector3(), want = new THREE.Vector3(), a = new THREE.Vector3(), b = new THREE.Vector3();
 const rigPos = new THREE.Vector3(), rigTarget = new THREE.Vector3(), inPos = new THREE.Vector3(), inLook = new THREE.Vector3(), tmp2 = new THREE.Vector3(), jA = new THREE.Vector3(), jB = new THREE.Vector3();
 const sph = new THREE.Spherical(), PHI = 0.78, PHI_ALL = 0.7, MIN_Y = 80;
-// 전체 보기 상자: 처음 길(first) · 처음 길과 다시 찾은 길(all) · 동탄까지(south)
+// 전체 보기 상자: 처음 길(first) · 처음 길과 다시 찾은 길(all) · 동탄까지(south) · 지하로만 다시 찾은 길(main2)
 const BOX = { first: new THREE.Box3().setFromPoints([...LEG.enter.v, ...LEG.ride1.v, ...LEG.blocked.v, ...LEG.rest.v]) };
 BOX.all = BOX.first.clone().union(new THREE.Box3().setFromPoints(LEG.ride2.v));
 BOX.south = BOX.all.clone().expandByPoint(LEG.south.v[LEG.south.v.length - 1]);
+if (LEG.main2) BOX.main2 = new THREE.Box3().setFromPoints(LEG.main2.v).expandByPoint(blockMark.position);   // 지하로만 다시 찾은 길 + 막힌 곳
 const center = (bx) => bx.getCenter(new THREE.Vector3()).setY(-150);
 const overview = (bx) => { const s = bx.getSize(tmp); const h = 2 * Math.tan(camera.fov * Math.PI / 360); return Math.max(s.x / (h * camera.aspect), s.z / h) * 1.3 + 2000; };
 const wrap = (x) => Math.atan2(Math.sin(x), Math.cos(x));   // 각도 차이를 -π~π 로
@@ -750,37 +805,45 @@ function frame() {
     ({ leg, m, dir } = followWalker(dt));
     const s = SHOTS[W.scene] || { dist: 1500 }, now = wall();
     shot = s.box ? { box: s.box } : { leg: s.look ? s.look[0] : leg, m: s.look ? s.look[1] : m, dist: s.dist };
-    if (s.inside && s.inside[0] === leg && !RM) ins = ss((m - s.inside[1]) / 200) * ss((s.inside[2] - m) / 250);
+    // 하저터널 안(장면이 정한 구간): 걷는 점 뒤에서 앞을 본다('tunnel'). 종류를 꼭 정한다: 비워 두면 앞서 본 무너짐 자리(collapse)로 들어가 막힌 곳이 다시 보였다
+    if (s.inside && s.inside[0] === leg && !RM) { ins = ss((m - s.inside[1]) / 200) * ss((s.inside[2] - m) / 250); if (ins > 0) kind = 'tunnel'; }
     if (JN && leg === 'ride1' && !W.back && !RM) { const ij = ss((m - (J - 260)) / 120) * ss((J + 160 - m) / 120); if (ij > ins) { ins = ij; kind = 'junction'; } }   // 갈림길(장면 이름과 상관없이 m 으로)
     if (W.bs != null && EV.block === Infinity && W.scene !== 'block') W.bs = null;   // 막힘 없이 장면이 넘어감(건너뛰기)
     // 막힘: 무너짐을 터널 안에서 보고 나올 때까지는 막힌 곳, 되돌아가는 동안은 걷는 점(다음 장면이 와도 끝까지)
     if (W.scene === 'crossA' && leg === 'ride1' && m < RS - 300) shot = { leg, m, dist: 3200 };   // 갈림길 → 다시 출발할 역까지 빨리 감기
+    if (W.scene === 'reroute' && LEG.main2 && now < EV.reveal) shot = { box: 'main2' };          // 대안을 고르기 전: 지하로만 다시 찾은 길 전체
     if (W.bs != null && now < EV.block + BLS.out + 1.6) { shot = { leg: 'ride1', m: F.block_m, dist: 420 }; ins = RM ? 0 : ss((now - W.bs) / 0.8) * ss((EV.block + BLS.out + 1 - now) / 1); kind = 'collapse'; }
     else if (W.back && now < W.back.t0 + W.back.dur) shot = { leg: 'ride1', m, dist: 1200 };
     insF = snap ? ins : insF + (ins - insF) * (1 - Math.exp(-dt * 4));   // 시간으로 부드럽게(약 0.6초)
-    if (kind) lastKind = kind; else if (insF > 0.002) kind = lastKind;   // 나오는 동안은 들어갈 때의 자리로
+    if (kind) lastKind = kind; else if (insF > 0.002) kind = lastKind; else lastKind = '';   // 나오는 동안은 들어갈 때의 자리로, 다 나오면 잊는다
     ins = insF < 0.002 ? 0 : insF > 0.998 ? 1 : insF;
   } else {
     ({ mv, m } = moveAt(t));
     leg = mv.leg; dir = mv.m1 >= mv.m0 ? 1 : -1;
-    shot = mv.dist === 'all' || mv.dist === 'south' ? { box: mv.dist } : { leg, m: mv.look != null ? mv.look : m, dist: mv.dist };
+    shot = typeof mv.dist === 'string' ? { box: mv.dist } : { leg, m: mv.look != null ? mv.look : m, dist: mv.dist };
     ins = insideAt(mv, t);
     if (mv.inside) kind = mv.inside[2] || '';
   }
   posAt(leg, m, person.position);
-  const onStreet = leg === 'enter' && m < E.expo_m;
+  const onStreet = onExpo(leg, m);                                             // 지상 노출(거리 걷기·다시 찾은 길의 지상 구간)
   halo.material.color.set(onStreet ? COL.expo : COL.safe);
 
   // 공습경보 · 막힘 · 다시 찾은 길 나타남 · 처음 길 나머지 · 남쪽(동탄)
+  // calm: 막히지 않은 하저터널을 지나는 장면(crossB)에서는 막힘을 다시 보이지 않는다(잔해·빨간 X·'막힘' 이름표·빨간 막힌 구간)
+  calm = (FOLLOW ? W.scene : mv.id) === 'crossB';
   raid.update(clockT - EV.raid);
   const blocked = clockT >= EV.block;
-  collapse.update(clockT - EV.block);                                          // 무너짐 → 잔해 더미
-  blockMark.visible = clockT - EV.block > 1.8;                                 // 빨간 X 는 무너진 뒤(멀리서도 보이게)
+  collapse.update(clockT - EV.block, calm);                                    // 무너짐 → 잔해 더미
+  blockMark.visible = clockT - EV.block > 1.8 && !calm;                        // 빨간 X 는 무너진 뒤(멀리서도 보이게)
   blockMark.scale.setScalar(70);
-  TN.blocked.set(blocked ? COL.expo : COL.safe, blocked ? 0.8 : 1);
+  TN.blocked.set(blocked ? COL.expo : COL.safe, blocked ? (calm ? 0 : 0.8) : 1);
   const rev = ss((clockT - EV.reveal) / 1.2);
   TN.ride2.set(COL.safe, rev);
   structLater.visible = rev > 0.5;
+  if (main2Line) {   // 지하로만 다시 찾은 길: 되돌아간 뒤 점선으로 나타나고, 대안이 나타나면 사라진다
+    const a2 = ss((clockT - EV.main2) / 0.8) * (1 - ss((clockT - EV.reveal) / 1.2));
+    main2Line.material.opacity = 0.7 * a2; main2Line.visible = a2 > 0.01;
+  }
   restLine.material.color.set(blocked ? COL.est : COL.safe);                     // 처음 길의 나머지: 막힌 뒤에는 회색
   SOUTH.update(clockT);                                                          // 수서 → 동탄 화살표
   lightRings(person.position);
@@ -841,7 +904,8 @@ function setLQ() {
   for (const T of tunnels) T.lamps.visible = false;
 }
 
-// 깊이 읽기(무대): 걷는 점 옆에 작게. 승강장(자료가 있는 역 앞뒤 80m)에서만 실제 값. 역 사이는 아무것도 쓰지 않는다(추정 숫자 안 씀)
+// 깊이 읽기(무대): 걷는 점 옆에 작게. 지상 노출(거리·다시 찾은 길의 지상 구간)은 '지상', 승강장(자료가 있는 역 앞뒤 80m)에서만 실제 값.
+// 역 사이는 아무것도 쓰지 않는다(추정 숫자 안 씀)
 let lastDepth = '';
 function showDepth(leg, m, onStreet) {
   let text = '';

@@ -3,7 +3,8 @@
 // - 기본 탐색(지하 우선, 지상 1000)은 그대로인지(가중치 배열이 같은 것, exposedW 를 1000 으로 줘도 같은 경로)
 // - 대안이 나오는 경우(옥수 → 압구정: 동호대교를 건너면 크게 짧아짐)와 기준(시간 20% 또는 30분, 지상 2km 이하, 다른 경로)
 // - 대안이 없는 경우(부산역 → 서면: 이미 짧고 지하, 노량진 → 용산: 다른 길이지만 줄어드는 것이 작음)
-// - 시연 이야기처럼 5호선 하저터널이 막혀 다시 찾은 경로(참고로 출력. 그래프가 바뀌면 달라질 수 있다)
+// - 시연 이야기처럼 5호선 하저터널이 막혀 다시 찾은 경로: 대안이 나오고 시연이 그 대안을 고른다(CONF.story.takeAlt, 2026-11-13).
+//   대안 = 왕십리에서 수인분당선 지상 구간을 약 722m 걷고 서울숲–압구정로데오 하저터널로 한강을 건너는 20.6km 길(그래프가 바뀌면 달라질 수 있다)
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -62,11 +63,12 @@ for (const [a, b, why] of [['부산역@부산', '서면@부산', '이미 짧고 
   check(!alt, `${a} → ${b} (${why}): 지하 우선 ${km(main.total_m)}·지상 ${Math.round(main.exposed_m)}m, 지상 ${ALT.exposedW}로 찾으면 ${km(raw.total_m)}·지상 ${Math.round(raw.exposed_m)}m → 대안 없음`);
 }
 
-/* ---------- 앞이 막혀 다시 찾은 경로(시연 이야기와 같은 막기: 출발 자리에서 가장 가까운 역 → 가족 약속 장소, blockAfter 다음 하저터널) ---------- */
+/* ---------- 앞이 막혀 다시 찾은 경로(시연 이야기와 같은 막기: 출발 자리에서 가장 가까운 역 → 가족 약속 장소, blockAfter 다음 하저터널)
+   시연은 이 대안을 누른다: 대안이 있고, 기준을 만족하고, 지상 노출 구간·한강 하저터널이 이야기와 같은지 확인한다 ---------- */
 {
   const M = UG.demo.CONF.story, blocked = new Set();
   const from = g.stations[UG.nearest.nearestUnderground(G, M.lat, M.lon, { limit: 1 }).options[0].si].name + '@서울';
-  console.log('\n[앞이 막힘 뒤] ' + from.replace(/@.*/, '') + ' → ' + M.meet.replace(/@.*/, '') + ', ' + M.blockAfter.replace(/@.*/, '') + ' 다음 하저터널 막힘 (참고)');
+  console.log('\n[앞이 막힘 뒤] ' + from.replace(/@.*/, '') + ' → ' + M.meet.replace(/@.*/, '') + ', ' + M.blockAfter.replace(/@.*/, '') + ' 다음 하저터널 막힘 (시연이 대안을 고름)');
   const p = { from: st(from), to: st(M.meet), route: RT.findRoute(G, st(from), st(M.meet)) };
   UG.steps.planItems(G, p, SPEED);
   const cps = UG.guide.buildCheckpoints(G, p), at = cps.findIndex((c) => c.si === UG.graph.findStation(G, M.blockAfter));
@@ -74,8 +76,20 @@ for (const [a, b, why] of [['부산역@부산', '서면@부산', '이미 짧고 
   b.edges.forEach((e) => blocked.add(e));
   const { main, alt } = showAlt(b.from, p.to, blocked);
   info(`다시 찾은 지하 우선 경로 ${km(main.total_m)}, 지상 ${Math.round(main.exposed_m)}m`);
-  info(alt ? `대안 ${km(alt.route.total_m)}, 지상 ${Math.round(alt.route.exposed_m)}m: ` + UG.panel.altText({ using: false, extra_m: alt.extra_m, saved_m: alt.saved_m, saved_min: alt.saved_min }) : '대안 없음');
-  check(!alt || alt.route.path.every((x) => !blocked.has(x.e)), '대안도 막은 간선을 쓰지 않음');
+  check(!!alt && M.takeAlt === true, alt ? `대안 ${km(alt.route.total_m)}(${Math.round(alt.route.total_m)}m), 지상 ${alt.route.exposed_m}m: ` + UG.panel.altText({ using: false, extra_m: alt.extra_m, saved_m: alt.saved_m, saved_min: alt.saved_min }) + ` · 시연이 고름(takeAlt ${M.takeAlt})` : '대안 없음(시연이 고를 수 없음)');
+  if (alt) {
+    check(alt.route.path.every((x) => !blocked.has(x.e)), '대안도 막은 간선을 쓰지 않음');
+    check(Math.abs(alt.route.total_m - 20650) < 30 && Math.abs(alt.extra_m - 721.5) < 5 && Math.abs(alt.saved_m - 18486) < 30 && alt.extra_m <= ALT.maxExtraExposedM,
+      `대안 값: 길 ${Math.round(alt.route.total_m)}m · 늘어나는 지상 ${alt.extra_m}m(2km 이하) · 줄어듦 ${Math.round(alt.saved_m)}m(${Math.round(alt.saved_m / main.total_m * 100)}%), ${Math.round(alt.saved_min)}분`);
+    // 지상 노출은 왕십리의 수인분당선 지상 구간 한 곳, 한강은 수인분당선 서울숲–압구정로데오 하저터널(막히지 않은 터널)
+    const pa = { from: b.from, to: p.to, route: alt.route };
+    UG.steps.planItems(G, pa, SPEED);
+    const X = UG.demo.exposure(G, pa, UG.guide.routeTrack(G, pa)), h = UG.demo.hanCrossing(G, alt.route.path);
+    check(!!X && X.at === '왕십리' && X.line === '수인분당선' && Math.abs(X.len - alt.extra_m) < 1,
+      X ? `지상 노출: ${X.line} ${X.at} ${Math.round(X.from)}~${Math.round(X.to)}m (${X.len}m, 한 곳)` : '지상 노출 없음');
+    check(!!h && h.line === '수인분당선' && h.a === '서울숲' && h.b === '압구정로데오' && !blocked.has(h.e),
+      h ? `한강: ${h.line} ${h.a}–${h.b} 하저터널(막히지 않음)` : '한강 하저터널 없음');
+  }
 }
 
 console.log(ok ? '\n모두 통과' : '\n실패한 항목이 있습니다');

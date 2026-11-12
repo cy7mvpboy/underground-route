@@ -19,9 +19,11 @@
     위 3D(높이 약 40%) + 아래 폰(남은 곳에 맞게 줄임)으로 쌓는다. 오른쪽 아래 '앱으로'는 앱(../)으로 돌아간다.
   메시지 형식
     앱 → 무대 → 3D   { src: 'jiharo-demo', ver: 1, type, ... }
-      scene  { scenario, n, id }                 장면 시작(scenario 는 늘 1, id: save·raid·nearest·enter·platform·plan·guide·junction·crossA·block·reroute·ff·crossB·arriveFf·arrive·south)
+      scene  { scenario, n, id }                 장면 시작(scenario 는 늘 1, id: save·raid·nearest·enter·platform·plan·guide·junction·crossA·block·reroute·ff·expo·crossB·arriveFf·arrive·south)
                                                  junction = 선로 갈림길(충무로 지나)을 크게 보고 '통과', crossA = 광나루까지 빨리 감기 + 첫 하저터널(광나루–천호)로 걸어 들어감
-      leg    { leg, total_m }                    걷는 구간: entry(거리 → 승강장) · first(처음 길) · backtrack(되돌아가기) · reroute(다시 찾은 길) · south(남쪽, 걷지 않음)
+                                                 reroute = 지하로만 다시 찾은 길을 보인 뒤 대안(지상을 조금 걷는 짧은 길)을 누름, expo = 그 지상 노출 구간(왕십리)을 걸음
+                                                 crossB = 막히지 않은 다른 하저터널(서울숲–압구정로데오)을 걸어서 건넘
+      leg    { leg, total_m }                    걷는 구간: entry(거리 → 승강장) · first(처음 길) · backtrack(되돌아가기) · reroute(걷는 다시 찾은 길, 대안을 누른 뒤) · south(남쪽, 걷지 않음)
       pos    { leg, m, to, v, lat, lon }         걷는 동안 0.2초마다: m = 그 구간 출발부터 길 안내 거리, to = 멈출 거리, v = 실제 1초에 늘어나는 m, lat·lon = 앱 추정 위치
       state  { playing, speed }                  재생·멈춤·속도(시연을 끝내면 playing false)
       end    {}

@@ -7,10 +7,14 @@
      → '가장 가까운 지하로'(명동역 출구) → 4호선 승강장에 도착해 '가족 약속 장소까지 지하로'
      → 충무로 지나 선로 갈림길(3호선–4호선 연결선이 갈라지는 곳)을 크게 보고 '통과'
      → 빨리 감기로 광나루까지 → 한강 아래 5호선 광나루–천호 하저터널에서 '앞이 막힘'
-     → 광나루역으로 되돌아가 한강 아래 다른 하나(5호선 마포–여의나루)로 다시 찾기 → 빨리 감기로 마포까지 → 마포–여의나루 하저터널을 걸어서 건넘
-     → 도착까지 빨리 감기 → 수서역 도착(목적지는 사용자 결정 2026-11-11: 한성백제에서 수서로)
+     → 광나루역으로 되돌아가 다시 찾기: 지하로만 가는 길(마포–여의나루 하저터널로 크게 돌아감)을 보인 뒤, 안내 카드의 대안 한 줄
+       (지상을 조금 걸으면 훨씬 짧은 길)을 눌러 그 길로(사용자 결정 2026-11-13) → 빨리 감기로 왕십리까지
+     → 왕십리의 수인분당선 지상 노출 구간을 걸어서 지남(안내 카드의 지상 노출 경고) → 다시 지하로, 빨리 감기로 서울숲까지
+     → 수인분당선 서울숲–압구정로데오 하저터널을 걸어서 건넘(막힌 곳은 다시 보이지 않는다)
+     → 도착까지 빨리 감기 → 수서역 도착(목적지는 사용자 결정 2026-11-11: 한성백제에서 수서로). 자막에 지하에 들어간 뒤 지상 노출을 그대로 쓴다
      → 끝 장면: 수서에서 남쪽(동탄)으로도 지하 길이 이어진다는 것만 화살표로 보여 준다(점선이 수서에서 동탄 쪽으로 찍히며 자람, 안내·위치 이동 없음)
      거리·출구 번호·역 이름은 자막에 박아 두지 않고 앱의 경로 탐색 결과에서 읽는다(숫자는 check_demo.js 가 출력).
+     대안 경로도 앱의 것(router.alternative, 길 안내 카드의 한 줄을 눌러 switchAlt)이고, 지상 노출 구간·역·노선도 경로에서 읽는다(exposure).
    부산역 → 해운대, 서울역 → 부산역 시나리오는 뺐다(사용자 결정 2026-11-12: 시연은 무대 하나, 이야기 하나).
    조작: 아래 칸(재생/멈춤 · 다음 장면 · 처음부터 · 속도 · 끝내기), 키보드 Space · → · Esc. 무대 화면에서 누른 Space · → 도 받는다.
    동작 원리
@@ -23,7 +27,7 @@
      - 시간은 시연 시계(멈춤·건너뛰기)로 흐른다. 속도 ×30/×60/×120 = 실제 걷는 시간보다 몇 배 빠른지.
        장면마다 배속(boost)을 곱한다(예: 도착까지 빨리 감기 ×60).
      - 발표 무대: 장면 시작·걸은 거리·멈춤을 부모 창에 알리고 무대의 Space·→ 를 받는다(6절).
-   Node 에서는 계산 부분(CONF, hanCrossing, flightRuns)만 쓴다: node scripts\check_demo.js */
+   Node 에서는 계산 부분(CONF, hanCrossing, flightRuns, exposure)만 쓴다: node scripts\check_demo.js */
 (function (root) {
   'use strict';
   const UG = root.UG = root.UG || {};
@@ -36,11 +40,14 @@
     //    공습경보가 울린 곳 = 명동 거리(OpenStreetMap 의 'Myeongdong Shopping Street' 지점. 가장 가까운 출구가 4호선 승강장으로 이어지는 명동역 출구),
     //    가족 약속 장소(meet), 처음 길은 충무로 지나 선로 갈림길(3호선–4호선 연결선이 갈라지는 곳)을 지나고,
     //    광나루 지나 한강 하저터널의 blockFrac 지점(강 한가운데 아래, check_demo.js 가 확인)에서 막힘. 빨리 감기는 멈출 곳까지 한 화면에 담고 점만 움직인다
-    story: { lat: 37.5627, lon: 126.9847, label: '명동 거리', meet: '수서@서울', south: '동탄@경기', blockAfter: '광나루@서울', blockFrac: 0.45 },
+    //    takeAlt: 다시 찾은 길(지하 우선)을 보인 뒤 길 안내 카드의 대안 한 줄(지상을 조금 걸으면 짧은 길)을 눌러 그 길로 간다(사용자 결정 2026-11-13).
+    //             build_3d.js 도 이 값으로 3D 의 다시 찾은 길을 대안으로 만든다
+    story: { lat: 37.5627, lon: 126.9847, label: '명동 거리', meet: '수서@서울', south: '동탄@경기', blockAfter: '광나루@서울', blockFrac: 0.45, takeAlt: true },
     // 장면별 배속(고른 속도 × 이 값). enter = 출구로 들어가 승강장까지, move = 갈림길 앞까지·첫 하저터널 걷기,
     // fork = 갈림길 마지막 60m(Y자를 크게 본 채 천천히), ffA = 갈림길 지나 첫 하저터널 앞 역까지 빨리 감기,
-    // ff = 다시 찾은 길에서 다른 하저터널 앞 역까지 빨리 감기, cross = 다른 하저터널 걷기, arrive = 도착까지 빨리 감기
-    boost: { enter: 1.5, move: 2.3, fork: 0.6, ffA: 45, ff: 55, cross: 6, arrive: 60 },
+    // ff = 다시 찾은 길에서 지상 노출 앞 역(또는 다른 하저터널 앞 역)까지 빨리 감기, expo = 지상 노출 구간 걷기,
+    // cross = 다른 하저터널 걷기, arrive = 도착까지 빨리 감기
+    boost: { enter: 1.5, move: 2.3, fork: 0.6, ffA: 45, ff: 55, expo: 2.6, cross: 6, arrive: 60 },
     // 공습 장면 처음에 폰에 뜨는 위급재난문자 흉내. ms = 실제 시간으로 보여 주는 동안(그 뒤 '확인'을 누른다).
     // 공개 페이지라 진짜 경보로 오해하지 않게 제목과 본문에 '시연'을 넣고, 실제 기관 이름·발신 번호는 쓰지 않는다(check_demo.js 가 확인)
     alert: { title: '위급재난문자 · 시연', body: '[시연] 공습경보 발령. 가까운 지하 대피시설로 즉시 대피하십시오.', ms: 2700 },
@@ -78,9 +85,24 @@
     return runs;
   }
 
+  /* 경로의 첫 지상 노출 구간(길 안내 거리 m): { from, to, len, at(시작 역 이름), line(그 구간 지상 선로의 노선) } 또는 null.
+     구간은 안내 선(guide.routeTrack)의 지하가 아닌 조각에서 읽는다(걷기·출입 조각도 지하가 아니므로 역에서 출발한 길에 쓴다: 다시 찾은 길).
+     at = 앱 안내의 지상 노출 경고 단계(steps.js warning)의 역, line = 경로에서 처음 만나는 지상 노출 선로 간선의 노선 */
+  function exposure(G, plan, track) {
+    const ps = track ? track.pieces : [], E = G.g.edges, T = G.g.tables;
+    let i = ps.findIndex(function (x) { return !x.ug; });
+    if (i < 0) return null;
+    const from = ps[i].from;
+    let to = from;
+    for (; i < ps.length && !ps[i].ug; i++) to = ps[i].from + ps[i].len;
+    const w = plan.items.find(function (it) { return it.kind === 'step' && it.step.type === 'warning'; });
+    const x = plan.route.path.find(function (y) { return G.weight[y.e] !== G.g.weights.under && (T.line_sets[E.ls[y.e]] || []).length; });
+    return { from: from, to: to, len: to - from, at: w ? w.step.at : '', line: x ? T.line_short[T.line_sets[E.ls[x.e]][0]] : '' };
+  }
+
   // Node(check_demo.js): 계산 부분만 내보내고 끝
   if (typeof document === 'undefined') {
-    UG.demo = { CONF: CONF, hanCrossing: hanCrossing, flightRuns: flightRuns };
+    UG.demo = { CONF: CONF, hanCrossing: hanCrossing, flightRuns: flightRuns, exposure: exposure };
     if (typeof module !== 'undefined' && module.exports) module.exports = UG.demo;
     return;
   }
@@ -215,6 +237,7 @@
     s.ui.toast.hidden = true;
     if (eng.ready) UG.saved.useMemory(true);              // 처음부터 다시 할 때마다 빈 메모리 목록에서 시작(가족 약속 장소를 다시 저장)
     Array.prototype.forEach.call(document.querySelectorAll('.demo-press'), function (b) { b.classList.remove('demo-press'); });
+    document.documentElement.classList.remove('demo-calm');
     const al = document.getElementById('demo-alert');     // 위급재난문자 흉내가 떠 있던 중이면 닫는다
     if (al) al.remove();
     clearMarks();
@@ -362,7 +385,7 @@
   /* 다음 확인 지점까지 걷고 큰 단추를 누르기를 되풀이한다. 마지막 '도착'을 누르면 앱이 역 시트를 연다.
      opt = { boost, camera: 'leg'(구간마다 한 번: 지금 위치를 가운데에 두고 다음 확인 지점까지 보이게, 걷는 동안 지도는 그대로)
                           | 'fixed'(처음 한 번: 멈출 곳까지 전부 한 화면에, 빨리 감기용) | 'none',
-             fast(단추 누름을 짧게), onLeg(next, gs)(구간마다, 자막 바꾸기),
+             fast(단추 누름을 짧게), onLeg(next, gs)(구간마다, 자막 바꾸기. 기다릴 것이 있으면 Promise),
              until(next, gs) -> true 면 그 앞에서 멈춤 } */
   async function walkGuide(opt) {
     let first = true;
@@ -372,7 +395,7 @@
       const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m);
       if (p.finished || (opt.until && opt.until(p.next, gs))) return;
       S().guideFollow = false;                                 // 지도는 시연이 맞춘다(시연 칸에 가리지 않게)
-      if (opt.onLeg) opt.onLeg(p.next, gs);
+      if (opt.onLeg) await opt.onLeg(p.next, gs);
       const pos = S().guidePos;
       if (opt.camera === 'leg') await fitView(pos ? UG.app.aroundCenter(legPoints(gs, p), pos) : legPoints(gs, p), 17);
       else if (opt.camera === 'fixed' && first) await fitView(aheadPoints(gs, opt.until), opt.zoom || 15);
@@ -583,8 +606,9 @@
   /* =========================================================
      3. 이야기
         장면 = { id(무대에 알리는 이름), cap(자막 한 줄), run(ctx) }. run 안에서 caption() 으로 숫자가 든 자막으로 바꿀 수 있다.
-        평소 저장 → 공습경보 → 가장 가까운 지하로 → 가족 약속 장소까지 지하로 → 하저터널 막힘 → 다른 하저터널로 다시 찾기 → 그 하저터널 건너기 → 도착 → 남쪽.
-        ctx: p(가족 약속 장소까지 처음 경로), blockPos(막힌 곳), p2(다시 찾은 경로)
+        평소 저장 → 공습경보 → 가장 가까운 지하로 → 가족 약속 장소까지 지하로 → 하저터널 막힘 → 다시 찾기(지하로만 → 대안을 눌러 짧은 길)
+        → 지상 노출 구간 지나기 → 다른 하저터널 건너기 → 도착 → 남쪽.
+        ctx: p(가족 약속 장소까지 처음 경로), blockPos(막힌 곳), p2(걷는 다시 찾은 경로: 대안을 고르면 대안), expo(p2 의 첫 지상 노출, exposure)
      ========================================================= */
   const STORY = { name: '공습 → 가족 약속 장소', scenes: [
     { id: 'save', cap: '평소: 가족 약속 장소 저장', run: async function () {
@@ -699,46 +723,91 @@
       if (pos && here) await show(UG.app.aroundCenter([pos], here), 16, 3500);   // 다시 출발할 곳(마지막 확인 지점)을 가운데에, 막힌 곳도 보이게
       else await hold(3500);
     } },
-    { id: 'reroute', cap: '되돌아가 다른 하저터널로', run: async function (ctx) {
-      const p = ctx.p2 = S().plan;
+    { id: 'reroute', cap: '다시 찾은 길', run: async function (ctx) {
+      const p = S().plan, G = S().G;
       if (!p) return;
-      stageLeg('reroute', p.view.total_m);
-      setWalked(0, true);                                  // 무대: 3D 에 다시 찾은 길 출발점(0m)을 알린다
-      const h = hanCrossing(S().G, p.route.path);
-      // 서울에서 한강을 지하로만 건너는 곳은 5호선 하저터널 두 곳(계획서 분석): 하나가 막히면 남은 하나로.
-      // check_demo.js 가 이 길에서 확인한다(두 곳을 다 막으면 가장 나은 길도 지상을 걸어야 한다)
-      caption(h ? '한강 아래 다른 하나, ' + h.a + '–' + h.b + '로' : '되돌아가 다른 길로',
-        (h ? h.line + ' · ' : '') + km(p.view.total_m) + ' · 지상 노출 ' + PN().fmtDist(p.view.exposed_m));
-      await fitReroute(ctx, p, 4600);
-      // 대안 한 줄(지상을 조금 걸으면 짧은 길)이 카드에 보이면 잠깐 짚고, 누르지 않고 지하 우선 경로로 간다
-      const alt = document.querySelector('#guide-alt-slot:not([hidden]) [data-action="alt"]');
-      if (alt) { caption('대안: ' + alt.textContent, '누르지 않고 지하 우선 경로로 계속'); await flash(alt, 2200); }
+      // 1) 앱이 다시 찾은 길(지하 우선)을 그대로 보인다(막힌 곳도 보이게)
+      const h0 = hanCrossing(G, p.route.path);
+      caption('지하로만 다시 찾은 길 ' + km(p.view.total_m), (h0 ? '한강 아래 ' + h0.a + '–' + h0.b + ' · ' : '') + '지상 노출 ' + PN().fmtDist(p.view.exposed_m));
+      await fitReroute(ctx, p, 3000);
+      // 2) 이야기가 대안을 고르면(CONF.story.takeAlt): 안내 카드의 대안 한 줄(지상을 조금 걸으면 짧은 길)을 보이고 누른다.
+      //    앱의 switchAlt 가 그 길로 안내를 이어 간다(되돌아가기·막은 구간 알림은 그대로). 한 줄이 없으면 지하 우선 길로 간다
+      const alt = document.querySelector('#guide-alt-slot:not([hidden]) [data-action="alt"]'), a = p.view.alt;
+      let took = false;
+      if (CONF.story.takeAlt && alt && a && !a.using) {
+        // 자막 첫 줄은 같은 화면의 카드 글(panel.js altText 의 반올림: '지상 720m 걸으면 18km 짧아요')을 그대로 쓴다. 숫자가 둘로 보이지 않게
+        const card = alt.textContent.trim().split(' · ')[0];
+        caption('대안: ' + card, km(p.view.total_m) + ' → ' + km(p.view.total_m - a.saved_m));
+        await tap(alt, 2200);
+        took = !!(S().plan && S().plan.alt && S().plan.alt.using);
+        await settle();                                    // 안내 카드가 대안 길로 다시 그려진 뒤
+      }
+      // 3) 걷는 길: 무대에 알리고(3D 는 이때 그 길을 그린다) 출발점(0m)부터
+      const p2 = ctx.p2 = S().plan;
+      if (!p2) return;
+      stageLeg('reroute', p2.view.total_m);
+      setWalked(0, true);
+      ctx.expo = exposure(G, p2, S().guideTrack);
+      const h = hanCrossing(G, p2.route.path);
+      caption((took ? '대안으로 ' : '다시 찾은 길 ') + km(p2.view.total_m), '지상 노출 ' + PN().fmtDist(p2.view.exposed_m) + (h ? ' · 한강 아래 ' + h.a + '–' + h.b : ''));
+      await fitReroute(ctx, p2, 3000);
     } },
     { id: 'ff', cap: '빨리 감기', run: async function (ctx) {
-      // 다른 하저터널 앞 역(광나루)까지. 화면은 그 터널 건너편 역(천호)까지 한 번에 담는다
-      const h = ctx.p2 && hanCrossing(S().G, ctx.p2.route.path);
-      if (h) caption('빨리 감기 · ' + PN().yeok(h.a) + '까지');
+      // 지상 노출이 있으면 그 앞 확인 지점(역)까지, 없으면 다른 하저터널 앞 역까지. 화면은 멈출 곳까지 한 번에 담는다
+      const X = ctx.expo, h = ctx.p2 && hanCrossing(S().G, ctx.p2.route.path);
+      if (X) caption('빨리 감기 · ' + PN().yeok(X.at) + '까지');
+      else if (h) caption('빨리 감기 · ' + PN().yeok(h.a) + '까지');
       await walkGuide({ boost: CONF.boost.ff, camera: 'fixed', fast: true, onLeg: legSub,
+        until: function (next) { return X ? next.at >= X.from - 0.5 : !!h && next.si === h.sb; } });
+    } },
+    { id: 'expo', cap: '지상 노출 구간', run: async function (ctx) {
+      // 지상 노출 구간(예: 왕십리 수인분당선 지상 구간)을 걸어서 지난다. 그 구간을 한 화면에 담고 점만 움직인다.
+      // 확인 지점(환승 완료·갈림길 통과)은 실제로 누르고, 안내 카드에 지상 노출 경고가 뜨면 잠깐 짚는다.
+      // 노출이 끝나는 곳(터널 입구)까지 걸은 뒤 다시 지하: 다른 하저터널 앞 역까지 빨리 감기
+      const X = ctx.expo, g = guideView(), gs = g && g.state();
+      if (!X || !gs) return;
+      const h = ctx.p2 && hanCrossing(S().G, ctx.p2.route.path), warn = document.getElementById('guide-warn');
+      caption(PN().yeok(X.at) + ' ' + X.line + ' 지상 구간', '지상 노출 ' + PN().fmtDist(X.len) + ' · 다시 지하로 들어갈 때까지');
+      S().guideFollow = false;
+      await fitView(trackPoints(gs, X.to + 40), 17);
+      let shown = false;
+      await walkGuide({ boost: CONF.boost.expo, camera: 'none', until: function (next) { return next.at > X.to; },
+        onLeg: async function () { if (!shown && warn && !warn.hidden) { shown = true; await flash(warn, 1300); } } });
+      const g2 = guideView(), gs2 = g2 && g2.state();
+      if (!gs2) return;
+      const p = UG.guide.progress(gs2.cps, gs2.cur, gs2.plan.view.total_m), doneAt = gs2.cur >= 0 ? gs2.cps[gs2.cur].at : 0;
+      const toEnd = Math.max(0, Math.min(p.toNext_m, X.to - doneAt));
+      await walk(toEnd, CONF.boost.expo, setWalked);
+      setWalked(toEnd, true);
+      caption('다시 지하로' + (h ? ' · 빨리 감기 · ' + PN().yeok(h.a) + '까지' : ''));
+      await walk(p.toNext_m - toEnd, CONF.boost.ff, function (m) { setWalked(toEnd + m); });
+      setWalked(p.toNext_m, true);
+      await press('guide-arrive', 0);
+      await walkGuide({ boost: CONF.boost.ff, camera: 'none', fast: true, onLeg: legSub,   // 다른 하저터널 앞 역이 더 남았으면
         until: function (next) { return !!h && next.si === h.sb; } });
     } },
     { id: 'crossB', cap: '한강 아래 하저터널', run: async function (ctx) {
-      // 다른 하저터널을 걸어서 건넌다(첫 하저터널 장면과 같은 모습: 그 구간을 한 화면에 담고 점만 움직임)
+      // 다른 하저터널을 걸어서 건넌다(첫 하저터널 장면과 같은 모습: 그 구간을 한 화면에 담고 점만 움직임).
+      // 막히지 않은 터널을 지나는 장면이라 막힘 표시는 숨긴다(demo-calm, 끝나면 되돌림). 자막도 막힌 곳을 가리키지 않는다
       const g = guideView(), gs = g && g.state();
       if (!gs) return;
-      const h = ctx.p2 && hanCrossing(S().G, ctx.p2.route.path);
-      if (h) caption('한강 아래 하저터널: ' + h.a + ' → ' + h.b);
-      const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m);
-      await fitView(legPoints(gs, p), 16);
-      await walk(p.toNext_m, CONF.boost.cross, setWalked);
-      setWalked(p.toNext_m, true);
-      await press('guide-arrive', 450);
+      document.documentElement.classList.add('demo-calm');
+      try {
+        const h = ctx.p2 && hanCrossing(S().G, ctx.p2.route.path);
+        if (h) caption('한강 아래 하저터널: ' + h.a + ' → ' + h.b, h.line);
+        const p = UG.guide.progress(gs.cps, gs.cur, gs.plan.view.total_m);
+        await fitView(legPoints(gs, p), 16);
+        await walk(p.toNext_m, CONF.boost.cross, setWalked);
+        setWalked(p.toNext_m, true);
+        await press('guide-arrive', 450);
+      } finally { document.documentElement.classList.remove('demo-calm'); }
     } },
     { id: 'arriveFf', cap: '도착까지 빨리 감기', run: async function () {
       await walkGuide({ boost: CONF.boost.arrive, camera: 'fixed', fast: true, onLeg: legSub });
     } },
     { id: 'arrive', cap: '도착', run: async function (ctx) {
       const st = S().station;
-      // 지하에 들어간 뒤 지상 노출 = 가족 약속 장소까지 처음 경로(막히기 전까지 걸은 곳) + 다시 찾은 경로. 둘 다 0m(check_demo.js)
+      // 지하에 들어간 뒤 지상 노출 = 가족 약속 장소까지 처음 경로(막히기 전까지 걸은 곳) + 걷는 다시 찾은 경로(대안이면 그 지상 노출). 숨기지 않는다(check_demo.js)
       const expo = (ctx.p ? ctx.p.view.exposed_m : 0) + (ctx.p2 ? ctx.p2.view.exposed_m : 0);
       caption((st ? PN().yeok(stName(st.si)) + ' ' : '') + '도착', '지하에 들어간 뒤 지상 노출 ' + PN().fmtDist(expo));
       stationTab('info');                                  // 도달 범위 대신 이 역 정보: 앱이 다시 찾은 경로를 다시 그린다
@@ -861,6 +930,8 @@
     '.demo-arrow .h { fill: var(--route-safe); stroke: var(--casing); stroke-width: 1.6; stroke-linejoin: round; }',
     '.demo-flow { animation: demo-flow 1.2s linear infinite; }',
     '@keyframes demo-flow { to { stroke-dashoffset: -20; } }',
+    // 막히지 않은 하저터널을 건너는 장면(crossB)에서는 막힘 표시(시연의 '막힘' 표시·앱 지도의 막은 구간 이름표)를 숨긴다
+    'html.demo-calm .demo-x, html.demo-calm .blocked-tag { visibility: hidden; }',
     '.demo-x { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); padding: 4px 10px; border: 3px solid var(--casing); border-radius: 8px; background: var(--expo); color: var(--on-expo); font-size: 16px; font-weight: 700; white-space: nowrap; box-shadow: var(--shadow); }',
     '@media (prefers-reduced-motion: reduce) {',
     '  .demo { transition: none; }',
@@ -1010,10 +1081,12 @@
      6. 발표 무대(web/stage/) 연결: 주소에 ?stage=1 이 있고 다른 화면(iframe) 안에서 열렸을 때만 동작한다(STAGE).
         시연은 이때만 열린다. 무대는 이 앱과 3D(web/3d/?follow)를 나란히 놓고 메시지를 3D 로 넘긴다.
         보내는 것(window.parent.postMessage, 같은 출처). 모두 { src: 'jiharo-demo', ver: 1(형식 판), type, ... }
-          scene  { scenario(늘 1), n(장면 번호, 1부터), id }   장면 시작. id(16개, 이 순서): save · raid · nearest · enter · platform · plan · guide ·
-                                              junction(갈림길, 2026-11-12 새로) · crossA(광나루까지 빨리 감기 + 첫 하저터널) · block · reroute · ff ·
+          scene  { scenario(늘 1), n(장면 번호, 1부터), id }   장면 시작. id(17개, 이 순서): save · raid · nearest · enter · platform · plan · guide ·
+                                              junction(갈림길, 2026-11-12 새로) · crossA(광나루까지 빨리 감기 + 첫 하저터널) · block ·
+                                              reroute(지하로만 다시 찾은 길 → 대안을 누름) · ff · expo(지상 노출 구간 걷기, 2026-11-13 새로) ·
                                               crossB(다른 하저터널) · arriveFf · arrive · south
-          leg    { leg: 'entry'|'first'|'backtrack'|'reroute'|'south', total_m }          걷는 구간이 바뀜(backtrack 은 되돌아간 거리)
+          leg    { leg: 'entry'|'first'|'backtrack'|'reroute'|'south', total_m }          걷는 구간이 바뀜(backtrack 은 되돌아간 거리,
+                                              reroute 는 걷는 다시 찾은 길: 대안을 누른 뒤에 알린다)
           pos    { leg, m, to, v, lat, lon }   걷는 동안 0.2초마다와 멈출 때. m = 그 구간 출발부터 길 안내 거리(앱 추정 위치와 같은 계산),
                                               to = 이번 걷기가 멈출 거리, v = 실제 1초에 늘어나는 m(멈춤·멈춘 뒤면 0), lat·lon = 앱 추정 위치
           state  { playing, speed }           재생·멈춤·속도(×30/60/120)가 바뀔 때, 시연을 끝낼 때(playing false)
