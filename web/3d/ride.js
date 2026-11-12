@@ -21,13 +21,15 @@
    터널: 반투명 껍데기 + 고리 + 바닥·레일 + 벽 등. 걷는 점 가까운 고리는 밝게(점이 터널 안을 비추는 것처럼).
    역: 승강장 상자(깊이 = 자료 값, 노선 색 테두리) · 환승역과 입구는 대합실 판(깊이 추정). 모양은 개략.
    공습경보: 거리의 빨간 고리 · 먼 곳 섬광 몇 번 · 먼 연기 기둥 두세 개. 몇 초 뒤 사라진다(폭발·사람 피해는 그리지 않는다).
-   막힘: 터널 천장에서 덩어리가 떨어지고 먼지가 인 뒤(약 2초) 잔해 더미가 남는다. 터널 모양·깊이는 바꾸지 않는다.
+   막힘: 터널 안으로 들어가 지켜본다. 잠깐 흔들린 뒤 앞쪽 천장에서 덩어리가 떨어져 터널 단면을 막고 먼지가 찬다(약 1.5초).
+     잠시 본 뒤 밖으로 나와 막힌 구간(빨강)을 보고, 그다음 마포로 되돌아간다. 터널 모양·깊이는 바꾸지 않는다.
    카메라 따라가기
      - 보는 점(controls.target)을 매 프레임 볼 곳 쪽으로 1 - e^(-k·dt) 만큼 당긴다: 프레임 수와 상관없이 부드럽다.
      - 카메라는 보는 점이 움직인 만큼 같이 옮긴다: 사용자가 돌리거나 당긴 각도·거리는 그대로 남는다.
      - 정한 거리로 천천히 맞추고, 진행 방향의 옆으로 돌아가며, 좌우로 조금 흔든다.
        사용자가 화면을 만지면 이 셋은 멈추고 따라가기(옮기기)만 한다. 카메라는 늘 지면 위에 둔다.
-     - 하저터널에서는 몇 초 동안 터널 안(점 뒤)으로 들어갔다 나온다: 바깥 카메라와 안 카메라를 0~1 비율로 섞는다.
+     - 터널 안 시점은 두 번: 첫 하저터널의 무너짐(막힌 곳 32m 뒤에서)과 두 번째 하저터널 가운데(짧게, 무사히 지나감).
+       바깥 카메라와 안 카메라를 0~1 비율로 섞는다.
      - prefers-reduced-motion 이면 흔들지 않고, 터널 안으로 들어가지 않고, 첫 장면을 천천히 시작한다. */
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -316,19 +318,25 @@ const raid = (() => {
    덩어리는 InstancedMesh 하나, 먼지는 Points 하나. 무너진 곳(막힌 지점 앞뒤 35m) 고리는 기울고 어두워진다. 터널 모양은 바꾸지 않는다 */
 const collapse = (() => {
   const rnd = ((s) => () => (s = (s * 16807) % 2147483647) / 2147483647)(7);   // 늘 같은 모양(씨앗 고정)
-  const N = 42, chunks = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 0), new THREE.MeshBasicMaterial({ color: 0xffffff }), N);
+  const N = 96, rock = new THREE.IcosahedronGeometry(1, 0), nrm = rock.attributes.normal, L0 = new THREE.Vector3(0.35, 0.9, 0.25).normalize(), shade = [];
+  for (let i = 0; i < nrm.count; i++) { const k = 0.45 + 0.55 * Math.max(0, nrm.getX(i) * L0.x + nrm.getY(i) * L0.y + nrm.getZ(i) * L0.z); shade.push(k, k, k); }
+  rock.setAttribute('color', new THREE.Float32BufferAttribute(shade, 3));
+  const chunks = new THREE.InstancedMesh(rock, new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: true }), N);
   const p = new THREE.Vector3(), q = new THREE.Quaternion(), e = new THREE.Euler(), s3 = new THREE.Vector3(), mtx = new THREE.Matrix4(), c = new THREE.Color();
-  // 덩어리 i: 막힌 곳 앞쪽(막힌 터널 0~40m)의 천장에서 떨어져 바닥에 쌓인다. 가운데일수록 높게 쌓여 더미가 된다
+  // 덩어리 i: 막힌 곳 앞(막힌 터널 2~34m) 천장에서 떨어져 쌓인다. 12m 둘레가 가장 높아(천장 가까이) 터널 단면을 막는 벽이 된다
+  const ax = posAt('blocked', 30).sub(posAt('blocked', 0)).setY(0).normalize(), sd = new THREE.Vector3(-ax.z, 0, ax.x);   // 터널 방향 · 옆
   const parts = Array.from({ length: N }, (_, i) => {
-    const along = 40 * Math.pow(rnd(), 1.4), v = posAt('blocked', along), big = i < 8;
-    const side = (rnd() - 0.5) * R * 1.2, size = big ? 4 + rnd() * 3 : 1.5 + rnd() * 2.5;
-    const pile = (1 - along / 40) * R * 0.9 * rnd();                       // 쌓인 높이(막힌 곳 가까이 높게)
-    c.setHSL(0.08, 0.15, 0.22 + rnd() * 0.18); chunks.setColorAt(i, c);
-    return { x: v.x + side * 0.7, z: v.z + side * 0.7, top: v.y + R * 0.85, rest: v.y - R * 0.7 + size * 0.6 + pile, delay: rnd() * 0.7, size, rx: rnd() * 6, ry: rnd() * 6 };
+    const along = 2 + 32 * rnd(), v = posAt('blocked', along), big = i < 22;
+    const side = (rnd() - 0.5) * 2 * R * 0.8, size = big ? 3.5 + rnd() * 3 : 1.4 + rnd() * 2.2;
+    const wall = Math.max(0, 1 - Math.abs(along - 12) / 22) * Math.sqrt(Math.max(0, 1 - (side / R) ** 2));   // 단면 안 쌓일 수 있는 높이 비율
+    const pile = wall * R * 1.55 * Math.pow(rnd(), 0.6);
+    c.setHSL(0.07, 0.16, 0.12 + rnd() * 0.14); chunks.setColorAt(i, c);
+    return { x: v.x + sd.x * side, z: v.z + sd.z * side, top: v.y + R * 0.9, rest: Math.min(v.y + R * 0.85, v.y - R * 0.7 + size * 0.5 + pile), delay: Math.pow(rnd(), 1.5) * 0.8, size, rx: rnd() * 6, ry: rnd() * 6 };
   });
-  const dustN = 50, dustDir = [], dustPos = new Float32Array(dustN * 3), c0 = posAt('blocked', 12);
-  for (let i = 0; i < dustN; i++) dustDir.push(new THREE.Vector3(rnd() - 0.5, (rnd() - 0.3) * 0.6, rnd() - 0.5).normalize());
-  const dust = new THREE.Points(geo(Array.from(dustPos)), new THREE.PointsMaterial({ color: 0x8A8172, size: 16, map: lampTex, transparent: true, depthWrite: false, opacity: 0 }));
+  // 먼지: 막힌 곳에서 터널을 따라 앞뒤로 퍼진다(옆·위아래는 터널 안까지만)
+  const dustN = 140, dustDir = [], dustPos = new Float32Array(dustN * 3), c0 = posAt('blocked', 10);
+  for (let i = 0; i < dustN; i++) dustDir.push([(rnd() - 0.55) * 2, (rnd() - 0.5) * 1.6, (rnd() - 0.4) * 1.4, 0.4 + rnd() * 0.6]);
+  const dust = new THREE.Points(geo(Array.from(dustPos)), new THREE.PointsMaterial({ color: 0x8A8172, size: 14, map: lampTex, transparent: true, depthWrite: false, opacity: 0 }));
   chunks.visible = dust.visible = false;
   scene.add(chunks, dust);
   // 무너진 곳 고리: 막힌 지점 앞뒤 35m(처음 길 끝 · 막힌 터널 처음)
@@ -356,21 +364,24 @@ const collapse = (() => {
       const on = tc >= 0;
       chunks.visible = on; breakRings(on && tc > 0.3);
       if (!on) { dust.visible = false; return; }
-      if (tc < 3) {   // 떨어지는 동안만 덩어리 자리를 다시 계산(그 뒤로는 쌓인 채로 멈춤)
+      if (tc < 3.2) {   // 떨어지는 동안만 덩어리 자리를 다시 계산(그 뒤로는 쌓인 채로 멈춤)
         parts.forEach((k, i) => {
-          const u = Math.max(0, tc - k.delay), y = Math.max(k.rest, k.top - 0.5 * 150 * u * u);
-          const grow = ss(u / 0.15);
+          const u = Math.max(0, tc - k.delay), y = Math.max(k.rest, k.top - 0.5 * 120 * u * u);
+          const grow = tc < k.delay ? 0 : ss(u / 0.12);
           p.set(k.x, y, k.z); q.setFromEuler(e.set(k.rx + u * 3, k.ry + u * 2, 0)); s3.setScalar(k.size * grow);
           chunks.setMatrixAt(i, mtx.compose(p, q, s3));
         });
         chunks.instanceMatrix.needsUpdate = true;
       }
-      dust.visible = tc < 2.4;
-      if (dust.visible) {   // 먼지: 막힌 곳에서 퍼지며 옅어진다
-        const r = 6 + 34 * ss(tc / 1.6), arr = dust.geometry.attributes.position.array;
-        dustDir.forEach((d, i) => { arr[i * 3] = c0.x + d.x * r; arr[i * 3 + 1] = c0.y + d.y * r; arr[i * 3 + 2] = c0.z + d.z * r; });
+      dust.visible = tc < 5;
+      if (dust.visible) {   // 먼지: 막힌 곳에서 터널을 따라 퍼지고(약 1.5초) 천천히 옅어진다
+        const r = ss(tc / 1.5), arr = dust.geometry.attributes.position.array;
+        dustDir.forEach((d, i) => {
+          const a = d[0] * 34 * r * d[3], w = d[1] * R * 0.85 * Math.min(1, 0.3 + r), h = d[2] * R * 0.75 * Math.min(1, 0.3 + r);
+          arr[i * 3] = c0.x + ax.x * a + sd.x * w; arr[i * 3 + 1] = c0.y + h; arr[i * 3 + 2] = c0.z + ax.z * a + sd.z * w;
+        });
         dust.geometry.attributes.position.needsUpdate = true;
-        dust.material.opacity = 0.7 * ss(tc / 0.3) * (1 - ss((tc - 0.6) / 1.8));
+        dust.material.opacity = 0.75 * ss((tc - 0.15) / 0.4) * (1 - ss((tc - 2.2) / 2.6));
       }
     }
   };
@@ -427,19 +438,21 @@ label(`남쪽으로도 지하: ${F.end} → ${SF.to} ${km(SF.total_m)}`, posAt('
 const g1 = st(F.start, '5호선');
 const endM = LEG.ride2.len, A = F.crossA.m, B = F.crossB.m;
 const XF = F.rides.find((r) => r.t === 'transfer');   // 다시 찾은 길의 첫 환승역(충정로): 잠깐 멈춰 역 구조를 보여 준다
+// 막힘 시각(초): 막힘 장면 처음에 1초 동안 터널 안으로 → c 초에 무너짐(0.6초 전부터 흔들림) → c + out 에 1초 동안 밖으로 → c + back 에 되돌아가기
+const BL = { c: 1.4, out: 3.0, back: 4.8 };
 const BEATS = [
   { id: 'raid', cap: `공습경보 · ${F.story_label}`, sub: `가장 가까운 지하로: ${F.start}역 ${F.exit_ref}번 출구, 지상 ${F.expo_m}m`,
     moves: [['enter', 0, 0, RM ? 4 : 3, 1800]] },
   { id: 'enter', cap: `${F.start}역 ${F.exit_ref}번 출구로 들어가 5호선 승강장으로`, sub: `지상 ${F.expo_m}m를 걸은 뒤 지하 ${g1.f} 승강장(깊이 ${fm(g1.d)})`,
     moves: [['enter', 0, E.expo_m, RM ? 4 : 3, 650], ['enter', E.expo_m, LEG.enter.len, 3.5, 750], ['enter', LEG.enter.len, LEG.enter.len, 0.6, 800]] },
   { id: 'crossA', cap: `한강 아래 ${F.crossA.line} ${F.crossA.a}–${F.crossA.b} 하저터널`, sub: `${F.end}역까지 지하로 ${km(F.first_m)}, 지상 ${F.first_expo_m}m인 길 · 한강 수면 아래 약 ${F.crossA.under}m`,
-    moves: [['ride1', 0, F.mapo_m, 3, 900], ['ride1', F.mapo_m, F.block_m, 6, 2000, (A[0] + F.block_m) / 2 + 150, [0.6, 4.8]]] },
+    moves: [['ride1', 0, F.mapo_m, 3, 900], ['ride1', F.mapo_m, F.block_m, 6, 2000, (A[0] + F.block_m) / 2 + 150]] },
   { id: 'block', cap: `앞이 막힘 · ${F.crossA.a}역으로 ${F.backtrack_m}m 되돌아감`, sub: `막힌 하저터널을 빼고 ${F.crossA.a}역에서 다시 찾기`,
-    moves: [['ride1', F.block_m, F.block_m, 2, 420, F.block_m], ['ride1', F.block_m, F.mapo_m, 3.5, 1200], ['ride1', F.mapo_m, F.mapo_m, 1.5, 1800]] },
+    moves: [['ride1', F.block_m, F.block_m, BL.c + BL.back, 420, F.block_m, [0, BL.c + BL.out + 1, 'collapse']], ['ride1', F.block_m, F.mapo_m, 3.5, 1200], ['ride1', F.mapo_m, F.mapo_m, 1.5, 1800]] },
   { id: 'reroute', cap: `다시 찾은 길 ${km(F.total2_m)}, 지상 ${F.second_expo_m}m`, sub: `${F.crossA.a}에서 남은 ${km(F.left_m)}보다 ${km(F.total2_m - F.left_m)} 더 · 한강은 ${F.crossB.a}–${F.crossB.b} 하저터널로`,
     moves: [['ride2', 0, XF.m0 - 150, 2.5, 1600], ['ride2', XF.m0 - 150, XF.m1 + 150, 3.5, 750, (XF.m0 + XF.m1) / 2], ['ride2', XF.m1 + 150, B[0] - 300, 8, 3200]] },
   { id: 'crossB', cap: `한강 아래 다른 하저터널: ${F.crossB.a} → ${F.crossB.b}`, sub: '서울에서 한강을 지하로만 건너는 길은 5호선 하저터널 두 곳뿐',
-    moves: [['ride2', B[0] - 300, B[1] + 200, 8, 2200, mid(B), [1.2, 5.6]]] },
+    moves: [['ride2', B[0] - 300, B[1] + 200, 8, 2200, mid(B), [2.4, 5.0]]] },
   { id: 'arrive', cap: `${F.end}역 도착`, sub: `지하에 들어간 뒤 지상 노출 ${F.exposed_after_m}m · 지상은 처음 출구까지 ${F.expo_m}m`,
     moves: [['ride2', B[1] + 200, endM, 6, 1400], ['ride2', endM, endM, 2.5, 'all'], ['ride2', endM, endM, 4, 'south']] }
 ];
@@ -453,7 +466,7 @@ MOVES.forEach((mv, i) => {
   mv.v0 = edge(a); mv.v1 = edge(b);
 });
 const beatT = (id) => MOVES.find((m) => m.id === id).t0;
-const SOLO_EV = { raid: 0, block: beatT('block'), reveal: MOVES.filter((m) => m.id === 'block')[2].t0, south: MOVES.find((m) => m.dist === 'south').t0 };
+const SOLO_EV = { raid: 0, block: beatT('block') + BL.c, reveal: MOVES.filter((m) => m.id === 'block')[2].t0, south: MOVES.find((m) => m.dist === 'south').t0 };
 if (!FOLLOW) Object.assign(EV, SOLO_EV);
 
 // 시각 t 의 위치: 3차 에르미트(양 끝 속도 v0, v1)로 m 을 정한다 → 조각이 바뀌어도 속도가 끊기지 않는다
@@ -479,11 +492,11 @@ const LEG_OF = { entry: 'enter', first: 'ride1', reroute: 'ride2' };
 const SHOTS = {
   save: { look: ['enter', 0], dist: 1600 }, raid: { look: ['enter', 0], dist: 1800 }, nearest: { look: ['enter', E.expo_m], dist: 900 },
   enter: { dist: 650 }, platform: { dist: 800 }, plan: { box: 'first' }, guide: { dist: 900 },
-  crossA: { look: ['ride1', (A[0] + F.block_m) / 2 + 150], dist: 2000, inside: ['ride1', A[0], F.block_m] },
+  crossA: { look: ['ride1', (A[0] + F.block_m) / 2 + 150], dist: 2000 },
   block: { look: ['ride1', F.block_m], dist: 420 }, reroute: { look: ['ride2', (XF.m0 + XF.m1) / 2], dist: 750 }, ff: { dist: 3200 },
-  crossB: { look: ['ride2', mid(B)], dist: 2200, inside: ['ride2', B[0], B[1]] }, arriveFf: { dist: 2600 }, arrive: { box: 'all' }, south: { box: 'south' }
+  crossB: { look: ['ride2', mid(B)], dist: 2200, inside: ['ride2', mid(B) - 350, mid(B) + 350] }, arriveFf: { dist: 2600 }, arrive: { box: 'all' }, south: { box: 'south' }
 };
-const W = { leg: 'enter', m: 0, shown: 0, corr: 0, v: 0, vEff: 0, to: 0, at: 0, back: null, scene: 'save', sceneN: 0 };
+const W = { leg: 'enter', m: 0, shown: 0, corr: 0, v: 0, vEff: 0, to: 0, at: 0, back: null, scene: 'save', sceneN: 0, bs: null };   // bs: 막힘 장면이 온 시각(터널 안으로)
 const syncLog = [];
 let realT = 0;                                   // 그림 시계(느린 프레임에서는 0.05초씩만 감): 흔들기·고리 등에
 const wall = () => performance.now() / 1000;     // 실제 시계: 무대에서 메시지·사건 시각·되돌아가기에
@@ -491,16 +504,18 @@ function onDemo(d) {
   if (d.type === 'scene') {
     W.scene = d.id || ''; W.sceneN = d.n;
     if (d.scenario !== 1) { W.scene = 'arrive'; return; }   // 다른 시나리오(부산 등)는 3D 가 없다: 전체 보기만
-    if (d.n <= 2 && !d.again) { Object.assign(EV, { raid: Infinity, block: Infinity, reveal: Infinity, south: Infinity }); Object.assign(W, { leg: 'enter', m: 0, shown: 0, v: 0, back: null }); }
+    if (d.n <= 2 && !d.again) { Object.assign(EV, { raid: Infinity, block: Infinity, reveal: Infinity, south: Infinity }); Object.assign(W, { leg: 'enter', m: 0, shown: 0, v: 0, back: null, bs: null }); }
+    if (d.id === 'block' && W.bs == null) W.bs = wall();
     if (d.id === 'raid' && EV.raid === Infinity) EV.raid = wall();
     if (d.id === 'south' && EV.south === Infinity) EV.south = wall();
   } else if (d.type === 'leg') {
     if (d.leg === 'backtrack') {
-      if (EV.block === Infinity) EV.block = wall() + 0.8;                // 카메라가 막힌 곳에 다가간 뒤 무너진다
-      if (!W.back && !d.again) W.back = { t0: wall() + 2.6 };            // 무너지는 것(약 2초)을 본 뒤 되돌아간다
+      if (W.bs == null) W.bs = wall();
+      if (EV.block === Infinity) EV.block = Math.max(wall() + 0.5, W.bs + BL.c);   // 터널 안에 들어간 뒤 무너진다
+      if (!W.back && !d.again) W.back = { t0: EV.block + (RM ? 2.6 : BL.back) };     // 무너짐을 안에서 보고 나온 뒤 되돌아간다
     } else if (LEG_OF[d.leg] && LEG_OF[d.leg] !== W.leg) {
       W.leg = LEG_OF[d.leg]; W.m = W.shown = 0; W.v = 0;
-      if (d.leg === 'reroute' && EV.reveal === Infinity) { EV.reveal = wall(); if (EV.block === Infinity) EV.block = wall(); }
+      if (d.leg === 'reroute' && EV.reveal === Infinity) { if (EV.block === Infinity) EV.block = wall(); EV.reveal = Math.max(wall(), W.back ? W.back.t0 + 3 : 0); }   // 다시 찾은 길은 되돌아간 뒤 나타난다
     }
   } else if (d.type === 'pos') {
     const leg = LEG_OF[d.leg];
@@ -573,7 +588,7 @@ const fmt = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStar
    터널 안 카메라: 점 뒤 80m, 터널 가운데 높이에서 점 앞 200m 를 본다. 두 카메라를 '터널 안 비율'로 섞는다.
    shot = { leg, m(볼 곳), dist } 또는 { box: 'first'|'all'|'south' }(전체 보기) */
 const tmp = new THREE.Vector3(), off = new THREE.Vector3(), want = new THREE.Vector3(), a = new THREE.Vector3(), b = new THREE.Vector3();
-const rigPos = new THREE.Vector3(), rigTarget = new THREE.Vector3(), inPos = new THREE.Vector3(), inLook = new THREE.Vector3();
+const rigPos = new THREE.Vector3(), rigTarget = new THREE.Vector3(), inPos = new THREE.Vector3(), inLook = new THREE.Vector3(), tmp2 = new THREE.Vector3();
 const sph = new THREE.Spherical(), PHI = 0.78, PHI_ALL = 0.7, MIN_Y = 80;
 // 전체 보기 상자: 처음 길(first) · 처음 길과 다시 찾은 길(all) · 동탄까지(south)
 const BOX = { first: new THREE.Box3().setFromPoints([...LEG.enter.v, ...LEG.ride1.v, ...LEG.blocked.v, ...LEG.rest.v]) };
@@ -614,8 +629,9 @@ function follow(dt, shot, clockT) {
   sph.phi = Math.min(sph.phi, Math.acos(Math.min(1, Math.max(-1, (MIN_Y - controls.target.y) / sph.radius))));   // 지면 위에
   camera.position.copy(controls.target).add(off.setFromSpherical(sph));
 }
-// 터널 안 카메라 자리: 진행 방향 뒤 80m · 앞 200m
-function insidePose(leg, m, dir) {
+// 터널 안 카메라 자리: 진행 방향 뒤 80m · 앞 200m. 무너짐은 막힌 곳 32m 뒤에서 막힌 곳 앞 16m 를 본다
+function insidePose(leg, m, dir, kind) {
+  if (kind === 'collapse') { posAt('ride1', F.block_m - 32, inPos).y += 3; posAt('blocked', 16, inLook); return; }
   posAt(leg, m - dir * 80, inPos).y += 2;
   posAt(leg, m + dir * 200, inLook);
 }
@@ -640,17 +656,22 @@ function frame() {
   const clockT = FOLLOW ? wall() : t;                                 // 사건 시각을 재는 시계(무대 = 실제 시계)
 
   // 이번 프레임: 걷는 점(구간·m·방향), 카메라가 볼 것(shot), 터널 안 비율
-  let leg, m, dir, shot, ins = 0, mv = null;
+  let leg, m, dir, shot, ins = 0, mv = null, kind = '';
   if (FOLLOW) {
     ({ leg, m, dir } = followWalker(dt));
-    const s = SHOTS[W.scene] || { dist: 1500 };
+    const s = SHOTS[W.scene] || { dist: 1500 }, now = wall();
     shot = s.box ? { box: s.box } : { leg: s.look ? s.look[0] : leg, m: s.look ? s.look[1] : m, dist: s.dist };
     if (s.inside && s.inside[0] === leg && !RM) ins = ss((m - s.inside[1]) / 200) * ss((s.inside[2] - m) / 250);
+    if (W.bs != null && EV.block === Infinity && W.scene !== 'block') W.bs = null;   // 막힘 없이 장면이 넘어감(건너뛰기)
+    // 막힘: 무너짐을 터널 안에서 보고 나올 때까지는 막힌 곳, 되돌아가는 동안은 걷는 점(다음 장면이 와도 끝까지)
+    if (W.bs != null && now < EV.block + BL.out + 1.6) { shot = { leg: 'ride1', m: F.block_m, dist: 420 }; ins = RM ? 0 : ss((now - W.bs) / 1) * ss((EV.block + BL.out + 1 - now) / 1); kind = 'collapse'; }
+    else if (W.back && now < W.back.t0 + 3) shot = { leg: 'ride1', m, dist: 1200 };
   } else {
     ({ mv, m } = moveAt(t));
     leg = mv.leg; dir = mv.m1 >= mv.m0 ? 1 : -1;
     shot = mv.dist === 'all' || mv.dist === 'south' ? { box: mv.dist } : { leg, m: mv.look != null ? mv.look : m, dist: mv.dist };
     ins = insideAt(mv, t);
+    if (mv.inside) kind = mv.inside[2] || '';
   }
   posAt(leg, m, person.position);
   const onStreet = leg === 'enter' && m < E.expo_m;
@@ -679,13 +700,17 @@ function frame() {
   inside = touched ? 0 : ins;
   const cd = camera.position.distanceTo(controls.target);
   if (inside > 0) {
-    insidePose(leg, m, dir);
+    insidePose(leg, m, dir, kind);
     camera.position.lerp(inPos, inside);
+    if (kind === 'collapse' && !RM) {   // 무너지기 0.6초 전부터 흔들림(시각으로 정해서 되감아도 같은 그림)
+      const tc = clockT - EV.block, a = 1.3 * inside * ss((tc + 0.6) / 0.25) * (1 - ss((tc - 0.5) / 0.7));
+      if (a > 0) camera.position.add(tmp2.set(Math.sin(clockT * 41) * a * 0.6, Math.sin(clockT * 57 + 1) * a, Math.sin(clockT * 33 + 2) * a * 0.6));
+    }
     camera.lookAt(tmp.copy(rigTarget).lerp(inLook, inside));
   }
   // 터널 안: 공은 숨기고 작은 등 하나만, 껍데기는 옅게, 단면(세로 판)은 숨긴다(안에서는 선 하나로 보여서)
   dot.visible = inside < 0.6;
-  halo.scale.setScalar(70 - 40 * inside);
+  halo.scale.setScalar(70 - (kind === 'collapse' ? 62 : 40) * inside);   // 무너짐을 볼 때는 점 빛을 작게(잔해를 가리지 않게)
   for (const T of tunnels) { T.shell.material.opacity = 0.13 * T.a * (1 - 0.5 * inside); if (T.slice) T.slice.material.opacity = T.a * (1 - inside); }
   const near = inside > 0.5 ? 1 : 10;
   if (camera.near !== near) { camera.near = near; camera.updateProjectionMatrix(); }
