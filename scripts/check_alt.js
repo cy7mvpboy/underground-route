@@ -3,7 +3,7 @@
 // - 기본 탐색(지하 우선, 지상 1000)은 그대로인지(가중치 배열이 같은 것, exposedW 를 1000 으로 줘도 같은 경로)
 // - 대안이 나오는 경우(옥수 → 압구정: 동호대교를 건너면 크게 짧아짐)와 기준(시간 20% 또는 30분, 지상 2km 이하, 다른 경로)
 // - 대안이 없는 경우(부산역 → 서면: 이미 짧고 지하, 노량진 → 용산: 다른 길이지만 줄어드는 것이 작음)
-// - 시연 2번처럼 5호선 하저터널이 막혀 다시 찾은 경로(참고로 출력. 그래프가 바뀌면 달라질 수 있다)
+// - 시연 이야기처럼 5호선 하저터널이 막혀 다시 찾은 경로(참고로 출력. 그래프가 바뀌면 달라질 수 있다)
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -62,10 +62,11 @@ for (const [a, b, why] of [['부산역@부산', '서면@부산', '이미 짧고 
   check(!alt, `${a} → ${b} (${why}): 지하 우선 ${km(main.total_m)}·지상 ${Math.round(main.exposed_m)}m, 지상 ${ALT.exposedW}로 찾으면 ${km(raw.total_m)}·지상 ${Math.round(raw.exposed_m)}m → 대안 없음`);
 }
 
-/* ---------- 앞이 막혀 다시 찾은 경로(시연 1번 이야기와 같은 막기: 공덕역 승강장에서 가족 약속 장소로) ---------- */
-console.log('\n[앞이 막힘 뒤] 공덕 → ' + UG.demo.CONF.story.meet.replace(/@.*/, '') + ', 5호선 마포–여의나루 하저터널 막힘 (참고)');
+/* ---------- 앞이 막혀 다시 찾은 경로(시연 이야기와 같은 막기: 출발 자리에서 가장 가까운 역 → 가족 약속 장소, blockAfter 다음 하저터널) ---------- */
 {
-  const M = UG.demo.CONF.story, from = '공덕@서울', blocked = new Set();
+  const M = UG.demo.CONF.story, blocked = new Set();
+  const from = g.stations[UG.nearest.nearestUnderground(G, M.lat, M.lon, { limit: 1 }).options[0].si].name + '@서울';
+  console.log('\n[앞이 막힘 뒤] ' + from.replace(/@.*/, '') + ' → ' + M.meet.replace(/@.*/, '') + ', ' + M.blockAfter.replace(/@.*/, '') + ' 다음 하저터널 막힘 (참고)');
   const p = { from: st(from), to: st(M.meet), route: RT.findRoute(G, st(from), st(M.meet)) };
   UG.steps.planItems(G, p, SPEED);
   const cps = UG.guide.buildCheckpoints(G, p), at = cps.findIndex((c) => c.si === UG.graph.findStation(G, M.blockAfter));

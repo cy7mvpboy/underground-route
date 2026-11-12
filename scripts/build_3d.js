@@ -1,8 +1,11 @@
 // build_3d.js — 3D 지하 이동 화면(web/3d/)이 쓰는 자료 web/3d/ride.json 을 만든다.
 // 사용법(프로젝트 폴더에서): node scripts\build_3d.js
 //   시연 1번 이야기(web/js/demo.js CONF.story, scripts/check_demo.js 와 같은 순서)를 앱 코드로 다시 계산한다:
-//   공덕역 2번 출구로 들어감 → 5호선 마포–여의나루 하저터널에서 막힘 → 마포역으로 되돌아감
-//   → 다른 하저터널(광나루–천호)로 다시 찾은 길 → 가족 약속 장소(수서) 도착. 끝으로 수서 → 동탄(남쪽으로 이어지는 지하)도 계산한다.
+//   출발 거리 → 가장 가까운 지하로(역 출구) → 승강장 → 가족 약속 장소(CONF.story.meet)로 가는 첫 길. 지나는 첫 갈림길(앱 안내의 갈림길 체크포인트).
+//   첫 길의 첫 한강 하저터널에서 막힘(CONF.story.blockAfter 역 다음 구간의 blockFrac 지점) → 그 역으로 되돌아감
+//   → 다른 하저터널로 다시 찾은 길 → 도착. 끝으로 도착역 → CONF.story.south(남쪽으로 이어지는 지하)도 계산한다.
+//   역 이름은 하나도 박아 두지 않는다(이야기를 바꾸면 이 파일만 다시 돌린다).
+//   시험: 환경 변수 RIDE_OUT 에 경로를 주면 web/3d/ride.json 대신 그 파일에 쓴다.
 // 필요한 자료(저장소에 넣지 않는 것)
 //   - data/raw/terrain/12_{3491..3494}_{1585..1591}.png : 지형 타일(Terrarium 형식, SRTM 기반, 키 없이 받음)
 //     https://s3.amazonaws.com/elevation-tiles-prod/terrarium/12/{x}/{y}.png 를 같은 이름 규칙으로 저장한다.
@@ -32,7 +35,7 @@ const UG = globalThis.UG, GR = UG.graph;
 // 시연 설정: demo.js 의 CONF 를 쓴다(없으면 같은 값). 한강 횡단 찾기(hanCrossing)도 demo.js 것을 쓴다
 const CONF = (UG.demo && UG.demo.CONF) || { speedKmh: 3.5, story: { lat: 37.5447, lon: 126.9497, label: '공덕오거리 부근', meet: '수서@서울', blockAfter: '마포@서울', blockFrac: 0.45 } };
 const Y = CONF.story;
-const SOUTH = '동탄';   // 끝 장면: 수서에서 남쪽으로 이어지는 지하
+const SOUTH = Y.south || '동탄@경기';   // 끝 장면: 도착역에서 남쪽으로 이어지는 지하
 const g = JSON.parse(fs.readFileSync(path.join(ROOT, 'web/data/graph.json'), 'utf8'));
 const G = GR.indexGraph(g);
 const E = g.edges, T = g.tables, S = g.stations;
@@ -51,18 +54,19 @@ const si = (q) => GR.findStation(G, q);
 const stEp = (i) => ({ kind: 'station', si: i, text: S[i].name, lat: S[i].lat / 1e5, lon: S[i].lon / 1e5 });
 const meetSi = si(Y.meet);
 const near = UG.nearest.nearestUnderground(G, Y.lat, Y.lon, { limit: 3 });
-const o1 = near.options[0];                                        // 가장 가까운 지하로(공덕역 2번 출구)
+const o1 = near.options[0];                                        // 가장 가까운 지하로(역 출구)
 const ep = UG.nearest.endpointsFor(G, Y.lat, Y.lon, o1, Y.label);
 const p1 = planOf(ep.from, ep.to);                                 // 거리 → 출구 → 승강장
 const from2 = { kind: 'station', si: o1.si, hubs: UG.reach.underHubs(G, o1.si), text: S[o1.si].name + '역 지하 승강장', lat: S[o1.si].lat / 1e5, lon: S[o1.si].lon / 1e5 };
 const p2 = planOf(from2, stEp(meetSi));
 const cps2 = UG.guide.buildCheckpoints(G, p2);
-const at = cps2.findIndex((c) => c.si === si(Y.blockAfter));       // 마포역 체크포인트
-const walked = (cps2[at + 1].at - cps2[at].at) * Y.blockFrac;      // 마포에서 터널로 걸어 들어간 거리
+const at = cps2.findIndex((c) => c.si === si(Y.blockAfter));       // 다시 출발할 역(막히기 전 마지막 확인 역) 체크포인트
+if (at < 0 || !cps2[at + 1]) throw new Error('blockAfter 역이 첫 길에 없음: ' + Y.blockAfter);
+const walked = (cps2[at + 1].at - cps2[at].at) * Y.blockFrac;      // 그 역에서 터널로 걸어 들어간 거리
 const crossA = UG.demo.hanCrossing(G, p2.route.path);
 const b = UG.guide.planBlock(G, { plan: p2, cps: cps2, cur: at }, walked);
 b.edges.forEach((e) => blocked.add(e));
-const p3 = planOf(b.from, p2.to);                                  // 마포에서 다시 찾은 길
+const p3 = planOf(b.from, p2.to);                                  // 그 역에서 다시 찾은 길
 const crossB = UG.demo.hanCrossing(G, p3.route.path);
 // '두 곳뿐' 확인: 5호선 하저터널 두 곳을 다 막으면 가장 나은 길도 지상을 걷는다
 const both = new Set(blocked);
@@ -588,10 +592,10 @@ function entry(last, B, mS, mE, push) {
 /* ---------- 10. 계산 ---------- */
 const ps1 = pieces(p1), ps2 = pieces(p2), ps3 = pieces(p3), ps4 = pieces(p4);
 const total1 = ps1.reduce((a, p) => a + p.len, 0), total2 = ps2.reduce((a, p) => a + p.len, 0), total3 = ps3.reduce((a, p) => a + p.len, 0), total4 = ps4.reduce((a, p) => a + p.len, 0);
-const mapoAt = cps2[at].at, blockAt = mapoAt + walked, yeouiAt = cps2[at + 1].at;
-const expo1 = ps1.filter((p) => p.walk).reduce((a, p) => a + p.len, 0);   // 공덕역 출구까지 지상
+const restartAt = cps2[at].at, blockAt = restartAt + walked, nextAt = cps2[at + 1].at;   // 다시 출발할 역 · 막힌 곳 · 막힌 구간 끝 역(첫 길 m)
+const expo1 = ps1.filter((p) => p.walk).reduce((a, p) => a + p.len, 0);   // 역 출구까지 지상
 const D2 = drawPath(ps2, '처음 길'), D3 = drawPath(ps3, '다시 찾은 길'), D4 = drawPath(ps4, '수서 → 동탄');
-const s0 = D2.stops[0];   // 공덕 5호선 승강장(처음 길의 첫 역)
+const s0 = D2.stops[0];   // 출발역 승강장(처음 길의 첫 역)
 const D1 = drawPath(ps1, '입구', { entryTo: s0 });
 
 // 구간 자르기: m0 ~ m1 의 점(양 끝은 사이 값). 점 = [x, y, m, z, g, w], 종류 글자
@@ -643,9 +647,9 @@ const stOut = (stops, legFn) => stops.map((s) => {
   const [leg, m] = legFn(s.m);
   return { leg, n: s.name, l: s.line, m: r1(m), z: r2(s.z), g: r1(s.g), d: s.track_m != null ? r2(s.track_m) : null, pd: s.plat_m != null ? r2(s.plat_m) : null, f: s.floor, form: s.form, src: s.src, note: s.note || '', car: s.xfer ? s.xfer.car : '' };
 });
-const stations = [...stOut(D1.stops, (m) => ['enter', m]), ...stOut(D2.stops.filter((s) => s.m <= yeouiAt + 1), legAt), ...stOut(D2.stops.filter((s) => s.m > yeouiAt + 1), (m) => ['rest', m - yeouiAt]),
+const stations = [...stOut(D1.stops, (m) => ['enter', m]), ...stOut(D2.stops.filter((s) => s.m <= nextAt + 1), legAt), ...stOut(D2.stops.filter((s) => s.m > nextAt + 1), (m) => ['rest', m - nextAt]),
   ...stOut(D3.stops, (m) => ['ride2', m]), ...stOut(D4.stops, (m) => ['south', m])];
-// 역 구조: 공덕 입구 · 처음 길(여의나루까지) · 다시 찾은 길. 같은 역·종류·노선은 한 번만
+// 역 구조: 입구 · 처음 길(막힌 구간 끝 역까지) · 다시 찾은 길. 같은 역·종류·노선은 한 번만
 const seen = new Set(), structs = [];
 const xyOut = (q) => [Math.round(q[0]), Math.round(q[1])];
 const sOut = (x, leg) => {
@@ -657,7 +661,7 @@ const sOut = (x, leg) => {
   if (x.k === 'exit') Object.assign(o, { z: r2(x.z), a: r2(x.a) });
   return o;
 };
-[[D1.structs, 'enter', () => true], [D2.structs, 'ride1', (x) => x.m == null || x.m <= yeouiAt + 1], [D3.structs, 'ride2', () => true]].forEach(([list, leg, ok]) => list.forEach((x) => {
+[[D1.structs, 'enter', () => true], [D2.structs, 'ride1', (x) => x.m == null || x.m <= nextAt + 1], [D3.structs, 'ride2', () => true]].forEach(([list, leg, ok]) => list.forEach((x) => {
   const key = x.k + '|' + x.n + '|' + (x.l || '') + '|' + (x.a && x.a.join ? x.a.join() : '');
   if (!ok(x) || seen.has(key)) return;
   seen.add(key);
@@ -672,8 +676,8 @@ const waterOf = (c) => r1(river.reduce((bst, r) => { const d = distToLine(r.q, [
 const LG = {
   enter: legOf(D1, 0, total1),
   ride1: legOf(D2, 0, blockAt),
-  blocked: legOf(D2, blockAt, yeouiAt),
-  rest: legOf(D2, yeouiAt, total2, 5),   // 처음 길의 나머지(여의나루 → 도착): 점선으로만
+  blocked: legOf(D2, blockAt, nextAt),
+  rest: legOf(D2, nextAt, total2, 5),   // 처음 길의 나머지(막힌 구간 끝 역 → 도착): 점선으로만
   ride2: legOf(D3, 0, total3),
   south: legOf(D4, 0, total4, 5)         // 수서 → 동탄: 끝 전체 보기에서 옅게
 };
@@ -782,9 +786,9 @@ function view(key, lg, sts, endDir, ref) {
   return { pts: out, ref };
 }
 // 구간별 역(공식 지반고 = 기준 지반을 맞출 자리)
-const stIn = (key) => (key === 'enter' ? [{ n: name(o1.si), m: total1, g: s0.g }] : stations.filter((s) => s.leg === key));   // 입구 끝 = 공덕 5호선 승강장(처음 길 첫 역)
+const stIn = (key) => (key === 'enter' ? [{ n: name(o1.si), m: total1, g: s0.g }] : stations.filter((s) => s.leg === key));   // 입구 끝 = 출발역 승강장(처음 길 첫 역)
 const V = {}, r1p = LG.ride1.pts, r1q = r1p.find((p) => Math.hypot(p[0] - r1p[0][0], p[1] - r1p[0][1]) >= 30) || r1p[r1p.length - 1];
-const off2 = { ride1: 0, blocked: blockAt, rest: yeouiAt };   // 처음 길(D2)의 세 구간은 기준 지반 하나를 같이 쓴다
+const off2 = { ride1: 0, blocked: blockAt, rest: nextAt };   // 처음 길(D2)의 세 구간은 기준 지반 하나를 같이 쓴다
 const ref2 = refOf(legOf(D2, 0, total2), stations.filter((s) => s.leg in off2).map((s) => ({ m: s.m + off2[s.leg], g: s.g })));
 for (const key of Object.keys(LG)) {
   const ref = key in off2 ? (m) => ref2(m + off2[key]) : refOf(LG[key], stIn(key));
@@ -802,7 +806,44 @@ const plat3 = structs.filter((x) => x.k === 'plat').map((x) => {
 });
 const seen3 = new Set(), conc3 = concs.filter((x) => { const k = x.n + '|' + x.leg; if (['rest', 'south'].includes(x.leg) || seen3.has(k)) return false; seen3.add(k); return true; });
 // 한강 아래 실제 깊이(수면 아래, 하저터널 구간에서 가장 깊은 곳)
-const under = (keys) => Math.round(Math.max(...keys.flatMap((k) => LG[k].pts.filter((p) => p[5] != null).map((p) => p[5] - p[3]))));
+const under = (keys, mm, off) => Math.round(Math.max(...keys.flatMap((k) => LG[k].pts.filter((p) => p[5] != null && p[2] + (off[k] || 0) >= mm[0] - 50 && p[2] + (off[k] || 0) <= mm[1] + 50).map((p) => p[5] - p[3]))));
+
+/* ---------- 11-3. 갈림길: 처음 길에서 막힌 곳 전에 지나는 첫 갈림길(앱 안내의 갈림길 체크포인트와 같은 것) ----------
+   고른 갈래 = 처음 길(ride1) 그대로. 다른 갈래 = 갈림길 노드에서 그 간선으로 나가 선로를 400m 따라간 선(이어지는 선로 중 가장 곧은 쪽).
+   다른 갈래 깊이는 자료가 없어 갈림길 자리 그릴 깊이 그대로(개략). 점 형식은 구간과 같다 */
+function followTrack(v, e0, maxM) {
+  const P = []; let u = v, e = e0;
+  for (let k = 0; k < 30 && e >= 0; k++) {
+    const sh = xyOf(GR.edgeShape(g, e, u));
+    P.push(...(P.length ? sh.slice(1) : sh));
+    if (P.reduce((d, q, i) => (i ? d + len(sub(q, P[i - 1])) : 0), 0) >= maxM) break;
+    const w = E.a[e] === u ? E.b[e] : E.a[e], din = unit(sub(sh[sh.length - 1], sh[Math.max(0, sh.length - 2)]));
+    let best = -1, bd = -2;
+    for (let i = G.adjStart[w]; i < G.adjStart[w + 1]; i++) {
+      const x = G.adjEdge[i];
+      if (x === e || T.kinds[E.k[x]] !== 'track') continue;
+      const s2 = xyOf(GR.edgeShape(g, x, w)), dd = dot(din, unit(sub(s2[Math.min(1, s2.length - 1)], s2[0])));
+      if (dd > bd) { bd = dd; best = x; }
+    }
+    u = w; e = best;
+  }
+  const out = [P[0]]; let d = 0;   // maxM 까지 자른다
+  for (let i = 1; i < P.length && d < maxM; i++) { const L = len(sub(P[i], P[i - 1])), t = Math.min(1, (maxM - d) / L); out.push(lerp2(P[i - 1], P[i], t)); d += L * t; }
+  return out;
+}
+const jcp = cps2.find((c) => c.kind === 'junction' && c.jn != null && c.at < blockAt);
+let junction = null, forkPts = null;
+if (jcp && p2.junctions && p2.junctions[jcp.jn] && p2.junctions[jcp.jn].alternatives.length) {
+  const j = p2.junctions[jcp.jn], alt = j.alternatives[0], J = jcp.at;
+  const rp = V.ride1.pts, k = rp.findIndex((p) => p[2] >= J), a = rp[Math.max(0, k - 1)], c = rp[Math.max(0, k)], t = c[2] > a[2] ? (J - a[2]) / (c[2] - a[2]) : 0;
+  const q0 = toXY([a[0] + (c[0] - a[0]) * t, a[1] + (c[1] - a[1]) * t]), dJ = dDraw('ride1', J);
+  const P = followTrack(j.node, alt.edge, 400);
+  P[0] = q0;   // 그린 처음 길(편 선) 위 갈림길 자리에서 갈라지게
+  let mm = 0;
+  forkPts = P.map((q, i) => { if (i) mm += len(sub(q, P[i - 1])); return [...LL5(q), r1(mm), r2(dJ), 0, 0, r2(dJ)]; });
+  junction = { m: r1(J), label: jcp.label, side: j.chosen.side, toward: j.chosen.toward || '', name: j.chosen.name || '',
+    other: { name: alt.name || '', side: alt.side || '', toward: alt.toward || '' } };
+}
 // 바탕 선로·한강 중심선: 경로 둘레 약 3.3km 상자(3판과 같은 범위)
 const inBox3 = (q) => q[0] > BOX[0] - 3300 && q[0] < BOX[2] + 3300 && q[1] > BOX[1] - 3300 && q[1] < BOX[3] + 3300;
 const net = [];
@@ -879,7 +920,8 @@ const out = {
     blocked: { pts: V.blocked.pts },
     rest: { pts: V.rest.pts },
     ride2: { pts: V.ride2.pts },
-    south: { pts: V.south.pts }
+    south: { pts: V.south.pts },
+    ...(forkPts ? { fork: { pts: forkPts } } : {})   // 갈림길의 다른 갈래(400m, 화면이 터널 안에서 보여 준다)
   },
   net,
   bounds,    // 행정 경계 선 { lv: 4 시·도 | 6 시·군·구, p: [[위도, 경도], ...] }
@@ -887,16 +929,18 @@ const out = {
   stations: st3,
   structs: [...plat3, ...conc3],
   facts: {
-    start: name(o1.si), exit_ref: o1.ref, expo_m: Math.round(expo1), story_label: Y.label,
-    crossA: { a: crossA.a, b: crossA.b, line: crossA.line, m: crossM(ps2, crossA), water: waterOf(crossA), under: under(['ride1', 'blocked']) },
-    mapo_m: r1(mapoAt), block_m: r1(blockAt), backtrack_m: Math.round(b.backtrack), walked_m: Math.round(walked),
-    crossB: { a: crossB.a, b: crossB.b, line: crossB.line, m: crossM(ps3, crossB), water: waterOf(crossB), under: under(['ride2']) },
+    start: name(o1.si), start_line: s0.line, exit_ref: o1.ref, expo_m: Math.round(expo1), story_label: Y.label,
+    crossA: { a: crossA.a, b: crossA.b, line: crossA.line, m: crossM(ps2, crossA), water: waterOf(crossA), under: under(['ride1', 'blocked'], crossM(ps2, crossA), { blocked: blockAt }) },
+    restart: name(cps2[at].si), restart_m: r1(restartAt), block_m: r1(blockAt), backtrack_m: Math.round(b.backtrack), walked_m: Math.round(walked),
+    crossB: { a: crossB.a, b: crossB.b, line: crossB.line, m: crossM(ps3, crossB), water: waterOf(crossB), under: under(['ride2'], crossM(ps3, crossB), {}) },
+    junction,   // 갈림길 { m(처음 길), label(앱 안내 문장), side, toward, name, other: { name, side, toward } } · 없으면 null
     // 거리: 처음 길 전체 · 마포에서 남았던 거리 · 다시 찾은 길(앱 view 값 = 안내 화면과 같은 값)
-    first_m: Math.round(p2.view.total_m), left_m: Math.round(total2 - mapoAt), total2_m: Math.round(p3.view.total_m),
+    first_m: Math.round(p2.view.total_m), left_m: Math.round(total2 - restartAt), total2_m: Math.round(p3.view.total_m),
     first_expo_m: Math.round(p2.view.exposed_m), second_expo_m: Math.round(p3.view.exposed_m),
     end: name(meetSi), exposed_after_m: Math.round(p2.view.exposed_m + p3.view.exposed_m),
     both_blocked_expo_m: pNone ? Math.round(pNone.exposed_m) : null,
     rides: rides(p3, ps3),
+    rides1: rides(p2, ps2).filter((r) => r.m0 < blockAt),   // 처음 길에서 막힌 곳까지 탄 것(화면 '지금 어디' 줄)
     south: { to: name(si(SOUTH)), total_m: Math.round(p4.view.total_m), expo_m: Math.round(p4.view.exposed_m), rides: rides(p4, ps4).filter((r) => r.t === 'ride').map((r) => ({ label: r.label, km: r.km })) }
   },
   tables: { profile: PROFILE.map(({ m0, m1, ...x }) => x), radius: RADIUS }
@@ -915,7 +959,7 @@ for (const D of [D2, D3, D4]) for (const r of D.runs.filter((x) => x.t === 'trac
 if (worstG > GMAX + 1e-4) throw new Error(`기울기 ${(worstG * 1000).toFixed(2)}‰ > 35‰`);
 if (worstR < RV * 0.98) throw new Error(`종곡선 반지름 ${worstR.toFixed(0)}m < ${RV}m`);
 
-const file = path.join(ROOT, 'web/3d/ride.json');
+const file = process.env.RIDE_OUT || path.join(ROOT, 'web/3d/ride.json');
 fs.mkdirSync(path.dirname(file), { recursive: true });
 fs.writeFileSync(file, JSON.stringify(out));
 const L = out.legs;

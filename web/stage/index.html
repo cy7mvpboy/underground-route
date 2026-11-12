@@ -11,15 +11,19 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;700&display=swap">
 <!--
   발표 무대: 왼쪽 = 앱 시연(폰 크기), 오른쪽 = 3D(앱을 따라감). 발표는 이 화면 하나로 한다.
+  시연으로 가는 길은 여기 하나다: 앱의 정보 탭 '발표 무대 열기'와 앱 주소 #demo(옛 #demo2 · #demo3)는 이 페이지로 온다.
   - 왼쪽 iframe: ../?stage=1#demo  → 앱의 시연(web/js/demo.js)이 열리고, 장면·걸은 거리를 이 창(부모)에 알린다.
   - 오른쪽 iframe: ../3d/?follow   → 3D(web/3d/ride.js)가 자기 시계 대신 앱이 보낸 메시지로 움직인다.
   - 이 페이지는 메시지를 넘겨 주기만 한다(같은 출처 postMessage).
+  - 화면 배치: 넓은 화면(노트북 16:9)은 왼쪽 폰 + 오른쪽 3D. 좁거나 세로인 화면(폰으로 QR 을 열고 들어온 심사위원 등)은
+    위 3D(높이 약 40%) + 아래 폰(남은 곳에 맞게 줄임)으로 쌓는다. 오른쪽 아래 '앱으로'는 앱(../)으로 돌아간다.
   메시지 형식
     앱 → 무대 → 3D   { src: 'jiharo-demo', ver: 1, type, ... }
-      scene  { scenario, n, id }                 장면 시작(id: save·raid·nearest·enter·platform·plan·guide·crossA·block·reroute·ff·crossB·arriveFf·arrive·south)
+      scene  { scenario, n, id }                 장면 시작(scenario 는 늘 1, id: save·raid·nearest·enter·platform·plan·guide·junction·crossA·block·reroute·ff·crossB·arriveFf·arrive·south)
+                                                 junction = 선로 갈림길(충무로 지나)을 크게 보고 '통과', crossA = 광나루까지 빨리 감기 + 첫 하저터널(광나루–천호)로 걸어 들어감
       leg    { leg, total_m }                    걷는 구간: entry(거리 → 승강장) · first(처음 길) · backtrack(되돌아가기) · reroute(다시 찾은 길) · south(남쪽, 걷지 않음)
       pos    { leg, m, to, v, lat, lon }         걷는 동안 0.2초마다: m = 그 구간 출발부터 길 안내 거리, to = 멈출 거리, v = 실제 1초에 늘어나는 m, lat·lon = 앱 추정 위치
-      state  { playing, speed }                  재생·멈춤·속도
+      state  { playing, speed }                  재생·멈춤·속도(시연을 끝내면 playing false)
       end    {}
     3D → 무대        { src: 'jiharo-3d', type: 'hello' }(처음, 지금 상태를 다시 받기) · { type: 'key', key: ' '|'ArrowRight' }
     무대 → 앱        { src: 'jiharo-stage', type: 'cmd', cmd: 'toggle'|'next'|'speed'|'hello' }
@@ -38,9 +42,20 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
 .phone iframe { display: block; width: 390px; height: 844px; border: 0; border-radius: 34px; background: var(--bg); }
 .three { flex: 1; min-width: 0; position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); }
 .three iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.mark { position: absolute; right: 16px; bottom: 12px; font-size: 13px; font-weight: 700; color: var(--muted); pointer-events: none; }
+/* 오른쪽 아래: 앱으로 돌아가는 작은 링크 + 이름 */
+.corner { position: absolute; right: 12px; bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.mark { font-size: 13px; font-weight: 700; color: var(--muted); pointer-events: none; }
+.back { display: inline-block; padding: 6px 4px; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.back:hover { color: var(--text); }
+.back:focus-visible { outline: 2px solid #FFE066; outline-offset: 2px; border-radius: 4px; }
 .keys { position: absolute; left: 16px; bottom: 12px; font-size: 12px; color: var(--muted); pointer-events: none; transition: opacity 1s; }
 .keys.off { opacity: 0; }
+/* 좁거나 세로인 화면: 위 3D(약 40%) + 아래 폰. 폰 크기(--s)는 fit() 이 남은 높이·너비에 맞춘다. 넓은 화면 배치는 그대로 */
+@media (orientation: portrait), (max-width: 760px) {
+  .stage { flex-direction: column; gap: 8px; padding: 8px; }
+  .three { flex: none; order: -1; height: 40%; }
+  .keys { display: none; }
+}
 </style>
 </head>
 <body>
@@ -49,7 +64,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
   <div class="three">
     <iframe id="three" title="지하로 3D" src="about:blank"></iframe>
     <span class="keys" id="keys">Space 재생·멈춤 · → 다음 장면</span>
-    <span class="mark">지하로</span>
+    <span class="corner"><a class="back" href="../">앱으로</a><span class="mark">지하로</span></span>
   </div>
 </div>
 <script>
@@ -94,10 +109,15 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
     }).catch(function () { /* 확인 못 하면 그냥 연다 */ });
   }
 
-  // 폰 크기 맞추기: 화면 높이(위아래 여백 16px)에 맞추되 가로의 40%를 넘지 않게
+  // 폰 크기 맞추기
+  // - 넓은 화면: 화면 높이(위아래 여백 16px)에 맞추되 가로의 40%를 넘지 않게
+  // - 좁거나 세로인 화면(위 CSS 와 같은 조건): 3D 아래 남은 높이(사이 8px, 아래 여백 8px)와 화면 너비(양옆 8px)에 맞게
+  const tall = matchMedia('(orientation: portrait), (max-width: 760px)');
   function fit() {
-    const s = Math.min((innerHeight - 32) / 868, innerWidth * 0.4 / 414);
-    document.documentElement.style.setProperty('--s', s.toFixed(3));
+    let s;
+    if (tall.matches) s = Math.min((innerHeight - three.parentNode.getBoundingClientRect().bottom - 16) / 868, (innerWidth - 16) / 414);
+    else s = Math.min((innerHeight - 32) / 868, innerWidth * 0.4 / 414);
+    document.documentElement.style.setProperty('--s', Math.max(0.1, s).toFixed(3));
   }
   addEventListener('resize', fit); fit();
 

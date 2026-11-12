@@ -15,7 +15,7 @@
        화면 오른쪽·왼쪽 절반 누르기, 밀기(스와이프)로도 넘긴다. 주소 끝 #3 은 3번 슬라이드다.
     2. 소개 페이지: 주소 끝 #page, 또는 화면 너비 760px 미만. 슬라이드를 세로로 쌓고 아래에 말할 거리를 둔다.
     3. 인쇄(PDF): 슬라이드 한 장 = 한 쪽(1280×720, 16:9). 메모와 조작 화면은 빠진다.
-  발표는 실시간이다. 시연은 앱의 #demo 를 브라우저 탭으로 띄워 하고, 5번 슬라이드는 그 대비용이다.
+  발표는 실시간이다. 시연은 발표 무대(stage/: 앱 시연 + 3D)를 브라우저 탭으로 띄워 하고, 5번 슬라이드는 그 대비용이다.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -409,12 +409,12 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
         </ul>
         <p class="src">출처: 대한민국 정책브리핑, 영등포구청, 국민재난안전포털 행동요령</p>
       </div>
-      <figure class="map-crop"><img src="../docs/screens/story-02-alert.jpg" alt="공덕오거리 부근 지도 위 '공습경보' 표시와 내 위치"></figure>
+      <figure class="map-crop"><img src="../docs/screens/story2-02-raid.jpg" alt="명동 거리 지도 위 '공습경보' 표시와 내 위치"></figure>
     </div>
   </div></div>
   <aside class="notes" data-time="25초">
     <ul>
-      <li>지금 공덕오거리 길 위에 있다고 해 보자 (화면: 공습경보)</li>
+      <li>지금 명동 거리에 있다고 해 보자 (화면: 공습경보)</li>
       <li>행동요령: 가장 가까운 지하 (정책브리핑·구청·국민재난안전포털)</li>
       <li>지도 앱: 어디가 터널인지, 어디서 지상으로 나오는지 경로에 없음</li>
       <li>지하에선 GPS 안 잡힘, 전시엔 통신 불안</li>
@@ -456,14 +456,14 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
 <section class="slide" data-title="해결 한 줄">
   <div class="frame"><div class="stage s4">
     <p class="s4-say">지하로는 <span class="a">지상 1m</span>를 <span class="b">지하 1km</span>만큼 비싸게 계산해<br class="wide"> 지상에 나가는 거리가 가장 짧은 길을 찾는다</p>
-    <p class="s4-demo"><b>시연</b><span>공덕 → 수서</span></p>
-    <p class="s4-url"><a href="https://cy7mvpboy.github.io/underground-route/#demo" target="_blank" rel="noopener">cy7mvpboy.github.io/underground-route/#demo</a></p>
+    <p class="s4-demo"><b>시연</b><span>명동 → 수서</span></p>
+    <p class="s4-url"><a href="https://cy7mvpboy.github.io/underground-route/stage/" target="_blank" rel="noopener">cy7mvpboy.github.io/underground-route/stage/</a></p>
   </div></div>
   <aside class="notes" data-time="10초">
     <ul>
       <li>한 문장: 지상 1m = 지하 1km 비용 → 터널로만 가는 길이 있으면 그 길</li>
       <li>시연: 공습 때 가족 약속 장소(수서역)까지</li>
-      <li>브라우저 탭으로 전환 (#demo 미리 열어 둠, ×60)</li>
+      <li>브라우저 탭으로 전환 (발표 무대 stage/ 미리 열어 둠, ×60)</li>
     </ul>
     <p class="memo"><b>3분 버전</b> 5초</p>
   </aside>
@@ -472,31 +472,31 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
 <!-- 5 시연 백업 ----------------------------------------------------->
 <section class="slide" data-title="시연">
   <div class="frame"><div class="stage s5">
-    <h2 class="h1">공덕오거리 → 수서역: 지상은 첫 출구까지 138m</h2>
+    <h2 class="h1">명동 거리 → 수서역: 지상은 첫 출구까지 257m</h2>
     <ol class="strip">
-      <li><figure class="phone"><img src="../docs/screens/story-03-nearest.jpg" alt="공습경보, 가장 가까운 지하: 공덕역 2번 출구 지상 138m"></figure><p class="cap">공덕역 2번 출구<br>지상 138m</p></li>
-      <li><figure class="phone"><img src="../docs/screens/story-06-route.jpg" alt="수서역까지 지하로 22.9km, 지상 0m"></figure><p class="cap">수서역까지 22.9km<br>지상 0m</p></li>
-      <li><figure class="phone"><img src="../docs/screens/story-09-block.jpg" alt="하저터널 막힘, 마포역까지 834m 되돌아가기"></figure><p class="cap">마포–여의나루 막힘<br>마포역으로 834m 되돌아감</p></li>
-      <li><figure class="phone"><img src="../docs/screens/story-10-reroute.jpg" alt="한강 아래 다른 하나, 광나루–천호로 26.7km 지상 0m"></figure><p class="cap">광나루–천호로 다시 찾음<br>26.7km, 지상 0m</p></li>
-      <li><figure class="phone"><img src="../docs/screens/story-12-tunnel-b.jpg" alt="한강 아래 하저터널: 광나루 → 천호"></figure><p class="cap">광나루 → 천호 하저터널<br>역 사이 1,945m</p></li>
-      <li><figure class="phone"><img src="../docs/screens/story-14-arrive.jpg" alt="수서역 도착, 지하에 들어간 뒤 지상 노출 0m"></figure><p class="cap">수서역 도착<br>지하에 들어간 뒤 지상 0m</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story2-03-nearest.jpg" alt="공습경보, 가장 가까운 지하: 명동역 6번 출구 지상 257m"></figure><p class="cap">명동역 6번 출구<br>지상 257m</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story2-06-plan.jpg" alt="수서역까지 지하로 21.7km, 지상 0m"></figure><p class="cap">수서역까지 21.7km<br>지상 0m</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story2-08-junction.jpg" alt="충무로 지나 선로 갈림길, 왼쪽 갈래로 통과"></figure><p class="cap">충무로 지나 선로 갈림길<br>왼쪽 갈래로 통과</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story2-10-block.jpg" alt="하저터널 막힘, 광나루역까지 875m 되돌아가기"></figure><p class="cap">광나루–천호 막힘<br>광나루역까지 875m</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story2-11-reroute.jpg" alt="한강 아래 다른 하나, 마포–여의나루로 39.1km 지상 0m"></figure><p class="cap">마포–여의나루로 다시 찾음<br>39.1km, 지상 0m</p></li>
+      <li><figure class="phone"><img src="../docs/screens/story2-15-arrive.jpg" alt="수서역 도착, 지하에 들어간 뒤 지상 노출 0m"></figure><p class="cap">수서역 도착<br>지하에 들어간 뒤 지상 0m</p></li>
     </ol>
-    <p class="s5-url">시연 모드: <span>cy7mvpboy.github.io/underground-route/#demo</span> · 14장면, ×60에서 약 90초</p>
+    <p class="s5-url">시연: <span>cy7mvpboy.github.io/underground-route/stage/</span> · 16장면, ×60에서 약 110초</p>
   </div></div>
-  <aside class="notes" data-time="150초 (재생 약 90초 + 멈춤)">
+  <aside class="notes" data-time="150초 (재생 약 110초 + 멈춤)">
     <ul>
-      <li>장면 1–2: 평소 가족 약속 장소(수서역) 저장 → 공습경보, 공덕오거리</li>
-      <li>장면 3 [Space 멈춤]: 단추 하나 → 공덕역 2번 출구, 지상 138m (후보 3곳 거리순), 5호선 승강장까지 206m</li>
-      <li>장면 4–6: 출구 → 승강장, 수서역까지 22.9km 지상 0m, 한강은 마포–여의나루 하저터널 [멈춤]</li>
-      <li>장면 7–8: 안내 시작, GPS 없이 걸음으로 위치 추정 ('추정' 표시)</li>
-      <li>장면 9 [멈춤]: 하저터널 막힘 → '앞이 막힘' → 마포역까지 834m 되돌아가 다시 찾음</li>
-      <li>장면 10: 아까 본 다른 하나, 광나루–천호. 26.7km 지상 0m, 마포에서 남은 22.3km보다 4.4km 더</li>
-      <li>장면 11–12 [12에서 멈춤]: 빨리 감기 → 광나루 → 천호 하저터널, 두 번째 한강 아래 (둘 다 막히면 지상 721m)</li>
-      <li>장면 13–14: 수서역 도착, 지하에 들어간 뒤 지상 0m</li>
-      <li>조작: Space 재생/멈춤, → 다음 장면, 속도 단추 ×30·×60·×120, Esc 끝</li>
+      <li>장면 1–2: 평소 가족 약속 장소(수서역) 저장 → 명동 거리, 폰에 위급재난문자('시연' 표시) → 확인</li>
+      <li>장면 3 [Space 멈춤]: 단추 하나 → 명동역 6번 출구, 지상 257m (후보 3곳 거리순), 4호선 승강장까지 378m</li>
+      <li>장면 4–6: 출구 → 승강장, 수서역까지 21.7km 지상 0m, 한강은 광나루–천호 하저터널 [멈춤]</li>
+      <li>장면 7–8 [8에서 멈춤]: 안내 시작, GPS 없이 위치 추정 ('추정' 표시) → 충무로 지나 선로 갈림길, 왼쪽 갈래(동대문역사문화공원 방면) → '통과'</li>
+      <li>장면 9–10 [10에서 멈춤]: 빨리 감기로 광나루 → 하저터널 강 한가운데 아래에서 '앞이 막힘' → 광나루역까지 875m 되돌아가 다시 찾음</li>
+      <li>장면 11: 아까 본 다른 하나, 마포–여의나루. 39.1km 지상 0m, 광나루에서 남은 9.8km보다 29.3km 더. 대안 한 줄(지상 720m)은 누르지 않음</li>
+      <li>장면 12–13: 빨리 감기 → 마포 → 여의나루 하저터널, 두 번째 한강 아래 (둘 다 막히면 지상 721m)</li>
+      <li>장면 14–16: 수서역 도착, 지하에 들어간 뒤 지상 0m → 남쪽 동탄까지 32.4km도 지하로 이어짐(점선 화살표)</li>
+      <li>조작: Space 재생/멈춤, → 다음 장면, 속도 단추 ×30·×60·×120, 처음부터, Esc 끝</li>
     </ul>
-    <p class="memo"><b>3분 버전</b> 100초 · ×60 그대로 멈추지 않고, 장면 3과 9에서 한 문장씩</p>
-    <p class="memo"><b>앱이 안 열리면</b> 이 슬라이드로 같은 순서로 설명</p>
+    <p class="memo"><b>3분 버전</b> 100초 · ×120으로 멈추지 않고, 장면 3과 10에서 한 문장씩</p>
+    <p class="memo"><b>무대가 안 열리면</b> 이 슬라이드로 같은 순서로 설명</p>
   </aside>
 </section>
 
@@ -564,7 +564,7 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
       <li>graph.js 188: 간선마다 가중치. 구조가 지하면 1, 아니면 1000 → 지상 1m = 지하 1km</li>
       <li>router.js 103: 다음 노드 비용 = 지금 비용 + 길이 × 가중치</li>
       <li>104: 더 싸면 갱신하고 힙에 넣기 → 가장 싼 길부터 넓혀 감</li>
-      <li>101: 막힌 간선은 건너뜀 = 시연 장면 9의 '앞이 막힘'</li>
+      <li>101: 막힌 간선은 건너뜀 = 시연 장면 10의 '앞이 막힘'</li>
       <li>질문 대비: 대안은 지상 가중치 15로 다시 탐색 (23행 ALT), 다익스트라 전체는 71–108행</li>
     </ul>
     <p class="memo"><b>코드 기준</b> 2026-11-11 저장소. graph.js 188행은 한 줄을 두 줄로 나눠 보여 줌(내용 그대로), router.js는 들여쓰기만 줄임.</p>
