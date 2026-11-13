@@ -35,7 +35,8 @@
      - 카메라는 보는 점이 움직인 만큼 같이 옮긴다: 사용자가 돌리거나 당긴 각도·거리는 그대로 남는다.
      - 정한 거리로 천천히 맞추고, 진행 방향의 옆으로 돌아가며, 좌우로 조금 흔든다.
        사용자가 화면을 만지면 이 셋은 멈추고 따라가기(옮기기)만 한다. 카메라는 늘 지면 위에 둔다.
-     - 터널 안 시점은 세 번: 갈림길, 첫 하저터널의 무너짐(막힌 곳 32m 뒤에서), 두 번째 하저터널 가운데(짧게, 무사히 지나감).
+     - 터널 안 시점은 두 번: 갈림길, 첫 하저터널의 무너짐(막힌 곳 32m 뒤에서). 두 번째 하저터널(crossB, 막히지 않은 수인분당선)은
+       다른 걷는 장면처럼 밖에서 걷는 점을 따라간다(터널 안 시점 없음, 사용자 결정 2026-11-13).
        바깥 카메라와 안 카메라를 0~1 비율로 섞는다.
      - prefers-reduced-motion 이면 흔들지 않고, 터널 안으로 들어가지 않고, 첫 장면을 천천히 시작한다. */
 import * as THREE from 'three';
@@ -537,7 +538,7 @@ label(`남쪽으로도 지하: ${F.end} → ${SF.to} ${km(SF.total_m)}`, posAt('
 
 /* ---------- 4. 혼자 재생: 장면(자막 한 줄)과 움직임 ----------
    움직임 = [구간, 시작 m, 끝 m, 초, 카메라 거리('all' 전체 보기 · 'south' 동탄까지 · 'main2' 지하로만 다시 찾은 길 전체), 볼 곳(구간 m, 없으면 사람), 터널 안(이 움직임 안의 [시작 초, 끝 초])].
-   긴 직선 구간은 짧은 시간에 빨리 감는다. 하저터널은 터널 가운데를 고정해 보고 점만 지나가게 한다(시연과 같은 모습). */
+   긴 직선 구간은 짧은 시간에 빨리 감는다. 첫 하저터널은 터널 가운데를 고정해 보고 점만 지나가게 하고, 두 번째 하저터널은 밖에서 걷는 점을 따라간다(시연과 같은 모습). */
 const g1 = st(F.start, F.start_line) || st(F.start);   // 출발역 승강장(첫 노선)
 const endM = LEG.ride2.len, A = F.crossA.m, B = F.crossB.m;
 const XF = F.rides.find((r) => r.t === 'transfer');   // 다시 찾은 길의 첫 환승역: 잠깐 멈춰 역 구조를 보여 준다
@@ -573,7 +574,7 @@ const BEATS = [
   ]),
   // 막히지 않은 하저터널: 막힘 표시는 숨기고(calm), 자막도 막힌 곳을 다시 가리키지 않는다
   { id: 'crossB', cap: `한강 아래 하저터널: ${F.crossB.a} → ${F.crossB.b}`, sub: `${F.crossB.line} · 지하로 한강을 건넘`,
-    moves: [['ride2', B[0] - 300, B[1] + 200, 8, 2200, mid(B), [2.4, 5.0]]] },
+    moves: [['ride2', B[0] - 300, B[1] + 200, 8, 900]] },   // 밖에서 걷는 점을 따라감(터널 안 시점 없음)
   { id: 'arrive', cap: `${F.end}역 도착`, sub: `지하에 들어간 뒤 지상 노출 ${F.exposed_after_m}m · 지상은 처음 출구까지 ${F.expo_m}m`,
     moves: [['ride2', B[1] + 200, endM, 6, 1400], ['ride2', endM, endM, 2.5, 'all'], ['ride2', endM, endM, 5, 'south']] }
 ];
@@ -612,7 +613,8 @@ const insideAt = (mv, t) => (mv.inside ? ss((t - mv.t0 - mv.inside[0]) / 1) * ss
      되돌아간 뒤에는 앱이 reroute 를 알릴 때까지 그 역에 서 있다.
    - 대안을 고른 이야기: reroute 장면이 오면(되돌아가기가 끝난 뒤) 지하로만 다시 찾은 길(main2)을 점선으로 보이고 그 길 전체를 본다.
      앱이 대안을 누르고 reroute 구간을 알리면 점선은 사라지고 걷는 길(ride2)이 나타나며 환승역(지상 노출)을 본다.
-   - 장면 이름(id)마다 카메라가 볼 곳(SHOTS)을 정한다. 하저터널 두 곳은 걷는 동안 터널 안에 들어갔다 나온다. */
+   - 장면 이름(id)마다 카메라가 볼 곳(SHOTS)을 정한다. 터널 안 시점은 갈림길과 첫 하저터널의 무너짐뿐이고,
+     두 번째 하저터널(crossB)은 다른 걷는 장면처럼 밖에서 걷는 점을 따라간다. */
 const LEG_OF = { entry: 'enter', first: 'ride1', reroute: 'ride2' };
 const SHOTS = {
   save: { look: ['enter', 0], dist: 1600 }, raid: { look: ['enter', 0], dist: 1800 }, nearest: { look: ['enter', E.expo_m], dist: 900 },
@@ -620,7 +622,7 @@ const SHOTS = {
   crossA: { look: ['ride1', (A[0] + F.block_m) / 2 + 150], dist: 2000 },
   block: { look: ['ride1', F.block_m], dist: 420 }, reroute: { look: ['ride2', (XS[0] + XS[1]) / 2], dist: LEG.main2 ? 1100 : 750 }, ff: { dist: 3200 },
   expo: { look: ['ride2', (XS[0] + XS[1]) / 2], dist: 900 },
-  crossB: { look: ['ride2', mid(B)], dist: 2200, inside: ['ride2', mid(B) - 500, mid(B) + 500] }, arriveFf: { dist: 2600 }, arrive: { box: 'all' }, south: { box: 'south' }
+  crossB: { dist: 900 }, arriveFf: { dist: 2600 }, arrive: { box: 'all' }, south: { box: 'south' }
 };
 const W = { leg: 'enter', m: 0, shown: 0, corr: 0, v: 0, vEff: 0, to: 0, at: 0, back: null, scene: 'save', sceneN: 0, bs: null };   // bs: 막힘 장면이 온 시각(터널 안으로)
 const syncLog = [];
@@ -805,7 +807,7 @@ function frame() {
     ({ leg, m, dir } = followWalker(dt));
     const s = SHOTS[W.scene] || { dist: 1500 }, now = wall();
     shot = s.box ? { box: s.box } : { leg: s.look ? s.look[0] : leg, m: s.look ? s.look[1] : m, dist: s.dist };
-    // 하저터널 안(장면이 정한 구간): 걷는 점 뒤에서 앞을 본다('tunnel'). 종류를 꼭 정한다: 비워 두면 앞서 본 무너짐 자리(collapse)로 들어가 막힌 곳이 다시 보였다
+    // 장면이 터널 안 구간(inside)을 정하면(지금은 없음) 걷는 점 뒤에서 앞을 본다('tunnel'). 종류를 꼭 정한다: 비워 두면 앞서 본 무너짐 자리(collapse)로 들어가 막힌 곳이 다시 보였다
     if (s.inside && s.inside[0] === leg && !RM) { ins = ss((m - s.inside[1]) / 200) * ss((s.inside[2] - m) / 250); if (ins > 0) kind = 'tunnel'; }
     if (JN && leg === 'ride1' && !W.back && !RM) { const ij = ss((m - (J - 260)) / 120) * ss((J + 160 - m) / 120); if (ij > ins) { ins = ij; kind = 'junction'; } }   // 갈림길(장면 이름과 상관없이 m 으로)
     if (W.bs != null && EV.block === Infinity && W.scene !== 'block') W.bs = null;   // 막힘 없이 장면이 넘어감(건너뛰기)
