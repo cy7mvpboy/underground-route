@@ -577,7 +577,7 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
       <li>개발 PC: overpass_fetch.py로 OSM 받기 → merge_ways.py로 합치기 → build_graph.py가 classify로 지하·교량·지상 판정, 역·분기점 단위 간선, 환승·출구 간선 → graph.json 3.2MB (노드 36,990, 간선 43,162)</li>
       <li>폰: graph.js 해석·가중치 → router.js 다익스트라·막힘·대안 → steps.js 안내 단계, junctions.js 갈림길, guide.js 진행·앞이 막힘 → app.js·layers.js 화면</li>
       <li>pdr.js 걸음 세기·보폭 보정, sw.js 오프라인 7.6MB. 서버·DB 없음, GitHub Pages 무료</li>
-      <li>check_router: 역 쌍 9개에서 Python(route.py)과 같은 경로·거리·안내 문장. 검사 15개 전부 통과</li>
+      <li>check_router: 역 쌍 12개에서 Python(route.py)과 같은 경로·거리·안내 문장. 검사 15개 전부 통과</li>
       <li>다음 두 장: 판정(build_graph.py)과 탐색(router.js)을 코드로</li>
     </ul>
     <p class="memo"><b>3분 버전</b> 25초 · 이 장으로 코드 설명 (7·8번은 질문이 나오면)</p>
