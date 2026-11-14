@@ -62,15 +62,32 @@ https://cy7mvpboy.github.io/underground-route/stage/ 를 노트북에서 전체 
 - 느린 컴퓨터: 주소 끝에 `?lq`를 붙인다(3D 를 가볍게). 3D 가 초당 25프레임 아래로 3초 이어지면 저절로 가볍게 바뀐다.
 - 이 브라우저에 앱을 설치해 두었으면 무대가 앱 칸을 열기 전에 새 판을 확인해 켠다(최대 10초). 그래도 앱 칸과 3D 의 이야기가 다르면 앱(https://cy7mvpboy.github.io/underground-route/)을 한 번 새로고침한 뒤 무대를 다시 연다.
 
-## 실행 방법 (로컬)
+## 실행 방법
 
-서버 없이 동작하는 정적 파일이다. `web` 폴더를 정적 서버로 열면 된다. Python이 있으면 프로젝트 폴더에서 다음을 실행한다.
+설치 없이 바로 쓰려면 브라우저(Chrome·Edge·Safari 최신판)로 https://cy7mvpboy.github.io/underground-route/ 를 연다. 시연은 https://cy7mvpboy.github.io/underground-route/stage/ 이다.
 
-```
-python -m http.server 8000 -d web
-```
+### 내 컴퓨터에서 실행 (로컬)
 
-브라우저에서 http://localhost:8000/ 를 연다. 시연은 http://localhost:8000/stage/ 이다(http://localhost:8000/#demo 도 무대로 옮겨진다).
+서버 없이 동작하는 정적 파일이다. 빌드 단계가 없고, 철도망 데이터(`web/data/`)도 저장소에 들어 있다. 필요한 것: Git, Python 3(정적 파일 서버로만 씀, 추가 패키지 없음), 브라우저.
+
+1. 저장소를 받는다.
+
+   ```
+   git clone https://github.com/cy7mvpboy/underground-route.git
+   cd underground-route
+   ```
+
+2. `web` 폴더를 정적 서버로 연다.
+
+   ```
+   python -m http.server 8000 -d web
+   ```
+
+   (macOS·Linux에서 `python`이 없으면 `python3`.)
+
+3. 브라우저에서 http://localhost:8000/ 를 연다. 시연은 http://localhost:8000/stage/ 이다(http://localhost:8000/#demo 도 무대로 옮겨진다). 3D만 보려면 http://localhost:8000/3d/ .
+
+4. (선택) 검사: Node.js가 있으면 `node scripts/check_router.js`처럼 `scripts/check_*.js` 15개를 돌린다(아래 '검사').
 
 - `web/index.html`은 `<!doctype>`·`<html>`이 없는 문서 조각이다. 브라우저는 그대로 그린다.
 - 배경 지도 타일, 온라인 장소 검색(Photon), 지상 도보 길(FOSSGIS OSRM), Leaflet, 글꼴은 인터넷에서 받는다. 인터넷이 없으면 철도망 선과 안내만 보인다.
