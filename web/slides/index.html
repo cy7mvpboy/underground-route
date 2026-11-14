@@ -393,7 +393,7 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
     <ul>
       <li>지하로, 혼자 만듦 (COM's 해커톤 2026, 주제 전쟁)</li>
       <li>한 줄: 공습 때 지상 노출이 가장 짧은 길을 철도 터널로</li>
-      <li>순서: 문제 → 해결 → 한강 → 시연 → 어려웠던 것 두 가지 → 부탁 하나</li>
+      <li>순서: 문제 → 해결 → 한강 → 시연 → 코드 전체와 핵심 두 곳 → 부탁 하나</li>
     </ul>
     <p class="memo"><b>3분 버전</b> 5초</p>
   </aside>
@@ -503,14 +503,95 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
   </aside>
 </section>
 
-<!-- 6 어려웠던 것 1: 어디가 지하인가 ------------------------------>
+<!-- 6 코드 전체 구조 (폰 안에서 끝난다) ------------------------------>
+<section class="slide" data-title="코드 전체 구조">
+  <div class="frame"><div class="stage s8">
+    <p class="tag">코드 전체</p>
+    <h2 class="h1">Python이 그래프를 한 번 만들고, 폰이 길을 찾는다</h2>
+    <div class="mid">
+    <div class="arch">
+      <svg viewBox="0 0 1104 372" role="img" aria-labelledby="arch-t">
+        <title id="arch-t">개발 PC에서 overpass_fetch.py가 OSM 선로와 공공데이터를 받고, build_graph.py가 지하·교량·지상을 판정해 3.2MB graph.json을 만든다. 폰 브라우저에서는 graph.js가 그래프를 해석하고, router.js가 다익스트라로 길을 찾고, steps.js와 guide.js가 안내 단계를 만들고, app.js와 layers.js가 지도와 화면을 그린다. sw.js 서비스 워커가 7.6MB를 저장해 인터넷 없이 다시 열린다.</title>
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#2EC4B6"/>
+          </marker>
+        </defs>
+        <g font-family="IBM Plex Sans KR, Malgun Gothic, Apple SD Gothic Neo, sans-serif">
+          <text x="0" y="16" font-size="16" font-weight="500" fill="#9FB3B0">개발 PC에서 한 번</text>
+          <line x1="0" y1="30" x2="664" y2="30" stroke="#3A5257" stroke-width="1.5"/>
+          <text x="724" y="16" font-size="16" font-weight="500" fill="#9FB3B0">사용자 폰 브라우저</text>
+          <line x1="724" y1="30" x2="1104" y2="30" stroke="#3A5257" stroke-width="1.5"/>
+
+          <rect x="0" y="108" width="204" height="144" rx="16" fill="#121C1F" stroke="#3A5257" stroke-width="1.5"/>
+          <text x="102" y="156" text-anchor="middle" font-size="25" font-weight="700" fill="#E8F1EF">데이터 수집</text>
+          <text x="102" y="186" text-anchor="middle" font-size="17" font-weight="500" fill="#9FB3B0">OSM 선로 + 공공데이터</text>
+          <text x="102" y="224" text-anchor="middle" font-size="15" font-weight="500" fill="#2EC4B6" font-family="IBM Plex Mono, Consolas, monospace">overpass_fetch.py</text>
+
+          <line x1="212" y1="180" x2="250" y2="180" stroke="#2EC4B6" stroke-width="2.5" marker-end="url(#ah)"/>
+
+          <rect x="258" y="108" width="204" height="144" rx="16" fill="#121C1F" stroke="#3A5257" stroke-width="1.5"/>
+          <text x="360" y="156" text-anchor="middle" font-size="25" font-weight="700" fill="#E8F1EF">Python 빌드</text>
+          <text x="360" y="186" text-anchor="middle" font-size="17" font-weight="500" fill="#9FB3B0">지하·교량·지상 판정</text>
+          <text x="360" y="224" text-anchor="middle" font-size="15" font-weight="500" fill="#2EC4B6" font-family="IBM Plex Mono, Consolas, monospace">build_graph.py</text>
+
+          <line x1="470" y1="180" x2="508" y2="180" stroke="#2EC4B6" stroke-width="2.5" marker-end="url(#ah)"/>
+
+          <path d="M516 118h124l24 24v100h-148z" fill="#0F2A2A" stroke="#2EC4B6" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M640 118v24h24" fill="none" stroke="#2EC4B6" stroke-width="1.8" stroke-linejoin="round"/>
+          <text x="590" y="178" text-anchor="middle" font-size="20" font-weight="500" fill="#2EC4B6" font-family="IBM Plex Mono, Consolas, monospace">graph.json</text>
+          <text x="590" y="208" text-anchor="middle" font-size="19" font-weight="700" fill="#E8F1EF">3.2MB</text>
+
+          <line x1="672" y1="180" x2="716" y2="180" stroke="#2EC4B6" stroke-width="2.5" marker-end="url(#ah)"/>
+
+          <rect x="724" y="46" width="380" height="268" rx="18" fill="#0E181B" stroke="#3A5257" stroke-width="1.5"/>
+          <g font-size="20" font-weight="700">
+            <rect x="748" y="66" width="332" height="44" rx="10" fill="#18262A"/>
+            <text x="764" y="95" fill="#E8F1EF">그래프 해석</text>
+            <text x="1064" y="94" text-anchor="end" font-size="15" font-weight="500" fill="#9FB3B0" font-family="IBM Plex Mono, Consolas, monospace">graph.js</text>
+            <path d="M914 112v12" stroke="#2EC4B6" stroke-width="2" marker-end="url(#ah)"/>
+            <rect x="748" y="128" width="332" height="44" rx="10" fill="rgb(46 196 182 / .16)" stroke="#2EC4B6" stroke-width="1.5"/>
+            <text x="764" y="157" fill="#2EC4B6">다익스트라</text>
+            <text x="1064" y="156" text-anchor="end" font-size="15" font-weight="500" fill="#2EC4B6" font-family="IBM Plex Mono, Consolas, monospace">router.js</text>
+            <path d="M914 174v12" stroke="#2EC4B6" stroke-width="2" marker-end="url(#ah)"/>
+            <rect x="748" y="190" width="332" height="44" rx="10" fill="#18262A"/>
+            <text x="764" y="219" fill="#E8F1EF">안내 단계</text>
+            <text x="1064" y="218" text-anchor="end" font-size="15" font-weight="500" fill="#9FB3B0" font-family="IBM Plex Mono, Consolas, monospace">steps.js · guide.js</text>
+            <path d="M914 236v12" stroke="#2EC4B6" stroke-width="2" marker-end="url(#ah)"/>
+            <rect x="748" y="252" width="332" height="44" rx="10" fill="#18262A"/>
+            <text x="764" y="281" fill="#E8F1EF">지도·화면</text>
+            <text x="1064" y="280" text-anchor="end" font-size="15" font-weight="500" fill="#9FB3B0" font-family="IBM Plex Mono, Consolas, monospace">app.js · layers.js</text>
+          </g>
+
+          <rect x="516" y="330" width="588" height="42" rx="10" fill="none" stroke="#3A5257" stroke-width="1.5" stroke-dasharray="6 5"/>
+          <text x="810" y="358" text-anchor="middle" font-size="18" font-weight="500" fill="#9FB3B0"><tspan font-family="IBM Plex Mono, Consolas, monospace" fill="#2EC4B6">sw.js</tspan> 서비스 워커: 7.6MB 저장 → 인터넷 없이 다시 열림</text>
+        </g>
+      </svg>
+      <ol class="arch-m" aria-hidden="true"></ol>
+    </div>
+    <p class="s8-line">터널 안 위치는 <code>pdr.js</code>가 걸음 수와 보폭으로 추정한다.<br class="wide"> 브라우저 경로는 <b>Node 검사 15개</b>와 Python 기준 구현(<code>route.py</code>) 비교로 확인했다.</p>
+    </div>
+  </div></div>
+  <aside class="notes" data-time="25초">
+    <ul>
+      <li>개발 PC: overpass_fetch.py로 OSM 받기 → merge_ways.py로 합치기 → build_graph.py가 classify로 지하·교량·지상 판정, 역·분기점 단위 간선, 환승·출구 간선 → graph.json 3.2MB (노드 36,990, 간선 43,162)</li>
+      <li>폰: graph.js 해석·가중치 → router.js 다익스트라·막힘·대안 → steps.js 안내 단계, junctions.js 갈림길, guide.js 진행·앞이 막힘 → app.js·layers.js 화면</li>
+      <li>pdr.js 걸음 세기·보폭 보정, sw.js 오프라인 7.6MB. 서버·DB 없음, GitHub Pages 무료</li>
+      <li>check_router: 역 쌍 9개에서 Python(route.py)과 같은 경로·거리·안내 문장. 검사 15개 전부 통과</li>
+      <li>다음 두 장: 판정(build_graph.py)과 탐색(router.js)을 코드로</li>
+    </ul>
+    <p class="memo"><b>3분 버전</b> 25초 · 이 장으로 코드 설명 (7·8번은 질문이 나오면)</p>
+  </aside>
+</section>
+
+<!-- 7 어려웠던 것 1: 어디가 지하인가 ------------------------------>
 <section class="slide" data-title="어려웠던 것 1: 어디가 지하인가">
   <div class="frame"><div class="stage s6">
     <p class="tag">어려웠던 것 1</p>
     <h2 class="h1">tunnel 태그가 있는 선로만 지하로 본다</h2>
     <div class="s6-row">
       <figure class="code">
-        <figcaption class="code-h"><b>scripts/build_graph.py</b><span>298–304</span></figcaption>
+        <figcaption class="code-h"><b>scripts/build_graph.py</b><span>300–306</span></figcaption>
         <pre><code><span class="ln"><span class="k">def</span> <span class="f">classify</span>(tags):</span>
 <span class="ln">    t, b = tags.<span class="f">get</span>(<span class="s">"tunnel"</span>), tags.<span class="f">get</span>(<span class="s">"bridge"</span>)</span>
 <span class="ln hl">    <span class="k">if</span> t <span class="k">and</span> t != <span class="s">"no"</span>:</span>
@@ -538,7 +619,7 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
   </aside>
 </section>
 
-<!-- 7 어려웠던 것 2: 지하만 가는 길 ------------------------------->
+<!-- 8 어려웠던 것 2: 지하만 가는 길 ------------------------------->
 <section class="slide" data-title="어려웠던 것 2: 지하만 가는 길">
   <div class="frame"><div class="stage s7">
     <p class="tag">어려웠던 것 2</p>
@@ -570,81 +651,8 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
       <li>101: 막힌 간선은 건너뜀 = 시연 장면 10의 '앞이 막힘'</li>
       <li>질문 대비: 대안은 지상 가중치 15로 다시 탐색 (23행 ALT), 다익스트라 전체는 71–108행</li>
     </ul>
-    <p class="memo"><b>코드 기준</b> 2026-11-11 저장소. graph.js 188행은 한 줄을 두 줄로 나눠 보여 줌(내용 그대로), router.js는 들여쓰기만 줄임.</p>
-    <p class="memo"><b>3분 버전</b> 25초 · 103행과 101행</p>
-  </aside>
-</section>
-
-<!-- 8 폰 안에서 끝난다 --------------------------------------------->
-<section class="slide" data-title="폰 안에서 끝난다">
-  <div class="frame"><div class="stage s8">
-    <h2 class="h1">서버 없이 폰에서 3.2MB 그래프로 경로를 계산한다</h2>
-    <div class="mid">
-    <div class="arch">
-      <svg viewBox="0 0 1104 372" role="img" aria-labelledby="arch-t">
-        <title id="arch-t">데이터 수집(OSM 선로와 공공데이터)에서 Python 빌드를 거쳐 3.2MB graph.json을 만들고, 브라우저가 그래프 해석, 다익스트라, 안내 단계, 지도·안내 화면 순서로 계산한다. 서비스 워커가 앱과 데이터 7.6MB를 기기에 저장한다.</title>
-        <defs>
-          <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
-            <path d="M0 0L10 5L0 10z" fill="#2EC4B6"/>
-          </marker>
-        </defs>
-        <g font-family="IBM Plex Sans KR, Malgun Gothic, Apple SD Gothic Neo, sans-serif">
-          <text x="0" y="16" font-size="16" font-weight="500" fill="#9FB3B0">개발 PC에서 한 번</text>
-          <line x1="0" y1="30" x2="664" y2="30" stroke="#3A5257" stroke-width="1.5"/>
-          <text x="724" y="16" font-size="16" font-weight="500" fill="#9FB3B0">사용자 폰 브라우저</text>
-          <line x1="724" y1="30" x2="1104" y2="30" stroke="#3A5257" stroke-width="1.5"/>
-
-          <rect x="0" y="118" width="204" height="124" rx="16" fill="#121C1F" stroke="#3A5257" stroke-width="1.5"/>
-          <text x="102" y="170" text-anchor="middle" font-size="25" font-weight="700" fill="#E8F1EF">데이터 수집</text>
-          <text x="102" y="202" text-anchor="middle" font-size="17" font-weight="500" fill="#9FB3B0">OSM 선로 + 공공데이터</text>
-
-          <line x1="212" y1="180" x2="250" y2="180" stroke="#2EC4B6" stroke-width="2.5" marker-end="url(#ah)"/>
-
-          <rect x="258" y="118" width="204" height="124" rx="16" fill="#121C1F" stroke="#3A5257" stroke-width="1.5"/>
-          <text x="360" y="170" text-anchor="middle" font-size="25" font-weight="700" fill="#E8F1EF">Python 빌드</text>
-          <text x="360" y="202" text-anchor="middle" font-size="17" font-weight="500" fill="#9FB3B0">표준 라이브러리만</text>
-
-          <line x1="470" y1="180" x2="508" y2="180" stroke="#2EC4B6" stroke-width="2.5" marker-end="url(#ah)"/>
-
-          <path d="M516 118h124l24 24v100h-148z" fill="#0F2A2A" stroke="#2EC4B6" stroke-width="1.8" stroke-linejoin="round"/>
-          <path d="M640 118v24h24" fill="none" stroke="#2EC4B6" stroke-width="1.8" stroke-linejoin="round"/>
-          <text x="590" y="178" text-anchor="middle" font-size="20" font-weight="500" fill="#2EC4B6" font-family="IBM Plex Mono, Consolas, monospace">graph.json</text>
-          <text x="590" y="208" text-anchor="middle" font-size="19" font-weight="700" fill="#E8F1EF">3.2MB</text>
-
-          <line x1="672" y1="180" x2="716" y2="180" stroke="#2EC4B6" stroke-width="2.5" marker-end="url(#ah)"/>
-
-          <rect x="724" y="46" width="380" height="268" rx="18" fill="#0E181B" stroke="#3A5257" stroke-width="1.5"/>
-          <g font-size="21" font-weight="700" text-anchor="middle">
-            <rect x="748" y="66" width="332" height="44" rx="10" fill="#18262A"/>
-            <text x="914" y="95" fill="#E8F1EF">그래프 해석</text>
-            <path d="M914 112v12" stroke="#2EC4B6" stroke-width="2" marker-end="url(#ah)"/>
-            <rect x="748" y="128" width="332" height="44" rx="10" fill="rgb(46 196 182 / .16)" stroke="#2EC4B6" stroke-width="1.5"/>
-            <text x="914" y="157" fill="#2EC4B6">다익스트라</text>
-            <path d="M914 174v12" stroke="#2EC4B6" stroke-width="2" marker-end="url(#ah)"/>
-            <rect x="748" y="190" width="332" height="44" rx="10" fill="#18262A"/>
-            <text x="914" y="219" fill="#E8F1EF">안내 단계</text>
-            <path d="M914 236v12" stroke="#2EC4B6" stroke-width="2" marker-end="url(#ah)"/>
-            <rect x="748" y="252" width="332" height="44" rx="10" fill="#18262A"/>
-            <text x="914" y="281" fill="#E8F1EF">지도·안내 화면</text>
-          </g>
-
-          <rect x="516" y="330" width="588" height="42" rx="10" fill="none" stroke="#3A5257" stroke-width="1.5" stroke-dasharray="6 5"/>
-          <text x="810" y="358" text-anchor="middle" font-size="18" font-weight="500" fill="#9FB3B0">서비스 워커: 앱 + 데이터 7.6MB 저장 → 인터넷 없이 다시 열림</text>
-        </g>
-      </svg>
-      <ol class="arch-m" aria-hidden="true"></ol>
-    </div>
-    <p class="s8-line">터널 안 위치는 걸음 수와 보폭으로 추정한다.<br class="wide"> 브라우저 경로는 <b>Node 검사 15개</b>와 Python 기준 구현 비교로 확인했다.</p>
-    </div>
-  </div></div>
-  <aside class="notes" data-time="15초">
-    <ul>
-      <li>graph.json 하나 3.2MB (노드 36,990, 간선 43,162), 서버·DB 없음, GitHub Pages 무료</li>
-      <li>한 번 열면 서비스 워커가 7.6MB 저장 → 인터넷 없이 다시 열림</li>
-      <li>걸음 세기 + 보폭 자동 보정, 역에서 '도착'으로 보정</li>
-      <li>check_router: 역 쌍 9개에서 Python과 같은 경로·거리·안내 문장. 검사 15개 전부 통과(11-13)</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 뺌</p>
+    <p class="memo"><b>코드 기준</b> 2026-11-15 저장소(행 번호 다시 확인). graph.js 188행은 한 줄을 두 줄로 나눠 보여 줌(내용 그대로), router.js는 들여쓰기만 줄임.</p>
+    <p class="memo"><b>3분 버전</b> 뺌 (질문이 나오면 103행과 101행)</p>
   </aside>
 </section>
 
