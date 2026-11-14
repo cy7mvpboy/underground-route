@@ -130,6 +130,13 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
 .s1-mark svg { width: 100%; height: 100%; display: block; }
 .s1-name { font-size: 150px; line-height: 1; font-weight: 700; letter-spacing: -.04em; }
 .s1-what { margin-top: 30px; max-width: 700px; font-size: 32px; line-height: 1.4; font-weight: 500; letter-spacing: -.02em; color: #DCE7E5; }
+.s1-qr { margin-top: 40px; display: flex; align-items: center; gap: 20px; }   /* 제목 장의 작은 QR(사용자 결정 2026-11-15). 큰 QR과 부탁은 마무리 장 */
+.s1-qr .qr-card { --qr: 108px; padding: 10px; border-radius: 12px; box-shadow: none; }
+.s1-qr p { font-size: 22px; font-weight: 600; color: var(--text); }
+.s1-qr p span { display: block; margin-top: 4px; font-family: var(--mono); font-size: 15px; font-weight: 400; color: var(--muted); }
+.no-qr .s1-qr { display: none; }
+.s8b .code pre { font-size: 16px; padding: 12px 0; }
+.s8b .code + .code { margin-top: 16px; }
 
 /* 2. 문제 */
 .s2 .h1 { font-size: 64px; line-height: 1.16; letter-spacing: -.03em; }
@@ -290,6 +297,11 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
   .mode-page .s1-mark { width: 52px; height: 52px; margin-bottom: 16px; }
   .mode-page .s1-name { font-size: 64px; }
   .mode-page .s1-what { font-size: 19px; margin-top: 14px; }
+  .mode-page .s1-qr { margin-top: 16px; gap: 12px; }
+  .mode-page .s1-qr .qr-card { --qr: 76px; padding: 6px; }
+  .mode-page .s1-qr p { font-size: 15px; }
+  .mode-page .s1-qr p span { font-size: 11px; overflow-wrap: anywhere; }
+  .mode-page .s8b .code pre { font-size: 11px; }
   .mode-page .map-crop { width: 100%; max-width: 335px; height: auto; aspect-ratio: 400 / 556; }
 
   .mode-page .han { width: auto; height: auto; margin: 16px -20px 0; border-radius: 0; }
@@ -384,6 +396,10 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
         </div>
         <h1 class="s1-name">지하로</h1>
         <p class="s1-what">공습 때 지상에 나가는 거리가 가장 짧은 길을<br class="wide"> 전국 철도 터널로 찾아 안내하는 웹 앱</p>
+        <div class="s1-qr">
+          <figure class="qr-card"><div class="qr" data-qr="https://cy7mvpboy.github.io/underground-route/" role="img" aria-label="서비스 주소 QR 코드"></div></figure>
+          <p>지금 열어 보기<span>cy7mvpboy.github.io/underground-route/</span></p>
+        </div>
       </div>
       <figure class="phone" style="--h:596px"><img src="../docs/screens/v4-dark-01-first-load.jpg" alt="지하로 첫 화면: 서울 철도망 지도와 '가장 가까운 지하로 대피' 단추"></figure>
     </div>
@@ -583,45 +599,10 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
   </aside>
 </section>
 
-<!-- 7 어려웠던 것 1: 어디가 지하인가 ------------------------------>
-<section class="slide" data-title="어려웠던 것 1: 어디가 지하인가">
-  <div class="frame"><div class="stage s6">
-    <p class="tag">어려웠던 것 1</p>
-    <h2 class="h1">tunnel 태그가 있는 선로만 지하로 본다</h2>
-    <div class="s6-row">
-      <figure class="code">
-        <figcaption class="code-h"><b>scripts/build_graph.py</b><span>300–306</span></figcaption>
-        <pre><code><span class="ln"><span class="k">def</span> <span class="f">classify</span>(tags):</span>
-<span class="ln">    t, b = tags.<span class="f">get</span>(<span class="s">"tunnel"</span>), tags.<span class="f">get</span>(<span class="s">"bridge"</span>)</span>
-<span class="ln hl">    <span class="k">if</span> t <span class="k">and</span> t != <span class="s">"no"</span>:</span>
-<span class="ln hl">        <span class="k">return</span> <span class="wu">"tunnel"</span></span>
-<span class="ln">    <span class="k">if</span> b <span class="k">and</span> b != <span class="s">"no"</span>:</span>
-<span class="ln">        <span class="k">return</span> <span class="s">"bridge"</span></span>
-<span class="ln">    <span class="k">return</span> <span class="we">"ground"</span>  <span class="c"># layer&lt;0, covered=yes도 지상으로 둔다</span></span></code></pre>
-      </figure>
-      <div class="why">
-        <p><b>layer&lt;0은 지하로 치지 않는다</b></p>
-        <p>경부선 금정~수원 약 16km는 OSM에서 <span class="t">layer=-1</span>이지만 실제로는 지상이다</p>
-        <p class="small">경인일보: 금정~군포~당정 4.84km 지상 운행 (docs/data-check.md 4.4절)</p>
-      </div>
-    </div>
-  </div></div>
-  <aside class="notes" data-time="25초">
-    <ul>
-      <li>classify 하나가 지하·교량·지상 판정 전부</li>
-      <li>tunnel 태그(no 아님) → 지하, bridge → 교량, 나머지 지상</li>
-      <li>layer=-1만 있는 선로는 지상: 경부선 금정~수원, 선로 4줄</li>
-      <li>전국에서 layer&lt;0이고 tunnel 없는 본선 90.1km 중 63.6km가 이 경부선</li>
-      <li>한계: 동대구처럼 역 건물 밑 선로를 tunnel로 그린 곳은 지하로 계산됨</li>
-    </ul>
-    <p class="memo"><b>3분 버전</b> 뺌</p>
-  </aside>
-</section>
-
-<!-- 8 어려웠던 것 2: 지하만 가는 길 ------------------------------->
-<section class="slide" data-title="어려웠던 것 2: 지하만 가는 길">
+<!-- 7 어려웠던 것 1: 지하만 가는 길 ------------------------------->
+<section class="slide" data-title="어려웠던 것 1: 지하만 가는 길">
   <div class="frame"><div class="stage s7">
-    <p class="tag">어려웠던 것 2</p>
+    <p class="tag">어려웠던 것 1</p>
     <div class="s7-head">
       <h2 class="h1">비용 = 길이 × 가중치</h2>
       <p class="weights"><span class="w-u">지하 1</span><span class="w-e">지상·교량 1000</span></p>
@@ -642,16 +623,53 @@ code, pre { font-family: var(--mono); font-size: inherit; }   /* 브라우저 �
     <p class="tie"><b>앞이 막힘</b>은 그 간선을 <code>blocked</code>에 넣고 같은 탐색을 다시 부른다</p>
     </div>
   </div></div>
-  <aside class="notes" data-time="25초">
+  <aside class="notes" data-time="20초">
     <ul>
       <li>graph.js 188: 간선마다 가중치. 구조가 지하면 1, 아니면 1000</li>
       <li>router.js 103: 다음 노드 비용 = 지금 비용 + 길이 × 가중치</li>
       <li>104: 더 싸면 갱신하고 힙에 넣기 → 가장 싼 길부터 넓혀 감</li>
       <li>101: 막힌 간선은 건너뜀 = 시연 장면 10의 '앞이 막힘'</li>
-      <li>질문 대비: 대안은 지상 가중치 15로 다시 탐색 (23행 ALT), 다익스트라 전체는 71–108행</li>
+      <li>다음 장: 같은 탐색을 지상 가중치 15로 한 번 더 (대안). 다익스트라 전체는 71–108행</li>
     </ul>
     <p class="memo"><b>코드 기준</b> 2026-11-15 저장소(행 번호 다시 확인). graph.js 188행은 한 줄을 두 줄로 나눠 보여 줌(내용 그대로), router.js는 들여쓰기만 줄임.</p>
     <p class="memo"><b>3분 버전</b> 뺌 (질문이 나오면 103행과 101행)</p>
+  </aside>
+</section>
+
+<!-- 8 어려웠던 것 2: 지상을 조금 걷는 대안 -------------------------->
+<section class="slide" data-title="어려웠던 것 2: 지상을 조금 걷는 대안">
+  <div class="frame"><div class="stage s7 s8b">
+    <p class="tag">어려웠던 것 2</p>
+    <h2 class="h1">지상 가중치 15로 한 번 더 찾는다</h2>
+    <div class="mid">
+    <figure class="code">
+      <figcaption class="code-h"><b>web/js/router.js</b><span>23</span></figcaption>
+      <pre><code><span class="ln"><span class="k">const</span> ALT = { exposedW: <span class="we">15</span>, minSavedFrac: <span class="nu">0.2</span>, minSavedMin: <span class="nu">30</span>, maxExtraExposedM: <span class="nu">2000</span> }<span class="p">;</span></span></code></pre>
+    </figure>
+    <figure class="code">
+      <figcaption class="code-h"><b>web/js/router.js</b><span>331–337</span></figcaption>
+      <pre><code><span class="ln"><span class="k">const</span> o = { blocked: opts.blocked || <span class="k">null</span>, exposedW: <span class="em">ALT.exposedW</span> }<span class="p">;</span></span>
+<span class="ln"><span class="k">const</span> r = <span class="f">findRoute</span>(G, from, to, o) || <span class="f">findRoute</span>(G, from, to, Object.<span class="f">assign</span>({ surface: <span class="k">true</span> }, o))<span class="p">;</span></span>
+<span class="ln"><span class="k">if</span> (!r || <span class="f">sameRoute</span>(r, main)) <span class="k">return</span> <span class="k">null</span><span class="p">;</span></span>
+<span class="ln"><span class="k">const</span> saved = main.total_m - r.total_m, extra = r.exposed_m - main.exposed_m<span class="p">;</span></span>
+<span class="ln hl"><span class="k">if</span> (!(saved &gt; <span class="nu">0</span>) || <span class="em">extra &gt; ALT.maxExtraExposedM</span>) <span class="k">return</span> <span class="k">null</span><span class="p">;</span></span>
+<span class="ln hl"><span class="k">if</span> (<span class="em">saved / main.total_m &lt; ALT.minSavedFrac</span> &amp;&amp; <span class="em">saved / mpm &lt; ALT.minSavedMin</span>) <span class="k">return</span> <span class="k">null</span><span class="p">;</span></span>
+<span class="ln"><span class="k">return</span> { route: r, saved_m: saved, saved_min: saved / mpm, extra_m: Math.<span class="f">max</span>(<span class="nu">0</span>, extra) }<span class="p">;</span></span></code></pre>
+    </figure>
+    <p class="tie"><b>시연 장면 11</b> 39.1km → 20.6km로 47% 짧고, 지상 +722m라서 대안 카드가 뜬다</p>
+    </div>
+  </div></div>
+  <aside class="notes" data-time="20초">
+    <ul>
+      <li>23행 ALT: 지상 가중치 15, 20% 또는 30분, 지상 추가 2,000m까지</li>
+      <li>331: 같은 findRoute를 exposedW 15로(지하는 1 그대로) → 지상을 덜 비싸게 보고 한 번 더</li>
+      <li>332: 안 되면 지상 걷기(surface)까지 허용해 한 번 더. 333: 원래 길과 같으면 대안 없음</li>
+      <li>334–336: 줄어든 거리 saved, 늘어난 지상 extra. 지상이 2km 넘게 늘면 버림. 20%도 30분도 못 줄이면 버림</li>
+      <li>시연: 지하로만 39.1km, 대안 20.6km → 약 18.5km(47%) 짧음, 지상 +722m → 카드 '지상 720m 걸으면 18km 짧아요'</li>
+      <li>질문 대비: 15와 20%·30분·2km는 직접 정한 값(근거 문서 없음). 대안은 고르는 것이고 기본 길은 지하 우선 그대로</li>
+    </ul>
+    <p class="memo"><b>코드 기준</b> 2026-11-15 저장소. 들여쓰기만 줄임.</p>
+    <p class="memo"><b>3분 버전</b> 뺌</p>
   </aside>
 </section>
 
